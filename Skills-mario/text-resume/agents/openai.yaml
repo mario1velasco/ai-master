@@ -1,0 +1,7 @@
+interface:
+  display_name: "Text Resume"
+  short_description: "Lee textos largos y crea descripción, resumen extenso (.md) y PDF sin inventar nada"
+  brand_color: "#17324D"
+  default_prompt: "Usa $text-resume para leer a fondo un texto o carpeta de textos y crear descripcion.md, resumen.md y resumen.pdf."
+policy:
+  allow_implicit_invocation: true

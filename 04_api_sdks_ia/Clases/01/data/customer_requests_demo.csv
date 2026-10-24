@@ -1,0 +1,5 @@
+request_id,channel,task,customer_request,expected_category,expected_priority
+REQ-001,email,classify,The customer wants to cancel order 8921 because the item arrived broken.,refund_or_cancellation,medium
+REQ-002,chat,classify,I need to change the delivery address for order 5520 before it ships.,delivery_change,medium
+REQ-003,email,classify,The user reports that they have not been able to access the platform since yesterday.,technical_support,medium
+REQ-004,form,summarize,Please summarize this complaint: the invoice amount is wrong and the client has already contacted support twice.,billing_issue,high

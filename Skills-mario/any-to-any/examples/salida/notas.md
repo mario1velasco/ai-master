@@ -1,0 +1,6 @@
+\# esto no es un título  
+1\. tampoco una lista numerada  
+\- ni una viñeta  
+Texto con \*asteriscos\* y \_guiones\_ \| barra.
+
+Segundo párrafo.

@@ -1,0 +1,8 @@
+jupyter==1.1.1
+ipykernel>=6.29,<8
+langchain==1.4.0
+langchain-openai==1.6.1
+numpy>=2.2,<2.6
+pandas>=2.2,<4
+rank-bm25==0.2.2
+sentence-transformers==6.0.1

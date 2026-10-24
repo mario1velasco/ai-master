@@ -1,0 +1,36 @@
+# Entorno virtual común a todas las clases
+.venv/
+venv/
+
+# Claves y variables de entorno (nunca versionar)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Modelos descargados (pesan GB) y cachés
+*.gguf
+*.safetensors
+*.bin
+.cache/
+huggingface/
+
+# Bases de datos locales generadas
+*.duckdb
+*.duckdb.wal
+
+# Editor / sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Entregas comprimidas
+*.zip

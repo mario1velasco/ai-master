@@ -1,0 +1,30 @@
+app:
+  name: "AI Request Triage API"
+  version: "1.0.0"
+  deployment_environment: "local"
+
+llm:
+  temperature: 0.0
+  max_tokens: 700
+
+versions:
+  prompt_version: "triage_prompt_v1"
+  schema_version: "conversation_state_v1"
+  rules_version: "business_rules_v1"
+  eval_set_version: "eval_cases_v1"
+
+context:
+  max_recent_messages: 6
+  summarize_after_messages: 8
+  keep_last_messages_after_summary: 4
+
+observability:
+  request_log_path: "logs/requests.jsonl"
+  # ! Si quieres incluir el prompt en logs
+  include_prompt_preview: false
+  prompt_preview_chars: 400
+
+cost:
+  currency: "USD"
+  input_cost_per_1m_tokens: 0.80
+  output_cost_per_1m_tokens: 4.00

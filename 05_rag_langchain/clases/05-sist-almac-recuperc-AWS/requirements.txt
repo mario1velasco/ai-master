@@ -1,0 +1,9 @@
+# Python 3.12; combinación resuelta y verificada el 2026-09-16.
+jupyterlab==4.6.3
+ipykernel==7.3.0
+pandas==3.0.5
+python-dotenv==1.2.3
+langchain-core==1.6.3
+langchain-openai==1.6.2
+langchain-pinecone==0.2.13
+pinecone==7.3.0

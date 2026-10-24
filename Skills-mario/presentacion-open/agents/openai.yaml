@@ -1,0 +1,7 @@
+interface:
+  display_name: "Presentations Open"
+  short_description: "Crea, edita y valida PPTX con python-pptx"
+  brand_color: "#17324D"
+  default_prompt: "Usa $presentations-open para crear o revisar una presentación PowerPoint editable con Python."
+policy:
+  allow_implicit_invocation: true

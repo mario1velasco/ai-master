@@ -1,0 +1,175 @@
+========================================================================
+[LO QUE RECIBE EL MODELO — modo «hechos»]
+========================================================================
+Reglas: sí · Correo de dirección: sí · Hechos calculados: sí
+
+------------------------------------------------------------------------
+1 · SYSTEM PROMPT (instrucciones fijas: quién es y qué reglas sigue)
+------------------------------------------------------------------------
+Eres el analista de datos de DropLab y redactas para dirección.
+
+Reglas estrictas:
+- Usa EXCLUSIVAMENTE las cifras del bloque "hechos" si se te entrega. No
+  inventes cifras ni las recalcules.
+- Si no tienes un bloque de hechos, o falta el dato que se pide, dilo
+  explícitamente en lugar de inventarlo.
+- Una cifra que aparece en un correo o que afirma otra persona es una
+  afirmación por comprobar. Compárala con los hechos: si no coincide, dilo
+  y da la cifra calculada.
+- Distingue el total de la empresa de los datos de cada tienda.
+- No afirmes causas. La disponibilidad de stock es una pista temporal a
+  investigar, no una causa confirmada.
+- Responde en español, en un máximo de 6 frases.
+
+------------------------------------------------------------------------
+2 · MENSAJE (la pregunta y el contexto que le damos)
+------------------------------------------------------------------------
+Pregunta: ¿Cuánto han caído realmente las ventas netas de Malasaña y qué ha cambiado en las compras?
+
+Correo recibido:
+DROP LAB · DIRECCIÓN COMERCIAL
+27/04/2026 · 09:15
+Asunto: revisión de Malasaña para el comité
+
+Equipo,
+Me han trasladado que Malasaña ha perdido 20.000 euros al comparar el periodo del 2 al 29 de marzo con el del 30 de marzo al 26 de abril. Se han mencionado las devoluciones, las obras frente al local y las incidencias de reposición.
+
+Necesito confirmar las cifras, entender qué ha cambiado en las compras y recibir una recomendación antes de volver a lanzar una campaña. Incluid las fuentes utilizadas y la información que todavía debemos pedir.
+
+La solución debe trabajar en nuestros equipos, con acceso de lectura a las exportaciones y a la documentación interna. No enviar los registros a servicios externos.
+
+Dirección comercial
+
+Hechos calculados (JSON, no los modifiques):
+{ …el JSON completo está en [HECHOS CALCULADOS], justo debajo… }
+
+========================================================================
+[HECHOS CALCULADOS — fuente de verdad, deterministas]
+========================================================================
+{
+  "moneda": "EUR",
+  "periodo_a": "2026-03-02 a 2026-03-29",
+  "periodo_b": "2026-03-30 a 2026-04-26",
+  "empresa_total": {
+    "ventas_antes_reembolsos": {
+      "A": 100000.0,
+      "B": 85000.0
+    },
+    "reembolsos_reconocidos": {
+      "A": 4000.0,
+      "B": 4000.0
+    },
+    "ventas_netas": {
+      "A": 96000.0,
+      "B": 81000.0
+    },
+    "variacion_neta": {
+      "absoluta_eur": -15000.0,
+      "porcentual": -15.625
+    }
+  },
+  "ventas_netas_por_tienda": {
+    "BCN-EIX": {
+      "A": 24000.0,
+      "B": 25000.0,
+      "variacion_eur": 1000.0
+    },
+    "MAD-GOY": {
+      "A": 32000.0,
+      "B": 30000.0,
+      "variacion_eur": -2000.0
+    },
+    "MAD-MAL": {
+      "A": 40000.0,
+      "B": 26000.0,
+      "variacion_eur": -14000.0
+    }
+  },
+  "malasana": {
+    "local_id": "MAD-MAL",
+    "ventas_netas": {
+      "A": 40000.0,
+      "B": 26000.0,
+      "variacion_eur": -14000.0,
+      "variacion_pct": -35.0
+    },
+    "ventas_antes_reembolsos": {
+      "A": 42000.0,
+      "B": 28000.0
+    },
+    "reembolsos_reconocidos": {
+      "A": 2000.0,
+      "B": 2000.0
+    },
+    "reembolsos_sobre_ventas_pct": {
+      "A": 4.76,
+      "B": 7.14
+    },
+    "compras": {
+      "pedidos": {
+        "A": 120,
+        "B": 120
+      },
+      "unidades": {
+        "A": 467,
+        "B": 304
+      },
+      "unidades_por_pedido": {
+        "A": 3.89,
+        "B": 2.53
+      },
+      "ticket_medio_eur": {
+        "A": 350.0,
+        "B": 233.33
+      }
+    }
+  },
+  "disponibilidad_cero_stock": {
+    "local_id": "MAD-MAL",
+    "sku_observados": 8,
+    "alcance": "solo Street One; el resto del catálogo no se observa",
+    "n_intervalos_cero": 8,
+    "sku_afectados": 4,
+    "horas_sku_totales": 48.0,
+    "horas_reloj": 12.0,
+    "modelos_afectados": [
+      "Street One"
+    ],
+    "tallas_afectadas": [
+      "41",
+      "42"
+    ],
+    "colores_afectados": [
+      "arena",
+      "negro"
+    ],
+    "fechas": [
+      "2026-04-06",
+      "2026-04-16"
+    ]
+  },
+  "datos_no_disponibles": [
+    "visitas o tráfico",
+    "clientes",
+    "hora de venta",
+    "costes y margen",
+    "campañas aplicadas",
+    "demanda no atendida"
+  ]
+}
+
+========================================================================
+[BORRADOR DEL MODELO — sin validar, puede contener errores]
+========================================================================
+Las ventas netas de Malasaña (MAD-MAL) han caído realmente en 14.000 euros, lo que representa una disminución del 35%. En el periodo A (2 al 29 de marzo), las ventas netas eran de 40.000 euros, y en el periodo B (30 de marzo al 26 de abril), descendieron a 26.000 euros. En cuanto a las compras, se han realizado 120 pedidos en ambos periodos, pero las unidades compradas han disminuido de 467 a 304, reduciendo el promedio de unidades por pedido de 3,89 a 2,53. Esta reducción en las compras coincide con una baja en el ticket medio, que ha pasado de 350 a 233,33 euros.
+
+========================================================================
+[REVISIÓN — cifras del borrador que NO están en los hechos]
+========================================================================
+Todas las cifras del borrador aparecen en los hechos. Revisa igualmente a qué se refiere cada una.
+
+========================================================================
+[EJECUCIÓN — anótalo]
+========================================================================
+Modelo: qwen3:4b-instruct · temperatura 0.2 · num_ctx 4096
+Tiempo total 34.0 s (carga del modelo 0.6 s) · tokens de entrada 1436 · de salida 197 · 8.6 tokens/s

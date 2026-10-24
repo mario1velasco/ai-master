@@ -1,0 +1,57 @@
+{
+  "source": "/ruta/a/test.m4a",
+  "duration": 1500.0,
+  "target_chunk_seconds": 240.0,
+  "mode": "copy",
+  "chunks": [
+    {
+      "file": "test_chunk_001.m4a",
+      "start": 0.0,
+      "end": 238.504,
+      "duration": 238.504,
+      "cut": "start"
+    },
+    {
+      "file": "test_chunk_002.m4a",
+      "start": 238.504,
+      "end": 478.505,
+      "duration": 240.001,
+      "cut": "silence"
+    },
+    {
+      "file": "test_chunk_003.m4a",
+      "start": 478.505,
+      "end": 718.507,
+      "duration": 240.001,
+      "cut": "silence"
+    },
+    {
+      "file": "test_chunk_004.m4a",
+      "start": 718.507,
+      "end": 958.508,
+      "duration": 240.001,
+      "cut": "silence"
+    },
+    {
+      "file": "test_chunk_005.m4a",
+      "start": 958.508,
+      "end": 1198.51,
+      "duration": 240.001,
+      "cut": "silence"
+    },
+    {
+      "file": "test_chunk_006.m4a",
+      "start": 1198.51,
+      "end": 1438.511,
+      "duration": 240.001,
+      "cut": "silence"
+    },
+    {
+      "file": "test_chunk_007.m4a",
+      "start": 1438.511,
+      "end": 1500.0,
+      "duration": 61.489,
+      "cut": "silence"
+    }
+  ]
+}

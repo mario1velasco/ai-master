@@ -1,0 +1,10 @@
+langchain-core==1.6.3
+langchain-openai==1.6.2
+langchain-text-splitters==1.1.2
+pypdf>=5,<7
+python-dotenv>=1,<2
+jupyterlab>=4,<5
+ipykernel>=6,<8
+langchain-huggingface>=1.2,<2
+sentence-transformers>=6,<7
+langchain-anthropic>=1.7,<2

@@ -1,0 +1,67 @@
+Screen {
+    background: #07111c;
+    color: #dce9f5;
+    padding: 0 1;
+}
+
+Header {
+    background: #10253a;
+    color: #e9f3ff;
+}
+
+#workspace-status {
+    height: 2;
+    padding: 0 1;
+    color: #86b9d9;
+    background: #0c1b2b;
+    border: round #23415c;
+    margin: 0 1 0 1;
+}
+
+#progress {
+    height: 1;
+    margin: 0 2 0 2;
+    color: #57d4b2;
+    background: #183047;
+}
+
+#chat {
+    height: 1fr;
+    border: round #274965;
+    background: #091522;
+    padding: 1 2;
+    margin: 0 1 1 1;
+    scrollbar-color: #39749b;
+    scrollbar-color-hover: #58a9d8;
+}
+
+.chat-message {
+    height: auto;
+    margin: 0 0 1 0;
+    padding: 0;
+}
+
+.chat-details {
+    height: auto;
+    margin: 0 0 1 0;
+    border: round #304d68;
+    background: #0d1c2a;
+    color: #c4d7e7;
+}
+
+Input {
+    height: 3;
+    border: round #3b7398;
+    background: #0d1d2c;
+    margin: 0 1 1 1;
+    padding: 0 1;
+}
+
+Input:focus {
+    border: round #58c7ae;
+}
+
+Footer {
+    background: #10253a;
+    color: #bfd4e4;
+}

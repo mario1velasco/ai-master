@@ -1,0 +1,8 @@
+import { BookOpen, ChevronDown } from 'lucide-react';
+export default function Response({result,onOpen}){
+  const segments=result.text.split(/(\[D\d+\])/g);
+  return <article className="answer"><span className="speaker">El librero</span><p className="answer-text">{segments.map((part,i)=>{const source=result.sources.find(s=>`[${s.label}]`===part);return source?<button className="inline-citation" key={i} onClick={()=>onOpen(source)} aria-label={`Leer fuente ${source.label}`}>{part}</button>:<span key={i}>{part}</span>;})}</p>
+    {result.sources.length>0&&<details className="sources"><summary><BookOpen size={15}/> {result.sources.length} fuentes consultadas <ChevronDown size={14}/></summary>{result.sources.map(source=><button key={source.id} onClick={()=>onOpen(source)}><span>{source.label}</span>{source.title}</button>)}</details>}
+    <details className="trace"><summary>Ver recorrido de búsqueda <ChevronDown size={13}/></summary>{result.trace.map((step,i)=><div key={i}><strong>{i+1}. {step.step==='tool_search'?'Consulta propuesta por el LLM':'Consulta original'}</strong><p>{step.query}</p><small>{step.dense_candidates} candidatos densos · {step.lexical_candidates} léxicos · {step.fused_candidates} fusionados</small></div>)}<p>{result.cached?'Respuesta recuperada de caché · tokens de la generación original':`${Math.round(result.latency_ms)} ms · ${result.usage.llm_calls} llamadas LLM`}</p><small>{result.usage.input_tokens} tokens de entrada · {result.usage.output_tokens} de salida</small></details>
+    {result.warnings.map(w=><p className="error" key={w}>{w}</p>)}</article>;
+}

@@ -1,0 +1,53 @@
+# Entorno común (.venv de la raíz) para las sesiones 04–07 y la práctica final.
+# Python 3.11. Instalación (desde la raíz):
+#   uv venv --python 3.11 .venv
+#   uv pip install --python .venv/bin/python -r requirements.txt
+# Paquetes pesados/opcionales (Qwen, Gemini, BEIR): requirements-optional.txt
+
+# Jupyter
+jupyterlab==4.6.3
+ipykernel==7.3.0
+ipython>=8,<10
+nbformat>=5.10,<6
+
+# Datos y cálculo
+numpy==2.1.3
+pandas>=2.2.3,<4
+scipy>=1.13,<2
+scikit-learn>=1.5,<2
+matplotlib==3.10.1
+tqdm>=4.66,<5
+tenacity>=8.2,<10
+
+# Sesión 04 (FAISS + embeddings locales Model2Vec + AG News)
+faiss-cpu==1.12.0
+model2vec==0.9.0
+datasets==3.5.0
+
+# LangChain y proveedores (sesiones 04–07 y práctica; pines de 05 y práctica)
+langchain-core==1.6.3
+langchain-openai==1.6.2
+langchain-community>=0.4,<1
+langchain-text-splitters==1.1.2
+langchain-pinecone==0.2.13
+pinecone==7.3.0
+openai>=1.70,<3
+tiktoken>=0.9,<1
+
+# Sesiones 02 y 03 (embeddings locales/Qwen, BM25, cross-encoder, Cohere, Gemini)
+rank-bm25==0.2.2
+sentence-transformers==6.0.1
+langchain-huggingface>=1.2,<2
+langchain-cohere>=0.6,<1
+langchain-google-genai>=4,<5
+# (arrastran torch y transformers; en esta máquina torch trae CUDA y ocupa varios GB)
+
+# Práctica (PDF) y configuración
+pypdf>=5,<7
+python-dotenv==1.2.3
+PyYAML>=6,<7
+
+# Sesión 07 (API de UMBRA)
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+httpx>=0.27,<1

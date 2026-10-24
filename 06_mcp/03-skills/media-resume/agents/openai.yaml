@@ -1,0 +1,7 @@
+interface:
+  display_name: "Media Resume"
+  short_description: "De audios e imágenes a transcripción, resumen extenso en .md y PDF, de principio a fin"
+  brand_color: "#17324D"
+  default_prompt: "Usa $media-resume para convertir estos audios y/o imágenes en un resumen extenso en .md y PDF sin inventar nada."
+policy:
+  allow_implicit_invocation: true

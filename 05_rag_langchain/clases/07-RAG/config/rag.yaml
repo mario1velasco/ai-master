@@ -1,0 +1,10 @@
+llm_model: gpt-4.1-mini
+candidate_depth: 100
+context_k: 6
+context_tokens: 6500
+document_tokens: 1200
+max_output_tokens: 1200
+max_tool_calls: 2
+request_timeout: 45
+answer_cache: true
+# El retriever lee modelo, dimensión e índices de la decisión de Sesión 06.

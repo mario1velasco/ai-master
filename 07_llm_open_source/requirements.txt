@@ -1,0 +1,5 @@
+# Requirements del .venv compartido por todas las clases del tema 7.
+# Instalación (desde la raíz del repo, con el .venv activado):
+#   pip install -r requirements.txt
+# Cada clase nueva con librerías propias se añade aquí con otra línea -r.
+-r clase_01/Ejercicios/requirements.txt

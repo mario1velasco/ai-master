@@ -1,0 +1,7 @@
+interface:
+  display_name: "Audio Decoder"
+  short_description: "Transcribe audios de un directorio, en orden, a un único .txt (local)"
+  brand_color: "#17324D"
+  default_prompt: "Usa $audio-decoder para transcribir en orden los audios de un directorio a un único .txt."
+policy:
+  allow_implicit_invocation: true

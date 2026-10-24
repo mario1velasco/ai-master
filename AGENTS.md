@@ -1,0 +1,42 @@
+# AGENTS.md — Repositorio `ebis`
+
+## De qué va
+
+Material de Mario para el **[Máster en Ingeniería de Automatización con IA Agéntica](https://www.ebiseducation.com/landing-master-en-ingenieria-de-automatizacion-con-ia-agentica)** de EBIS Business Techschool: teoría (PDFs), demos, ejercicios y prácticas de cada tema, más algunos proyectos propios. Todo en **español**, salvo algún proyecto personal.
+
+## Estructura
+
+Cada carpeta es **independiente**: su propio entorno (`.venv`), sus dependencias, su `.env` y, en muchos casos, su propio repo git.
+
+### Temas del máster (carpetas `NN_nombre`)
+
+| Carpeta | Tema |
+|---|---|
+| `01_Introduccion_al_ML_DL_LLMs/` | Intro a ML, deep learning, NLP y LLMs |
+| `03_API_Integracion_servicios/` | APIs REST, OAuth, rate limits, webhooks |
+| `04_api_sdks_ia/` | APIs y SDKs de proveedores de IA |
+| `05_rag_langchain/` | RAG con LangChain (clases + práctica) |
+| `06_mcp/` | Agentes, harness, tools, MCP y Agent Skills |
+| `07_llm_open_source/` | LLMs open source en local (Ollama) |
+| `08_ia_agentica_automatiz_agentes/` | IA agéntica: del bucle agéntico a sistemas multiagente (caso Lumen Shop) |
+
+(No hay tema 02 en el repo.)
+
+### Otras carpetas
+
+| Carpeta | Qué es |
+|---|---|
+| `Ejercicios/` | Ejercicios propios fuera de temario (p. ej. `rag-tenerife/`) |
+| `Skills-mario/` | Colección de skills propias para Claude Code (audio, imágenes, texto, presentaciones) |
+| `llm-customer-support-triage/` | Proyecto personal: API FastAPI que usa Claude para triar mensajes de soporte (en inglés) |
+
+## Reglas importantes
+
+- **Cada carpeta tiene su propio `.env`. No crees nunca un `.env` en la raíz** ni lo compartas entre carpetas: daría conflictos de claves y configuraciones. Si falta, se copia del `.env.example` de esa carpeta.
+- No subas ni muestres el contenido de ningún `.env`.
+- Ejecuta el código **desde dentro de su carpeta**, con su propio entorno.
+- Antes de trabajar en una carpeta, lee su `AGENTS.md`, `CLAUDE.md` o `README.md` si existe: tienen el detalle y **prioridad** sobre este archivo.
+
+## Mantener esta documentación
+
+Se irán añadiendo cursos y carpetas nuevas. Cuando aparezca, cambie de nombre o desaparezca una carpeta de primer nivel, actualiza las tablas de **Estructura** en el mismo cambio. Edita solo lo necesario; si no ha cambiado nada, no toques el archivo.

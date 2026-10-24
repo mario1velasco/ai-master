@@ -1,0 +1,2 @@
+# Sin dependencias de pip: los scripts usan solo la biblioteca estándar de Python 3.8+.
+# Requisito del sistema: ffmpeg y ffprobe en el PATH (sudo apt install ffmpeg).

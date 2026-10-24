@@ -1,0 +1,34 @@
+{
+  "output_dir": "/ruta/a/salida",
+  "units": [
+    {
+      "id": "a01",
+      "kind": "audio",
+      "path": "/ruta/a/reunion_1.aac",
+      "minutes": 9.3,
+      "split": true,
+      "codec": "aac"
+    },
+    {
+      "id": "a02",
+      "kind": "audio",
+      "path": "/ruta/a/reunion_2.aac",
+      "minutes": 1.2,
+      "split": false,
+      "codec": "aac"
+    },
+    {
+      "id": "img",
+      "kind": "images",
+      "files": [
+        "/ruta/a/pagina_a.png",
+        "/ruta/a/pagina_b.png"
+      ]
+    }
+  ],
+  "sources_order": [
+    "images",
+    "audio"
+  ],
+  "ignored": []
+}

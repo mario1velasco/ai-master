@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "server": {
+    "name": "ebis-calendar-api-mcp",
+    "transport": "stdio",
+    "command": "uv",
+    "args": [
+      "--directory",
+      "../ebis-calendar-api-mcp",
+      "run",
+      "python",
+      "-m",
+      "ebis_calendar_api_mcp.server"
+    ],
+    "env": {
+      "EBIS_CALENDAR_API_URL": "http://127.0.0.1:8000"
+    }
+  }
+}

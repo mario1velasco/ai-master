@@ -1,0 +1,15 @@
+# Dependencias de TODAS las skills, para el único entorno compartido (.venv en la raíz del repo).
+# Créalo con: python3 scripts/setup_env.py   (o: python3 -m venv .venv && .venv/bin/pip install -r requirements.txt)
+# Requisito del sistema: ffmpeg y ffprobe en el PATH (sudo apt install ffmpeg), para audio-split / audio-decoder.
+#
+# Si cambias el requirements.txt de una skill, refleja el cambio aquí.
+faster-whisper==1.2.1      # audio-decoder
+av==18.1.0                 # audio-decoder: av 19 rompe faster-whisper 1.2.1 (audio-decoder/references/errores_conocidos.md)
+Pillow==12.3.0             # img-to-text
+markdown-it-py==4.2.0      # img-to-text, text-resume
+rapidocr==3.9.2            # img-to-text
+reportlab==5.0.1           # text-resume
+pypdf==6.19.0              # text-resume
+python-pptx==1.0.2         # presentacion-open
+markitdown[pdf,docx,pptx,xlsx,xls]==0.1.8   # any-to-any (extracción de documentos; trae pypdfium2, mammoth, openpyxl…)
+python-docx==1.2.0         # any-to-any (generar .docx)

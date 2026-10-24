@@ -1,0 +1,21 @@
+services:
+  weaviate:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.39.5
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:50051:50051"
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+    environment:
+      QUERY_DEFAULTS_LIMIT: '25'
+      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+      CLUSTER_HOSTNAME: node1
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'false'
+      AUTHENTICATION_APIKEY_ENABLED: 'true'
+      AUTHENTICATION_APIKEY_ALLOWED_KEYS: "${WEAVIATE_API_KEY:?Configura WEAVIATE_API_KEY en .env}"
+      AUTHENTICATION_APIKEY_USERS: local-admin
+      AUTHORIZATION_ENABLE_RBAC: 'true'
+      AUTHORIZATION_RBAC_ROOT_USERS: local-admin
+      DEFAULT_VECTORIZER_MODULE: none
+volumes:
+  weaviate_data:

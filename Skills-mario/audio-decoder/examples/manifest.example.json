@@ -1,0 +1,35 @@
+{
+  "directory": "/ruta/a/audios",
+  "model": "small",
+  "device": "cpu",
+  "task": "transcribe",
+  "language": "es",
+  "files": [
+    {
+      "order": 1,
+      "file": "6_chunk_001.aac",
+      "duration": 238.51,
+      "offset": 0.0,
+      "language": "es",
+      "words": 426
+    },
+    {
+      "order": 2,
+      "file": "6_chunk_002.aac",
+      "duration": 238.93,
+      "offset": 238.51,
+      "language": "es",
+      "words": 505
+    },
+    {
+      "order": 3,
+      "file": "6_chunk_003.aac",
+      "duration": 237.67,
+      "offset": 477.44,
+      "language": "es",
+      "words": 660
+    }
+  ],
+  "total_duration": 715.11,
+  "elapsed_seconds": 154.7
+}

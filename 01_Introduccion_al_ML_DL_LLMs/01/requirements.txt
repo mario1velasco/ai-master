@@ -1,0 +1,17 @@
+# Demo Tema 1 · Sesión 1 — IA Generativa en 20 minutos
+# Compatible con Python 3.10+ y MacBook Apple Silicon (M1/M2/M3/M4).
+
+# Cloud LLMs
+openai>=1.50.0
+anthropic>=0.40.0
+
+# Multimedia
+pillow>=10.0.0
+requests>=2.31.0
+
+# Inferencia local en Apple Silicon (solo macOS arm64)
+# Si no estás en Apple Silicon, comenta esta línea.
+#mlx-lm>=0.18.0
+
+# Calidad de vida en el notebook
+ipython>=8.0.0

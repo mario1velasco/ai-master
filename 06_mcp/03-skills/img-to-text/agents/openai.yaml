@@ -1,0 +1,7 @@
+interface:
+  display_name: "Img to Text"
+  short_description: "Transcribe a un .md el texto de imágenes, palabra por palabra y sin inventar nada"
+  brand_color: "#17324D"
+  default_prompt: "Usa $img-to-text para transcribir a un .md el texto de estas imágenes sin cambiar ninguna palabra."
+policy:
+  allow_implicit_invocation: true

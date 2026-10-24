@@ -1,0 +1,537 @@
+================================================================================
+GUÍA DE REFERENCIA: MATEMÁTICAS Y CÓDIGO DEL TRANSFORMER
+================================================================================
+
+TABLA DE CONTENIDOS:
+1. La Fórmula de Atención Explicada Paso a Paso
+2. Scaled Dot-Product Attention (Código mínimo)
+3. Multi-Head Attention
+4. Encoder Layer
+5. Comparación NumPy vs PyTorch
+6. Errores Comunes
+
+================================================================================
+SECCIÓN 1: LA FÓRMULA DE ATENCIÓN EXPLICADA PASO A PASO
+================================================================================
+
+FÓRMULA:
+    Attention(Q, K, V) = softmax(QK^T / √d_k) V
+
+DESGLOSE:
+
+Paso 1: QK^T (Similitud)
+    ├─ Multiplica Q (query) con K^T (keys transpuesto)
+    ├─ Resultado: matriz de similitudes
+    ├─ (seq_len, d_k) × (d_k, seq_len) = (seq_len, seq_len)
+    └─ Ejemplo:
+        Q = [[1.0, 0.5]]        (1 query)
+        K = [[0.2, 0.1],        (3 keys)
+             [0.9, 0.2],
+             [0.6, 0.4]]
+        
+        Q·K^T = [[0.37, 0.85, 0.59]]
+        ↑ Primera query vs todas las keys
+
+Paso 2: Dividir por √d_k (Escalado)
+    ├─ Objetivo: evitar que los números crezcan sin control
+    ├─ d_k = dimensión de las keys (ej: 64)
+    ├─ √d_k ≈ 8
+    └─ Ejemplo:
+        [0.37, 0.85, 0.59] / √3
+        = [0.21, 0.49, 0.34]
+
+Paso 3: softmax() (Probabilidades)
+    ├─ Convierte números en probabilidades (0 a 1)
+    ├─ Todos suman a 1.0
+    ├─ Fórmula: softmax(x_i) = e^x_i / Σ(e^x_j)
+    └─ Ejemplo:
+        [0.21, 0.49, 0.34]
+        ↓ (aplicar softmax)
+        [0.235, 0.310, 0.267]  (suman a 1.0)
+
+Paso 4: Multiplicar por V (Ponderar)
+    ├─ Multiplica probabilidades por valores
+    ├─ (seq_len, seq_len) × (seq_len, d_v) = (seq_len, d_v)
+    └─ Ejemplo:
+        Pesos:      [0.235, 0.310, 0.267]
+        Values:     [0.1, 0.8, 0.7]
+        Resultado:  0.235×0.1 + 0.310×0.8 + 0.267×0.7 = 0.515
+
+INTERPRETACIÓN:
+    El resultado combina todas las palabras, pero weighted hacia las más relevantes.
+
+================================================================================
+SECCIÓN 2: SCALED DOT-PRODUCT ATTENTION (CÓDIGO MÍNIMO)
+================================================================================
+
+VERSIÓN NUMPY (21 líneas):
+
+    import numpy as np
+    
+    def attention(Q, K, V):
+        # Q, K, V shapes: (seq_len, d_k) or (seq_len, d_v)
+        d_k = Q.shape[-1]
+        
+        # Paso 1: Similitud
+        scores = np.dot(Q, K.T) / np.sqrt(d_k)
+        
+        # Paso 2: Softmax
+        exp_scores = np.exp(scores - np.max(scores, keepdims=True))
+        weights = exp_scores / np.sum(exp_scores, keepdims=True)
+        
+        # Paso 3: Aplicar a Values
+        output = np.dot(weights, V)
+        
+        return output, weights
+
+VERSIÓN PYTORCH (20 líneas):
+
+    import torch
+    import torch.nn.functional as F
+    import math
+    
+    def attention(Q, K, V):
+        d_k = Q.shape[-1]
+        
+        # Similitud + escalado
+        scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(d_k)
+        
+        # Softmax
+        weights = F.softmax(scores, dim=-1)
+        
+        # Aplicar a Values
+        output = torch.matmul(weights, V)
+        
+        return output, weights
+
+TRUCO NUMÉRICO IMPORTANTE:
+    
+    En softmax, restar el máximo evita overflow:
+        
+        INCORRECTO:
+            exp(x) cuando x es muy grande → ∞ (overflow)
+        
+        CORRECTO:
+            exp(x - max(x)) → números más pequeños
+            resultado final es igual, pero sin overflow
+
+================================================================================
+SECCIÓN 3: MULTI-HEAD ATTENTION EXPLICADO
+================================================================================
+
+IDEA BÁSICA:
+    En lugar de 1 atención, hacer 8 en paralelo con proyecciones diferentes.
+
+FLUJO:
+
+    Entrada: x (seq_len, d_model)    [ej: 4 palabras, 64 dimensiones]
+    
+    Para CADA head (1 de 8):
+    ├─ Proyectar: Q = x @ W_q_i        [4, 64] @ [64, 8] = [4, 8]
+    ├─ Proyectar: K = x @ W_k_i        [4, 64] @ [64, 8] = [4, 8]
+    ├─ Proyectar: V = x @ W_v_i        [4, 64] @ [64, 8] = [4, 8]
+    └─ Atención:  output_i = Attention(Q, K, V)  [4, 8]
+    
+    Concatenar: [output_1 | output_2 | ... | output_8]  [4, 64]
+    
+    Proyectar final: x @ W_o           [4, 64] @ [64, 64] = [4, 64]
+
+CÓDIGO NUMPY:
+
+    class MultiHeadAttention:
+        def __init__(self, d_model, num_heads):
+            self.d_model = d_model
+            self.num_heads = num_heads
+            self.d_k = d_model // num_heads  # 64 // 8 = 8
+            
+            # Matrices aleatorias para cada head
+            self.W_q = [np.random.randn(d_model, self.d_k) for _ in range(num_heads)]
+            self.W_k = [np.random.randn(d_model, self.d_k) for _ in range(num_heads)]
+            self.W_v = [np.random.randn(d_model, self.d_k) for _ in range(num_heads)]
+            self.W_o = np.random.randn(d_model, d_model)
+        
+        def forward(self, x):
+            outputs = []
+            for i in range(self.num_heads):
+                Q = x @ self.W_q[i]
+                K = x @ self.W_k[i]
+                V = x @ self.W_v[i]
+                output, _ = attention(Q, K, V)
+                outputs.append(output)
+            
+            # Concatenar
+            concatenated = np.concatenate(outputs, axis=-1)
+            
+            # Proyección final
+            return concatenated @ self.W_o
+
+¿POR QUÉ 8 CABEZAS?
+    ├─ Cada head aprende a mirar aspectos diferentes
+    ├─ Head 1 podría aprender: "conexiones gramática"
+    ├─ Head 2 podría aprender: "referencias pronominales"
+    ├─ Head 3 podría aprender: "sinónimos"
+    ├─ ... etc hasta Head 8
+    └─ El modelo combina todas esas vistas automáticamente
+
+================================================================================
+SECCIÓN 4: ENCODER LAYER COMPLETO
+================================================================================
+
+ESTRUCTURA:
+    
+    Input (x)
+    ├─ Self-Attention
+    │  └─ Add x: x_attn = x + attention_output
+    │  └─ Norm: x = LayerNorm(x_attn)
+    │
+    ├─ Feed-Forward
+    │  └─ W1(x) → ReLU → W2(x)
+    │  └─ Add x: x_ff = x + ff_output
+    │  └─ Norm: x = LayerNorm(x_ff)
+    │
+    Output (x)
+
+CÓDIGO NUMPY:
+
+    class EncoderLayer:
+        def __init__(self, d_model, num_heads, d_ff):
+            self.mha = MultiHeadAttention(d_model, num_heads)
+            self.ffn = FeedForwardNetwork(d_model, d_ff)
+        
+        def forward(self, x):
+            # Sub-layer 1: Attention
+            attn_out = self.mha.forward(x)
+            x = layer_norm(x + attn_out)  # Add & Norm
+            
+            # Sub-layer 2: Feed-Forward
+            ff_out = self.ffn.forward(x)
+            x = layer_norm(x + ff_out)    # Add & Norm
+            
+            return x
+
+CONEXIONES RESIDUALES (x + output):
+    ├─ Problema sin ellas: gradientes → 0 (vanishing gradients)
+    ├─ Solución: sumar la entrada al salida
+    ├─ Efecto: el modelo puede "saltar" capas si no las necesita
+    └─ Resultado: entrenamientos más rápidos y estables
+
+================================================================================
+SECCIÓN 5: POSITIONAL ENCODING
+================================================================================
+
+PROBLEMA:
+    El Transformer procesa todas las palabras en paralelo.
+    ¿Cómo sabe qué posición es cada palabra?
+
+SOLUCIÓN: Sumar un patrón único por posición
+
+FÓRMULA:
+    PE(pos, 2i)   = sin(pos / 10000^(2i / d_model))
+    PE(pos, 2i+1) = cos(pos / 10000^(2i / d_model))
+
+    Donde:
+    ├─ pos = posición (0, 1, 2, ...)
+    ├─ i = dimensión (0, 1, 2, ...)
+    ├─ d_model = 512 (o el tamaño del modelo)
+    └─ Genera números entre -1 y 1
+
+EJEMPLO VISUAL:
+    
+    Pos 0: [sin(0), cos(0),    sin(0), cos(0),    ...]  = [0, 1, 0, 1, ...]
+    Pos 1: [sin(1), cos(1),    sin(0.1), cos(0.1), ...] ≈ [0.84, 0.54, 0.1, 0.99, ...]
+    Pos 2: [sin(2), cos(2),    sin(0.2), cos(0.2), ...] ≈ [0.91, -0.42, 0.2, 0.98, ...]
+    
+    Cada posición tiene un patrón ÚNICO.
+
+CÓDIGO NUMPY:
+
+    def positional_encoding(seq_len, d_model):
+        PE = np.zeros((seq_len, d_model))
+        
+        positions = np.arange(seq_len)[:, np.newaxis]
+        dimensions = np.arange(d_model)[np.newaxis, :]
+        
+        # Aplicar seno a pares
+        PE[:, 0::2] = np.sin(positions / 10000 ** (dimensions[:, 0::2] / d_model))
+        
+        # Aplicar coseno a impares
+        PE[:, 1::2] = np.cos(positions / 10000 ** (dimensions[:, 1::2] / d_model))
+        
+        return PE
+
+    # Uso:
+    x = embeddings  # (4, 512)
+    pe = positional_encoding(4, 512)  # (4, 512)
+    x_with_pos = x + pe
+
+================================================================================
+SECCIÓN 6: FLUJO COMPLETO (EJEMPLO)
+================================================================================
+
+ENTRADA:
+    "The cat is sleeping"
+    
+    Convertir a IDs: [1, 4, 10, 20]
+
+PASO 1: EMBEDDING
+    [1, 4, 10, 20] → (4, 512)
+    
+    (Cada número se convierte en un vector de 512 dimensiones)
+
+PASO 2: POSITIONAL ENCODING
+    (4, 512) + PE(4, 512) → (4, 512)
+
+PASO 3: ENCODER (6 veces)
+    (4, 512) → EncoderLayer → (4, 512)
+    (4, 512) → EncoderLayer → (4, 512)
+    ...
+    (4, 512) → EncoderLayer → (4, 512)
+
+PASO 4: DECODER (Si es traducción)
+    Similar pero:
+    ├─ Procesa la salida del encoder
+    ├─ Genera una palabra a la vez
+    └─ Masked attention (no ve palabras futuras)
+
+PASO 5: OUTPUT LAYER
+    (4, 512) @ W → (4, vocab_size)
+    
+    softmax → probabilidades de cada palabra
+
+PASO 6: SELECCIONAR PALABRA
+    argmax → ID de la palabra más probable
+    
+    Ej: [0.01, 0.05, 0.8, 0.14] → seleccionar palabra 2 (prob 0.8)
+
+REPETIR: Usar palabra generada como entrada para generar la siguiente
+
+================================================================================
+SECCIÓN 7: COMPARACIÓN NUMPY VS PYTORCH
+================================================================================
+
+ATENCIÓN: OPERACIÓN BÁSICA
+
+NUMPY:
+    import numpy as np
+    
+    d_k = 64
+    Q = np.random.randn(10, 64)  # 10 palabras, 64 dimensiones
+    K = np.random.randn(10, 64)
+    V = np.random.randn(10, 64)
+    
+    scores = np.dot(Q, K.T) / np.sqrt(d_k)
+    weights = softmax(scores)
+    output = np.dot(weights, V)
+
+PYTORCH:
+    import torch
+    import torch.nn.functional as F
+    import math
+    
+    d_k = 64
+    Q = torch.randn(10, 64)
+    K = torch.randn(10, 64)
+    V = torch.randn(10, 64)
+    
+    scores = torch.matmul(Q, K.t()) / math.sqrt(d_k)
+    weights = F.softmax(scores, dim=-1)
+    output = torch.matmul(weights, V)
+
+VENTAJAS PYTORCH:
+    ├─ GPU acceleration automática
+    ├─ Backpropagation automática (gradientes)
+    ├─ Optimizadores (Adam, SGD, etc.)
+    ├─ APIs estándar de ML
+    └─ Production-ready
+
+VENTAJAS NUMPY:
+    ├─ Más simple de entender
+    ├─ No necesita CUDA/GPU
+    └─ Perfecto para aprender
+
+================================================================================
+SECCIÓN 8: ERRORES COMUNES
+================================================================================
+
+ERROR 1: Olvidar de escalar por √d_k
+    
+    INCORRECTO:
+        scores = np.dot(Q, K.T)  # GRANDE
+        weights = softmax(scores)  # Casi todo es ~0.25
+    
+    CORRECTO:
+        scores = np.dot(Q, K.T) / np.sqrt(d_k)
+        weights = softmax(scores)  # Distribución más informativa
+
+ERROR 2: No aplicar Layer Normalization
+    
+    INCORRECTO:
+        x = x + attn_output  # Solo Add, sin Norm
+    
+    CORRECTO:
+        x = layer_norm(x + attn_output)  # Add & Norm
+
+ERROR 3: Confundir dimensiones
+    
+    INCORRECTO:
+        (seq_len, d_model) @ (d_model, d_model)
+        Result: (seq_len, d_model)  ✓ Correcto
+        
+        Pero si haces:
+        (seq_len, d_model) @ (seq_len, seq_len)
+        ERROR: dimensiones incompatibles
+    
+    CORRECTO:
+        Verificar siempre que las dimensiones causen
+        (n, m) @ (m, p) = (n, p)
+
+ERROR 4: Softmax en la dimensión equivocada
+    
+    INCORRECTO:
+        weights = softmax(scores, axis=0)  # Por palabra, no por posición
+    
+    CORRECTO:
+        weights = softmax(scores, axis=-1)  # Último axis (último eje)
+
+ERROR 5: No hacer dropout después de softmax
+    
+    INCORRECTO:
+        weights = softmax(scores)
+        output = weights @ V  # Sin dropout
+    
+    CORRECTO:
+        weights = softmax(scores)
+        weights = dropout(weights)  # Regularization
+        output = weights @ V
+
+================================================================================
+SECCIÓN 9: NÚMEROS DEL PAPER (2017)
+================================================================================
+
+TRANSFORMER BASE:
+    ├─ d_model: 512
+    ├─ num_heads: 8
+    ├─ d_ff: 2048
+    ├─ num_layers (encoder): 6
+    ├─ num_layers (decoder): 6
+    ├─ Vocabulario: 37,000
+    ├─ Total parámetros: ~65 millones
+    ├─ Tiempo entrenamiento: 12 horas en 8 GPUs
+    └─ BLEU score: 27.3
+
+TRANSFORMER BIG:
+    ├─ d_model: 1024
+    ├─ num_heads: 16
+    ├─ d_ff: 4096
+    ├─ num_layers: 6
+    ├─ Total parámetros: ~213 millones
+    ├─ Tiempo entrenamiento: 3.5 días en 8 GPUs
+    └─ BLEU score: 28.4
+
+POR COMPARACIÓN:
+    ├─ RNN anterior: 1-2 semanas de entrenamiento
+    ├─ ChatGPT-3: 175 millones de parámetros
+    ├─ Claude 3: Billones de parámetros (aproximado)
+    └─ Todos usan la MISMA base (Transformer)
+
+================================================================================
+SECCIÓN 10: CÓMO ENTRENARSE PARA ENTENDER ESTO
+================================================================================
+
+PASO 1: Entender QK^T (Producto Punto)
+    └─ Libro: Linear Algebra por Gilbert Strang
+    └─ Tiempo: 2 horas
+    └─ Ejercicio: Multiplica matrices a mano
+
+PASO 2: Entender Softmax
+    └─ Libro: Deep Learning por Goodfellow et al.
+    └─ Tiempo: 1 hora
+    └─ Ejercicio: Implementa softmax en NumPy
+
+PASO 3: Implementar Scaled Dot-Product Attention
+    └─ Tutorial: Este archivo
+    └─ Tiempo: 2 horas
+    └─ Ejercicio: Implementa sin ver la solución
+
+PASO 4: Implementar Multi-Head Attention
+    └─ Tiempo: 1 hora
+    └─ Ejercicio: Combina 8 cabezas, concatena
+
+PASO 5: Implementar un Encoder Layer completo
+    └─ Tiempo: 2 horas
+    └─ Incluye: Atención, FFN, Norm, Residual
+
+PASO 6: Implement Transformer completo
+    └─ Tiempo: 4 horas
+    └─ Incluye: Embedding, PE, 6 layers, salida
+
+PASO 7: Entrenar en un dataset pequeño
+    └─ Tiempo: 1 día
+    └─ Dataset: Traducción inglés-español pequeño (~10K oraciones)
+    └─ Observa cómo el BLEU mejora
+
+TIEMPO TOTAL: ~2-3 semanas de estudio+implementación dedicado
+
+================================================================================
+REFERENCIAS
+================================================================================
+
+Documento original (2017):
+    https://arxiv.org/abs/1706.03762
+    "Attention Is All You Need"
+
+Blogs excelentes:
+    - The Illustrated Transformer por Jay Alammar
+    - Visualizing Attention in Transformer Models
+    - Understanding Attention Mechanisms
+
+Cursos:
+    - Stanford CS224N (NLP con Deep Learning)
+    - MIT 6.S191 (Intro to Deep Learning)
+
+Implementaciones de referencia:
+    - tensor2tensor (TensorFlow)
+    - PyTorch Transformers
+    - Hugging Face Transformers
+
+Libros:
+    - "Deep Learning" - Goodfellow, Bengio, Courville
+    - "Speech and Language Processing" - Jurafsky & Martin
+
+================================================================================
+NOTAS FINALES PARA MARIO
+================================================================================
+
+Como Frontend Architect con 8+ años de experiencia, tu perspectiva es PERFECTA:
+
+1. PARALELISMO:
+   ├─ RNNs: Procesamiento secuencial (como un script bash lineal)
+   ├─ Transformers: Procesamiento paralelo (como threads/async)
+   └─ Esto es arquitectura de sistemas
+
+2. ESCALABILIDAD:
+   ├─ RNNs: Lineal con longitud de secuencia
+   ├─ Transformers: Cuadrática pero paralelizable
+   └─ Trade-off memoria vs velocidad
+
+3. COMPLEJIDAD:
+   ├─ RNNs: Estado interno (como variables globales)
+   ├─ Transformers: Todo explícito (como paso de parámetros)
+   └─ Más fácil de debuggear y optimizar
+
+4. PARA TU FLIGHT BOT:
+   ├─ LLMs usan Transformers internamente
+   ├─ Entender esto te ayuda a:
+   │  ├─ Optimizar prompts
+   │  ├─ Entender limitaciones
+   │  ├─ Diseñar mejor arquitectura de agentes
+   │  └─ Debuggear problemas de razonamiento
+   └─ Conocimiento diferenciador vs otros engineers
+
+SIGUIENTE PASO en tu máster:
+    Los próximos módulos (Retrieval-Augmented Generation, Multi-Agent Orchestration)
+    construyen directamente sobre Transformers. Este conocimiento es ESENCIAL.
+
+================================================================================
+FIN DE LA GUÍA
+================================================================================

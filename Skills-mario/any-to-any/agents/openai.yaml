@@ -1,0 +1,7 @@
+interface:
+  display_name: "Any to Any"
+  short_description: "Convierte cualquier fichero a Markdown, PDF o Word sin cambiar ni inventar contenido"
+  brand_color: "#17324D"
+  default_prompt: "Usa $any-to-any para convertir estos ficheros al formato que te diga, sin cambiar ninguna palabra."
+policy:
+  allow_implicit_invocation: true

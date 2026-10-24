@@ -1,0 +1,14 @@
+# config.yml
+input_csv: data/customer_requests_demo.csv
+output_csv: outputs/benchmark_results.csv
+
+llm:
+  temperature: 0.2
+  max_tokens: 500
+  model: claude-haiku-4-5-20251001
+  timeout_seconds: 30
+
+prompt:
+  role: You are a customer support assistant that helps triage and respond to customer requests.
+  instructions: Read the customer request below and complete the task described above. Be concise and professional.
+  output_format: Return plain text only, no markdown, no preamble.

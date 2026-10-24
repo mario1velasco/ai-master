@@ -1,0 +1,73 @@
+# .gitignore raíz del repo `ebis`
+# Las carpetas pueden tener su propio .gitignore con reglas extra; ambos se aplican.
+
+# --- Secretos (cada carpeta tiene su propio .env) ---
+.env
+.env.*
+!.env.example
+**/PSW.md
+05_rag_langchain/Tokens.pdf
+
+# --- Entornos virtuales y dependencias ---
+.venv/
+venv/
+env/
+node_modules/
+
+# --- Python: cachés y builds ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.cache/
+
+# --- Editores y sistema ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Claude Code: ajustes locales y memoria ---
+.claude/settings.local.json
+.agent-memory.json
+.ebis_cli/
+
+# --- Logs y salidas generadas ---
+*.log
+logs/
+outputs/
+artifacts/
+
+# --- Modelos y bases de datos locales ---
+*.gguf
+*.safetensors
+*.bin
+*.duckdb
+*.duckdb.wal
+*.sqlite
+*.sqlite3
+*.db
+huggingface/
+cache_vector_search/
+
+# --- Datos descargados o generados (pesados, se regeneran) ---
+01_Introduccion_al_ML_DL_LLMs/*/datos/
+08_ia_agentica_automatiz_agentes/tema8-agentes/datos/
+Skills-mario/DATA/
+
+# --- Audio, troceos y resúmenes generados por las skills ---
+*.aac
+*.mp3
+*.wav
+*.m4a
+06_mcp/audio/
+06_mcp/images/images_resumen/
+
+# --- Comprimidos ---
+*.zip

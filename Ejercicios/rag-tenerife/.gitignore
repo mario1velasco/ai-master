@@ -1,0 +1,20 @@
+# Entorno virtual
+.venv/
+
+# Credenciales (no entregar)
+.env
+
+# Cachés de Python / Jupyter
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Copia local de la guía (el corrector aporta la suya en data/)
+data/
+
+# Entregables empaquetados
+*.zip
+
+# Sistema / editor
+.DS_Store
+.vscode/

@@ -1,0 +1,157 @@
+{
+  "modelo": "qwen3:4b-instruct",
+  "experimento": "base_sin_contexto",
+  "resultados": [
+    {
+      "id": 1,
+      "pregunta": "¿Cuáles fueron las ventas netas de Eixample en el periodo A y en el periodo B?",
+      "llamadas": [
+        {
+          "herramienta": "ventas_netas",
+          "argumentos": {
+            "local_id": "BCN-EIX",
+            "desde": "2023-01-01",
+            "hasta": "2023-03-31"
+          },
+          "resultado": {
+            "local_id": "BCN-EIX",
+            "desde": "2023-01-01",
+            "hasta": "2023-03-31",
+            "ventas_antes_reembolsos_eur": 0.0,
+            "reembolsos_reconocidos_eur": 0.0,
+            "ventas_netas_eur": 0.0
+          }
+        },
+        {
+          "herramienta": "ventas_netas",
+          "argumentos": {
+            "local_id": "BCN-EIX",
+            "desde": "2023-04-01",
+            "hasta": "2023-06-30"
+          },
+          "resultado": {
+            "local_id": "BCN-EIX",
+            "desde": "2023-04-01",
+            "hasta": "2023-06-30",
+            "ventas_antes_reembolsos_eur": 0.0,
+            "reembolsos_reconocidos_eur": 0.0,
+            "ventas_netas_eur": 0.0
+          }
+        }
+      ],
+      "respuesta": "Las ventas netas de Eixample en el periodo A (enero-marzo de 2023) fueron de 0,00 euros. Las ventas netas de Eixample en el periodo B (abril-junio de 2023) también fueron de 0,00 euros.",
+      "segundos": 35.3
+    },
+    {
+      "id": 2,
+      "pregunta": "¿Cuántos pedidos hizo Goya en el periodo B y cuántas unidades llevaba de media cada pedido?",
+      "llamadas": [
+        {
+          "herramienta": "cesta",
+          "argumentos": {
+            "local_id": "MAD-GOY",
+            "desde": "2023-04-01",
+            "hasta": "2023-04-30"
+          },
+          "resultado": {
+            "local_id": "MAD-GOY",
+            "desde": "2023-04-01",
+            "hasta": "2023-04-30",
+            "pedidos": 0,
+            "lineas": 0,
+            "unidades": 0,
+            "unidades_por_pedido": 0,
+            "ticket_medio_eur": 0,
+            "pedidos_4_o_mas_unidades": 0
+          }
+        }
+      ],
+      "respuesta": "En el periodo de abril de 2023, Goya no registró ningún pedido, por lo que el número de pedidos fue 0 y las unidades por pedido también fueron 0.",
+      "segundos": 14.6
+    },
+    {
+      "id": 3,
+      "pregunta": "¿Qué ha cambiado en las compras de Malasaña entre el periodo A y el periodo B?",
+      "llamadas": [],
+      "respuesta": "Para responder a tu pregunta sobre los cambios en las compras de Malasaña entre el periodo A y el periodo B, necesito conocer las fechas específicas de ambos periodos. Por favor, proporciona las fechas de cada periodo para poder realizar la comparación adecuada.",
+      "segundos": 8.0
+    },
+    {
+      "id": 4,
+      "pregunta": "¿Cuántos pedidos de 4 o más unidades hubo en Malasaña en el periodo A y en el periodo B?",
+      "llamadas": [
+        {
+          "herramienta": "cesta",
+          "argumentos": {
+            "local_id": "MAD-MAL",
+            "desde": "2023-01-01",
+            "hasta": "2023-12-31"
+          },
+          "resultado": {
+            "local_id": "MAD-MAL",
+            "desde": "2023-01-01",
+            "hasta": "2023-12-31",
+            "pedidos": 0,
+            "lineas": 0,
+            "unidades": 0,
+            "unidades_por_pedido": 0,
+            "ticket_medio_eur": 0,
+            "pedidos_4_o_mas_unidades": 0
+          }
+        },
+        {
+          "herramienta": "cesta",
+          "argumentos": {
+            "local_id": "MAD-MAL",
+            "desde": "2024-01-01",
+            "hasta": "2024-12-31"
+          },
+          "resultado": {
+            "local_id": "MAD-MAL",
+            "desde": "2024-01-01",
+            "hasta": "2024-12-31",
+            "pedidos": 0,
+            "lineas": 0,
+            "unidades": 0,
+            "unidades_por_pedido": 0,
+            "ticket_medio_eur": 0,
+            "pedidos_4_o_mas_unidades": 0
+          }
+        }
+      ],
+      "respuesta": "En el periodo 2023 (enero-diciembre) en Malasaña, hubo 0 pedidos de 4 o más unidades. En el periodo 2024 (enero-diciembre) en Malasaña, también hubo 0 pedidos de 4 o más unidades.",
+      "segundos": 23.6
+    },
+    {
+      "id": 5,
+      "pregunta": "¿Cuánto vendió Malasaña, en ventas netas, entre el 6 y el 12 de abril de 2026?",
+      "llamadas": [
+        {
+          "herramienta": "ventas_netas",
+          "argumentos": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-04-06",
+            "hasta": "2026-04-12"
+          },
+          "resultado": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-04-06",
+            "hasta": "2026-04-12",
+            "ventas_antes_reembolsos_eur": 6213.48,
+            "reembolsos_reconocidos_eur": 911.11,
+            "ventas_netas_eur": 5302.37
+          }
+        }
+      ],
+      "respuesta": "Malasaña vendió 5.302,37 euros en ventas netas entre el 6 y el 12 de abril de 2026.",
+      "segundos": 12.9
+    },
+    {
+      "id": 6,
+      "pregunta": "¿Cuántas personas visitaron la tienda de Malasaña en abril?",
+      "llamadas": [],
+      "respuesta": "No puedo determinar el número de personas que visitaron la tienda de Malasaña en abril, ya que no hay una herramienta disponible para obtener datos sobre el número de visitantes o personas.",
+      "segundos": 5.8
+    }
+  ]
+}

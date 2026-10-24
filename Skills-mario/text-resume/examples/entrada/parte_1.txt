@@ -1,0 +1,5 @@
+Reunión de seguimiento del proyecto Atlas, celebrada el 12 de marzo de 2025. Asisten Lucía Prado (dirección de proyecto), Marcos Vidal (desarrollo) y Elena Soto (calidad).
+
+Lucía abre la reunión recordando que el lanzamiento está previsto para el 30 de junio. Explica que el presupuesto total aprobado es de 180.000 euros y que hasta ahora se han gastado 74.500 euros, es decir, algo más del 41 %.
+
+Marcos informa de que el módulo de facturación está terminado al 80 %. Quedan pendientes la integración con el banco y la exportación a PDF. Estima que necesitará tres semanas más. Advierte de que el proveedor del banco todavía no ha entregado las credenciales de pruebas y que, sin ellas, no puede cerrar la integración.

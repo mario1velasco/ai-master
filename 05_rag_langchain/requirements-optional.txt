@@ -1,0 +1,6 @@
+# Paquetes pesados u opcionales. NO se instalan con requirements.txt.
+# torch, transformers, sentence-transformers, langchain-huggingface y google-genai
+# ya están en requirements.txt. Aquí solo queda beir (solo para descargar TREC-COVID, sesión 06).
+# Instalación (elige lo que necesites):
+#   uv pip install --python .venv/bin/python -r requirements-optional.txt
+beir>=2.2,<3

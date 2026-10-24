@@ -1,0 +1,30 @@
+{
+  "output_dir": "/ruta/a/convertido_ejemplo",
+  "formats": [
+    "md",
+    "pdf",
+    "docx"
+  ],
+  "mode": "separado",
+  "units": [
+    {
+      "id": "u01",
+      "kind": "doc",
+      "path": "/ruta/a/entrada/pagina.html",
+      "name": "pagina.html"
+    },
+    {
+      "id": "u02",
+      "kind": "sheet",
+      "path": "/ruta/a/entrada/tabla.csv",
+      "name": "tabla.csv"
+    },
+    {
+      "id": "u03",
+      "kind": "text",
+      "path": "/ruta/a/entrada/notas.txt",
+      "name": "notas.txt"
+    }
+  ],
+  "ignored": []
+}

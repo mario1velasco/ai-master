@@ -1,0 +1,394 @@
+[
+  {
+    "id": "Q1",
+    "tipo": "respondible",
+    "k": 2,
+    "pregunta": "¿Qué mirador de Anaga dice la guía que es el favorito del autor?",
+    "respuesta": "Según la guía, el **Mirador de La Jardina** es el mirador favorito del autor en Anaga. [TENERIFE.pdf, p. 5]",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p6-c1",
+        "source": "TENERIFE.pdf",
+        "page": 6,
+        "texto": "o Mirador Pico del Inglés (aquí tenéis una de las fotos típicas de Anaga, en un \npasillo que hay super frondoso) [ubicación]"
+      },
+      {
+        "id": "p5-c1",
+        "source": "TENERIFE.pdf",
+        "page": 5,
+        "texto": "• Parque rural de Anaga \nEs un espacio natural protegido, declarado Reserva de la Biosfera y que cuenta con la \nmayor cantidad de endemismos de Europa. \nTiene bastantes miradores chulísimos y rutas que podéis hacer si os mola este tipo \nde planes y si teníais pensado alguna caminata (véase Las Mejores Rutas en Parque \nRural de Anaga). \nVisitar esta zona de la isla es un must y lo suyo sería que aprovecharais un día, os \nlevantarais temprano, visitarais La Laguna y desayunarais por allí y ya luego rollo \n11:00-12:00 tiréis hacia Anaga, parando en algunos de los miradores y llegando hasta \nla Playa de Benijo (imprescindible que esté soleado para poder ver el atardecer en \nesta playa, ya que es espectacular). \n \nAlgunos de los miradores que os recomiendo en la ruta por Anaga: \no Mirador de La Jardina (diría que es mi mirador favorito) [ubicación]"
+      }
+    ],
+    "hit_pagina": 1,
+    "paginas_citadas": [
+      5
+    ],
+    "citas_en_paginas_recuperadas": true
+  },
+  {
+    "id": "Q2",
+    "tipo": "respondible",
+    "k": 2,
+    "pregunta": "¿Por qué carretera recomienda la guía subir al Teide desde La Laguna y en qué mirador sugiere parar?",
+    "respuesta": "Según la guía, la recomendación para subir al Teide desde La Laguna es usar la carretera **TF24 (carretera de La Esperanza)** desde la rotonda de Padre Anchieta. [TENERIFE.pdf, p. 15]\n\nComo parada en el camino, sugiere el **Mirador de La Tarta**, donde podrás ver diferentes colores en la piedra y, si hay suerte y está nublado en el norte, un espectacular mar de nubes. [TENERIFE.pdf, p. 15]",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p12-c1",
+        "source": "TENERIFE.pdf",
+        "page": 12,
+        "texto": "• Isla Baja (Icod de los Vinos, Garachico y Punta de Teno) \nUna ruta tipiquísima de nosotros algún domingo que hace buen tiempo es ir hacia la \nzona de la isla que nosotros comúnmente llamamos como “la Isla Baja” y que \nengloba la zona noroeste de la isla (lo suyo es ir desde la zona de La Orotava por la \nTF5 y la TF42). \nConcretamente nosotros solemos pararnos en Garachico, pero si vais por esta zona \nlo recomendable sería que vierais de un plumazo Icod de los Vinos, Garachico y, si \nseguís más hacia esta punta de la isla, ver quizás Buenavista y el faro de Punta de \nTeno. \nLa ruta aconsejada por nosotros para este plan sería quizás la siguiente: \no En Icod de los Vinos [vídeo] ir hasta la Plaza de San Marcos y ver el Drago \nMilenario (el drago es otra estampa típica de Tenerife y es un árbol único \nen el mundo por su tamaño y por su edad) y callejear un poco por ahí por"
+      },
+      {
+        "id": "p15-c1",
+        "source": "TENERIFE.pdf",
+        "page": 15,
+        "texto": "• El Teide \nSi vais a Tenerife y no subís al Parque Nacional del Teide, simplemente no habéis \nestado en Tenerife. \n \nMi recomendación – esto es simplemente gustos personales míos – para subir al \nTeide es subir por la carretera TF24 (carretera de La Esperanza) desde la rotonda de \nPadre Anchieta en La Laguna. \nUn sitio en el que me gusta parar subiendo por esta carretera es el Mirador de La \nTarta (se llama “La Tarta del Teide” porque la curva que vais a ver aquí tiene \ndiferentes colores la piedra y parece eso, una tarta). Desde aquí si tenéis la suerte de \nque esté nublado en el Norte, vais a ver un mar de nubes espectacular (el mar de \nnubes también es espectacular verlo desde el Mirador de Chipeque). \n \nLo suyo al subir al Teide es llegar hasta el Parador de las Cañadas del Teide y aparcar \npor aquí para ir al mirador de La Ruleta y ver la que probablemente sea la estampa"
+      }
+    ],
+    "hit_pagina": 1,
+    "paginas_citadas": [
+      15,
+      15
+    ],
+    "citas_en_paginas_recuperadas": true
+  },
+  {
+    "id": "Q3",
+    "tipo": "respondible",
+    "k": 2,
+    "pregunta": "¿Qué dos arepas recomienda pedir en la Arepera La Carajita?",
+    "respuesta": "Según la guía, en la Arepera La Carajita se recomienda pedir **La Fogalera** y **Reina Pepiada**. Además, sugiere pedir de entrantes una degustación de cachapitas. [TENERIFE.pdf, p. 25]",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p25-c1",
+        "source": "TENERIFE.pdf",
+        "page": 25,
+        "texto": "▪ Arepera La Carajita (entre La Orotava y el Puerto de la Cruz \n[ubicación]. Este sitio tiene las mejores arepas que podréis comer en \nvuestra vida y son baratísimas. Recomendación: La Fogalera y Reina \nPepiada. Y pedir de entrantes una degustación de cachapitas). \nImportante ir con hambre.  \n▪ Atuvera (entre La Orotava y el Puerto de la Cruz [ubicación]). \nRecomendable reservar. \n▪ Restaurante Fujiyama (sushi en la zona de Santa Cruz [ubicación]) \n \nY me estoy dejando tropecientos mil sitios, pero disfrutad de la isla y organizad bien los días \npara que os cunda.  \nUn abrazo."
+      },
+      {
+        "id": "p4-c1",
+        "source": "TENERIFE.pdf",
+        "page": 4,
+        "texto": "o Callejear dirección Plaza del Adelantado [ubicación] y tomar algo por ahí si \nhace buen tiempo (si queréis comer, os recomiendo La Cueva de Casiano - \nubicación – y pedir la batata con almogrote y, de resto, que os recomienden \nellos mismos). \n \nLos sitios de interés comentados son los siguientes: \n \no Plaza de la Iglesia de la Concepción [ubicación] \n \no Centro de La Laguna"
+      }
+    ],
+    "hit_pagina": 1,
+    "paginas_citadas": [
+      25
+    ],
+    "citas_en_paginas_recuperadas": true
+  },
+  {
+    "id": "Q4",
+    "tipo": "respondible",
+    "k": 2,
+    "pregunta": "¿Qué dos playas recomienda la guía en la zona de Los Cristianos?",
+    "respuesta": "Según la guía, en la zona de Los Cristianos se recomiendan: [TENERIFE.pdf, p. 23]\n\n1. **Playa de Los Cristianos**\n2. **Playa de Las Vistas**",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p10-c1",
+        "source": "TENERIFE.pdf",
+        "page": 10,
+        "texto": "o La Playa de Los Patos \no Playa del Ancón \n \nNota: Para llegar estas playas hay que caminar un rato y algunas son de difícil acceso \n(la de Los Patos). También hay que ir a estas playas cuando la marea esté baja, si no"
+      },
+      {
+        "id": "p23-c1",
+        "source": "TENERIFE.pdf",
+        "page": 23,
+        "texto": "• El Médano / La Tejita \nPlayas tipiquísimas de Tenerife y otra de las estampas de la isla con Montaña Roja al \nfondo. Nota: La Tejita es playa nudista para que lo tengáis en cuenta.  \n \n \n• Los Cristianos \nDe la zona de Los Cristianos que me venga a la mente os recomendaría la Playa de \nLos Cristianos o la Playa de Las Vistas y creo que poco más (la imagen es la Playa de \nLas Vistas)."
+      }
+    ],
+    "hit_pagina": 1,
+    "paginas_citadas": [
+      23
+    ],
+    "citas_en_paginas_recuperadas": true
+  },
+  {
+    "id": "Q5",
+    "tipo": "sin_respuesta",
+    "k": 2,
+    "pregunta": "¿Qué tiempo hará mañana en el Teide?",
+    "respuesta": "La guía no contiene información sobre previsiones meteorológicas ni el tiempo que hará mañana en el Teide.\n\nLo que sí menciona la guía es que puedes subir de noche al Teide cuando esté despejado para disfrutar de uno de los cielos estrellados más espectaculares del mundo [TENERIFE.pdf, p. 16]. Para conocer las condiciones meteorológicas actuales y la previsión, te recomiendo consultar fuentes de información meteorológica oficial.",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p16-c1",
+        "source": "TENERIFE.pdf",
+        "page": 16,
+        "texto": "Si queréis subir hasta el pico del Teide, podéis hacerlo desde aquí haciendo uso de \nlos teleféricos del Teide. Y, si queréis más info sobre el Teide, podéis ir al Centro de \nVisitantes de El Portillo que es gratis. \nSi os apetece, podéis subir de noche cuando esté despejado, ya que desde El Teide \npodréis ver uno de los cielos estrellados más espectaculares del mundo. \n \n \n \nZONA SUR \n• Costa Adeje \nCosta Adeje es actualmente la zona turística por excelencia de Tenerife. Es donde se \nconcentran la mayor cantidad de hoteles de lujo, las zonas de playa de arena blanca \n(en el norte de la isla las playas son más de arena negra), las zonas de ocio (pubs, \ndiscotecas, parques acuáticos, etc.). \nDe esta zona os recomendaríamos las siguientes playas: \no Playa de Torviscas"
+      },
+      {
+        "id": "p4-c1",
+        "source": "TENERIFE.pdf",
+        "page": 4,
+        "texto": "o Callejear dirección Plaza del Adelantado [ubicación] y tomar algo por ahí si \nhace buen tiempo (si queréis comer, os recomiendo La Cueva de Casiano - \nubicación – y pedir la batata con almogrote y, de resto, que os recomienden \nellos mismos). \n \nLos sitios de interés comentados son los siguientes: \n \no Plaza de la Iglesia de la Concepción [ubicación] \n \no Centro de La Laguna"
+      }
+    ],
+    "hit_pagina": null,
+    "paginas_citadas": [
+      16
+    ],
+    "citas_en_paginas_recuperadas": true
+  },
+  {
+    "id": "Q6",
+    "tipo": "sin_respuesta",
+    "k": 2,
+    "pregunta": "¿Cuánto cuesta hoy la entrada de adulto al Siam Park?",
+    "respuesta": "La guía no contiene información sobre precios de entrada al Siam Park. \n\nTe recomiendo consultar la información oficial actualizada directamente en la web del parque o contactar con ellos, ya que los precios pueden variar según fechas y promociones.",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p21-c1",
+        "source": "TENERIFE.pdf",
+        "page": 21,
+        "texto": "En la zona de Costa Adeje debéis ir sí o sí al Siam Park. \nEl Siam Park ha sido considerado 5 años consecutivos como el mejor parque \nacuático del mundo y cuenta en su haber con 5 récords mundiales (ola artificial más \ngrande del mundo – 4 metros (aunque creo que esto solo lo ponen de cara a cuando \nla gente reserva la playa artificial para hacer surf) -, el río lento más grande del \nmundo, mayor elevación dentro de este río, parque acuático con mayor diversidad \nde toboganes y edificación tailandesa más grande del mundo fuera de Asia), así que \nes visita obligatoria [vídeo]. \n \n• Los Gigantes \nLos Gigantes es una zona del Sur comúnmente conocida por el Acantilado de Los \nGigantes y donde se hacen las típicas excursiones para ver delfines y ballenas \n(recomendado). También podéis hacer excursiones en kayak, motos de agua y esas"
+      },
+      {
+        "id": "p13-c1",
+        "source": "TENERIFE.pdf",
+        "page": 13,
+        "texto": "o Al ir hacia Buenavista, aparcar cerca de la Plaza de los Remedios y ver un \npoco la zona, sin más. Recomendación tomarse un dulcito en la pastelería El \nAderno."
+      }
+    ],
+    "hit_pagina": null,
+    "paginas_citadas": [],
+    "citas_en_paginas_recuperadas": false
+  },
+  {
+    "id": "Q1",
+    "tipo": "respondible",
+    "k": 4,
+    "pregunta": "¿Qué mirador de Anaga dice la guía que es el favorito del autor?",
+    "respuesta": "Según la guía, el **Mirador de La Jardina** es el mirador favorito del autor en Anaga. [TENERIFE.pdf, p. 5]",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p6-c1",
+        "source": "TENERIFE.pdf",
+        "page": 6,
+        "texto": "o Mirador Pico del Inglés (aquí tenéis una de las fotos típicas de Anaga, en un \npasillo que hay super frondoso) [ubicación]"
+      },
+      {
+        "id": "p5-c1",
+        "source": "TENERIFE.pdf",
+        "page": 5,
+        "texto": "• Parque rural de Anaga \nEs un espacio natural protegido, declarado Reserva de la Biosfera y que cuenta con la \nmayor cantidad de endemismos de Europa. \nTiene bastantes miradores chulísimos y rutas que podéis hacer si os mola este tipo \nde planes y si teníais pensado alguna caminata (véase Las Mejores Rutas en Parque \nRural de Anaga). \nVisitar esta zona de la isla es un must y lo suyo sería que aprovecharais un día, os \nlevantarais temprano, visitarais La Laguna y desayunarais por allí y ya luego rollo \n11:00-12:00 tiréis hacia Anaga, parando en algunos de los miradores y llegando hasta \nla Playa de Benijo (imprescindible que esté soleado para poder ver el atardecer en \nesta playa, ya que es espectacular). \n \nAlgunos de los miradores que os recomiendo en la ruta por Anaga: \no Mirador de La Jardina (diría que es mi mirador favorito) [ubicación]"
+      },
+      {
+        "id": "p15-c2",
+        "source": "TENERIFE.pdf",
+        "page": 15,
+        "texto": "por aquí para ir al mirador de La Ruleta y ver la que probablemente sea la estampa \nmás famosa de la isla:"
+      },
+      {
+        "id": "p13-c1",
+        "source": "TENERIFE.pdf",
+        "page": 13,
+        "texto": "o Al ir hacia Buenavista, aparcar cerca de la Plaza de los Remedios y ver un \npoco la zona, sin más. Recomendación tomarse un dulcito en la pastelería El \nAderno."
+      }
+    ],
+    "hit_pagina": 1,
+    "paginas_citadas": [
+      5
+    ],
+    "citas_en_paginas_recuperadas": true
+  },
+  {
+    "id": "Q2",
+    "tipo": "respondible",
+    "k": 4,
+    "pregunta": "¿Por qué carretera recomienda la guía subir al Teide desde La Laguna y en qué mirador sugiere parar?",
+    "respuesta": "Según la guía, la recomendación para subir al Teide desde La Laguna es utilizar la carretera **TF24 (carretera de La Esperanza)** desde la rotonda de Padre Anchieta. [TENERIFE.pdf, p. 15]\n\nEl mirador donde sugiere parar es el **Mirador de La Tarta**, donde podrás ver diferentes colores en la piedra y, si hay suerte y está nublado en el norte, un espectacular mar de nubes. [TENERIFE.pdf, p. 15]",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p12-c1",
+        "source": "TENERIFE.pdf",
+        "page": 12,
+        "texto": "• Isla Baja (Icod de los Vinos, Garachico y Punta de Teno) \nUna ruta tipiquísima de nosotros algún domingo que hace buen tiempo es ir hacia la \nzona de la isla que nosotros comúnmente llamamos como “la Isla Baja” y que \nengloba la zona noroeste de la isla (lo suyo es ir desde la zona de La Orotava por la \nTF5 y la TF42). \nConcretamente nosotros solemos pararnos en Garachico, pero si vais por esta zona \nlo recomendable sería que vierais de un plumazo Icod de los Vinos, Garachico y, si \nseguís más hacia esta punta de la isla, ver quizás Buenavista y el faro de Punta de \nTeno. \nLa ruta aconsejada por nosotros para este plan sería quizás la siguiente: \no En Icod de los Vinos [vídeo] ir hasta la Plaza de San Marcos y ver el Drago \nMilenario (el drago es otra estampa típica de Tenerife y es un árbol único \nen el mundo por su tamaño y por su edad) y callejear un poco por ahí por"
+      },
+      {
+        "id": "p15-c1",
+        "source": "TENERIFE.pdf",
+        "page": 15,
+        "texto": "• El Teide \nSi vais a Tenerife y no subís al Parque Nacional del Teide, simplemente no habéis \nestado en Tenerife. \n \nMi recomendación – esto es simplemente gustos personales míos – para subir al \nTeide es subir por la carretera TF24 (carretera de La Esperanza) desde la rotonda de \nPadre Anchieta en La Laguna. \nUn sitio en el que me gusta parar subiendo por esta carretera es el Mirador de La \nTarta (se llama “La Tarta del Teide” porque la curva que vais a ver aquí tiene \ndiferentes colores la piedra y parece eso, una tarta). Desde aquí si tenéis la suerte de \nque esté nublado en el Norte, vais a ver un mar de nubes espectacular (el mar de \nnubes también es espectacular verlo desde el Mirador de Chipeque). \n \nLo suyo al subir al Teide es llegar hasta el Parador de las Cañadas del Teide y aparcar \npor aquí para ir al mirador de La Ruleta y ver la que probablemente sea la estampa"
+      },
+      {
+        "id": "p4-c1",
+        "source": "TENERIFE.pdf",
+        "page": 4,
+        "texto": "o Callejear dirección Plaza del Adelantado [ubicación] y tomar algo por ahí si \nhace buen tiempo (si queréis comer, os recomiendo La Cueva de Casiano - \nubicación – y pedir la batata con almogrote y, de resto, que os recomienden \nellos mismos). \n \nLos sitios de interés comentados son los siguientes: \n \no Plaza de la Iglesia de la Concepción [ubicación] \n \no Centro de La Laguna"
+      },
+      {
+        "id": "p16-c1",
+        "source": "TENERIFE.pdf",
+        "page": 16,
+        "texto": "Si queréis subir hasta el pico del Teide, podéis hacerlo desde aquí haciendo uso de \nlos teleféricos del Teide. Y, si queréis más info sobre el Teide, podéis ir al Centro de \nVisitantes de El Portillo que es gratis. \nSi os apetece, podéis subir de noche cuando esté despejado, ya que desde El Teide \npodréis ver uno de los cielos estrellados más espectaculares del mundo. \n \n \n \nZONA SUR \n• Costa Adeje \nCosta Adeje es actualmente la zona turística por excelencia de Tenerife. Es donde se \nconcentran la mayor cantidad de hoteles de lujo, las zonas de playa de arena blanca \n(en el norte de la isla las playas son más de arena negra), las zonas de ocio (pubs, \ndiscotecas, parques acuáticos, etc.). \nDe esta zona os recomendaríamos las siguientes playas: \no Playa de Torviscas"
+      }
+    ],
+    "hit_pagina": 1,
+    "paginas_citadas": [
+      15,
+      15
+    ],
+    "citas_en_paginas_recuperadas": true
+  },
+  {
+    "id": "Q3",
+    "tipo": "respondible",
+    "k": 4,
+    "pregunta": "¿Qué dos arepas recomienda pedir en la Arepera La Carajita?",
+    "respuesta": "Según la guía, en la Arepera La Carajita se recomienda pedir **La Fogalera** y **Reina Pepiada**. Además, sugiere pedir de entrantes una degustación de cachapitas. [TENERIFE.pdf, p. 25]",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p25-c1",
+        "source": "TENERIFE.pdf",
+        "page": 25,
+        "texto": "▪ Arepera La Carajita (entre La Orotava y el Puerto de la Cruz \n[ubicación]. Este sitio tiene las mejores arepas que podréis comer en \nvuestra vida y son baratísimas. Recomendación: La Fogalera y Reina \nPepiada. Y pedir de entrantes una degustación de cachapitas). \nImportante ir con hambre.  \n▪ Atuvera (entre La Orotava y el Puerto de la Cruz [ubicación]). \nRecomendable reservar. \n▪ Restaurante Fujiyama (sushi en la zona de Santa Cruz [ubicación]) \n \nY me estoy dejando tropecientos mil sitios, pero disfrutad de la isla y organizad bien los días \npara que os cunda.  \nUn abrazo."
+      },
+      {
+        "id": "p4-c1",
+        "source": "TENERIFE.pdf",
+        "page": 4,
+        "texto": "o Callejear dirección Plaza del Adelantado [ubicación] y tomar algo por ahí si \nhace buen tiempo (si queréis comer, os recomiendo La Cueva de Casiano - \nubicación – y pedir la batata con almogrote y, de resto, que os recomienden \nellos mismos). \n \nLos sitios de interés comentados son los siguientes: \n \no Plaza de la Iglesia de la Concepción [ubicación] \n \no Centro de La Laguna"
+      },
+      {
+        "id": "p24-c3",
+        "source": "TENERIFE.pdf",
+        "page": 24,
+        "texto": "pero no son los originales, ya que tienen una carta mucho más amplia \ny, por así decirlo, es más como un restaurante común (aunque la \ncomida también estará increíble), pero la experiencia de Guachinche \nGuachinche es un sitio como el que he indicado.  \n \n▪ Pizzería Gioconda (zona de La Orotava [ubicación]) [Tripadvisor] \n▪ El Palestra (zona de La Orotava [ubicación]. Este es el típico sitio que \nha estado toda la vida en La Orotava y que te pides a domicilio cuando \ntienes el antojo. Nosotros solo pedimos una cosa: Plato feliz de pizza + \nNestea de mango-piña para beber. [Tripadvisor] \n▪ Sitios de bocadillos top: Cafetería Deyfe - Bar-Cafetería Australia - Bar \nEl Paraíso (espectacular la salsa de aguacate de aquí. \nRecomendación: menú feliz de bocadillo de pollo + Nestea de \nmango-piña) - Cafetería Zumería Mango - El Track"
+      },
+      {
+        "id": "p24-c2",
+        "source": "TENERIFE.pdf",
+        "page": 24,
+        "texto": "vais a Tenerife y no probáis una experiencia en Guachinche, no habéis \nido a Tenerife. Os podría recomendar toda la carta, prácticamente – \nde hecho, no. No podría, ya que en un guachinche no hay carta. Y de \nbebidas solo hay tres cosas: vino, seven up para mezclar con el vino, y \nagua. That’s all. Mi recomendación realmente es que preguntéis a los \ncamareros y, si es vuestra primera experiencia en un guachinche, \nhacédselo saber y que os recomienden ellos para que os vayáis de 10) \n[Tripadvisor] (os podría recomendar más guachinches, pero diría que \neste es mi favorito) \n \nNota: los Guachinches son típicos en la zona norte de Tenerife. \nActualmente existen muchos restaurantes que se llaman Guachinches \npero no son los originales, ya que tienen una carta mucho más amplia \ny, por así decirlo, es más como un restaurante común (aunque la"
+      }
+    ],
+    "hit_pagina": 1,
+    "paginas_citadas": [
+      25
+    ],
+    "citas_en_paginas_recuperadas": true
+  },
+  {
+    "id": "Q4",
+    "tipo": "respondible",
+    "k": 4,
+    "pregunta": "¿Qué dos playas recomienda la guía en la zona de Los Cristianos?",
+    "respuesta": "Según la guía, las dos playas recomendadas en la zona de Los Cristianos son:\n\n1. **Playa de Los Cristianos**\n2. **Playa de Las Vistas**\n\n[TENERIFE.pdf, p. 23]",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p10-c1",
+        "source": "TENERIFE.pdf",
+        "page": 10,
+        "texto": "o La Playa de Los Patos \no Playa del Ancón \n \nNota: Para llegar estas playas hay que caminar un rato y algunas son de difícil acceso \n(la de Los Patos). También hay que ir a estas playas cuando la marea esté baja, si no"
+      },
+      {
+        "id": "p23-c1",
+        "source": "TENERIFE.pdf",
+        "page": 23,
+        "texto": "• El Médano / La Tejita \nPlayas tipiquísimas de Tenerife y otra de las estampas de la isla con Montaña Roja al \nfondo. Nota: La Tejita es playa nudista para que lo tengáis en cuenta.  \n \n \n• Los Cristianos \nDe la zona de Los Cristianos que me venga a la mente os recomendaría la Playa de \nLos Cristianos o la Playa de Las Vistas y creo que poco más (la imagen es la Playa de \nLas Vistas)."
+      },
+      {
+        "id": "p8-c1",
+        "source": "TENERIFE.pdf",
+        "page": 8,
+        "texto": "o Playa de Benijo [vídeo - ubicación] \nPlaya de arena negra, si el día está despejado, de los atardeceres más \nespectaculares que podéis ver en la isla. \nPara llegar a esta playa, aparcar por aquí y, para acceder a la playa, se accede \ndesde aquí (puede ser que os encontréis con el acceso cortado con una valla, \npero da igual, podéis acceder igualmente). \n• La Orotava \nEste es el pueblo más bonito y maravilloso del mundo (no es porque yo sea de allí)."
+      },
+      {
+        "id": "p17-c1",
+        "source": "TENERIFE.pdf",
+        "page": 17,
+        "texto": "o Playa de Troya \n \n \nEncima de esta playa se encuentra el Monkey Beach Club, uno de los beach \nclubs más populares de Tenerife. Tiene varias zonas, BésameMucho – zona \nmás tipo restaurante -, Kong – zona tipo cocktails -, y Cielo – también zona \ntipo cocktails pero en la parte de arriba y que mola mucho para tomaros \nalgún cocktail mientras veis el atardecer. También abre como beach club de \ntardeo los domingos y mola mucho (al menos creo que ya han vuelto a abrir \nestos eventos [vídeo]). Podéis consultar los eventos del Monkey aquí."
+      }
+    ],
+    "hit_pagina": 1,
+    "paginas_citadas": [
+      23
+    ],
+    "citas_en_paginas_recuperadas": true
+  },
+  {
+    "id": "Q5",
+    "tipo": "sin_respuesta",
+    "k": 4,
+    "pregunta": "¿Qué tiempo hará mañana en el Teide?",
+    "respuesta": "La guía no contiene información sobre el pronóstico del tiempo para mañana en el Teide. \n\nPara obtener esa información, te recomiendo consultar un servicio de meteorología actualizado o la web oficial del Parque Nacional del Teide.",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p16-c1",
+        "source": "TENERIFE.pdf",
+        "page": 16,
+        "texto": "Si queréis subir hasta el pico del Teide, podéis hacerlo desde aquí haciendo uso de \nlos teleféricos del Teide. Y, si queréis más info sobre el Teide, podéis ir al Centro de \nVisitantes de El Portillo que es gratis. \nSi os apetece, podéis subir de noche cuando esté despejado, ya que desde El Teide \npodréis ver uno de los cielos estrellados más espectaculares del mundo. \n \n \n \nZONA SUR \n• Costa Adeje \nCosta Adeje es actualmente la zona turística por excelencia de Tenerife. Es donde se \nconcentran la mayor cantidad de hoteles de lujo, las zonas de playa de arena blanca \n(en el norte de la isla las playas son más de arena negra), las zonas de ocio (pubs, \ndiscotecas, parques acuáticos, etc.). \nDe esta zona os recomendaríamos las siguientes playas: \no Playa de Torviscas"
+      },
+      {
+        "id": "p4-c1",
+        "source": "TENERIFE.pdf",
+        "page": 4,
+        "texto": "o Callejear dirección Plaza del Adelantado [ubicación] y tomar algo por ahí si \nhace buen tiempo (si queréis comer, os recomiendo La Cueva de Casiano - \nubicación – y pedir la batata con almogrote y, de resto, que os recomienden \nellos mismos). \n \nLos sitios de interés comentados son los siguientes: \n \no Plaza de la Iglesia de la Concepción [ubicación] \n \no Centro de La Laguna"
+      },
+      {
+        "id": "p12-c1",
+        "source": "TENERIFE.pdf",
+        "page": 12,
+        "texto": "• Isla Baja (Icod de los Vinos, Garachico y Punta de Teno) \nUna ruta tipiquísima de nosotros algún domingo que hace buen tiempo es ir hacia la \nzona de la isla que nosotros comúnmente llamamos como “la Isla Baja” y que \nengloba la zona noroeste de la isla (lo suyo es ir desde la zona de La Orotava por la \nTF5 y la TF42). \nConcretamente nosotros solemos pararnos en Garachico, pero si vais por esta zona \nlo recomendable sería que vierais de un plumazo Icod de los Vinos, Garachico y, si \nseguís más hacia esta punta de la isla, ver quizás Buenavista y el faro de Punta de \nTeno. \nLa ruta aconsejada por nosotros para este plan sería quizás la siguiente: \no En Icod de los Vinos [vídeo] ir hasta la Plaza de San Marcos y ver el Drago \nMilenario (el drago es otra estampa típica de Tenerife y es un árbol único \nen el mundo por su tamaño y por su edad) y callejear un poco por ahí por"
+      },
+      {
+        "id": "p19-c1",
+        "source": "TENERIFE.pdf",
+        "page": 19,
+        "texto": "También abre durante el día como restaurante y cocktail bar por si os queréis \ntomar algo aquí. Durante el día es algo así:"
+      }
+    ],
+    "hit_pagina": null,
+    "paginas_citadas": [],
+    "citas_en_paginas_recuperadas": false
+  },
+  {
+    "id": "Q6",
+    "tipo": "sin_respuesta",
+    "k": 4,
+    "pregunta": "¿Cuánto cuesta hoy la entrada de adulto al Siam Park?",
+    "respuesta": "La guía no contiene información sobre precios de entradas al Siam Park. \n\nTe recomiendo consultar la información oficial actualizada directamente en la web del parque o contactar con ellos, ya que los precios pueden variar según fechas y promociones.",
+    "error_tecnico": "",
+    "fragmentos": [
+      {
+        "id": "p21-c1",
+        "source": "TENERIFE.pdf",
+        "page": 21,
+        "texto": "En la zona de Costa Adeje debéis ir sí o sí al Siam Park. \nEl Siam Park ha sido considerado 5 años consecutivos como el mejor parque \nacuático del mundo y cuenta en su haber con 5 récords mundiales (ola artificial más \ngrande del mundo – 4 metros (aunque creo que esto solo lo ponen de cara a cuando \nla gente reserva la playa artificial para hacer surf) -, el río lento más grande del \nmundo, mayor elevación dentro de este río, parque acuático con mayor diversidad \nde toboganes y edificación tailandesa más grande del mundo fuera de Asia), así que \nes visita obligatoria [vídeo]. \n \n• Los Gigantes \nLos Gigantes es una zona del Sur comúnmente conocida por el Acantilado de Los \nGigantes y donde se hacen las típicas excursiones para ver delfines y ballenas \n(recomendado). También podéis hacer excursiones en kayak, motos de agua y esas"
+      },
+      {
+        "id": "p13-c1",
+        "source": "TENERIFE.pdf",
+        "page": 13,
+        "texto": "o Al ir hacia Buenavista, aparcar cerca de la Plaza de los Remedios y ver un \npoco la zona, sin más. Recomendación tomarse un dulcito en la pastelería El \nAderno."
+      },
+      {
+        "id": "p11-c2",
+        "source": "TENERIFE.pdf",
+        "page": 11,
+        "texto": "piscinas naturales. \nUna vez llegados a la Playa Martiánez, volvería por el mismo camino hasta el \nprincipio de la calle de San Telmo y bajaría por la calle Quintana hasta la Plaza del \nCharco (los helados del Freddino no están mal por si os apetece) y, de ahí, de vuelta \nal coche. \nEn el Puerto de la Cruz También se encuentra el Loro Parque, que ha sido \nconsiderado varios años como el Mejor Zoológico del Mundo. Normalmente es un \nmust que hay que ver en las turistadas de Tenerife (entradas aquí) y, cerca, tenéis el \nBrunelli's Steakhouse por si os queréis hinchar a carne."
+      },
+      {
+        "id": "p12-c2",
+        "source": "TENERIFE.pdf",
+        "page": 12,
+        "texto": "Milenario (el drago es otra estampa típica de Tenerife y es un árbol único \nen el mundo por su tamaño y por su edad) y callejear un poco por ahí por \ndonde os apetezca. Creo que se puede entrar al Parque del Drago (no sé si \nse requiere entrada) y también hay un Mariposario del Drago (un sitio \ndonde, valga la redundancia, podéis ver muchas mariposas distintas y cuyas \nentradas podéis consultar aquí). En Icod también está la Casa del Plátano. \n \n \no Al bajar a Garachico [vídeo] aparcar quizás por aquí e ir hacia el Castillo de \nSan Miguel, donde se encuentran las Piscinas Naturales del Caletón y donde \nsi queréis os podéis pegar un chuso (un baño, para que os vayáis empapando \nde jerga canaria). Luego iría dirección hacia la Plaza Juan González de la Torre \ny subiría hacia la Plaza de la Libertad, cerveza bien fresquita y callejear un"
+      }
+    ],
+    "hit_pagina": null,
+    "paginas_citadas": [],
+    "citas_en_paginas_recuperadas": false
+  }
+]

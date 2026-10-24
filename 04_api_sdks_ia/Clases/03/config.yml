@@ -1,0 +1,19 @@
+input_csv: "data/conversation_turns.csv"
+
+outputs:
+  trace_json: "outputs/session_trace.json"
+  trace_csv: "outputs/session_trace.csv"
+
+llm:
+  temperature: 0.0
+  max_tokens: 500
+  model: claude-haiku-4-5-20251001
+  timeout_seconds: 30
+
+context:
+  max_recent_messages: 6
+  summarize_after_messages: 8
+  keep_last_messages_after_summary: 4
+
+business_rules:
+  human_review_priority: "high"

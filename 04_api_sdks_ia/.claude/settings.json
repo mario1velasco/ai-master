@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\('main.py'\\).read\\(\\)\\); print\\('ok'\\)\")",
+      "Bash(curl -s -X POST http://127.0.0.1:4200/chat -H \"Content-Type: application/json\" -d '{\"message\": \"Responde solo con: ok\"}')",
+      "Bash(nohup .venv/bin/uvicorn app.main:app --reload --reload-dir=app --host 127.0.0.1 --port 4200)",
+      "Bash(disown)",
+      "Bash(curl -s http://127.0.0.1:4200/health)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(pyenv versions *)",
+      "Bash(pyenv version *)",
+      "Bash(/home/mario/.pyenv/versions/ebis-env/bin/python -c \"import anthropic, pandas, yaml, dotenv; print\\('ok'\\)\")",
+      "Bash(/home/mario/ebis/04_api_sdks_ia/.venv/bin/python -c \"import anthropic, pandas, yaml, dotenv; print\\('ok'\\)\")",
+      "Bash(pdftotext -layout \"pdfs/Diapositivas Tema 4 - Sesión 3.pdf\" -)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -m py_compile run_conversation.py)",
+      "Bash(pyenv global *)",
+      "Bash(pyenv local *)",
+      "Read(//home/mario/.pyenv/versions/3.11.15/envs/ebis-env/bin/**)",
+      "Bash(/home/mario/.pyenv/versions/3.11.15/envs/ebis-env/bin/python -c \"import anthropic, pydantic, pandas, yaml, dotenv; print\\('deps OK'\\)\")",
+      "Bash(/home/mario/.pyenv/versions/3.11.15/envs/ebis-env/bin/python -m pip list)",
+      "Bash(pyenv exec *)",
+      "Bash(python -c \"import anthropic, pydantic, pandas, yaml, dotenv; print\\('deps OK:', anthropic.__version__\\)\")",
+      "Bash(pyenv exec python -c ' *)",
+      "Read(//home/mario/**)",
+      "Bash(/home/mario/ebis/04_api_sdks_ia/.venv/bin/python -c \"import anthropic, dotenv, pandas, yaml, fastapi; print\\('deps OK'\\)\")",
+      "Bash(grep -E '\\\\.env$|\\\\.env\\\\.')"
+    ]
+  }
+}

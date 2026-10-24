@@ -1,0 +1,196 @@
+{
+  "modelo": "qwen3:4b-instruct",
+  "experimento": "base",
+  "resultados": [
+    {
+      "id": 1,
+      "pregunta": "¿Cuáles fueron las ventas netas de Eixample en el periodo A y en el periodo B?",
+      "llamadas": [
+        {
+          "herramienta": "ventas_netas",
+          "argumentos": {
+            "local_id": "BCN-EIX",
+            "desde": "2026-03-02",
+            "hasta": "2026-03-29"
+          },
+          "resultado": {
+            "local_id": "BCN-EIX",
+            "desde": "2026-03-02",
+            "hasta": "2026-03-29",
+            "ventas_antes_reembolsos_eur": 25000.0,
+            "reembolsos_reconocidos_eur": 1000.0,
+            "ventas_netas_eur": 24000.0
+          }
+        },
+        {
+          "herramienta": "ventas_netas",
+          "argumentos": {
+            "local_id": "BCN-EIX",
+            "desde": "2026-03-30",
+            "hasta": "2026-04-26"
+          },
+          "resultado": {
+            "local_id": "BCN-EIX",
+            "desde": "2026-03-30",
+            "hasta": "2026-04-26",
+            "ventas_antes_reembolsos_eur": 26000.0,
+            "reembolsos_reconocidos_eur": 1000.0,
+            "ventas_netas_eur": 25000.0
+          }
+        }
+      ],
+      "respuesta": "Las ventas netas de Eixample en el periodo A (2026-03-02 al 2026-03-29) fueron de 24.000 euros. En el periodo B (2026-03-30 al 2026-04-26) fueron de 25.000 euros.",
+      "segundos": 37.3
+    },
+    {
+      "id": 2,
+      "pregunta": "¿Cuántos pedidos hizo Goya en el periodo B y cuántas unidades llevaba de media cada pedido?",
+      "llamadas": [
+        {
+          "herramienta": "cesta",
+          "argumentos": {
+            "local_id": "MAD-GOY",
+            "desde": "2026-03-30",
+            "hasta": "2026-04-26"
+          },
+          "resultado": {
+            "local_id": "MAD-GOY",
+            "desde": "2026-03-30",
+            "hasta": "2026-04-26",
+            "pedidos": 120,
+            "lineas": 240,
+            "unidades": 307,
+            "unidades_por_pedido": 2.56,
+            "ticket_medio_eur": 258.33,
+            "pedidos_4_o_mas_unidades": 10
+          }
+        }
+      ],
+      "respuesta": "En el periodo B, Goya registró 120 pedidos, con un promedio de 2.56 unidades por pedido.",
+      "segundos": 12.7
+    },
+    {
+      "id": 3,
+      "pregunta": "¿Qué ha cambiado en las compras de Malasaña entre el periodo A y el periodo B?",
+      "llamadas": [
+        {
+          "herramienta": "cesta",
+          "argumentos": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-03-02",
+            "hasta": "2026-03-29"
+          },
+          "resultado": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-03-02",
+            "hasta": "2026-03-29",
+            "pedidos": 120,
+            "lineas": 240,
+            "unidades": 467,
+            "unidades_por_pedido": 3.89,
+            "ticket_medio_eur": 350.0,
+            "pedidos_4_o_mas_unidades": 108
+          }
+        },
+        {
+          "herramienta": "cesta",
+          "argumentos": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-03-30",
+            "hasta": "2026-04-26"
+          },
+          "resultado": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-03-30",
+            "hasta": "2026-04-26",
+            "pedidos": 120,
+            "lineas": 240,
+            "unidades": 304,
+            "unidades_por_pedido": 2.53,
+            "ticket_medio_eur": 233.33,
+            "pedidos_4_o_mas_unidades": 7
+          }
+        }
+      ],
+      "respuesta": "En Malasaña, entre el periodo A y el periodo B, el número de pedidos se mantuvo igual (120), pero el número total de unidades disminuyó de 467 a 304. El tamaño medio de la cesta (unidades por pedido) pasó de 3.89 a 2.53. El ticket medio también cayó de 350.00 euros a 233.33 euros. El número de pedidos con 4 o más unidades disminuyó de 108 a 7.",
+      "segundos": 29.9
+    },
+    {
+      "id": 4,
+      "pregunta": "¿Cuántos pedidos de 4 o más unidades hubo en Malasaña en el periodo A y en el periodo B?",
+      "llamadas": [
+        {
+          "herramienta": "cesta",
+          "argumentos": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-03-02",
+            "hasta": "2026-03-29"
+          },
+          "resultado": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-03-02",
+            "hasta": "2026-03-29",
+            "pedidos": 120,
+            "lineas": 240,
+            "unidades": 467,
+            "unidades_por_pedido": 3.89,
+            "ticket_medio_eur": 350.0,
+            "pedidos_4_o_mas_unidades": 108
+          }
+        },
+        {
+          "herramienta": "cesta",
+          "argumentos": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-03-30",
+            "hasta": "2026-04-26"
+          },
+          "resultado": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-03-30",
+            "hasta": "2026-04-26",
+            "pedidos": 120,
+            "lineas": 240,
+            "unidades": 304,
+            "unidades_por_pedido": 2.53,
+            "ticket_medio_eur": 233.33,
+            "pedidos_4_o_mas_unidades": 7
+          }
+        }
+      ],
+      "respuesta": "En el periodo A (2026-03-02 al 2026-03-29), hubo 108 pedidos de 4 o más unidades en Malasaña. En el periodo B (2026-03-30 al 2026-04-26), hubo 7 pedidos de 4 o más unidades en Malasaña.",
+      "segundos": 25.5
+    },
+    {
+      "id": 5,
+      "pregunta": "¿Cuánto vendió Malasaña, en ventas netas, entre el 6 y el 12 de abril de 2026?",
+      "llamadas": [
+        {
+          "herramienta": "ventas_netas",
+          "argumentos": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-04-06",
+            "hasta": "2026-04-12"
+          },
+          "resultado": {
+            "local_id": "MAD-MAL",
+            "desde": "2026-04-06",
+            "hasta": "2026-04-12",
+            "ventas_antes_reembolsos_eur": 6213.48,
+            "reembolsos_reconocidos_eur": 911.11,
+            "ventas_netas_eur": 5302.37
+          }
+        }
+      ],
+      "respuesta": "Malasaña vendió 5.302,37 euros en ventas netas entre el 6 y el 12 de abril de 2026.",
+      "segundos": 13.0
+    },
+    {
+      "id": 6,
+      "pregunta": "¿Cuántas personas visitaron la tienda de Malasaña en abril?",
+      "llamadas": [],
+      "respuesta": "No puedo determinar el número de personas que visitaron la tienda de Malasaña en abril porque no hay datos disponibles sobre el número de visitantes o personas por tienda en ese periodo. No puedo estimar ni inferir cifras sin información específica.",
+      "segundos": 7.0
+    }
+  ]
+}

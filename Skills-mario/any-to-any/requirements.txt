@@ -1,0 +1,8 @@
+markitdown[pdf,docx,pptx,xlsx,xls]==0.1.8   # extracción de documentos (trae pypdfium2, mammoth, openpyxl, xlrd, beautifulsoup4)
+python-docx==1.2.0
+markdown-it-py==4.2.0
+reportlab==5.0.1
+pypdf==6.19.0
+python-pptx==1.0.2
+# Imágenes y audio se delegan en img-to-text, audio-split y audio-decoder: usa también sus dependencias
+# (todas están en el requirements.txt de la raíz; el entorno se crea con python3 ../scripts/setup_env.py).

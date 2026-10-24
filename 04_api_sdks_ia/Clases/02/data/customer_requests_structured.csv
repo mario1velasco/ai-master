@@ -1,0 +1,13 @@
+request_id,customer_request,expected_process_type,expected_priority,expected_order_id
+REQ-001,The customer wants to cancel order 8921 because the item arrived broken.,refund_request,medium,8921
+REQ-002,I need to change the delivery address for order 5520 before it ships.,delivery_change,medium,5520
+REQ-003,The user reports that they have not been able to access the platform since yesterday.,technical_support,medium,
+REQ-004,The invoice amount is wrong and the client has already contacted support twice.,billing_issue,high,
+REQ-005,I want a refund for order 1044 because I received the wrong size.,refund_request,medium,1044
+REQ-006,The shipment for order 7789 is delayed and the customer needs it before Friday.,delivery_delay,high,7789
+REQ-007,Does the premium plan include API access and monthly billing?,product_question,low,
+REQ-008,Customer Ana Lopez reports damaged packaging for order 3372 and requests a replacement.,refund_request,medium,3372
+REQ-009,The client says the payment was charged twice for order 9901 and wants an urgent correction.,billing_issue,high,9901
+REQ-010,The user asks to reset their password and update their phone number.,account_management,low,
+REQ-011,"The customer received an incomplete package, order 4012, and is asking for the missing accessories.",other,medium,4012
+REQ-012,Order 6150 has an issue but the message does not explain what happened.,other,medium,6150

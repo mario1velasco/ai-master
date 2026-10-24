@@ -1,0 +1,32 @@
+========================================================================
+[LO QUE RECIBE EL MODELO — modo «sin-datos»]
+========================================================================
+Reglas: NO · Correo de dirección: NO · Hechos calculados: NO
+
+------------------------------------------------------------------------
+1 · SYSTEM PROMPT (instrucciones fijas: quién es y qué reglas sigue)
+------------------------------------------------------------------------
+Eres el analista de datos de DropLab y redactas para dirección.
+Responde en español, en un máximo de 6 frases.
+
+------------------------------------------------------------------------
+2 · MENSAJE (la pregunta y el contexto que le damos)
+------------------------------------------------------------------------
+Pregunta: ¿Cuánto han caído realmente las ventas netas de Malasaña y qué ha cambiado en las compras?
+
+========================================================================
+[BORRADOR DEL MODELO — sin validar, puede contener errores]
+========================================================================
+Las ventas netas de Malasaña han disminuido un 12% en comparación con el periodo anterior. El cambio más significativo es que el 40% de los compradores ahora realizan pedidos en formato de "compra rápida", reduciendo el tiempo de decisión. Además, se observa una caída del 18% en compras de productos de alta gama. La mayoría de los usuarios ahora priorizan precios bajos y entrega rápida. Estos cambios indican una reconfiguración del comportamiento de compra hacia opciones más inmediatas y económicas.
+
+========================================================================
+[REVISIÓN — cifras del borrador que NO están en los hechos]
+========================================================================
+Sin hechos calculados: ninguna cifra del borrador está respaldada por un cálculo.
+Cifras que aparecen: 12 %, 40 %, 18 %
+
+========================================================================
+[EJECUCIÓN — anótalo]
+========================================================================
+Modelo: qwen3:4b-instruct · temperatura 0.2 · num_ctx 4096
+Tiempo total 19.0 s (carga del modelo 6.9 s) · tokens de entrada 73 · de salida 127 · 11.6 tokens/s

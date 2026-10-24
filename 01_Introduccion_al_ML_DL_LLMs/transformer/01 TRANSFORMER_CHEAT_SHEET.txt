@@ -1,0 +1,426 @@
+================================================================================
+CHULETA: LAS 10 FÓRMULAS CLAVE DEL TRANSFORMER
+================================================================================
+
+Una página de referencia rápida para cuando necesites recordar rápidamente
+una fórmula o cómo funciona cada parte.
+
+================================================================================
+FÓRMULA 1: SCALED DOT-PRODUCT ATTENTION (La Base)
+================================================================================
+
+    Attention(Q, K, V) = softmax( Q·K^T / √d_k ) · V
+
+Qué es cada letra:
+    Q = Query matrix      (seq_len × d_k)
+    K = Key matrix        (seq_len × d_k)
+    V = Value matrix      (seq_len × d_v)
+    d_k = dimensión de queries/keys
+    · = multiplicación matricial
+
+Cuándo lo usas:
+    SIEMPRE. Es la base de todo el Transformer.
+
+Implementación mínima (NumPy):
+    
+    import numpy as np
+    
+    d_k = Q.shape[-1]
+    scores = np.dot(Q, K.T) / np.sqrt(d_k)
+    weights = np.exp(scores) / np.sum(np.exp(scores), axis=-1, keepdims=True)
+    output = np.dot(weights, V)
+
+================================================================================
+FÓRMULA 2: SOFTMAX (Convertir a Probabilidades)
+================================================================================
+
+    softmax(x_i) = e^x_i / Σ_j(e^x_j)
+
+Propiedades:
+    ✓ Salida: números entre 0 y 1
+    ✓ Suma: todas las salidas suman a 1.0
+    ✗ Problema: e^x puede explotar (overflow)
+    ✓ Solución: restar el máximo primero
+
+Implementación numéricamente estable:
+
+    def softmax(x):
+        x_shifted = x - np.max(x)
+        return np.exp(x_shifted) / np.sum(np.exp(x_shifted))
+
+Interpretación en Transformers:
+    Los valores softmax = probabilidades de atención
+    Ejemplo: [0.2, 0.5, 0.3] significa:
+    ├─ 20% de atención al primer elemento
+    ├─ 50% al segundo
+    └─ 30% al tercero
+
+================================================================================
+FÓRMULA 3: MULTI-HEAD ATTENTION (Las 8 Cabezas)
+================================================================================
+
+    MultiHead(Q, K, V) = Concat(head_1, ..., head_h) · W^O
+    
+    Donde head_i = Attention(Q·W_i^Q, K·W_i^K, V·W_i^V)
+
+Desglose:
+    h = número de cabezas (típicamente 8)
+    W_i^Q, W_i^K, W_i^V = matrices de proyección de la cabeza i
+    W^O = matriz de proyección final
+
+Dimensiones:
+    Input:   (seq_len, d_model)  ej: (10, 512)
+    Cada head procesa: (seq_len, d_model/h)  ej: (10, 64)
+    Output:  (seq_len, d_model)  ej: (10, 512)
+
+Pseudocódigo:
+
+    for head in range(num_heads):
+        Q_i = Q @ W_q[head]     # Proyectar
+        K_i = K @ W_k[head]
+        V_i = V @ W_v[head]
+        head_output = Attention(Q_i, K_i, V_i)
+        outputs.append(head_output)
+    
+    concatenated = Concat(outputs)  # (seq_len, d_model)
+    final = concatenated @ W_o
+
+================================================================================
+FÓRMULA 4: FEED-FORWARD NETWORK (FFN)
+================================================================================
+
+    FFN(x) = max(0, x·W_1 + b_1) · W_2 + b_2
+
+Componentes:
+    W_1 = matriz primera capa      (d_model × d_ff)
+    b_1 = bias primera capa        (d_ff)
+    max(0, ·) = ReLU (rectified linear)
+    W_2 = matriz segunda capa      (d_ff × d_model)
+    b_2 = bias segunda capa        (d_model)
+
+Típicamente:
+    d_model = 512
+    d_ff = 2048  (4× más grande)
+
+Implementación:
+
+    def ffn(x):
+        hidden = np.dot(x, W1) + b1     # (seq_len, d_ff)
+        hidden = np.maximum(0, hidden)  # ReLU
+        return np.dot(hidden, W2) + b2  # (seq_len, d_model)
+
+Propósito:
+    ├─ Primera capa: "amplificar" a 4× dimensión
+    ├─ ReLU: introducir no-linealidad
+    └─ Segunda capa: comprimir de vuelta a d_model
+
+================================================================================
+FÓRMULA 5: LAYER NORMALIZATION
+================================================================================
+
+    LayerNorm(x) = γ · (x - μ) / √(σ² + ε) + β
+
+Donde:
+    μ = media de x         (calculada por dimensión)
+    σ² = varianza de x
+    γ, β = parámetros aprendibles (scale y shift)
+    ε = pequeño número para estabilidad (ej: 1e-6)
+
+Implementación:
+
+    def layer_norm(x, gamma=None, beta=None, eps=1e-6):
+        mean = np.mean(x, axis=-1, keepdims=True)
+        var = np.var(x, axis=-1, keepdims=True)
+        x_norm = (x - mean) / np.sqrt(var + eps)
+        if gamma is not None:
+            return gamma * x_norm + beta
+        return x_norm
+
+Dónde se usa:
+    ├─ Después de Add (residual connections)
+    ├─ Normalmente después de: Attention + Add
+    └─ Y después de: FFN + Add
+
+Efecto:
+    ✓ Estabiliza el entrenamiento
+    ✓ Permite learning rates más altos
+    ✗ Introduce 2 parámetros por dimensión
+
+================================================================================
+FÓRMULA 6: RESIDUAL CONNECTIONS (Add)
+================================================================================
+
+    x_out = LayerNorm(x_in + Sublayer(x_in))
+
+Donde Sublayer puede ser:
+    ├─ Self-Attention
+    └─ Feed-Forward
+
+Visualización:
+
+    x ──────────────────┐
+    │                   │
+    ├─→ [Sublayer] ──→ Add ──→ Norm ──→ x_out
+    │                   │
+    └───────────────────┘
+
+Propósito:
+    ├─ Permite gradientes fluir directamente
+    ├─ Evita "vanishing gradients"
+    ├─ Permite entrenar redes muy profundas (6+ layers)
+    └─ Sin esto, gradientes → 0 en capas profundas
+
+================================================================================
+FÓRMULA 7: POSITIONAL ENCODING (Senos y Cosenos)
+================================================================================
+
+    PE(pos, 2i) = sin(pos / 10000^(2i/d_model))
+    PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
+
+Donde:
+    pos = posición en la secuencia (0, 1, 2, ...)
+    i = índice de dimensión (0, 1, 2, ...)
+    d_model = dimensión del modelo (512)
+
+Propiedades:
+    ✓ Valores entre -1 y 1
+    ✓ Cada posición tiene patrón único
+    ✓ El modelo puede interpolar para secuencias largas
+    ✗ Es fijo (no se entrena)
+
+Implementación:
+
+    def positional_encoding(seq_len, d_model):
+        pe = np.zeros((seq_len, d_model))
+        pos = np.arange(seq_len)[:, np.newaxis]
+        dim = np.arange(0, d_model, 2)
+        
+        pe[:, 0::2] = np.sin(pos / 10000**(dim / d_model))
+        pe[:, 1::2] = np.cos(pos / 10000**(dim / d_model))
+        
+        return pe
+
+Uso:
+
+    embeddings = word_embeddings(input_ids)     # (seq_len, d_model)
+    pe = positional_encoding(seq_len, d_model)  # (seq_len, d_model)
+    x = embeddings + pe                         # (seq_len, d_model)
+
+================================================================================
+FÓRMULA 8: ENCODER LAYER COMPLETO
+================================================================================
+
+    x_1 = x_0 + MultiHeadAttention(x_0, x_0, x_0)
+    x_1 = LayerNorm(x_1)
+    
+    x_2 = x_1 + FFN(x_1)
+    x_out = LayerNorm(x_2)
+
+O simplificado:
+
+    x = x + MultiHeadAttention(x, x, x)
+    x = LayerNorm(x)
+    x = x + FFN(x)
+    x = LayerNorm(x)
+
+Implementación:
+
+    class EncoderLayer:
+        def forward(self, x):
+            # Self-attention
+            attn_out = self.multihead_attention(x, x, x)
+            x = self.layer_norm1(x + attn_out)
+            
+            # Feed-forward
+            ffn_out = self.ffn(x)
+            x = self.layer_norm2(x + ffn_out)
+            
+            return x
+
+Apilamiento:
+    Se repite 6 veces (6 layers idénticos)
+
+================================================================================
+FÓRMULA 9: MASKED ATTENTION (Para el Decoder)
+================================================================================
+
+    Attention(Q, K, V, mask) = softmax((Q·K^T / √d_k) + mask) · V
+
+Donde mask es:
+    ├─ 0 para posiciones que el modelo PUEDE ver
+    ├─ -∞ para posiciones que el modelo NO PUEDE ver
+    └─ Se suma ANTES de softmax
+
+Implementación:
+
+    def attention_masked(Q, K, V):
+        seq_len = Q.shape[0]
+        d_k = Q.shape[-1]
+        
+        scores = np.dot(Q, K.T) / np.sqrt(d_k)
+        
+        # Crear máscara triangular
+        mask = np.triu(np.ones((seq_len, seq_len)), k=1)
+        scores = scores + (mask * -1e9)
+        
+        weights = softmax(scores)
+        return np.dot(weights, V)
+
+Máscara visual (seq_len=4):
+    
+    Posición:  [0,  1,  2,  3]
+    Puede ver: [0]        ← Pos 0 solo ve a sí misma
+    Puede ver: [0,  1]    ← Pos 1 ve 0 y 1
+    Puede ver: [0,  1,  2] ← Pos 2 ve 0, 1, 2
+    Puede ver: [0,  1,  2, 3] ← Pos 3 ve todo
+
+Propósito:
+    ├─ Evita que el decoder "haga trampa" viendo palabras futuras
+    ├─ Mantiene el modelo auto-regresivo
+    └─ Necesario para generar secuencias
+
+================================================================================
+FÓRMULA 10: CROSS-ATTENTION (Encoder-Decoder)
+================================================================================
+
+    CrossAttention(Q_decoder, K_encoder, V_encoder)
+
+Donde:
+    Q viene del decoder
+    K, V vienen del encoder
+
+Visualización:
+
+    Encoder output ─→ K, V
+                      │
+    Decoder ────→ Q ──┤ Cross-Attention ──→ Output
+                      │
+                      └─ El decoder mira el encoder
+
+Implementación:
+
+    # Encoder procesa input
+    encoder_output = self.encoder(input_seq)  # (seq_len, d_model)
+    
+    # Decoder genera output
+    decoder_state = self.decoder(output_seq)  # (target_len, d_model)
+    
+    # Decoder mira encoder a través de cross-attention
+    context = self.cross_attention(
+        query=decoder_state,      # De decoder
+        key=encoder_output,       # Del encoder
+        value=encoder_output      # Del encoder
+    )
+
+Propósito:
+    ├─ Permite que el decoder acceda información del encoder
+    ├─ Fundamental para traducción y tareas seq2seq
+    └─ El encoder procesa una vez, decoder mira muchas veces
+
+================================================================================
+COMPARACIÓN RÁPIDA DE LAS 10 FÓRMULAS
+================================================================================
+
+1. Scaled Dot-Product Attention → LA BASE (¡la más importante!)
+2. Softmax → Convertir a probabilidades
+3. Multi-Head Attention → 8 perspectivas paralelas
+4. FFN → Procesamiento posición-a-posición
+5. Layer Norm → Estabilidad
+6. Residual Connections → Permite entrenar profundamente
+7. Positional Encoding → Información de posición
+8. Encoder Layer → Combina todo lo anterior
+9. Masked Attention → Para generación secuencial
+10. Cross-Attention → Conexión encoder-decoder
+
+================================================================================
+PREGUNTAS DE AUTOVERIFICACIÓN
+================================================================================
+
+Si ENTIENDES esto, deberías poder responder:
+
+□ ¿Por qué dividimos por √d_k en Scaled Dot-Product?
+  Respuesta: Para mantener magnitudes razonables y evitar saturation del softmax
+
+□ ¿Cuántos parámetros tiene una cabeza de atención?
+  Respuesta: 3 proyecciones (Q, K, V) × d_model × d_k = 3 × 512 × 64
+
+□ ¿Qué hace el positional encoding?
+  Respuesta: Añade información de posición usando senos y cosenos
+
+□ ¿Por qué usamos residual connections?
+  Respuesta: Para evitar vanishing gradients al entrenar redes profundas
+
+□ ¿Qué es masked attention?
+  Respuesta: Atención donde se bloquean posiciones futuras usando -∞
+
+□ ¿Cuál es la diferencia entre self-attention y cross-attention?
+  Respuesta: Self: Q, K, V de la misma fuente. Cross: Q de una fuente, K, V de otra
+
+□ ¿Por qué 8 cabezas y no 1?
+  Respuesta: Diferentes cabezas aprenden diferentes aspectos (gramática, semántica, etc.)
+
+□ ¿Cómo el Transformer genera secuencias?
+  Respuesta: Auto-regresivo: usa palabra anterior como entrada para predecir siguiente
+
+================================================================================
+NÚMEROS MEMORABLES
+================================================================================
+
+Transformer Base:
+    d_model = 512
+    num_heads = 8
+    d_ff = 2048
+    num_layers = 6
+    Parámetros: ~65 millones
+    Entrenamiento: 12 horas
+
+Transformer Big:
+    d_model = 1024
+    num_heads = 16
+    d_ff = 4096
+    num_layers = 6
+    Parámetros: ~213 millones
+    Entrenamiento: 3.5 días
+
+GPT-3:
+    d_model = ~12288 (aproximado)
+    num_heads = 96
+    Parámetros: 175 millones
+
+Claude (aproximado):
+    Parámetros: Billones
+    Basado en: Transformer + Post-training
+
+================================================================================
+ATAJOS MENTALES
+================================================================================
+
+Recuerda esto para no confundirte:
+
+Q = "¿Qué quiero?" (Query)
+K = "¿Cuáles son las opciones?" (Keys)
+V = "¿Cuáles son los valores?" (Values)
+
+Atención = Buscar cuáles opciones son relevantes,
+           luego combinarlas ponderadas
+
+Multi-Head = Buscar desde 8 ángulos diferentes
+
+Residual = "Por si acaso, mantén la entrada original"
+
+Layer Norm = "Asegúrate de que los números no se vuelvan locos"
+
+Positional Encoding = "Recuerda dónde estamos en la secuencia"
+
+FFN = "Procesa cada palabra sin consideración el contexto"
+
+Masked Attention = "No hagas trampas: no mires el futuro"
+
+Cross-Attention = "Pregúntale al otro modelo qué ve"
+
+================================================================================
+FIN DE LA CHULETA
+================================================================================
+
+Guarda esto somewhere accesible. Cuando necesites recordar una fórmula,
+esta página debería darte la respuesta en <5 segundos.

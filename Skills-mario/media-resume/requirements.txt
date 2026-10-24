@@ -1,0 +1,7 @@
+# Unión de las dependencias de audio-decoder, img-to-text y text-resume (audio-split solo usa ffmpeg).
+faster-whisper==1.2.1
+Pillow==12.3.0
+markdown-it-py==4.2.0
+rapidocr==3.9.2
+reportlab==5.0.1
+pypdf==6.19.0

@@ -1,0 +1,13 @@
+{
+    "executionEnvironments": [
+        {
+            "root": "Clases/06",
+            "extraPaths": ["Clases/06"],
+            "venvPath": "Clases/06",
+            "venv": ".venv"
+        },
+        {
+            "root": "."
+        }
+    ]
+}

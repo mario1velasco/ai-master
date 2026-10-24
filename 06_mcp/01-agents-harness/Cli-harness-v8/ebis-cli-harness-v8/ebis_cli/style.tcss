@@ -1,0 +1,36 @@
+Screen {
+    background: #000000;
+    padding: 0 2;
+}
+
+Header {
+    background: #000080;
+    color: #ffffff;
+}
+
+#tip {
+    height: 2;
+    border: round #0088ff;
+    color: #45caff;
+    padding: 0 1;
+    margin: 0 1 1 1;
+}
+
+#chat {
+    height: 1fr;
+    border: round #0088ff;
+    background: #000000;
+    padding: 1;
+    margin: 0 1 1 1;
+}
+
+Input {
+    height: 3;
+    border: round #0088ff;
+    margin: 0 1 1 1;
+}
+
+Footer {
+    background: #000080;
+    color: #ffffff;
+}

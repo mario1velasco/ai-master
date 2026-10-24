@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+anthropic
+python-dotenv
+pydantic
+pyyaml
+pytest
+httpx
+pandas

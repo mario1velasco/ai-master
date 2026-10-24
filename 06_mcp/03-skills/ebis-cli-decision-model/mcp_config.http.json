@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "servers": [
+    {
+      "name": "ebis-calendar-api-mcp",
+      "transport": "http",
+      "url": "http://127.0.0.1:8001/mcp"
+    }
+  ]
+}

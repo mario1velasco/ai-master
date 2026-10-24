@@ -1,0 +1,13 @@
+﻿id,k,tipo,hit_pagina,respaldo,citas,abstencion,observaciones
+Q1,2,respondible,1,1,1,NA,La Jardina literal en p5-c0 (diría que es mi mirador favorito)
+Q2,2,respondible,1,1,1,NA,"TF24 desde rotonda Padre Anchieta y Mirador de La Tarta, ambos en p15-c0"
+Q3,2,respondible,1,1,1,NA,La Fogalera y Reina Pepiada literal en p25-c0
+Q4,2,respondible,1,1,1,NA,Playa de Los Cristianos y Las Vistas en p23-c0; p11-c0 es ruido
+Q5,2,sin_respuesta,NA,NA,NA,0,"Criterio estricto: no inventa el tiempo, pero dice 'Según la guía, para datos meteorológicos actualizados, consulta fuentes oficiales', que la guía no dice (p16-c0 y p15-c0 no hablan de meteorología)"
+Q6,2,sin_respuesta,NA,NA,NA,0,"Criterio estricto: no inventa el precio, pero atribuye a la guía 'consulta la información oficial actualizada', que p21-c0 no dice"
+Q1,4,respondible,1,1,1,NA,Igual que k=2; p24-c0 y p15-c0 son ruido extra
+Q2,4,respondible,1,1,1,NA,"Igual que k=2; p22, p24 y p12 son ruido"
+Q3,4,respondible,1,1,1,NA,Igual que k=2; p24-c3 y p13-c0 son ruido
+Q4,4,respondible,1,1,1,NA,Igual que k=2; p16 y p24 son ruido
+Q5,4,sin_respuesta,NA,NA,NA,1,"Se abstiene limpia: reconoce que la guía no tiene el dato, sin citas ni atribuciones falsas"
+Q6,4,sin_respuesta,NA,NA,NA,1,"Se abstiene y remite a la información oficial como consejo propio, sin atribuirlo a la guía ni citar"

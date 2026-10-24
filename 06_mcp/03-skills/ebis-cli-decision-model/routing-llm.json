@@ -1,0 +1,72 @@
+{
+  "default": "medium_reasoning",
+  "savings_baseline": "expensive_reasoning",
+  "models": {
+    "cheap_no_reasoning": {
+      "model": "gpt-6-luna",
+      "reasoning_effort": "none",
+      "description": "Nivel mínimo para una acción directa, clara y de baja ambigüedad. Úsalo para localizar un dato explícito, extraer campos que aparecen literalmente, clasificar casos evidentes, resumir un texto sencillo, normalizar formato o contestar brevemente. La información necesaria ya está en el prompt y basta con seguir instrucciones; no hace falta comparar hipótesis, planear pasos ni decidir entre varias herramientas. No elijas este nivel solo porque la respuesta sea corta si exige inferencias.",
+      "pricing": {
+        "input_per_million": 0.1,
+        "cached_input_per_million": 0.01,
+        "cache_write_per_million": 0.125,
+        "output_per_million": 0.5
+      }
+    },
+    "cheap_reasoning": {
+      "model": "gpt-6-luna",
+      "reasoning_effort": "low",
+      "description": "Sigue siendo el modelo más económico, pero permite razonamiento ligero. Elígelo si una tarea pequeña necesita una inferencia corta que puede cambiar la respuesta: comparar unos pocos elementos, relacionar dos hechos, resolver una ambigüedad menor, comprobar una conclusión simple o decidir entre dos acciones claras. No lo uses para una extracción literal que funciona sin inferir, ni para depuración, planificación extensa, varias fuentes contradictorias o cambios de código con dependencias; en esos casos usa medium.",
+      "pricing": {
+        "input_per_million": 0.1,
+        "cached_input_per_million": 0.01,
+        "cache_write_per_million": 0.125,
+        "output_per_million": 0.5
+      }
+    },
+    "medium_no_reasoning": {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "none",
+      "description": "Usa el modelo intermedio sin presupuesto de razonamiento. Adecuado cuando hace falta más capacidad para entender instrucciones técnicas, seguir una transformación explícita, preparar argumentos ya determinados para una tool o trabajar con bastante contexto, pero no resolver un problema por varios pasos. Si hay que decidir un plan, cruzar resultados, diagnosticar o elegir entre alternativas, selecciona medium_reasoning.",
+      "pricing": {
+        "input_per_million": 2.0,
+        "cached_input_per_million": 0.2,
+        "cache_write_per_million": 2.5,
+        "output_per_million": 10.0
+      }
+    },
+    "medium_reasoning": {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "medium",
+      "description": "Opción recomendada para el trabajo habitual de un agente cuando debe pensar varios pasos. Úsala para decidir y secuenciar tools, combinar resultados, cumplir varios requisitos, planificar una modificación de código acotada, depurar un problema localizado o comparar opciones con criterios explícitos. El esfuerzo medium equilibra calidad, fiabilidad, coste y latencia. No subas a expensive si el problema está acotado y medium puede resolverlo.",
+      "pricing": {
+        "input_per_million": 2.0,
+        "cached_input_per_million": 0.2,
+        "cache_write_per_million": 2.5,
+        "output_per_million": 10.0
+      }
+    },
+    "expensive_no_reasoning": {
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "none",
+      "description": "Nivel de mayor coste sin razonamiento. Resérvalo para entradas muy largas, contenido técnico o salidas que exijan comprensión y precisión superiores, cuando la operación siga estando especificada de forma directa: por ejemplo, una síntesis extensa con formato estricto o una transformación grande sin investigar causas ni diseñar una estrategia. No lo uses para que el mayor precio sustituya al razonamiento: si la tarea requiere hipótesis, planificación, depuración o decisiones complejas, elige expensive_reasoning.",
+      "pricing": {
+        "input_per_million": 4.0,
+        "cached_input_per_million": 0.4,
+        "cache_write_per_million": 5.0,
+        "output_per_million": 20.0
+      }
+    },
+    "expensive_reasoning": {
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "description": "Úsalo solo para trabajo excepcionalmente difícil donde una respuesta errónea pueda costar caro y medium no ofrezca margen suficiente: diagnóstico con muchas causas o archivos interdependientes, diseño de arquitectura con compromisos difíciles, planificación extensa, investigación de evidencias contradictorias o análisis de alto impacto. GPT-6 Astra es el modelo más capaz y high permite un análisis más exhaustivo, con más latencia y tokens. No lo elijas por longitud, por escribir mucho ni para una tarea que medium pueda resolver; no uses xhigh/max sin evidencia de que high sea insuficiente.",
+      "pricing": {
+        "input_per_million": 10.0,
+        "cached_input_per_million": 1.0,
+        "cache_write_per_million": 12.5,
+        "output_per_million": 50.0
+      }
+    }
+  }
+}

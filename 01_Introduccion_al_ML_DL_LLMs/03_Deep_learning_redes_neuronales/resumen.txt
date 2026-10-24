@@ -1,0 +1,60 @@
+Deep learning.
+
+No necesita necesariamente datos tabulares
+Puede procesar imagenes
+Necesitan muchos mas datos y consumen mas para entrenarlas
+
+Lo que sale de la sigmide no es una probabilidad. Se llama probabilidad para que lo entienda producto
+Si sale 0.8 y otra 0.6 la que tiene 0.8 es mejor pero no es un 80% de probabilidad
+
+
+Back propagation o aprendizaje retroactivo
+
+Overfitting
+
+CNN - Vision por ordenador
+redes neuro pensar en 2 dimensiones
+Min 36 -> mirar -> Vision por ordenador
+Cada imagen numero es una matriz y esta formado por pixel
+Cada pixel tiene un valor entre 0 (Blanco) y 255 (Negro) y entre medias toda la escala de grisees
+Si fuera a color. Tendriamos una matriz de 3 dimensiones (RGB)
+Al comprimir una imagen se pasa de 0-255 a 0-1
+
+Para la escala de grises (2 dimensiones) pasamos a 1 dimension poniendo todos los PXs seguidos.
+Por lo que la matriz fianl esta formada por:
+    * Cada fila es el numero expresado en pixels
+    * Cada columna es valor (0-1) del pixel x
+    * Cada columna va a ser una neurona. 
+Una vez hecho el APLANAMIENTO (RE-SHAPE) se mete en la Red Neuronal (formula del sumatorio).
+    Una imagen (28px, 28px) -> Pasa a 784 Neuronas (28x28). Necesitas tantas tantas neuronas (784) como pixels tiene la imagen (28x28)
+
+Si en vez de solo 0 e 1 tienes 0 - 9. Necesitas la C (La convolucion) y la NN (rede neuronal sencillita)
+        - C -> Convolucion es pasar de algo que entiende el humano (imagen) a algo simplificado hasta su minima expresion y así entiende la máquina 
+            Se pasa de una matriz (224,224,4) a traves de calculos para reducir el tamaño de la imagen pero lo hace más profundo (13x13x128 - )
+        - A la 13x13x128 Se hace el APLANAMIENTO y se mete a la red neuronal
+
+
+
+La imagenes las pasa a una matriz en pixel 0 que color en 1 etc genera un mar4tris
+
+Convolucion -> de imagen -> matriz -> antes de llegar a NN
+
+hiperparametro -> Lav valvulas de fuera de la caja negra. Que modificas antes de entrenar
+parametros -> Se ejustan durante el entrenamiento (pesos en la red neuronal). Se ajustan ellos solos, nosotros modificamos 
+    un multiplicador (en el back propagation) dice al peso como va a modificarse de rapido o despacio (es el Learning Rate)
+
+Batch: numero de muestras para entrenarlas. Se usa para que sea mas rapido se puede paralelizar con las GPUs
+
+
+Gradiente -> es el "error " que disminuye al entrenar el modelo
+Epoch -> Pasada completa de todo el conjunto de datos para el entrenamiento. El numero de pasadas del data set para entrenar. El batch (numero) es el mismo y mezclas los datos
+
+Learning rate. Ratio de aprendizaje (es un hiperparametro)
+La forma en que ajusto los pesos durante l back propagation
+si aumenta batch size, auumenta learning rate
+
+Keras libreria de deep learning antigua. Keras da UX/UI a tensorflow
+PyTorch libreria usan todos los desarrolladores de IA
+
+
+

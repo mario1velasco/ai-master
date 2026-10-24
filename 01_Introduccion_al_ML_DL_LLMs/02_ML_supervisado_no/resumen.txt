@@ -1,0 +1,57 @@
+Para entrenar un ML necesitamos
+BBDD de entrenamiento -> instancia es cada fila -> caracteristicas son las columnas ->LABEL: Solucion
+
+ML -> Aprendizaje supervisado: Tienen LABELS en el entrenamiento
+Etiqueta acotada -> 0 1 -1 -> Variable objetivo discreta
+No -> Esperanza de vida  -> Modelos supervissados regresivos -> Variable objetiva continua
+Esto dos son el 80% de los modelos que se usan en las empresas
+
+
+
+No supervisado -> No tienen etiquetas
+    Comprimen los resultados de x dimensiones a una matriz de 2 (2 dimensiones para ver en un grafo). Agrupa los usuarios mas parecidos, cuando los analizas te das cuenta de cositas
+    EMBEDINGS / 
+
+ML ->   Fuente de datos 20% -> 
+        Analisis de datos y procesamiento 60% (Data Wrangling -> los resultados que se corrigen -> Obtener una matriz ordenada tabla)->
+        Modelado 15%
+        Despliegue y Produccion (10%)
+
+
+
+Conceptoes de entrenmaiento test inferencia
+Supervisado -> TEST   Particion entre el dato entrenado y el de evaluacion -> Te quedas con una parte de dataset (20%) para una evaluacion
+                Datos de inferencia son los datos que devuelve el algoritmo con el data set de evaluacion
+Overfitting -> si esta sobre entrenado
+
+
+
+Metricas de evaluacion
+Dataleaked -> meter datos que no deberia tener.
+Matriz de confusion. Clase real (0 , 1 si tiene covid o no) Clase predictiva
+True Positive
+False negatives    Si modelo bueno tiene que estar en la diagonal buena
+False Positipe
+True Negative
+
+Formulas
+        Accuracy 
+            Procision (lejos o cerca estas de tus predicciones) 
+            Recall (has acertado sobre cuentas deberias de acertar)
+        F1 Score
+
+Si tienes un accuracy del 95% el modelo puede ser una mierda por precison y recall estan muy mal
+
+MAE bajo modelo bueno
+
+
+
+
+
+TARGET ENCODING -> VER VIDEO
+
+
+HiperParametros 3.2 Entrenamiento del modelo
+[0]	train-auc:0.88289	eval-auc:0.87377
+Si se acerca a 1 (como esto) ERES UN GENIO
+

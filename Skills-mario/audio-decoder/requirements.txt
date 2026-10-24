@@ -1,0 +1,2 @@
+faster-whisper==1.2.1
+av==18.1.0                 # av 19 quitó el parámetro metadata_errors que usa faster-whisper 1.2.1 (ver references/errores_conocidos.md)

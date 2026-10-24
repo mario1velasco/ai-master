@@ -1,0 +1,3 @@
+Elena comenta que el equipo de calidad ha encontrado 23 errores en la última versión: 4 críticos, 9 importantes y 10 menores. Los 4 críticos afectan al cálculo del IVA. Propone que no se publique ninguna versión nueva hasta corregirlos. Marcos está de acuerdo y se compromete a corregirlos antes del viernes 21 de marzo.
+
+Lucía pregunta si el retraso de las credenciales pone en riesgo la fecha de lanzamiento. Marcos responde que, si las credenciales llegan antes del 28 de marzo, el 30 de junio sigue siendo viable; si llegan más tarde, habría que retrasar el lanzamiento unas dos semanas. Lucía dice que escribirá hoy mismo al proveedor para reclamarlas.

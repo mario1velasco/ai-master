@@ -1,0 +1,44 @@
+# config.yml — ejemplo con datos de prueba (mock)
+# No contiene secretos reales; las API keys de verdad viven solo en .env (gitignored).
+
+server:
+  host: 0.0.0.0
+  port: 4200
+  reload: true
+
+app:
+  name: api-sdks-ia
+  environment: development
+  log_level: INFO
+
+llm:
+  provider: anthropic
+  default_model: claude-haiku-4-5-20251001
+  fallback_model: claude-sonnet-5
+  max_tokens: 1024
+  temperature: 0.7
+  timeout_seconds: 30
+  retry:
+    max_attempts: 3
+    backoff_seconds: 2
+
+api_keys:
+  # Placeholders de ejemplo — las claves reales solo van en .env
+  rotation_strategy: random
+  keys:
+    - name: key_1
+      value: sk-ant-mock-0000000000000000000000000000
+    - name: key_2
+      value: sk-ant-mock-1111111111111111111111111111
+    - name: key_3
+      value: sk-ant-mock-2222222222222222222222222222
+
+session:
+  ttl_minutes: 60
+  max_messages_per_session: 50
+
+cors:
+  allow_origins:
+    - "http://localhost:3000"
+    - "http://localhost:5173"
+  allow_credentials: true

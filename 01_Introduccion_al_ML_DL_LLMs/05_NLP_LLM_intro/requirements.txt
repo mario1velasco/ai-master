@@ -1,0 +1,16 @@
+# Demo Tema 2 · Sesión 4 — Fundamentos de NLP
+# Compatible con Python 3.10+ y MacBook Apple Silicon (M1/M2/M3/M4).
+
+# Tokenización GPT-4
+tiktoken>=0.7.0
+
+# Embeddings de frase (basados en BERT)
+sentence-transformers>=2.7.0
+
+# Embeddings de palabra clásicos (GloVe, Word2Vec)
+gensim>=4.3.0
+
+# Visualización y reducción de dimensiones
+scikit-learn>=1.4.0
+matplotlib>=3.8.0
+numpy>=1.26.0

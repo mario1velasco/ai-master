@@ -1,0 +1,12 @@
+app:
+  name: "Customer Service Case API"
+  version: "1.0.0"
+
+llm:
+  temperature: 0.0
+  max_tokens: 500
+
+context:
+  max_recent_messages: 6
+  summarize_after_messages: 8
+  keep_last_messages_after_summary: 4

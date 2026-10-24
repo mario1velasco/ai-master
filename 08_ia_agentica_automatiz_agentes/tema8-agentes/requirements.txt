@@ -1,0 +1,12 @@
+# Tema 8 · IA Agéntica — dependencias de las seis sesiones
+openai>=1.40              # sesiones 1-2: cliente compatible con Ollama y proveedores en la nube
+python-dotenv>=1.0
+langgraph>=1.0            # sesiones 3-6: agentes como grafos de estados
+langgraph-checkpoint-sqlite>=2.0
+langchain-openai>=0.3
+mcp>=1.10                 # sesión 3: servidor MCP propio
+langchain-mcp-adapters>=0.1
+httpx>=0.27               # sesión 3: APIs externas
+fastapi>=0.110            # sesión 6: webhook
+uvicorn>=0.29
+pytest>=8                 # pruebas con modelo simulado (opcional)
