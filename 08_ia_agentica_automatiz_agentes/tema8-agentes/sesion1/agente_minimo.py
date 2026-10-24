@@ -47,7 +47,19 @@ FUNCIONES = {
 }
 
 
+# ! Reto · Detecta bucles: cuántas veces se ha llamado cada (herramienta, argumentos)
+LLAMADAS_REPETIDAS = {}
+MAX_REPETICIONES = 2
+
+
 def ejecutar_herramienta(nombre: str, argumentos: str, funciones: dict) -> str:
+    clave = (nombre, argumentos)
+    LLAMADAS_REPETIDAS[clave] = LLAMADAS_REPETIDAS.get(clave, 0) + 1
+    if LLAMADAS_REPETIDAS[clave] > MAX_REPETICIONES:  # no se ejecuta: se avisa al modelo
+        return json.dumps({"error": (
+            f"La herramienta {nombre} ya se ha llamado {MAX_REPETICIONES} veces con estos mismos "
+            "argumentos sin éxito. No la vuelvas a llamar. Explica al cliente que el servicio no "
+            "está disponible ahora mismo y ofrécele una alternativa.")}, ensure_ascii=False)
     try:
         resultado = funciones[nombre](**json.loads(argumentos or "{}"))
     except Exception as e:  # el error vuelve al modelo para que decida qué hacer

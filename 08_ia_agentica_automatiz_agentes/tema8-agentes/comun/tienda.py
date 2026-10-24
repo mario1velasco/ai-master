@@ -45,5 +45,7 @@ def obtener_pedido(id_pedido: str) -> dict:
 
 
 def consultar_transportista(numero_seguimiento: str) -> dict:
-    # Simula una API externa caída. Se usa en clase para provocar un bucle.
-    raise ConnectionError("Timeout: el servicio del transportista no responde.")
+    # ! Reto · Detecta
+    if numero_seguimiento.upper().strip() not in PEDIDOS:
+        return {"error": f"No existe un pedido con el número de seguimiento '{numero_seguimiento}'."}
+    return {"numero_seguimiento": numero_seguimiento.upper(), "ubicacion": "Barcelona"}
