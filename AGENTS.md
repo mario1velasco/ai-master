@@ -37,6 +37,7 @@ Cada carpeta es **independiente**: su propio entorno (`.venv`), sus dependencias
 - No subas ni muestres el contenido de ningún `.env`.
 - Ejecuta el código **desde dentro de su carpeta**, con su propio entorno.
 - **Siempre que escribas, edites o revises código Python**, carga antes la skill `python-developer` (en `.claude/skills/python-developer/`). Si choca con lo que ya hace una carpeta (versión de Python, `requirements.txt` en vez de `pyproject.toml`, sin layout `src/`, etc.), manda lo que ya existe en la carpeta: no migres la estructura por tu cuenta.
+- **Commits a nombre de Mario**: sin `Co-Authored-By` ni ninguna mención a la IA en el mensaje de commit ni en las PR.
 - Antes de trabajar en una carpeta, lee su `AGENTS.md`, `CLAUDE.md` o `README.md` si existe: tienen el detalle y **prioridad** sobre este archivo.
 
 ## Mantener esta documentación
