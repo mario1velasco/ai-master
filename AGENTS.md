@@ -36,8 +36,16 @@ Cada carpeta es **independiente**: su propio entorno (`.venv`), sus dependencias
 - **Cada carpeta tiene su propio `.env`. No crees nunca un `.env` en la raíz** ni lo compartas entre carpetas: daría conflictos de claves y configuraciones. Si falta, se copia del `.env.example` de esa carpeta.
 - No subas ni muestres el contenido de ningún `.env`.
 - Ejecuta el código **desde dentro de su carpeta**, con su propio entorno.
+- **Siempre que escribas, edites o revises código Python**, carga antes la skill `python-developer` (en `.claude/skills/python-developer/`). Si choca con lo que ya hace una carpeta (versión de Python, `requirements.txt` en vez de `pyproject.toml`, sin layout `src/`, etc.), manda lo que ya existe en la carpeta: no migres la estructura por tu cuenta.
 - Antes de trabajar en una carpeta, lee su `AGENTS.md`, `CLAUDE.md` o `README.md` si existe: tienen el detalle y **prioridad** sobre este archivo.
 
 ## Mantener esta documentación
 
 Se irán añadiendo cursos y carpetas nuevas. Cuando aparezca, cambie de nombre o desaparezca una carpeta de primer nivel, actualiza las tablas de **Estructura** en el mismo cambio. Edita solo lo necesario; si no ha cambiado nada, no toques el archivo.
+
+Lo mismo con el `AGENTS.md` de cada carpeta: si haces un cambio **importante** dentro de ella, actualízalo en el mismo cambio. Tú decides si lo es, con este criterio:
+
+- **Sí actualizar**: algo que deja desfasado lo que dice ese `AGENTS.md`. Por ejemplo, material de clase nuevo con tecnologías nuevas, una subcarpeta o práctica nueva, otra forma de instalar o ejecutar, dependencias o variables de `.env` nuevas, o un cambio de arquitectura.
+- **No actualizar**: cambios menores que no afectan a lo documentado, como cambiar una función, arreglar un bug, refactorizar o retocar textos.
+
+Si la carpeta no tiene `AGENTS.md` y el cambio es importante, menciónalo al terminar en lugar de crearlo por tu cuenta.

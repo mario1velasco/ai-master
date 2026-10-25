@@ -5,7 +5,8 @@ en la base de datos (clientes, vuelos, reservas…) o en la documentación (leye
 seguridad y salud en viajes). Todo con modelos **open source** ejecutados en local y expuesto mediante una
 API **FastAPI + Pydantic + uvicorn**.
 
-> Estado: diseño v1 completo (2026-10-24). Se irá actualizando a medida que se tomen decisiones pendientes (arquitectura del RAG).
+> Estado: diseño v1 completo (2026-10-24). Actualizado el 2026-10-25: arquitectura del RAG (búsqueda híbrida),
+> un solo LLM (Qwen3-4B) para agente y text-to-SQL por el hardware disponible, y fine-tuning opcional.
 
 ## Índice
 
@@ -14,7 +15,7 @@ API **FastAPI + Pydantic + uvicorn**.
 3. [Datos de la base de datos](#3-datos-de-la-base-de-datos)
 4. [Corpus documental](#4-corpus-documental)
 5. [Modelos open source](#5-modelos-open-source)
-6. [Fine-tuning del LLM text-to-SQL](#6-fine-tuning-del-llm-text-to-sql)
+6. [Text-to-SQL: línea base y fine-tuning opcional](#6-text-to-sql-línea-base-y-fine-tuning-opcional)
 7. [Backend FastAPI](#7-backend-fastapi)
 8. [Observabilidad: métricas, trazas y logs](#8-observabilidad-métricas-trazas-y-logs)
 9. [Evaluación y seguridad](#9-evaluación-y-seguridad)
@@ -40,7 +41,8 @@ atención al cliente recibe a diario preguntas que necesitan dos tipos de inform
 Un **agente** que:
 
 1. Entiende la pregunta y decide si necesita la **BBDD**, los **documentos** o ambos.
-2. Para la BBDD, un **LLM open source afinado** traduce la pregunta a SQL **solo sobre vistas de lectura**.
+2. Para la BBDD, un **LLM open source** (el mismo del agente; afinado solo si hace falta) traduce la pregunta a SQL
+   **solo sobre vistas de lectura**.
 3. Para los documentos, un **RAG** recupera los pasajes relevantes y la respuesta los **cita**.
 4. Redacta la respuesta final en español, sin inventar: si no encuentra la información, lo dice.
 
@@ -81,9 +83,9 @@ Se usa desde un **backend FastAPI** con el mismo esqueleto que `llm-customer-sup
 │  combina resultados y redacta la respuesta citando fuentes                 │
 └───────────────┬───────────────────────────────────────┬────────────────────┘
                 ▼                                       ▼
-┌──── text2sql/ (LLM afinado) ────┐        ┌──────── rag/ ───────────────┐
+┌───── text2sql/ (Qwen3-4B) ──────┐        ┌──────── rag/ ───────────────┐
 │ pregunta → SQL                  │        │ pregunta → pasajes + cita    │
-│ validador: solo SELECT,         │        │ (arquitectura por decidir)   │
+│ validador: solo SELECT,         │        │ híbrida: BM25 + FAISS + RRF  │
 │ solo vistas permitidas          │        └──────────────┬───────────────┘
 └───────────────┬─────────────────┘                       ▼
                 ▼                                 rag/corpus/ (pdf, md…)
@@ -100,8 +102,8 @@ y `tests/`. Se ejecuta, se prueba y se evalúa por separado.
 | `contracts/` | Esquemas Pydantic compartidos (`SqlResult`, `RagHit`, `AgentAnswer`…), **todos con métricas** (sección 8) | — | nada |
 | `telemetry/` | Logger, escritor JSONL, cronómetros, IDs de traza; futuro exportador a MLflow (sección 8) | — | `contracts` |
 | `database/` | CSV propios, vistas DuckDB de solo lectura, diccionario de datos | — | nada |
-| `rag/` | Corpus documental, conversión a Markdown (PaddleOCR) y, más adelante, búsqueda | por decidir | `contracts` |
-| `text2sql/` | Traducir pregunta → SQL y ejecutarlo de forma segura | **LLM afinado** | `contracts`, `database` |
+| `rag/` | Corpus documental, conversión a Markdown (PaddleOCR) y búsqueda híbrida (sección 4) | — (embeddings y reranker) | `contracts` |
+| `text2sql/` | Traducir pregunta → SQL y ejecutarlo de forma segura | **Qwen3-4B** (el mismo del agente) | `contracts`, `database` |
 | `agent/` | Decidir dónde buscar, combinar y redactar | **LLM del agente** | `contracts`, `rag`, `text2sql` |
 | `api/` | HTTP, sesiones, observabilidad, errores | (mock en tests) | `contracts`, `agent` |
 | `docs/` | Decisiones (ADR) y diagramas | — | — |
@@ -214,14 +216,15 @@ Los cálculos delicados (retraso, distancia, importe neto) se hacen **en la vist
 ### Diccionario de datos (`database/docs/`)
 
 Un `diccionario.md` describe cada vista y columna (tipo, unidades, ejemplos, valores posibles). Es el
-**contexto que recibe el LLM text-to-SQL** y la base para generar el dataset de fine-tuning (sección 6).
+**contexto que recibe el LLM text-to-SQL** y la base para generar el dataset de evaluación (y de fine-tuning, si
+llega a hacer falta; sección 6).
 
 ---
 
 ## 4. Corpus documental
 
-> La **arquitectura del RAG** (chunking, embeddings, índice, búsqueda) **está por decidir**. En esta fase el
-> objetivo es solo **reunir mucho material** (PDF, Markdown, docs…) y pasarlo a Markdown.
+> Primero se **reúne mucho material** (PDF, Markdown, docs…) y se pasa a Markdown. La **arquitectura de búsqueda**
+> ya está decidida (búsqueda híbrida, ver [Arquitectura del RAG](#arquitectura-del-rag)); queda pendiente el chunking.
 
 ### Sobre las licencias
 
@@ -310,10 +313,39 @@ rag/corpus/<carpeta>/doc.pdf  ──►  rag/conversion/  ──►  rag/markdow
 Cada `.md` resultante empieza con una cabecera con `fuente`, `url`, `licencia` y la página de cada bloque,
 para poder **citar** cuando el RAG esté montado.
 
-### Qué queda fuera por ahora
+### Arquitectura del RAG
 
-- Elegir chunking, embeddings, índice y método de búsqueda.
-- Evaluación del RAG (preguntas de prueba, Hit@k). Se hará cuando el corpus esté reunido.
+**Decisión: búsqueda híbrida (léxica + densa) fusionada con RRF y reordenada con un reranker.**
+
+```
+pregunta ─┬─► bge-m3 → vector denso → FAISS Flat (IndexFlatIP)   (rama densa: significado)
+          └─► palabras → BM25 (rank_bm25 u otro)                  (rama léxica: "261/2004", "artículo 7")
+                    │
+                    └──► RRF ─► reranker ─► LLM
+```
+
+| Pieza | Elección | Por qué |
+|---|---|---|
+| **Embeddings** | [BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3) (MIT), vectores normalizados | Multilingüe (corpus en español e inglés), 1.024 dimensiones |
+| **Índice denso** | FAISS `IndexFlatIP` (búsqueda **exacta**) | ~30.000–50.000 chunks → ~200 MB y ~10 ms por consulta: no compensa aproximar (HNSW, IVF, IVF-PQ) |
+| **Rama léxica** | BM25 con `rank_bm25` (u otro) | Las leyes están llenas de identificadores exactos que los embeddings no captan bien |
+| **Fusión** | RRF (`1/(60+posición)`) | Combina listas sin normalizar scores de escalas distintas |
+| **Reranker** | [BAAI/bge-reranker-v2-m3](https://huggingface.co/BAAI/bge-reranker-v2-m3) (Apache 2.0) | Cross-encoder multilingüe; reordena ~20 candidatos en CPU en 1–3 s |
+| **Filtros** | Prefiltro exacto por metadatos (`vigente_desde`, `publico`, `ambito`) con `IDSelector` de FAISS o índices separados | Con Flat el prefiltro es exacto; el post-filtro del wrapper de LangChain (`fetch_k`) puede dejar sin resultados |
+
+Presupuestos de partida (a ajustar con la evaluación): top-50 por rama → RRF → top-20 al reranker → top-5 al LLM.
+
+**Cuándo revisar la decisión:** más de ~1 millón de chunks (pasar a HNSW o a Qdrant), vectores que no caben en RAM
+(IVF-PQ) o necesidad de muchos filtros y actualizaciones frecuentes (Qdrant en local). Cambiar de índice en FAISS
+es cambiar una línea (`faiss.index_factory(d, "HNSW32", …)`), pero hay que revisar cómo se comportan los filtros.
+
+Explicación detallada de Flat, HNSW, IVF e IVF-PQ: [`docs/guia-indices-vectoriales.md`](docs/guia-indices-vectoriales.md).
+
+**Pendiente:**
+
+- Chunking (tamaño, solape, por secciones de ley o por encabezados Markdown).
+- Evaluación del RAG (preguntas de prueba, Hit@k, recall por etapa: BM25, denso, híbrido, híbrido + reranker).
+  Se hará cuando el corpus esté reunido.
 
 ---
 
@@ -327,51 +359,112 @@ Ninguno llama a una API de pago.
 | Papel | Modelo propuesto | Licencia | Dónde corre | Carpeta |
 |---|---|---|---|---|
 | **LLM del agente** (decide herramienta y redacta) | [Qwen3-4B-Instruct-2507](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) (`qwen3:4b-instruct` en Ollama, el de clase) | Apache 2.0 ✅ | Ollama | `agent/` |
-| **LLM text-to-SQL** (pregunta → SQL, afinado) | [Qwen2.5-Coder-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct) + LoRA | Apache 2.0 ✅ | Ollama (GGUF tras el fine-tuning) | `text2sql/` |
+| **LLM text-to-SQL** (pregunta → SQL) | **El mismo**: Qwen3-4B-Instruct-2507; con LoRA solo si la evaluación lo justifica (sección 6) | Apache 2.0 ✅ | Ollama | `text2sql/` |
+| **Embeddings del RAG** | [BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3) | MIT ✅ | Python local (`sentence-transformers`) | `rag/` |
+| **Reranker del RAG** | [BAAI/bge-reranker-v2-m3](https://huggingface.co/BAAI/bge-reranker-v2-m3) | Apache 2.0 ✅ | Python local (CPU) | `rag/` |
 | **Conversión a Markdown** | [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) (PP-StructureV3) | Apache 2.0 ✅ | Python local | `rag/conversion/` |
-| **Embeddings / reranker del RAG** | *Por decidir* con la arquitectura del RAG | — | — | `rag/` |
 
 ### Por qué estos
 
 - **Qwen3-4B-Instruct** para el agente: ya lo usamos en el tema 7, cabe en un portátil, buen **tool calling** y buen español.
-  El agente no necesita saber SQL: solo elegir herramienta, combinar resultados y redactar.
-- **Qwen2.5-Coder-7B** para text-to-SQL: modelo especializado en código y SQL, base habitual para afinar
-  text-to-SQL. Con LoRA/QLoRA se entrena en una GPU de consumo.
-- **Dos LLM separados** porque hacen trabajos distintos y así se evalúan y se cambian por separado
-  (sección 2: cada paquete tiene su cliente).
+- **El mismo Qwen3-4B para text-to-SQL, por el hardware** (ver abajo): con 4 GB de VRAM no caben dos LLM a la vez, y
+  alternar entre el 4B y un 7B obligaría a Ollama a sacar de memoria un modelo y cargar el otro en cada pregunta mixta (varios segundos
+  cada vez). Además, en la clase 07 el 4B ya genera bien SQL **sobre vistas**, y nuestras vistas hacen los cálculos
+  difíciles (retraso, distancia, importe neto), así que el SQL que se pide es sencillo.
+- **Siguen siendo dos papeles separados en el código**: `agent/` y `text2sql/` tienen cada uno su cliente, su prompt,
+  su variable (`AGENT_MODEL`, `TEXT2SQL_MODEL`) y su evaluación; hoy las dos apuntan al mismo modelo. Si algún día
+  hay más VRAM, se prueba un modelo especializado en SQL cambiando solo el `.env`.
+- **bge-m3 + bge-reranker-v2-m3**: multilingües (corpus en español e inglés) y ligeros para ir en CPU (sección 4).
+
+### Hardware de desarrollo
+
+Equipo en el que se desarrolla y se ejecuta todo (comprobado el 2026-10-25):
+
+| Pieza | Equipo | Qué implica |
+|---|---|---|
+| CPU | Intel i7-9750H, 6 núcleos / 12 hilos | Suficiente para embeddings de consulta (~100 ms) y reranker (1–3 s por 20 candidatos) |
+| RAM | 16 GB (~9 GB libres con escritorio y navegador) | Límite principal si hay varios modelos cargados a la vez |
+| GPU | NVIDIA GTX 1650, **4 GB de VRAM** (~2,4 GB libres; el escritorio usa ~1,6 GB), compute capability 7.5 | Cabe un LLM de 4B cuantizado (casi entero); **no caben dos LLM** ni se puede afinar un 4B/7B en local |
+| Disco | ~730 GB libres (NVMe) | Sin problema para modelos, corpus e índices |
+| Software | Ollama 0.30.11 con `qwen3:4b-instruct` (2,5 GB) | El LLM del proyecto ya está descargado |
+
+**Qué se ejecuta y cuándo** (nunca todo a la vez):
+
+| Momento | Modelos | Notas |
+|---|---|---|
+| **Preparación** (una vez, por lotes) | PaddleOCR → bge-m3 (indexar todo el corpus) | Uno detrás de otro; indexar ~50.000 chunks lleva un rato, pero solo se hace al cambiar el corpus |
+| **Fine-tuning** (opcional) | QLoRA del 4B | En **Colab/Kaggle** (GPU T4 de 16 GB), no en el portátil |
+| **Cada pregunta** | Qwen3-4B (decide) → Qwen3-4B (SQL) y/o bge-m3 + reranker (RAG) → Qwen3-4B (redacta) | En secuencia. En memoria a la vez: 4B (~2,5 GB) + bge-m3 (~1–2 GB) + reranker (~1–2 GB) ≈ **5–6 GB** |
+
+Con dos LLM distintos (4B + 7B) habrían sido ~9–11 GB de RAM y cambios de modelo en cada pregunta mixta.
+
+Rendimiento esperado (a medir con `SystemMetrics`, sección 8): ~8–15 tokens/s con el 4B, y del orden de
+**decenas de segundos** para una pregunta mixta. Suficiente para desarrollo y demo, no para atención en tiempo real.
 
 ### Licencias a vigilar
 
-- **Qwen2.5-Coder-3B** tiene licencia **qwen-research** (no comercial), no Apache 2.0: no usarlo aunque sea más ligero.
-  Las demás tallas probadas (7B) son Apache 2.0; revisar la ficha de cualquier otra talla antes de usarla.
+- Si en el futuro se prueba un modelo especializado en SQL: **Qwen2.5-Coder-7B** y **1.5B** son Apache 2.0, pero
+  **Qwen2.5-Coder-3B** tiene licencia **qwen-research** (no comercial). Revisar la ficha de cualquier talla antes de usarla.
 - **SQLCoder** (Defog) se descarta: licencia CC BY-SA, no Apache.
-- La licencia del **modelo afinado** hereda la del modelo base (Apache 2.0) y los datos de entrenamiento son nuestros.
+- La licencia de un **modelo afinado** hereda la del modelo base (Apache 2.0) y los datos de entrenamiento son nuestros.
 
 ### Alternativas si el hardware no da
 
 | Problema | Alternativa |
 |---|---|
-| Poca VRAM para afinar el 7B | Qwen2.5-Coder-1.5B-Instruct (Apache 2.0), o QLoRA 4-bit del 7B |
-| El agente va lento | Qwen3-1.7B (Apache 2.0) para enrutar y el 4B solo para redactar |
-| Sin GPU | Inferencia en CPU con GGUF cuantizado (Q4_K_M) en Ollama; el fine-tuning en Colab o similar |
+| El 4B va lento | Qwen3-1.7B (Apache 2.0) para enrutar y el 4B solo para redactar (vuelven los cambios de modelo: medirlo) |
+| El reranker tarda demasiado en CPU | Menos candidatos (20 → 10) o [Qwen3-Reranker-0.6B](https://huggingface.co/Qwen/Qwen3-Reranker-0.6B) (Apache 2.0); comparar con la evaluación |
+| Afinar | Siempre en Colab/Kaggle: 4 GB de VRAM no bastan para QLoRA de un 4B |
+| Más VRAM en el futuro (≥ 8–12 GB) | Probar Qwen2.5-Coder-7B para `text2sql/` cambiando solo `TEXT2SQL_MODEL` |
 
 ### Configuración
 
 Igual que en el tema 8, los modelos se consumen con la **API compatible con OpenAI** de Ollama:
 cambiar de modelo o de servidor es editar el `.env` de cada carpeta (`AGENT_MODEL`, `TEXT2SQL_MODEL`,
-`OLLAMA_BASE_URL`), sin tocar código. En los tests se usa un **mock determinista** como en triage.
+`OLLAMA_BASE_URL`), sin tocar código. Hoy `AGENT_MODEL=qwen3:4b-instruct` y `TEXT2SQL_MODEL=qwen3:4b-instruct`.
+En los tests se usa un **mock determinista** como en triage.
 
 ---
 
-## 6. Fine-tuning del LLM text-to-SQL
+## 6. Text-to-SQL: línea base y fine-tuning opcional
 
-**Objetivo:** que Qwen2.5-Coder-7B traduzca preguntas en español a **SQL de DuckDB correcto sobre nuestras vistas**,
-conociendo sus nombres, columnas y trampas (sección 3). Todo vive en `text2sql/`.
+**Objetivo:** que Qwen3-4B (el mismo LLM del agente, sección 5) traduzca preguntas en español a **SQL de DuckDB
+correcto sobre nuestras vistas**, conociendo sus nombres, columnas y trampas (sección 3). Todo vive en `text2sql/`.
 
-### Primero, la línea base
+### Para qué serviría el fine-tuning (y para qué no)
 
-Antes de afinar se mide el modelo **sin entrenar** (solo con el diccionario de datos y unos ejemplos en el prompt).
-Si la línea base ya acierta casi todo, el fine-tuning no compensa. **Se afina solo si mejora de forma medible.**
+Afinar es seguir entrenando el modelo con **nuestros ejemplos** pregunta → SQL para que aprenda **costumbres**:
+nuestras vistas y valores (`estado = 'cancelada'`), las trampas (neto vs bruto, retraso a la llegada, `NULL` ≠ 0),
+el dialecto de DuckDB y responder **solo con el SQL**. **No** sirve para meterle conocimiento de forma fiable: los
+datos salen de SQL y la normativa del RAG.
+
+Todo eso también se puede explicar **en el prompt** (diccionario + ejemplos), que es lo que funciona en la clase 07:
+
+| | Prompt (*few-shot*) | Fine-tuning |
+|---|---|---|
+| Esfuerzo | Diccionario y unos ejemplos | Dataset de cientos de ejemplos, Colab, GGUF, `ollama create` |
+| Si cambia una vista | Editar el prompt | **Reentrenar** |
+| Prompt | Largo (más lento en nuestro hardware) | Corto |
+| Casos raros | Según los ejemplos que quepan | Mejor, si el dataset los cubre |
+| Modelos en Ollama | Uno | Base + afinado: **vuelven los cambios de modelo** si el agente sigue con el base (a comprobar) |
+
+### Escalera: de lo más barato a lo más caro
+
+Se sube un escalón **solo si la evaluación del anterior muestra fallos concretos** (por trampa o dificultad):
+
+```
+1. Línea base: Qwen3-4B + diccionario de datos + ejemplos fijos en el prompt   ──► medir
+2. Ejemplos dinámicos: los 3–5 ejemplos más parecidos a la pregunta (bge-m3)   ──► medir
+3. Validador + reintento: si el SQL no pasa o DuckDB da error, se devuelve el
+   error al modelo para que lo corrija (máx. 1–2 intentos)                     ──► medir
+4. Fine-tuning LoRA del 4B en Colab                                             ──► comparar con el 3
+```
+
+**Se afina solo si mejora de forma medible** sobre el escalón 3 en el mismo test. Afinar también es un objetivo de
+aprendizaje legítimo del proyecto, pero se documenta como tal, no como necesidad técnica.
+
+El **dataset se construye igualmente**: es el conjunto de **evaluación** de todos los escalones (y el de
+entrenamiento si se llega al 4).
 
 ### Dataset (`text2sql/dataset/`)
 
@@ -406,7 +499,7 @@ Formato chat, igual que se usará en inferencia:
 - **user**: la pregunta.
 - **assistant**: solo el SQL, sin explicaciones.
 
-### Entrenamiento (`text2sql/finetune/`)
+### Entrenamiento (`text2sql/finetune/`, solo si se llega al escalón 4)
 
 | Pieza | Elección | Licencia |
 |---|---|---|
@@ -414,7 +507,8 @@ Formato chat, igual que se usará en inferencia:
 | Acelerador opcional | Unsloth (menos VRAM, más rápido) | Apache 2.0 |
 | Método | **QLoRA** (base en 4-bit + adaptadores LoRA) | — |
 | Punto de partida | `r=16`, `alpha=32`, 2–3 épocas, `lr≈2e-4`; se ajusta con el conjunto dev | — |
-| Hardware | GPU de ~12–16 GB; si no hay, Colab/Kaggle | — |
+| Modelo base | Qwen3-4B-Instruct-2507 (el mismo que se usa en inferencia) | Apache 2.0 |
+| Hardware | **Colab/Kaggle** (GPU T4 de 16 GB): la GTX 1650 local (4 GB) no basta | — |
 
 La configuración va en un `config.yml` versionado y cada entrenamiento guarda: versión del dataset, hiperparámetros,
 métricas y hash del adaptador. **No se cambian dos cosas a la vez** (tema 5): o datos o hiperparámetros.
@@ -437,7 +531,8 @@ Los pesos **no se suben a git** (son GB); se guarda el script para regenerarlos.
 | Cumple reglas | Porcentaje que pasa el validador (solo `SELECT`, solo vistas) |
 | Por trampa / dificultad | Dónde falla: neto vs bruto, escalas, NULL, zonas horarias… |
 
-Se compara siempre **línea base vs afinado** sobre el mismo test, y se guarda un informe CSV/JSON como en `eval/` de triage.
+Se compara siempre **cada escalón con el anterior** sobre el mismo test, y se guarda un informe CSV/JSON como en
+`eval/` de triage.
 
 ### En producción: el modelo propone, el código decide
 
@@ -506,7 +601,7 @@ api/
   "herramientas": ["consultar_bbdd", "buscar_documentos"],
   "abstencion": false,
   "escalar_a_humano": false,
-  "versiones": {"prompt": "agent_prompt_v1", "text2sql_model": "travel-sql-v1", "corpus": "corpus_v1"},
+  "versiones": {"prompt": "agent_prompt_v1", "text2sql_model": "qwen3:4b-instruct", "corpus": "corpus_v1"},
   "trace_id": "t-7f3a…",
   "metricas": {"duracion_total_ms": 8421, "tokens_entrada": 3120, "tokens_salida": 412,
                "llamadas_llm": 3, "llamadas_herramientas": 2}
@@ -747,11 +842,11 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 | **2. Base de datos** | Datos consultables | CSV a mano → `seed/generar.py` → vistas DuckDB → `diccionario.md` | Tests de integridad (claves, importes netos, retrasos); consultas de ejemplo |
 | **3. Corpus** | Material reunido | Descargas en `rag/corpus/` + `SOURCES.md`; documentos de `empresa/` redactados | Cada documento con fuente y licencia; ninguno de uso privado en git |
 | **4. Conversión a Markdown** | Corpus homogéneo | `rag/conversion/` con PaddleOCR → `rag/markdown/` | Revisión de una muestra; eventos `ConversionMetrics` |
-| **5. Text-to-SQL (línea base)** | SQL sin entrenar | Validador SQL + `text2sql.consultar()` con Qwen2.5-Coder + prompt con diccionario | Eval sobre las ~50 preguntas a mano; validador bloquea todo lo prohibido |
+| **5. Text-to-SQL (línea base)** | SQL sin entrenar | Validador SQL + `text2sql.consultar()` con Qwen3-4B + prompt con diccionario (escalones 1–3 de la sección 6) | Eval sobre las ~50 preguntas a mano; validador bloquea todo lo prohibido |
 | **6. Agente mínimo** | Decidir y responder con BBDD | `agent/` con Qwen3-4B y la herramienta `consultar_bbdd` | Casos dorados "solo BBDD", "trampa de datos" y "ataque" |
 | **7. API** | Hablar con el agente por HTTP | `api/` estilo triage, mock incluido, `/trace` | `make test` (mock) y prueba manual con `curl` |
-| **8. RAG** | Responder con documentos | Decidir arquitectura (ADR en `docs/`) → `rag.search()` → herramienta `buscar_documentos` | Hit@k; casos "solo documentos", "mixta", "política vs ley" |
-| **9. Fine-tuning** | Mejorar el SQL | Dataset completo, QLoRA, GGUF, `ollama create travel-sql` | Execution accuracy afinado > línea base en el mismo test |
+| **8. RAG** | Responder con documentos | Chunking + índice híbrido (bge-m3 + FAISS Flat, BM25, RRF, reranker; sección 4) → `rag.search()` → herramienta `buscar_documentos` | Hit@k por etapa; casos "solo documentos", "mixta", "política vs ley" |
+| **9. Fine-tuning (opcional)** | Mejorar el SQL si la línea base falla | Dataset completo, QLoRA del 4B en Colab, GGUF, `ollama create travel-sql` | Execution accuracy afinado > escalón 3 en el mismo test |
 | **10. Evaluación completa** | Sistema medido | `api/eval/` extremo a extremo + LLM juez + revisión manual | Informe comparado con la línea base |
 | **11. MLflow (si hay tiempo)** | Seguimiento visual | `export_mlflow.py`, servidor MLflow local | Trazas y runs de eval visibles en MLflow |
 | **12. Modelos de decisión (extra)** | Decisiones rápidas con probabilidad | `decider/` con un modelo tipo Jev open source; usarlo en una decisión y compararlo con el LLM | Mismos casos dorados: acierto, latencia y tokens frente al LLM del agente |
@@ -760,14 +855,14 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 **Por qué este orden:**
 
 - **Telemetría al principio** (fase 1): todo lo que se construye después ya nace medido.
-- **BBDD antes que RAG**: el corpus aún necesita reunirse y su arquitectura está por decidir; mientras, el agente
-  ya funciona con datos.
-- **Línea base antes que fine-tuning**: si el modelo sin entrenar ya basta, la fase 9 se puede saltar.
+- **BBDD antes que RAG**: el corpus aún necesita reunirse y convertirse; mientras, el agente ya funciona con datos.
+- **Línea base antes que fine-tuning**: si el modelo sin entrenar ya basta, la fase 9 se salta.
 - **La API pronto** (fase 7): permite probar el sistema de punta a punta desde que hay una sola herramienta.
 
 **Decisiones pendientes** (se registran como ADR en `docs/` cuando se tomen):
 
-1. Arquitectura del RAG: chunking, embeddings, índice, búsqueda híbrida, reranking.
+1. Chunking del RAG. *(Embeddings, índice, búsqueda híbrida y reranking ya decididos el 2026-10-25, sección 4;
+   falta registrarlos como ADR.)*
 2. Herramienta para `.docx` / `.html` (MarkItDown u otra).
 3. Modo cliente / empleado: si se implementan los dos o solo empleado al principio.
 4. Almacén de sesiones: memoria o SQLite.
