@@ -424,6 +424,10 @@ cambiar de modelo o de servidor es editar el `.env` de cada carpeta (`AGENT_MODE
 `OLLAMA_BASE_URL`), sin tocar código. Hoy `AGENT_MODEL=qwen3:4b-instruct` y `TEXT2SQL_MODEL=qwen3:4b-instruct`.
 En los tests se usa un **mock determinista** como en triage.
 
+⚠️ **Para la fase 5:** la API compatible con OpenAI (`/v1`) solo devuelve el uso de tokens. Los tiempos internos
+de Ollama que guarda `OllamaTimings` (`load_duration`, `prompt_eval_duration`, `eval_duration`…) **solo los da la
+API nativa** (`/api/chat`). El cliente LLM tendrá que usar la nativa, o perderemos esas métricas.
+
 ---
 
 ## 6. Text-to-SQL: línea base y fine-tuning opcional
@@ -676,15 +680,20 @@ tokens, coste y versiones) y se amplía a **cada componente y cada paso**.
 | `message_chars`, `operation` | Hash de la entrada (para agrupar preguntas iguales sin guardar el texto) |
 | `state` completo | ⚠️ `state` guarda **datos personales** (dirección de entrega) en claro: aquí no se registran datos de clientes salvo que se active explícitamente |
 
-### Métricas dentro de los contratos (`contracts/metrics.py`)
+### Métricas dentro de los contratos (`contracts/metrics/`)
 
 **Cada resultado de cada paquete lleva un campo `metricas`.** No es opcional: si un componente devuelve algo,
 devuelve también cuánto tardó y cuánto consumió.
 
+Los **nombres de campo van en inglés**, como en la clase 4 (`latency_ms`, `input_tokens`), con descripciones en
+español. `BaseMetrics` y `LlmCallMetrics` ya están implementados (fase 1a; detalle en `contracts/AGENTS.md`).
+El resto de filas se pasará a inglés al implementarlas. Los valores marcados ✚ se añadieron al implementar,
+para medir más.
+
 | Contrato | Métricas que incluye |
 |---|---|
-| `BaseMetrics` (todas) | `trace_id`, `span_id`, `parent_span_id`, `componente`, `inicio`, `fin`, `duracion_ms`, `estado` (ok / error / rechazado), `error_tipo`, `error_mensaje`, versiones del componente |
-| `LlmCallMetrics` (cada llamada a un LLM) | `modelo`, `cuantizacion`, `temperatura`, `max_tokens`, `tokens_entrada`, `tokens_salida`, `tokens_total`, `tokens_por_segundo`, `tiempo_hasta_primer_token_ms`, `motivo_fin` (stop / length / tool_call), `reintentos`, `chars_prompt`, `chars_respuesta`, y los tiempos internos que da Ollama: `load_duration`, `prompt_eval_count`, `prompt_eval_duration`, `eval_count`, `eval_duration`, `total_duration` |
+| `BaseMetrics` (todas) | `metrics_schema_version` ✚, `trace_id`, `span_id`, `parent_span_id`, `component`, `name` ✚ (nombre del span), `started_at`, `ended_at`, `latency_ms`, `status` (ok / error / rejected), `error_type`, `error_message`, `input_chars`, `output_chars`, `input_hash` ✚, `versions` (prompt, schema, rules, dataset ✚, corpus ✚, index ✚, adapter_hash ✚, package ✚), `attributes` ✚ (métricas libres, como los span attributes de MLflow) |
+| `LlmCallMetrics` (cada llamada a un LLM) | `provider` (ollama / mock), `model`, `model_digest` ✚, `parameter_size` ✚, `quantization`, `purpose` ✚ (route_tool / generate_sql / answer / summarize / judge), `temperature`, `max_tokens`, `top_p` ✚, `seed` ✚, `num_ctx` ✚, `message_count` ✚, `system_prompt_chars` ✚, salida estructurada ✚ (`structured_output`, `output_schema`, `output_valid`, `validation_errors`), `tools_offered` ✚, `tool_calls` ✚, `thinking_enabled` ✚, `thinking_tokens` ✚, `input_tokens`, `output_tokens`, `total_tokens`, `context_usage_pct` ✚, `time_to_first_token_ms`, `tokens_per_second`, `finish_reason` (stop / length / tool_call), `truncated` ✚, `retries`, `cost` (`CostEstimate`) y `ollama` (`OllamaTimings`: `load_duration`, `prompt_eval_count`, `prompt_eval_duration`, `eval_count`, `eval_duration`, `total_duration` en ns, más sus derivados en ms, tokens/s y `cold_start` ✚) |
 | `SqlMetrics` (text2sql) | `generacion_ms`, `validacion_ms`, `ejecucion_ms`, `sql_valido`, `motivo_rechazo`, `vistas_usadas`, `chars_sql`, `filas_devueltas`, `columnas`, `limite_aplicado`, `timeout` |
 | `RagMetrics` (rag) | `busqueda_ms`, `rerank_ms`, `n_candidatos`, `n_pasajes_devueltos`, `scores` (máx / mín / media), `docs_distintos`, `chars_contexto`, `tokens_contexto`, `abstencion` |
 | `ConversionMetrics` (rag/conversion) | `archivo`, `formato`, `metodo` (copia / texto / PaddleOCR), `paginas`, `duracion_ms`, `ms_por_pagina`, `chars_salida`, `tablas_detectadas`, `paginas_vacias` |
@@ -693,7 +702,8 @@ devuelve también cuánto tardó y cuánto consumió.
 | `SystemMetrics` (opcional, por petición) | CPU %, RAM usada, VRAM usada y GPU % (si hay GPU), modelos cargados en Ollama |
 
 Coste: los modelos son locales (0 €), pero se guarda un **coste estimado equivalente** configurable
-(€/1M tokens de un proveedor de referencia) para poder comparar con la opción en la nube.
+(€/1M tokens de un proveedor de referencia) para poder comparar con la opción en la nube
+(`CostRate` + `CostEstimate.from_tokens`, misma fórmula que `estimate_cost` de triage).
 
 ### Trazas: un `trace_id` que lo atraviesa todo
 
