@@ -1,0 +1,58 @@
+# Raíz del uv workspace: no es un paquete, solo lista los miembros y la configuración común.
+[project]
+name = "travel-agency"
+version = "0.1.0"
+description = "Agente de agencia de viajes con text-to-SQL + RAG, todo open source en local"
+requires-python = ">=3.12"
+dependencies = [
+    "travel-contracts",
+    "travel-telemetry",
+    "travel-database",
+    "travel-rag",
+    "travel-text2sql",
+    "travel-agent",
+    "travel-api",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0",
+    "ruff>=0.14",
+    "ty>=0.0.5",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["contracts", "telemetry", "database", "rag", "text2sql", "agent", "api"]
+
+[tool.uv.sources]
+travel-contracts = { workspace = true }
+travel-telemetry = { workspace = true }
+travel-database = { workspace = true }
+travel-rag = { workspace = true }
+travel-text2sql = { workspace = true }
+travel-agent = { workspace = true }
+travel-api = { workspace = true }
+
+[tool.pytest.ini_options]
+testpaths = [
+    "contracts/tests",
+    "telemetry/tests",
+    "database/tests",
+    "rag/tests",
+    "text2sql/tests",
+    "agent/tests",
+    "api/tests",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "C4", "UP"]
+
+[tool.ty.environment]
+python-version = "3.12"

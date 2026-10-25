@@ -1,0 +1,15 @@
+# .gitignore de travel-agency (se suma al de la raíz del repo ebis)
+
+# Logs y trazas (sección 8)
+logs/
+mlruns/
+
+# Base de datos regenerable a partir de los CSV
+*.duckdb
+*.duckdb.wal
+
+# Índices y modelos generados
+rag/index/
+text2sql/finetune/outputs/
+*.gguf
+*.safetensors

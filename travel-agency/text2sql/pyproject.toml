@@ -1,0 +1,22 @@
+[project]
+name = "travel-text2sql"
+version = "0.1.0"
+description = "Pregunta → SQL validado y ejecutado sobre las vistas"
+requires-python = ">=3.12"
+dependencies = [
+    "travel-contracts",
+    "travel-telemetry",
+    "travel-database",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/text2sql"]
+
+[tool.uv.sources]
+travel-contracts = { workspace = true }
+travel-telemetry = { workspace = true }
+travel-database = { workspace = true }
