@@ -24,6 +24,7 @@ Las seis sesiones del tema:
   - `sesion1/` … `sesion6/`: demos de cada sesión, cada una con su `README.md` (demos + enunciado de deberes).
 - Carpetas numeradas de sesión con la teoría (PDF de la sesión) y su `explicacion.md`:
   - `01-del-llm-al-agente/`: sesión 1 — workflow vs. agente, los cinco patrones de workflow, el bucle agéntico, componentes del agente, niveles de autonomía, multiplicación de errores, cuándo no usar un agente. Su código está en `tema8-agentes/sesion1/`.
+  - `02-ReAct-patrone-planificacion/`: sesión 2 — ReAct frente a tool calling, diseño de herramientas, bucles y parada, plan-and-execute, reflexión, comparar estrategias. Tiene el `Resumen Clase 2-7 Tema 8.pdf` (no hay PDF de diapositivas: el `explicacion-08.md` se completa con capturas de clase) y `video/` con la grabación (no versionada; descargada con la skill `campus-video-download`). Su código está en `tema8-agentes/sesion2/`.
   - *(las siguientes sesiones se añaden aquí a medida que se incorporan al repo — mantén esta lista al día)*
 
 ## Documentación de cada sesión

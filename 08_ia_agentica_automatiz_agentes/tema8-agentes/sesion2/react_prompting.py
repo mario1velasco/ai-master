@@ -51,7 +51,7 @@ def ejecutar_react(pregunta: str, max_pasos: int = 8, cliente=None, verbose: boo
     mensajes = [{"role": "system", "content": INSTRUCCIONES}, {"role": "user", "content": pregunta}]
 
     for paso in range(1, max_pasos + 1):
-        # stop: cortamos la generación antes de que el modelo se invente la Observación
+        # ! stop: cortamos la generación antes de que el modelo se invente la Observación
         texto = cliente.chat.completions.create(
             model=MODELO, messages=mensajes, stop=["Observación:"]).choices[0].message.content or ""
         if verbose:
