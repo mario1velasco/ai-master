@@ -1,0 +1,6 @@
+# Dependencias de campus-video-download (se instalan desde el requirements.txt de la raíz).
+# Requisitos del sistema: Google Chrome con la sesión iniciada y ffprobe (sudo apt install ffmpeg).
+yt-dlp==2026.10.26            # descarga con las cookies de Chrome (--cookies-from-browser chrome)
+secretstorage==3.5.0      # yt-dlp descifra las cookies de Chrome con el llavero de GNOME
+pycryptodomex==3.24.1     # yt-dlp descifra HLS AES-128 (Bunny Stream) sin pasar por ffmpeg
+playwright==1.64.1        # alternativa: scripts/download_video.py

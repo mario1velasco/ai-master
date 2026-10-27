@@ -1,0 +1,7 @@
+interface:
+  display_name: "Campus Video Download"
+  short_description: "Descarga vídeos protegidos por login (campus EBIS / Blackboard) con Playwright"
+  brand_color: "#17324D"
+  default_prompt: "Usa $campus-video-download para descargar la grabación de clase de este enlace del campus."
+policy:
+  allow_implicit_invocation: true

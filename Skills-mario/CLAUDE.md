@@ -113,6 +113,16 @@ $PY scripts/inspect_presentation.py out/presentation.pptx                       
 ```
 No renderiza diapositivas: hay que revisarlas visualmente. No sobrescribe la fuente. Guías de diseño y redacción en `references/`.
 
+### campus-video-download — vídeos detrás de un login (campus EBIS)
+Descarga vídeos protegidos por login (p. ej. grabaciones del campus de EBIS / Blackboard, alojadas en Bunny Stream por HLS) **con la sesión del Chrome en el que el usuario ya está logueado**: `yt-dlp --cookies-from-browser chrome` lee sus cookies (llavero de GNOME vía `secretstorage`) y `pycryptodomex` descifra el HLS AES-128 sin pasar por ffmpeg. No abras un Chrome nuevo o privado: no tiene la sesión. Alternativa con Playwright (`scripts/download_video.py`, perfil propio y login otra vez) solo si no se pueden leer las cookies.
+
+```bash
+$YTDLP --cookies-from-browser chrome --simulate --print "%(title)s | %(duration_string)s" "URL"   # prueba la sesión
+$YTDLP --cookies-from-browser chrome --newline --no-mtime -o "SALIDA/clase.%(ext)s" "URL"          # en segundo plano
+$PY scripts/check_video.py SALIDA/clase.mp4                                                         # ffprobe, duración, audio
+```
+Después: `ffmpeg -i video.mp4 -vn -c:a copy audio.m4a` → media-resume para resumir la clase.
+
 ## Cadena típica
 
 ```

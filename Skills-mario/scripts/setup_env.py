@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 ENV = ROOT / ".venv"
-IMPORTS = "import faster_whisper, PIL, rapidocr, reportlab, pypdf, markdown_it, pptx, markitdown, docx, pypdfium2"
+IMPORTS = "import faster_whisper, PIL, rapidocr, reportlab, pypdf, markdown_it, pptx, markitdown, docx, pypdfium2, playwright, yt_dlp, secretstorage, Cryptodome"
 
 
 # Comprueba que las versiones instaladas son las fijadas en requirements.txt (un import que funciona no basta:

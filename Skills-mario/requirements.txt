@@ -13,3 +13,7 @@ pypdf==6.19.0              # text-resume
 python-pptx==1.0.2         # presentacion-open
 markitdown[pdf,docx,pptx,xlsx,xls]==0.1.8   # any-to-any (extracción de documentos; trae pypdfium2, mammoth, openpyxl…)
 python-docx==1.2.0         # any-to-any (generar .docx)
+yt-dlp==2026.10.26        # campus-video-download (cookies de Chrome)
+secretstorage==3.5.0       # campus-video-download (descifrar cookies de Chrome)
+pycryptodomex==3.24.1      # campus-video-download (HLS AES-128 sin ffmpeg)
+playwright==1.64.1         # campus-video-download (Chrome del sistema o `python -m playwright install chromium`)
