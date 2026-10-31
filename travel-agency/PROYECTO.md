@@ -819,6 +819,7 @@ Cada caso indica la pregunta, **qué herramienta(s) debe usar**, el dato o la re
 - Lo **subjetivo** (¿la respuesta es fiel a la fuente?, ¿es clara?) lo valora un **LLM juez local** con una rúbrica fija,
   y se **revisa a mano una muestra** (tema 5: una cita válida no prueba fidelidad).
 - Se guarda una **línea base** y cada cambio (prompt, modelo, corpus) se compara contra ella antes de aceptarlo.
+- **Estrategias del agente** Mirar tema 8 una vez que acabemos. Por ejemplo [`docs/guia-evaluacion-estrategias-agente.md`](docs/guia-evaluacion-estrategias-agente.md)(nace de la sesión 2 del tema 8).
 
 ### Seguridad
 

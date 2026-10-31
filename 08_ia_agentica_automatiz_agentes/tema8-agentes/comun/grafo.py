@@ -43,6 +43,7 @@ def construir_agente(modelo, herramientas, instrucciones: str, requieren_aprobac
         return Command(goto="agente", update={"messages": [
             ToolMessage(content=rechazo, tool_call_id=ll["id"]) for ll in llamadas]})
 
+    # ! Esta basicamente es la definición del agente
     grafo = StateGraph(MessagesState)
     grafo.add_node("agente", agente)
     grafo.add_node("herramientas", ToolNode(herramientas))
