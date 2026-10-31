@@ -739,6 +739,10 @@ trace t-7f3a  POST /sessions/s-001/messages                        8.421 ms
 - `write_event(evento)`: escritura JSONL (la misma idea que `write_jsonl` de triage).
 - Esquema de evento versionado (`event_schema_version`) para que los logs antiguos se sigan pudiendo leer.
 
+Implementado en la fase 1b (detalle y API en `telemetry/AGENTS.md`). Cambios frente a lo de arriba: los eventos
+van a `logs/<componente>/events-AAAA-MM-DD.jsonl` (un archivo por día) y cada evento lleva `metrics_type` para
+saber con qué clase releer sus métricas.
+
 ### Qué se registra en cada evento (además de las métricas)
 
 - **Contexto**: entorno (`local` / `test`), máquina, versión de cada paquete, commit de git, configuración activa.

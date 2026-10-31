@@ -4,3 +4,5 @@
 # Cada clase nueva con librerías propias se añade aquí con otra línea -r.
 -r clase_01/Ejercicios/requirements.txt
 -r clase_02/DropLab_sesion_2/requirements.txt
+-r clase_03/DropLab_sesion_3/requirements.txt
+-r clase_03/DropLab_sesion_3/requirements_sesion_3.txt

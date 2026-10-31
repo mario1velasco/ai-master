@@ -29,7 +29,7 @@ Cada carpeta es **independiente**: su propio entorno (`.venv`), sus dependencias
 | `Ejercicios/` | Ejercicios propios fuera de temario (p. ej. `rag-tenerife/`) |
 | `Skills-mario/` | Colección de skills propias para Claude Code (audio, imágenes, texto, presentaciones) |
 | `llm-customer-support-triage/` | Proyecto personal: API FastAPI que usa Claude para triar mensajes de soporte (en inglés) |
-| `travel-agency/` | Proyecto personal (fase 0, esqueleto uv workspace): agente de agencia de viajes con text-to-SQL afinado + RAG, todo open source en local, API FastAPI. Diseño en `PROYECTO.md` |
+| `travel-agency/` | Proyecto personal (fase 1b, telemetría hecha; uv workspace): agente de agencia de viajes con text-to-SQL afinado + RAG, todo open source en local, API FastAPI. Diseño en `PROYECTO.md` |
 
 ## Reglas importantes
 
