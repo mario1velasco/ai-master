@@ -1,0 +1,17 @@
+# Sesión 3 · Asistente DropLab (visión, API, Open WebUI, LangGraph). Se instala junto a requirements.txt:
+#     pip install -r requirements.txt -r requirements_sesion_3.txt
+#
+# Modelos (Ollama):  configuración A (Jetson):          qwen3:30b-a3b-instruct-2507-q4_K_M · qwen3-vl:8b-instruct
+#                    configuración B (portátil 16 GB):  qwen3:4b-instruct · qwen3-vl:4b-instruct
+#                    y siempre, para buscar en los documentos: bge-m3
+#   OJO: descargad las variantes «-instruct». «qwen3-vl:8b» a secas razona antes de contestar y tarda minutos.
+#   Qué modelos usan los scripts: variables de entorno, ver practica/sesion_3/asistente/config.py.
+#
+# Open WebUI (opcional) va en Docker, no con pip: bash practica/sesion_3/openwebui/arrancar_openwebui.sh
+fastapi>=0.115,<1
+uvicorn>=0.30
+python-multipart>=0.0.9
+pydantic>=2.7,<3
+langgraph>=1.0,<2
+httpx>=0.27
+pillow>=10

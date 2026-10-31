@@ -1,0 +1,181 @@
+{
+ "respuesta": "**Respuesta**  \nLa semana con peor porcentaje de líneas completas en Malasaña fue la del 08-14 de junio, con un 68% [D2]. No se puede afirmar que esta baja se debiera a la caja húmeda del albarán A-0617-04, ya que el parte de incidencia se abrió el 18/06, después de esa semana [D3]. El registro de incidencias coincide temporalmente con variaciones de la serie, pero no se demuestra causalidad [D2].\n\n**Documentos y llamada**  \n[D1] Albarán A-0617-04: entrega el 17/06, embalaje húmedo en una caja, observación registrada [D1]. [D2] Informe de reposición: porcentaje de líneas completas en MAD-MAL fue del 68% en la semana 08-14 jun [D2]. [D3] Parte de incidencia: abierta el 18/06, caja 4 segregada por humedad [D3]. [D4] Llamada del 07/04: sobre entrega de ayer, no relacionada con junio [D4]. [D5] Llamada del 07/04: pide notas sobre incidencia, sin fecha de junio [D5].\n\n**Límites**  \nNo hay datos de ventas en junio para vincular incidencias con resultados. La coincidencia temporal no prueba causalidad [D2]. No se registró devolución ni destrucción [D3]. La transcripción automática no acredita hechos [D4][D5].",
+ "evidencias": [
+  {
+   "id": "D1",
+   "tipo": "documento",
+   "cita": "02_DropLab_expediente_escaneado.pdf · pág. 1",
+   "titulo": "Albarán A-0617-04",
+   "estado": "registro",
+   "fecha": "17/06/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · escaneada, sin capa de texto: 12 valores SIN COMPROBAR",
+   "texto": "JUSTIFICANTE DE TRANSPORTE\n\n## Albarán A-0617-04\n\n## Ruta MAD-02 | Centro logístico -> MAD-MAL | Fecha de emisión: 17/06/2026\n\n| Campo | Registro |\n| Destino | DropLab MAD-MAL · Malasaña, Madrid |\n| Transportista / matrícula de ruta | Ruta Norte Distribución · RN-MAD-02 |\n| Salida del centro / llegada a tienda | 17/06/2026 08:10 / 17/06/2026 11:40 |\n| Bultos expedidos | 4 cajas · 6 pares por caja |\n| Responsable de recepción | Nuria Campos · coordinación MAD-MAL |\n| Referencia | Color / talla | Pares expedidos | Conformes $ ^{{*}} $ |\n| STREET_ONE_NEGRO_41 | Negro / 41 | 24 | 24 |\n\n* Transcripción de la casilla original del conductor. El recuento queda sujeto a apertura de bultos y comprobación de calidad por tienda. La firma de entrega acredita recepción física de cuatro cajas, no conformidad definitiva de su contenido.\n\n## Observaciones en muelle\n\nEmbalaje exterior húmedo en una caja. Se comunica a tienda para revisión. No se registran faltantes de cajas. Registro asociado: INC-0617-02. Conservar este justificante junto con la rectificación si se modifica la aceptación.\n\nRECIBIDO EN TIENDA\n\n17 JUN 2026 · N. Campos",
+   "citada": true
+  },
+  {
+   "id": "D2",
+   "tipo": "documento",
+   "cita": "01_DropLab_informe_reposicion_junio.pdf · pág. 4",
+   "titulo": "G1. Líneas de recepción completas",
+   "estado": "aprobado",
+   "fecha": "04/07/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · 7/21 valores en la capa de texto; 14 solo en la imagen (SIN COMPROBAR): 92, 94, 96, 08, 14, 68, 90, 15, 21, 81, 93, 95, 22, 97",
+   "texto": "04 / SEGUIMIENTO SEMANAL\n\n# G1. Líneas de recepción completas\n\nPorcentaje de líneas completas por tienda y semana. Universo: catálogo completo.\n\n|  | MAD-MAL | MAD-GOY | BCN-EIX |\n| 01-07 jun | 92% | 94% | 96% |\n| 08-14 jun | 68% | 90% | 94% |\n| 15-21 jun | 81% | 93% | 95% |\n| 22-28 jun | 95% | 96% | 97% |\n\nDefinición. Línea completa: posición de una orden de reposición cuya cantidad solicitada se acepta integramente, sin cuarentena. Numerator: líneas completas. Denominador: líneas con recepción en la semana, de todo el catálogo. Una entrega puede contener varios SKU y, por tanto, varias líneas. Los porcentajes están redondeados a enteros.\n\n| Figura | Cobertura y precauciones |\n| G1 | Semanas completas de 01/06 a 28/06. El 29 y el 30 de junio no están incluidos. |\n| Comparabilidad | T1/T2: pares de tres SKU durante todo junio. G1: líneas de recepción de todo el catálogo durante cuatro semanas. No comparten universo ni unidad. |\n| Datos no publicados | No se adjuntan los recuentos de líneas por tienda y semana. Falta además el 29-30/06. No se calcula un porcentaje global de junio. |\n\nEl registro de incidencias coincide temporalmente con variaciones de la serie. Este expediente no incorpora un grupo de comparación ni un diseño que permita atribuir causalidad. Una mejora de la curva tampoco acredita que la campaña incrementara las ventas.",
+   "citada": true
+  },
+  {
+   "id": "D3",
+   "tipo": "documento",
+   "cita": "02_DropLab_expediente_escaneado.pdf · pág. 2",
+   "titulo": "Revisión de mercancía",
+   "estado": "abierta (pendiente)",
+   "fecha": "18/06/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · escaneada, sin capa de texto: 11 valores SIN COMPROBAR",
+   "texto": "PARTE DE INCIDENCIA\n\n# Revisión de mercancía\n\nINC-0617-02 | Abierta el 18/06/2026 a las 09:15 | Responsable: Nuria Campos\n\nReferencia de transporte: A-0617-04, recibido físicamente el 17/06. Durante la apertura se detecta humedad y deterioro de caja interior. Las seis unidades de la caja 4 se segregan en la zona de cuarentena. Unidad operativa: par.\n\n| Caja | Pares revisados | Conformes | Cuarentena | Observación |\n| 1 | 6 | 6 | 0 | Sin incidencia |\n| 2 | 6 | 6 | 0 | Sin incidencia |\n| 3 | 6 | 6 | 0 | Sin incidencia |\n| 4 | 6 | 0 | 6 | Humedad / embalaje |\n| TOTAL | 24 | 18 | 6 | Revisión completa |\n\n| Seguimiento | Registro |\n| SKU afectado | STREET_ONE_NEGRO_41 |\n| Estado a 18/06 | ABIERTA · mercancía segregada; pendiente de dictamen |\n| Decisión de tienda | No poner a la venta los seis pares segregados. |\n| Petición a Administración | Rectificar la aceptación del albarán, sin crear otra recepción. |\n\nNo se registra una devolución al centro logístico en este parte. Cuarentena no equivale a destrucción, venta o devolución. La disponibilidad vendible queda supeditada al registro de aceptación corregido.\n\nControl de inspección. Se revisaron las cuatro cajas. Los ceros de cuarentena de las cajas 1 a 3 corresponden a comprobaciones realizadas. La segregación de la caja 4 es preventiva: el parte acredita deterioro de embalaje y no confirma por sí solo que todos los pares tengan un defecto de producto.",
+   "citada": true
+  },
+  {
+   "id": "D4",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 0:00–0:15",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Álex (Operaciones) [0:00]: Hola, Malasaña. Soy Alex, de Operaciones. ¿Tienes un momento? Quería revisar contigo lo del pack 4 y la entrega de ayer.\nDani (tienda Malasaña) [0:10]: Sí, dime, soy Dani. Estoy en caja, pero ahora está tranquilo.",
+   "citada": true
+  },
+  {
+   "id": "D5",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 1:36–1:50",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Álex (Operaciones) [1:36]: De acuerdo, pásame las notas que tengáis sobre las consultas del regalo y la incidencia de ayer. Vamos a contrastarlo con caja antes de sacar conclusiones.\nDani (tienda Malasaña) [1:46]: Perfecto, te las paso. Gracias por aclararme lo de las fechas.",
+   "citada": true
+  }
+ ],
+ "comprobaciones": [
+  {
+   "nombre": "lectura automática",
+   "resultado": "aviso",
+   "detalle": "3 página(s) leídas por PaddleOCR-VL, sin revisión humana. Cifras que no se han podido comprobar con el texto del PDF (escaneado o gráfico): escaneado pág. 1, informe pág. 4, escaneado pág. 2.",
+   "fuentes": []
+  },
+  {
+   "nombre": "fuente automática",
+   "resultado": "aviso",
+   "detalle": "La llamada es una transcripción automática (Whisper): testimonio, no registro.",
+   "fuentes": []
+  }
+ ],
+ "limitaciones": [
+  "Junio no está en los datos de ventas (acaban el 26/04): las cifras de junio salen solo de los documentos de junio.",
+  "Coincidir en el tiempo no prueba una causa. Faltan datos para atribuirla: visitas o tráfico, regalos entregados, campaña aplicada a cada pedido y demanda no atendida."
+ ],
+ "verificacion": [],
+ "plan": {
+  "tareas": [
+   "documentos"
+  ],
+  "tienda": "MAD-MAL",
+  "consulta": "ninguna",
+  "motivo": "Se necesita información sobre el porcentaje de líneas completas en Malasaña durante junio (no disponible en los datos hasta abril), así como el informe LOG-2026-06 y el expediente REC-2026-0617 para verificar si la caja húmeda del albarán A-0617-04 afectó el rendimiento.",
+  "origen": "modelo",
+  "nota": "junio no está en los datos (acaban el 26/04): solo documentos"
+ },
+ "traza": [
+  {
+   "nodo": "planificar",
+   "segundos": 3.8,
+   "herramienta": "plan por modelo",
+   "detalle": "documentos (junio no está en los datos (acaban el 26/04): solo documentos)",
+   "plan": {
+    "tareas": [
+     "documentos"
+    ],
+    "tienda": "MAD-MAL",
+    "consulta": "ninguna",
+    "motivo": "Se necesita información sobre el porcentaje de líneas completas en Malasaña durante junio (no disponible en los datos hasta abril), así como el informe LOG-2026-06 y el expediente REC-2026-0617 para verificar si la caja húmeda del albarán A-0617-04 afectó el rendimiento.",
+    "origen": "modelo",
+    "nota": "junio no está en los datos (acaban el 26/04): solo documentos"
+   }
+  },
+  {
+   "nodo": "buscar_documentos",
+   "segundos": 0.0,
+   "herramienta": "RAG · bge-m3 híbrida · índice ampliado (sesión 2 + junio)",
+   "detalle": "1 búsqueda(s) → 5 fragmentos: 02_DropLab_expediente_escaneado.pdf · pág. 1, 01_DropLab_informe_reposicion_junio.pdf · pág. 4, 02_DropLab_expediente_escaneado.pdf · pág. 2, llamada_0704 · 0:00–0:15…"
+  },
+  {
+   "nodo": "contrastar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "2 comprobación(es) · 2 límite(s)"
+  },
+  {
+   "nodo": "redactar",
+   "segundos": 12.2,
+   "herramienta": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+   "detalle": "2609 tokens de entrada · 308 de salida · 34.2 tok/s",
+   "tiempos": {
+    "modelo": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    "segundos": 12.2,
+    "carga": 0.0,
+    "entrada": 3.0,
+    "salida": 9.0,
+    "tokens_entrada": 2609,
+    "tokens_salida": 308,
+    "tokens_por_segundo": 34.2
+   }
+  },
+  {
+   "nodo": "verificar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "⚠ cita inexistente [V1]; cita inexistente [V2]"
+  },
+  {
+   "nodo": "redactar",
+   "segundos": 11.7,
+   "herramienta": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+   "detalle": "2660 tokens de entrada · 388 de salida · 34.2 tok/s · reintento",
+   "tiempos": {
+    "modelo": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    "segundos": 11.7,
+    "carga": 0.0,
+    "entrada": 0.2,
+    "salida": 11.3,
+    "tokens_entrada": 2660,
+    "tokens_salida": 388,
+    "tokens_por_segundo": 34.2
+   }
+  },
+  {
+   "nodo": "verificar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "✓ limpia"
+  }
+ ],
+ "errores": [],
+ "configuracion": {
+  "modelo_texto": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+  "modelo_vision": "qwen3-vl:8b-instruct",
+  "planificador": "modelo",
+  "reutilizar_lecturas": true
+ },
+ "segundos": 27.8,
+ "origen": "guardada",
+ "fecha": "18/10/2026 00:05",
+ "caso": "junio_grafico",
+ "pregunta": "¿Qué semana de junio tuvo el peor porcentaje de líneas completas en Malasaña? ¿Fue por la caja húmeda del albarán A-0617-04?",
+ "imagen": null
+}

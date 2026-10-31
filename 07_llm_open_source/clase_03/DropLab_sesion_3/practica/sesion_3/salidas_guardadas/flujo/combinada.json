@@ -1,0 +1,450 @@
+{
+ "respuesta": "**Respuesta**  \nLas ventas netas de Malasaña cayeron 14.000 € entre el periodo A (2-29 mar) y B (30 mar-26 abr), con reducción de unidades vendidas de 467 a 304 y de pedidos con 4+ unidades de 108 a 7. La campaña Pack 4 finalizó el 29 de marzo, según el calendario aprobado [D6]. Las consultas posteriores sobre el regalo indican que el cartel se retiró el 30 de marzo [D2], pero hubo nuevas preguntas el 7 de abril [D1]. El ticket del 4 de abril no cumple las condiciones del Pack 4, ya que solo incluye 2 unidades [D6].  \n\n**Cifras**  \nVentas netas: 40.000 € (A) → 26.000 € (B), caída de 14.000 € [S1]. Unidades: 467 → 304, -163 [S1]. Pedidos con 4+ unidades: 108 → 7, -101 [S1].  \n\n**Documentos y llamada**  \nEl calendario aprobado termina el 29 de marzo [D6]. El equipo de Malasaña retiró el cartel el 30 de marzo [D2]. Las llamadas confirman que el regalo terminó el 29 [D3], pero hubo consultas el 7 de abril [D1]. No hay registro de consultas sin compra ni contador de tráfico [D2].  \n\n**Imagen**  \nEl ticket del 4 de abril (B-MAD-MAL-ORD-0005) muestra un total impreso de 231,99 €, pero el registro indica 211,99 € [V1]. Hay discrepancia de 20 €, no explicada por abonos [V1].  \n\n**Límites**  \nNo hay datos de tráfico, demanda no atendida o regalos entregados. La discrepancia en el ticket no demuestra fraude ni indica responsabilidad [V1]. Coincidir en el tiempo no prueba causa [V1].",
+ "evidencias": [
+  {
+   "id": "S1",
+   "tipo": "datos",
+   "titulo": "Cifras clave de Malasaña por periodo",
+   "sql": "WITH r AS ( SELECT periodo, SUM(ventas_antes_reembolsos) AS ventas_antes_reembolsos, SUM(abonos_reconocidos) AS abonos, SUM(ventas_netas) AS ventas_netas, CAST(SUM(pedidos) AS INTEGER) AS pedidos, CAST(SUM(unidades) AS INTEGER) AS unidades FROM resumen_diario WHERE local_id = ? AND periodo IS NOT NULL GROUP BY periodo), p AS ( SELECT periodo, COUNT(*) FILTER (WHERE unidades >= 4) AS pedidos_4_o_mas_unidades FROM pedidos WHERE local_id = ? AND periodo IS NOT NULL GROUP BY periodo) , t AS ( SELECT r.periodo, r.ventas_antes_reembolsos, r.abonos, r.ventas_netas, r.pedidos, r.unidades, ROUND(r.unidades / r.pedidos, 2) AS unidades_por_pedido, p.pedidos_4_o_mas_unidades FROM r JOIN p USING (periodo)) SELECT * FROM t UNION ALL -- la diferencia la calcula el SQL, no el modelo SELECT 'B - A', b.ventas_antes_reembolsos - a.ventas_antes_reembolsos, b.abonos - a.abonos, b.ventas_netas - a.ventas_netas, b.pedidos - a.pedidos, b.unidades - a.unidades, ROUND(b.unidades_por_pedido - a.unidades_por_pedido, 2), b.pedidos_4_o_mas_unidades - a.pedidos_4_o_mas_unidades FROM t a, t b WHERE a.periodo = 'A' AND b.periodo = 'B' ORDER BY 1",
+   "parametros": [
+    "MAD-MAL",
+    "MAD-MAL"
+   ],
+   "filas": [
+    {
+     "periodo": "A",
+     "ventas_antes_reembolsos": 42000.0,
+     "abonos": 2000.0,
+     "ventas_netas": 40000.0,
+     "pedidos": 120,
+     "unidades": 467,
+     "unidades_por_pedido": 3.89,
+     "pedidos_4_o_mas_unidades": 108
+    },
+    {
+     "periodo": "B",
+     "ventas_antes_reembolsos": 28000.0,
+     "abonos": 2000.0,
+     "ventas_netas": 26000.0,
+     "pedidos": 120,
+     "unidades": 304,
+     "unidades_por_pedido": 2.53,
+     "pedidos_4_o_mas_unidades": 7
+    },
+    {
+     "periodo": "B - A",
+     "ventas_antes_reembolsos": -14000.0,
+     "abonos": 0.0,
+     "ventas_netas": -14000.0,
+     "pedidos": 0,
+     "unidades": -163,
+     "unidades_por_pedido": -1.36,
+     "pedidos_4_o_mas_unidades": -101
+    }
+   ],
+   "texto": "[{\"periodo\": \"A\", \"ventas_antes_reembolsos\": 42000.0, \"abonos\": 2000.0, \"ventas_netas\": 40000.0, \"pedidos\": 120, \"unidades\": 467, \"unidades_por_pedido\": 3.89, \"pedidos_4_o_mas_unidades\": 108}, {\"periodo\": \"B\", \"ventas_antes_reembolsos\": 28000.0, \"abonos\": 2000.0, \"ventas_netas\": 26000.0, \"pedidos\": 120, \"unidades\": 304, \"unidades_por_pedido\": 2.53, \"pedidos_4_o_mas_unidades\": 7}, {\"periodo\": \"B - A\", \"ventas_antes_reembolsos\": -14000.0, \"abonos\": 0.0, \"ventas_netas\": -14000.0, \"pedidos\": 0, \"unidades\": -163, \"unidades_por_pedido\": -1.36, \"pedidos_4_o_mas_unidades\": -101}]",
+   "citada": true
+  },
+  {
+   "id": "D1",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 0:16–0:30",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Álex (Operaciones) [0:16]: Perfecto, nos han llegado consultas sobre el regalo. ¿Qué estáis diciendo a los clientes?\nDani (tienda Malasaña) [0:22]: Que ya terminó, pero te quería preguntar una cosa. Yo tenía una propuesta donde ponía hasta el 31 de marzo. ¿Al final se cambió?",
+   "citada": true
+  },
+  {
+   "id": "D2",
+   "tipo": "documento",
+   "cita": "expediente_comercial_y_operaciones.pdf · pág. 3",
+   "titulo": "Diario de operaciones",
+   "estado": "registro",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Diario de operaciones\nConsolidado por coordinación de tiendas a partir de anotaciones del equipo. Las entradas describen hechos y comentarios comunicados; no constituyen un conteo de clientes ni una medición sistemática de motivos de compra.\nMalasaña / MAD-MAL\nFecha\nAnotación\n30/03\nRetiramos el cartel Pack 4. Dos consultas por el regalo de marzo; informamos de que la campaña terminó.\n02/04\nVarios clientes comentan la incomodidad de las vallas de la calle.\n06/04\nLa entrega de mañana no llega. Street One negro y arena, tallas 41 y 42, sin disponibilidad de\n10:00 a 16:00. Reposición alternativa a las 16:00.\n07/04\nNueva consulta por el regalo.\n16/04\nSegunda incidencia de mañana con las mismas variantes. Reposición alternativa a las 16:00.\nRevisamos turnos y aire acondicionado; no hubo cierre de la tienda. No llevamos contador de entradas ni registro sistemático de consultas sin compra. Pendiente revisar el impacto con\nAdministración y Logística.\nGoya / MAD-GOY\nSemana Running estuvo expuesta del 9 al 15 de marzo. En abril reorganizamos el escaparate y cambiamos algunos turnos. No hubo campaña Pack 4. El equipo no comunica incidencias relevantes de Street One.\nEixample / BCN-EIX\nEl equipo comenta que ha sido un buen periodo. Movimos la exposición de camisetas y actualizamos la música. No hubo campaña Pack 4. Sin incidencias relevantes comunicadas de\nStreet One.\nLas anotaciones de Goya y Eixample aportan contexto de esas tiendas. No acreditan que todas las condiciones de demanda, clientela y operación fueran equivalentes a las de Malasaña.",
+   "citada": true
+  },
+  {
+   "id": "D3",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 0:22–0:46",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Dani (tienda Malasaña) [0:22]: Que ya terminó, pero te quería preguntar una cosa. Yo tenía una propuesta donde ponía hasta el 31 de marzo. ¿Al final se cambió?\nÁlex (Operaciones) [0:31]: Sí, el 31 aparecía en el borrador. El calendario que aprobó Comercial terminaba el 29, incluido. Desde el 30 ya no se entregaba la Totebag y era un regalo por comprar 4 unidades o más en el mismo pedido, no un descuento.",
+   "citada": true
+  },
+  {
+   "id": "D4",
+   "tipo": "documento",
+   "cita": "expediente_comercial_y_operaciones.pdf · pág. 1",
+   "titulo": "Expediente comercial y de operaciones",
+   "estado": "consolidado",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Expediente comercial y de operaciones\nÁmbito: Malasaña y referencias operativas de Goya y Eixample. Preparado para el equipo de\nAnalítica por coordinación de tiendas. Reúne comunicaciones comerciales, anotaciones operativas y registros de incidencias disponibles al 27/04/2026.\nEncargo de Dirección Comercial «Me han trasladado que las ventas netas han caído 20.000 EUR al comparar el 2-29 de marzo con el 30 de marzo-26 de abril. Necesito que comprobéis esa cifra». Mensaje de\n27/04/2026, 09:15. El importe comunicado está pendiente de comprobación con caja.\nDirección solicita conocer la caída real, los cambios en las compras, las explicaciones respaldadas por la información disponible y los datos que faltan. Se mencionan devoluciones, obras frente a la tienda y problemas de reposición. Antes de decidir si se repite una campaña se requiere una recomendación con cifras y fuentes.\nPágina\nDocumento / contenido\nEstado\n2\nCalendario comercial CAM-2026-03-FINAL\nAprobado\n3\nDiario OPS-ABR-2026\nRegistro operativo\n4\nInforme LOG-ABR-2026-02\nInforme de incidencias\n5\nDetalle de disponibilidad de Street One\nRegistro observado\n6\nAviso LOC-MAL-2026-04\nPlanificación recibida\n7\nPropuesta CAM-2026-03-DRAFT\nBorrador sustituido\n8\nPendientes del expediente\nSolicitud de información\nEl expediente conserva documentos de distinto estado. Su inclusión no convierte los borradores en comunicaciones aprobadas ni las observaciones de tienda en resultados de un análisis cuantitativo.",
+   "citada": false
+  },
+  {
+   "id": "D5",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 0:46–1:02",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Dani (tienda Malasaña) [0:46]: Vale, entonces lo hicimos bien. Retiramos el cartel el 30. Hoy han vuelto a preguntar por el regalo y les hemos dicho que la campaña ya había terminado.\nÁlex (Operaciones) [0:57]: Muy bien, y lo de ayer, día 6, ¿qué pasó exactamente con Street One?",
+   "citada": false
+  },
+  {
+   "id": "D6",
+   "tipo": "documento",
+   "cita": "calendario_comercial_aprobado.md · Campañas",
+   "titulo": "Calendario comercial aprobado",
+   "estado": "aprobado",
+   "fecha": "01/03/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "| Tienda | Campaña | Inicio | Último día incluido | Condiciones |\n|---|---|---|---|---|\n| MAD-MAL | Pack 4 | 02/03/2026 | 29/03/2026 | Tote bag exclusiva DropLab de regalo al comprar cuatro o más unidades de catálogo en un mismo pedido. |\n| MAD-GOY | Semana Running | 09/03/2026 | 15/03/2026 | Exposición de Pulse Runner y asesoramiento en tienda. Sin descuento específico. |\n| BCN-EIX | Sin campaña local | 02/03/2026 | 26/04/2026 | Operativa habitual. |",
+   "citada": true
+  },
+  {
+   "id": "V1",
+   "tipo": "imagen",
+   "titulo": "Lectura de la imagen (ticket) y comprobación con los registros",
+   "modelo": "qwen3-vl:8b-instruct",
+   "valido": true,
+   "extraccion": {
+    "pedido_id": "B-MAD-MAL-ORD-0005",
+    "fecha": "2026-04-04",
+    "tienda_codigo": "MAD-MAL",
+    "lineas": [
+     {
+      "producto": "NIGHT SHIFT",
+      "sku": "NIGHT_SHIFT_LILA_41",
+      "linea_id": "B-MAD-MAL-0732",
+      "cantidad": 1,
+      "precio_unitario": 130.0,
+      "descuento": 12.73,
+      "importe": 117.27
+     },
+     {
+      "producto": "CLOUD STEP",
+      "sku": "CLOUD_STEP_AZUL_40",
+      "linea_id": "B-MAD-MAL-0733",
+      "cantidad": 1,
+      "precio_unitario": 105.0,
+      "descuento": 10.28,
+      "importe": 94.72
+     }
+    ],
+    "total_impreso": 231.99,
+    "texto_campana": null,
+    "campos_ilegibles": [],
+    "legibilidad_declarada": "buena"
+   },
+   "errores_validacion": [],
+   "veredicto": "discrepancia",
+   "comprobaciones": [
+    {
+     "campo": "línea 1: cantidad × precio − descuento",
+     "en_imagen": "117,27 €",
+     "en_registro": "117,27 €",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "coherencia"
+    },
+    {
+     "campo": "línea 2: cantidad × precio − descuento",
+     "en_imagen": "94,72 €",
+     "en_registro": "94,72 €",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "coherencia"
+    },
+    {
+     "campo": "total impreso = suma de sus líneas",
+     "en_imagen": "231,99 €",
+     "en_registro": "211,99 €",
+     "resultado": "no_coincide",
+     "nota": "El ticket no cuadra consigo mismo: diferencia de 20,00 €.",
+     "clase": "coherencia"
+    },
+    {
+     "campo": "pedido",
+     "en_imagen": "B-MAD-MAL-ORD-0005",
+     "en_registro": "B-MAD-MAL-ORD-0005",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "fecha",
+     "en_imagen": "2026-04-04",
+     "en_registro": "2026-04-04",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "tienda",
+     "en_imagen": "MAD-MAL",
+     "en_registro": "MAD-MAL",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "línea 1 (NIGHT_SHIFT_LILA_41): cantidad",
+     "en_imagen": 1,
+     "en_registro": 1,
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "línea 1 (NIGHT_SHIFT_LILA_41): importe",
+     "en_imagen": "117,27 €",
+     "en_registro": "117,27 €",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "línea 2 (CLOUD_STEP_AZUL_40): cantidad",
+     "en_imagen": 1,
+     "en_registro": 1,
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "línea 2 (CLOUD_STEP_AZUL_40): importe",
+     "en_imagen": "94,72 €",
+     "en_registro": "94,72 €",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "total: impreso frente a caja",
+     "en_imagen": "231,99 €",
+     "en_registro": "211,99 €",
+     "resultado": "no_coincide",
+     "nota": "Diferencia de 20,00 €.",
+     "clase": "registro"
+    }
+   ],
+   "consultas": [
+    {
+     "herramienta": "pedido",
+     "titulo": "Líneas del pedido B-MAD-MAL-ORD-0005 en caja",
+     "sql": "SELECT linea_id, strftime(fecha_venta, '%Y-%m-%d') AS fecha_venta, periodo, local_id, tienda, sku, cantidad, precio_unitario, descuento_linea, importe_antes_reembolsos AS importe FROM ventas_lineas WHERE pedido_id = ? ORDER BY linea_id",
+     "parametros": [
+      "B-MAD-MAL-ORD-0005"
+     ],
+     "filas": [
+      {
+       "linea_id": "B-MAD-MAL-0732",
+       "fecha_venta": "2026-04-04",
+       "periodo": "B",
+       "local_id": "MAD-MAL",
+       "tienda": "Malasaña",
+       "sku": "NIGHT_SHIFT_LILA_41",
+       "cantidad": 1,
+       "precio_unitario": 130.0,
+       "descuento_linea": 12.73,
+       "importe": 117.27
+      },
+      {
+       "linea_id": "B-MAD-MAL-0733",
+       "fecha_venta": "2026-04-04",
+       "periodo": "B",
+       "local_id": "MAD-MAL",
+       "tienda": "Malasaña",
+       "sku": "CLOUD_STEP_AZUL_40",
+       "cantidad": 1,
+       "precio_unitario": 105.0,
+       "descuento_linea": 10.28,
+       "importe": 94.72
+      }
+     ]
+    },
+    {
+     "herramienta": "abonos_pedido",
+     "titulo": "Abonos de las líneas del pedido B-MAD-MAL-ORD-0005",
+     "sql": "SELECT reembolso_id, linea_id, strftime(fecha_reconocimiento, '%Y-%m-%d') AS fecha_reconocimiento, periodo, unidades_devueltas, importe_abonado, motivo FROM abonos WHERE pedido_id = ? ORDER BY fecha_reconocimiento, linea_id",
+     "parametros": [
+      "B-MAD-MAL-ORD-0005"
+     ],
+     "filas": [
+      {
+       "reembolso_id": "REF-0042",
+       "linea_id": "B-MAD-MAL-0732",
+       "fecha_reconocimiento": "2026-04-12",
+       "periodo": "B",
+       "unidades_devueltas": 1,
+       "importe_abonado": 117.27,
+       "motivo": "defecto_embalaje"
+      },
+      {
+       "reembolso_id": "REF-0043",
+       "linea_id": "B-MAD-MAL-0733",
+       "fecha_reconocimiento": "2026-04-13",
+       "periodo": "B",
+       "unidades_devueltas": 1,
+       "importe_abonado": 94.72,
+       "motivo": "talla"
+      }
+     ]
+    }
+   ],
+   "texto": "{\"tipo\": \"ticket\", \"extraccion\": {\"pedido_id\": \"B-MAD-MAL-ORD-0005\", \"fecha\": \"2026-04-04\", \"tienda_codigo\": \"MAD-MAL\", \"lineas\": [{\"producto\": \"NIGHT SHIFT\", \"sku\": \"NIGHT_SHIFT_LILA_41\", \"linea_id\": \"B-MAD-MAL-0732\", \"cantidad\": 1, \"precio_unitario\": 130.0, \"descuento\": 12.73, \"importe\": 117.27}, {\"producto\": \"CLOUD STEP\", \"sku\": \"CLOUD_STEP_AZUL_40\", \"linea_id\": \"B-MAD-MAL-0733\", \"cantidad\": 1, \"precio_unitario\": 105.0, \"descuento\": 10.28, \"importe\": 94.72}], \"total_impreso\": 231.99, \"texto_campana\": null, \"campos_ilegibles\": [], \"legibilidad_declarada\": \"buena\"}, \"veredicto\": \"discrepancia\", \"explicacion\": [\"Hay 2 discrepancia(s) entre la imagen y los registros. Una discrepancia pide revisión: no indica por sí sola la causa ni un responsable.\", \"Después de la venta constan 2 abono(s) de este pedido por 211,99 € (B-MAD-MAL-0732 el 2026-04-12, defecto_embalaje; B-MAD-MAL-0733 el 2026-04-13, talla). Los abonos NO explican la diferencia del total: se calculan sobre el importe de caja (211,99 €), no sobre el impreso.\", \"total impreso = suma de sus líneas: El ticket no cuadra consigo mismo: diferencia de 20,00 €.\", \"total: impreso frente a caja: Diferencia de 20,00 €.\"], \"comprobaciones\": [{\"campo\": \"línea 1: cantidad × precio − descuento\", \"en_imagen\": \"117,27 €\", \"en_registro\": \"117,27 €\", \"resultado\": \"coincide\"}, {\"campo\": \"línea 2: cantidad × precio − descuento\", \"en_imagen\": \"94,72 €\", \"en_registro\": \"94,72 €\", \"resultado\": \"coincide\"}, {\"campo\": \"total impreso = suma de sus líneas\", \"en_imagen\": \"231,99 €\", \"en_registro\": \"211,99 €\", \"resultado\": \"no_coincide\"}, {\"campo\": \"pedido\", \"en_imagen\": \"B-MAD-MAL-ORD-0005\", \"en_registro\": \"B-MAD-MAL-ORD-0005\", \"resultado\": \"coincide\"}, {\"campo\": \"fecha\", \"en_imagen\": \"2026-04-04\", \"en_registro\": \"2026-04-04\", \"resultado\": \"coincide\"}, {\"campo\": \"tienda\", \"en_imagen\": \"MAD-MAL\", \"en_registro\": \"MAD-MAL\", \"resultado\": \"coincide\"}, {\"campo\": \"línea 1 (NIGHT_SHIFT_LILA_41): cantidad\", \"en_imagen\": 1, \"en_registro\": 1, \"resultado\": \"coincide\"}, {\"campo\": \"línea 1 (NIGHT_SHIFT_LILA_41): importe\", \"en_imagen\": \"117,27 €\", \"en_registro\": \"117,27 €\", \"resultado\": \"coincide\"}, {\"campo\": \"línea 2 (CLOUD_STEP_AZUL_40): cantidad\", \"en_imagen\": 1, \"en_registro\": 1, \"resultado\": \"coincide\"}, {\"campo\": \"línea 2 (CLOUD_STEP_AZUL_40): importe\", \"en_imagen\": \"94,72 €\", \"en_registro\": \"94,72 €\", \"resultado\": \"coincide\"}, {\"campo\": \"total: impreso frente a caja\", \"en_imagen\": \"231,99 €\", \"en_registro\": \"211,99 €\", \"resultado\": \"no_coincide\"}]}",
+   "citada": true
+  }
+ ],
+ "comprobaciones": [
+  {
+   "nombre": "ticket frente a los registros",
+   "resultado": "discrepancia",
+   "detalle": "Hay 2 discrepancia(s) entre la imagen y los registros. Una discrepancia pide revisión: no indica por sí sola la causa ni un responsable.",
+   "fuentes": [
+    "V1"
+   ]
+  },
+  {
+   "nombre": "fuente automática",
+   "resultado": "aviso",
+   "detalle": "La llamada es una transcripción automática (Whisper): testimonio, no registro.",
+   "fuentes": []
+  },
+  {
+   "nombre": "ticket frente a Pack 4",
+   "resultado": "no_elegible",
+   "detalle": "Ticket del 2026-04-04 con 2 unidades. Pack 4 aprobado: del 02/03/2026 al 29/03/2026, 4 o más unidades. No cumple las condiciones de Pack 4.",
+   "fuentes": [
+    "V1",
+    "D6"
+   ]
+  }
+ ],
+ "limitaciones": [
+  "Coincidir en el tiempo no prueba una causa. Faltan datos para atribuirla: visitas o tráfico, regalos entregados, campaña aplicada a cada pedido y demanda no atendida.",
+  "Una discrepancia en un ticket pide revisión; no demuestra fraude ni dice quién se equivocó."
+ ],
+ "verificacion": [],
+ "plan": {
+  "tareas": [
+   "imagen",
+   "cifras",
+   "documentos"
+  ],
+  "tienda": "MAD-MAL",
+  "consulta": "resumen_tienda",
+  "motivo": "",
+  "origen": "modelo",
+  "nota": ""
+ },
+ "traza": [
+  {
+   "nodo": "planificar",
+   "segundos": 1.1,
+   "herramienta": "plan por modelo",
+   "detalle": "imagen → cifras → documentos",
+   "plan": {
+    "tareas": [
+     "imagen",
+     "cifras",
+     "documentos"
+    ],
+    "tienda": "MAD-MAL",
+    "consulta": "resumen_tienda",
+    "motivo": "",
+    "origen": "modelo",
+    "nota": ""
+   }
+  },
+  {
+   "nodo": "leer_imagen",
+   "segundos": 0.1,
+   "herramienta": "VLM + Pydantic + SQL con parámetros",
+   "detalle": "ticket · qwen3-vl:8b-instruct · JSON válido · discrepancia · lectura REUTILIZADA (misma imagen ya leída: caché por huella sha256)",
+   "pasos": [
+    {
+     "paso": "extraer",
+     "modelo": "qwen3-vl:8b-instruct",
+     "segundos": 10.4,
+     "carga": 0.0,
+     "entrada": 0.1,
+     "salida": 10.2,
+     "tokens_entrada": 2045,
+     "tokens_salida": 207,
+     "tokens_por_segundo": 20.3,
+     "reutilizada": true
+    }
+   ]
+  },
+  {
+   "nodo": "consultar_datos",
+   "segundos": 0.0,
+   "herramienta": "DuckDB · capa semántica",
+   "detalle": "resumen_tienda(MAD-MAL)"
+  },
+  {
+   "nodo": "buscar_documentos",
+   "segundos": 0.0,
+   "herramienta": "RAG · bge-m3 híbrida · índice ampliado (sesión 2 + junio)",
+   "detalle": "1 búsqueda(s) → 5 fragmentos: llamada_0704 · 0:16–0:30, expediente_comercial_y_operaciones.pdf · pág. 3, llamada_0704 · 0:22–0:46, expediente_comercial_y_operaciones.pdf · pág. 1…"
+  },
+  {
+   "nodo": "contrastar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "3 comprobación(es) · 2 límite(s)"
+  },
+  {
+   "nodo": "redactar",
+   "segundos": 19.7,
+   "herramienta": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+   "detalle": "3759 tokens de entrada · 509 de salida · 33.5 tok/s",
+   "tiempos": {
+    "modelo": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    "segundos": 19.7,
+    "carga": 0.0,
+    "entrada": 4.4,
+    "salida": 15.2,
+    "tokens_entrada": 3759,
+    "tokens_salida": 509,
+    "tokens_por_segundo": 33.5
+   }
+  },
+  {
+   "nodo": "verificar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "✓ limpia"
+  }
+ ],
+ "errores": [],
+ "configuracion": {
+  "modelo_texto": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+  "modelo_vision": "qwen3-vl:8b-instruct",
+  "planificador": "modelo",
+  "reutilizar_lecturas": true
+ },
+ "segundos": 21.0,
+ "origen": "guardada",
+ "fecha": "18/10/2026 00:04",
+ "caso": "combinada",
+ "pregunta": "¿Qué cambió en las ventas de Malasaña, qué aportan los documentos y la llamada, y qué demuestra este ticket?",
+ "imagen": "ticket_abril.png"
+}

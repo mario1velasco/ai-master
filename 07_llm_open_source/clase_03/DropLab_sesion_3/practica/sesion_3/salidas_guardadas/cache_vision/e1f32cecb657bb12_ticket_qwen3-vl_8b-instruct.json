@@ -1,0 +1,52 @@
+{
+ "tipo": "ticket",
+ "modelo": "qwen3-vl:8b-instruct",
+ "json_crudo": "{\"pedido_id\":\"B-MAD-MAL-ORD-0005\",\"fecha\":\"2026-04-04\",\"tienda_codigo\":\"MAD-MAL\",\"lineas\":[{\"producto\":\"NIGHT SHIFT\",\"sku\":\"NIGHT_SHIFT_LILA_41\",\"linea_id\":\"B-MAD-MAL-0732\",\"cantidad\":1,\"precio_unitario\":130.00,\"descuento\":12.73,\"importe\":117.27},{\"producto\":\"CLOUD STEP\",\"sku\":\"CLOUD_STEP_AZUL_40\",\"linea_id\":\"B-MAD-MAL-0733\",\"cantidad\":1,\"precio_unitario\":105.00,\"descuento\":10.28,\"importe\":94.72}],\"total_impreso\":231.99,\"texto_campana\":null,\"campos_ilegibles\":[],\"legibilidad_declarada\":\"buena\"}",
+ "valido": true,
+ "errores_validacion": [],
+ "datos": {
+  "pedido_id": "B-MAD-MAL-ORD-0005",
+  "fecha": "2026-04-04",
+  "tienda_codigo": "MAD-MAL",
+  "lineas": [
+   {
+    "producto": "NIGHT SHIFT",
+    "sku": "NIGHT_SHIFT_LILA_41",
+    "linea_id": "B-MAD-MAL-0732",
+    "cantidad": 1,
+    "precio_unitario": 130.0,
+    "descuento": 12.73,
+    "importe": 117.27
+   },
+   {
+    "producto": "CLOUD STEP",
+    "sku": "CLOUD_STEP_AZUL_40",
+    "linea_id": "B-MAD-MAL-0733",
+    "cantidad": 1,
+    "precio_unitario": 105.0,
+    "descuento": 10.28,
+    "importe": 94.72
+   }
+  ],
+  "total_impreso": 231.99,
+  "texto_campana": null,
+  "campos_ilegibles": [],
+  "legibilidad_declarada": "buena"
+ },
+ "tiempos": {
+  "modelo": "qwen3-vl:8b-instruct",
+  "segundos": 11.4,
+  "carga": 0.0,
+  "entrada": 1.3,
+  "salida": 10.0,
+  "tokens_entrada": 2045,
+  "tokens_salida": 209,
+  "tokens_por_segundo": 20.9
+ },
+ "imagen": {
+  "sha256": "e1f32cecb657",
+  "px": "724×1024",
+  "px_original": "1060×1500"
+ },
+ "reutilizada": false
+}

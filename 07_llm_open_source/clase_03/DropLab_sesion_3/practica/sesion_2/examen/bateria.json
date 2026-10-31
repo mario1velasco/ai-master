@@ -1,0 +1,134 @@
+[
+  {
+    "id": "P01",
+    "tipo": "neto (ventas − abonos, dos periodos)",
+    "pregunta": "¿Cuáles fueron las ventas netas de Malasaña en el periodo A y en el periodo B?",
+    "esperado": {
+      "neto_A": 40000.0,
+      "neto_B": 26000.0
+    }
+  },
+  {
+    "id": "P02",
+    "tipo": "neto total de la empresa",
+    "pregunta": "¿Cuáles fueron las ventas netas totales de DropLab (las tres tiendas) en el periodo A y en el periodo B?",
+    "esperado": {
+      "neto_A": 96000.0,
+      "neto_B": 81000.0
+    }
+  },
+  {
+    "id": "P03",
+    "tipo": "cesta (pedidos distintos y unidades)",
+    "pregunta": "¿Cuántos pedidos y cuántas unidades vendió Malasaña en el periodo A y en el periodo B?",
+    "esperado": {
+      "pedidos_A": 120,
+      "pedidos_B": 120,
+      "unidades_A": 467,
+      "unidades_B": 304
+    }
+  },
+  {
+    "id": "P04",
+    "tipo": "ratio por tienda (ventas antes de abonos / pedidos)",
+    "pregunta": "¿Cuál fue el ticket medio (ventas antes de reembolsos dividido entre pedidos) de cada tienda en el periodo B?",
+    "esperado": {
+      "ticket_BCN-EIX": 216.67,
+      "ticket_MAD-GOY": 258.33,
+      "ticket_MAD-MAL": 233.33
+    }
+  },
+  {
+    "id": "P05",
+    "tipo": "ranking",
+    "pregunta": "¿Qué tienda vendió más unidades en el periodo B y cuántas fueron?",
+    "esperado": {
+      "tienda": "MAD-GOY",
+      "unidades": 307
+    },
+    "texto_esperado": {
+      "tienda": [
+        "Goya",
+        "MAD-GOY"
+      ]
+    }
+  },
+  {
+    "id": "P06",
+    "tipo": "filtro de un día, desglose por tienda",
+    "pregunta": "¿Cuánto se vendió en cada una de las tres tiendas el 25 de abril (ventas antes de reembolsos)?",
+    "esperado": {
+      "ventas_BCN-EIX": 943.17,
+      "ventas_MAD-GOY": 769.78,
+      "ventas_MAD-MAL": 884.02
+    }
+  },
+  {
+    "id": "P07",
+    "tipo": "rango de fechas libre + neto",
+    "pregunta": "¿Cuántos pedidos hizo Eixample entre el 6 y el 12 de abril de 2026 y cuáles fueron sus ventas netas?",
+    "esperado": {
+      "pedidos": 29,
+      "neto": 5917.42
+    }
+  },
+  {
+    "id": "P08",
+    "tipo": "cruce con el catálogo + ranking",
+    "pregunta": "¿Qué modelo de producto vendió más unidades en Goya en el periodo A y cuántas?",
+    "esperado": {
+      "unidades": 73
+    },
+    "texto_esperado": {
+      "modelo": [
+        "Street One"
+      ]
+    },
+    "nota": "Segundo: Cloud Step con 68"
+  },
+  {
+    "id": "P09",
+    "tipo": "abonos por fecha de reconocimiento",
+    "pregunta": "¿Cuántos reembolsos se reconocieron en el periodo B en todo DropLab y por qué importe total?",
+    "esperado": {
+      "n_abonos": 32,
+      "importe": 4000.0
+    }
+  },
+  {
+    "id": "P10",
+    "tipo": "disponibilidad",
+    "pregunta": "¿Cuántos intervalos sin stock (0 unidades disponibles) hubo en Malasaña y cuántos SKU distintos se vieron afectados?",
+    "esperado": {
+      "intervalos": 8,
+      "sku": 4
+    }
+  },
+  {
+    "id": "P11",
+    "tipo": "agregar por pedido y luego contar",
+    "pregunta": "¿Cuántos pedidos de Malasaña tuvieron 4 o más unidades en el periodo A y cuántos en el periodo B?",
+    "esperado": {
+      "pedidos4_A": 108,
+      "pedidos4_B": 7
+    },
+    "nota": "Gancho de la sesión 2 (Pack 4)."
+  },
+  {
+    "id": "P12",
+    "tipo": "caso concreto (venta de febrero, abonos en A)",
+    "pregunta": "¿Cuántos abonos tiene la línea HIST-JOIN-001 reconocidos en el periodo A y cuánto suman?",
+    "esperado": {
+      "n_abonos": 2,
+      "importe": 30.0
+    }
+  },
+  {
+    "id": "P13",
+    "tipo": "imposible (dato que no existe)",
+    "pregunta": "¿Cuántos clientes distintos compraron en Malasaña en el periodo B?",
+    "esperado": {},
+    "debe_negar": true,
+    "nota": "No hay cliente_id: un pedido no es una persona. Correcto = decir que no se puede."
+  }
+]

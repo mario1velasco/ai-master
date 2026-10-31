@@ -1,0 +1,158 @@
+{
+ "respuesta": "**Respuesta**  \nMAD-GOY aceptó 60 pares de STREET_ONE_ARENA_41 en junio. La última entrega llegó el 30/06/2026.  \n\n**Documentos y llamada**  \n[D1] T1. Recepciones por tienda: MAD-GOY · STREET_ONE_ARENA_41: 50 solicitados, 48 expedidos, 48 aceptados. [D4] T2. Detalle documental: ENT-06-018: BCN-EIX · STREET_ONE_ARENA_41: 25 pares recibidos el 30/06/2026 a las 17:10. [D1] No hay entrega de arena 41 para MAD-GOY en T1. [D4] No hay registro de entrega alternativa para MAD-GOY.  \n\n**Límites**  \nNo hay datos de entregas de arena 41 a MAD-GOY en junio aparte de los 48 aceptados en T1. No se confirma si la entrega del 30/06 fue para MAD-GOY. No se dispone de información sobre movimientos posteriores a junio.",
+ "evidencias": [
+  {
+   "id": "D1",
+   "tipo": "documento",
+   "cita": "01_DropLab_informe_reposicion_junio.pdf · pág. 2",
+   "titulo": "T1. Recepciones por tienda",
+   "estado": "aprobado",
+   "fecha": "04/07/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · 20/20 valores coinciden con la capa de texto",
+   "texto": "02 / CONCILIACIÓN DE UNIDADES\n\n# T1. Recepciones por tienda\n\nUna unidad de zapatilla equivale a un par. Periodo: 01/06 a 30/06/2026, ambos incluidos.\n\n| Destino / referencia | Junio 2026: flujo de pares |\n| Tienda · SKU | Solicitados | Expedidos | Aceptados (1) |\n| MAD-MAL · STREET_ONE_NEGRO_41 | 80 | 72 | 66 |\n| MAD-MAL · STREET_ONE_NEGRO_42 | 70 | 70 | 70 |\n| MAD-MAL · STREET_ONE_ARENA_41 | 50 | 48 | 48 |\n| MAD-GOY · STREET_ONE_NEGRO_41 | 60 | 60 | 60 |\n| MAD-GOY · STREET_ONE_NEGRO_42 | 60 | 58 | 58 |\n\nT1 continúa en la página 3. Estas cinco filas no constituyen el total del expediente. Los subtotales por destino y las notas de conciliación se presentan al final de la tabla.\n\n## Notas de recepción\n\n(1) Aceptados: unidades recibidas y admitidas como vendibles. La cifra de MAD-MAL / STREET_ONE_NEGRO_41 integra la rectificación RC-0620-01; no añadir de nuevo las unidades del albarán adjunto. La misma entrega puede aparecer en el justificante y en este resumen mensual.\n\n| Registro | Tratamiento en T1 |\n| A-0617-04 / MAD-MAL | 24 pares expedidos; recepción aceptada de 18 pares tras la rectificación. |\n| INC-0617-02 | 6 pares en cuarentena a 30/06. No se añaden a aceptados. |\n| RC-0620-01 | Corrige la aceptación del albarán; no representa otra entrega. |\n\nControl: la tabla expresa flujos del mes, no stock a fecha de cierre. Faltan las ventas, los traslados posteriores y otras salidas para reconstruir existencias.\n\nSelección del cierre. La conciliación se limita a negro 41, negro 42 y arena 41. Otras tallas y colores de Street One no se agregan a T1. El indicador de servicio de la página 4 sigue el catálogo completo y se presenta como referencia operativa; no permite reconstruir las cantidades de estas tres variantes.",
+   "citada": true
+  },
+  {
+   "id": "D2",
+   "tipo": "documento",
+   "cita": "02_DropLab_expediente_escaneado.pdf · pág. 3",
+   "titulo": "Aceptación corregida",
+   "estado": "aprobado",
+   "fecha": "20/06/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · escaneada, sin capa de texto: 13 valores SIN COMPROBAR",
+   "texto": "RECTIFICACIÓN DE RECEPCIÓN\n\n# Aceptación corregida\n\nRC-0620-01 | Emitida: 20/06/2026 | Aprobación: Lucía Vidal, Operaciones\n\nEsta rectificación sustituye exclusivamente la cifra de pares conformes de A-0617-04. Se mantienen la fecha de llegada, las cuatro cajas recibidas y los 24 pares expedidos. No es un nuevo albarán ni una segunda entrega.\n\n| Campo | Registro original | Valor corregido |\n| Pares expedidos | 24 | 24 |\n| Pares aceptados como vendibles | 24 | 18 |\n| Pares en cuarentena | Sin desglose | 6 |\n| Fecha de recepción física | 17/06/2026 | 17/06/2026 |\n\n## Instrucciones de conciliación\n\nAplicar 18 pares aceptados a la entrega A-0617-04. El resto de recepciones de junio para MAD-MAL / STREET_ONE_NEGRO_41 suma 48 pares aceptados. El albarán y su rectificación describen un mismo hecho logístico: no sumar 24 + 18.\n\nEstado de INC-0617-02 a 20/06: ABIERTA. Pendiente de resolución de calidad. Una reposición solicitada no se considera recibida sin justificante de entrada.\n\nRECTIFICACIÓN APROBADA\n\n20 JUN 2026 · L. Vidal",
+   "citada": false
+  },
+  {
+   "id": "D3",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 0:57–1:16",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Álex (Operaciones) [0:57]: Muy bien, y lo de ayer, día 6, ¿qué pasó exactamente con Street One?\nDani (tienda Malasaña) [1:03]: La entrega de la mañana no llegó. Nos quedamos sin negro y arena en el 41 y el 42, desde las 10 hasta las 4 de la tarde. A las 4 tuvimos la reposición alternativa. La tienda siguió abierta.",
+   "citada": false
+  },
+  {
+   "id": "D4",
+   "tipo": "documento",
+   "cita": "01_DropLab_informe_reposicion_junio.pdf · pág. 8",
+   "titulo": "Conciliación de entradas (continuación)",
+   "estado": "aprobado",
+   "fecha": "04/07/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · 29/29 valores coinciden con la capa de texto · fila partida: «tarde. La firma se incorporó el 02/07; e…» se ha unido a la pág. 7",
+   "texto": "| T2 · Detalle documental | Destino y referencia | Pares de junio | Control de recepción |\n| Registro | Tienda / SKU | Sol. | Exp. | Acept. (1) | Observaciones de conciliación |\n\n| ENT-06-013 | BCN-EIX STREET_ONE_NEGRO_41 | 35 | 35 | 35 | Recepción 02/06. Embalajes exteriores conformes. Cotejo de referencias completado antes del cierre de turno. |\n| ENT-06-014 | BCN-EIX STREET_ONE_NEGRO_41 | 35 | 35 | 35 | Recepción 22/06. El cambio de franja fue acordado con tienda. No altera cantidad solicitada ni aceptación. |\n| ENT-06-015 | BCN-EIX STREET_ONE_NEGRO_42 | 25 | 25 | 25 | Recepción 11/06. Control de talla realizado en recepción. Mercancía admitida sin anotaciones de calidad. |\n| ENT-06-016 | BCN-EIX STREET_ONE_NEGRO_42 | 25 | 25 | 25 | Recepción 25/06. Se verificaron pares y código de referencia. La remisión de copia a Administración se completó el 26/06. |\n| ENT-06-017 | BCN-EIX STREET_ONE_ARENA_41 | 25 | 25 | 25 | Recepción 12/06. Recuento de pares conforme. El traslado interno a zona de venta no forma otra entrada del centro. |\n| ENT-06-018 | BCN-EIX STREET_ONE_ARENA_41 | 25 | 25 | 25 | Recepción 30/06 a las 17:10. Alta física dentro del corte. Validación documental 01/07, sin cambio de periodo. |\n| TOTAL T2 | Mismo alcance que T1 | 530 | 518 | 512 | Detalle incluido en el resumen mensual. No sumar T1 + T2. |\n\n(1) Aceptados: pares admitidos como vendibles. La aceptación de A-0617-04 incorpora RC-0620-01; el recuento sustituido no se suma. Las casillas vacías en una continuación pertenecen a la misma observación iniciada en la página anterior y no indican ausencia de dato.\n\nLa diferencia solicitado-expedido se mantiene en el pedido de reposición; no genera por sí misma una reclamación al transportista. La diferencia expedido-aceptado requiere un expediente de calidad. Una autorización de reposición posterior no cambia retroactivamente la aceptación de junio. Las firmas de julio de ENT-06-010, ENT-06-012 y ENT-06-018 corresponden a comprobaciones administrativas de entradas físicas de junio.",
+   "citada": true
+  },
+  {
+   "id": "D5",
+   "tipo": "documento",
+   "cita": "informe_logistica_abril.pdf · pág. 1",
+   "titulo": "Incidencias de reposición",
+   "estado": "emitido",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Local: Malasaña (MAD-MAL). Proveedor: Distribuciones DL. Responsable: coordinación de logística.\nEntregas de mañana\nFecha\nReferencia\nIncidencia y resolución\n06/04/2026\nDL-0604-MAL\nAvería del vehículo. Ruta de mañana no completada. Entrega alternativa a las\n16:00.\n16/04/2026\nDL-1604-MAL\nError de asignación de ruta. Entrega alternativa a las 16:00.\nDisponibilidad comunicada por tienda\nEn ambas fechas, Street One negro y arena, tallas 41 y 42, figura sin unidades disponibles entre las 10:00 y las 16:00. Desde las 16:00, el registro muestra tres unidades por variante. Las tallas 40 y 43 mantienen cuatro unidades en el registro.\nMercancía prevista el 6 de abril\nVariante\nUnidades previstas\nSTREET_ONE_NEGRO_41\n3\nSTREET_ONE_NEGRO_42\n3\nSTREET_ONE_ARENA_41\n3\nSTREET_ONE_ARENA_42\n3\nSeguimiento\nEl albarán DL-0604-MAL corresponde a la ruta fallida. La tienda comunicó reposición alternativa a las 16:00.\nEl detalle de movimientos de almacén y las solicitudes de clientes no atendidas no se incluyen en este informe. Pendiente conciliación de la recepción alternativa con el libro de almacén.",
+   "citada": false
+  }
+ ],
+ "comprobaciones": [
+  {
+   "nombre": "lectura automática",
+   "resultado": "aviso",
+   "detalle": "3 página(s) leídas por PaddleOCR-VL, sin revisión humana. Cifras que no se han podido comprobar con el texto del PDF (escaneado o gráfico): escaneado pág. 3.",
+   "fuentes": []
+  },
+  {
+   "nombre": "fuente automática",
+   "resultado": "aviso",
+   "detalle": "La llamada es una transcripción automática (Whisper): testimonio, no registro.",
+   "fuentes": []
+  }
+ ],
+ "limitaciones": [
+  "Junio no está en los datos de ventas (acaban el 26/04): las cifras de junio salen solo de los documentos de junio."
+ ],
+ "verificacion": [],
+ "plan": {
+  "tareas": [
+   "documentos"
+  ],
+  "tienda": "MAD-GOY",
+  "consulta": "ninguna",
+  "motivo": "",
+  "origen": "modelo",
+  "nota": ""
+ },
+ "traza": [
+  {
+   "nodo": "planificar",
+   "segundos": 1.0,
+   "herramienta": "plan por modelo",
+   "detalle": "documentos",
+   "plan": {
+    "tareas": [
+     "documentos"
+    ],
+    "tienda": "MAD-GOY",
+    "consulta": "ninguna",
+    "motivo": "",
+    "origen": "modelo",
+    "nota": ""
+   }
+  },
+  {
+   "nodo": "buscar_documentos",
+   "segundos": 0.1,
+   "herramienta": "RAG · bge-m3 híbrida · índice ampliado (sesión 2 + junio)",
+   "detalle": "1 búsqueda(s) → 5 fragmentos: 01_DropLab_informe_reposicion_junio.pdf · pág. 2, 02_DropLab_expediente_escaneado.pdf · pág. 3, llamada_0704 · 0:57–1:16, 01_DropLab_informe_reposicion_junio.pdf · pág. 8…"
+  },
+  {
+   "nodo": "contrastar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "2 comprobación(es) · 1 límite(s)"
+  },
+  {
+   "nodo": "redactar",
+   "segundos": 8.5,
+   "herramienta": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+   "detalle": "3163 tokens de entrada · 277 de salida · 33.3 tok/s",
+   "tiempos": {
+    "modelo": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    "segundos": 8.5,
+    "carga": 0.0,
+    "entrada": 0.1,
+    "salida": 8.3,
+    "tokens_entrada": 3163,
+    "tokens_salida": 277,
+    "tokens_por_segundo": 33.3
+   }
+  },
+  {
+   "nodo": "verificar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "✓ limpia"
+  }
+ ],
+ "errores": [],
+ "configuracion": {
+  "modelo_texto": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+  "modelo_vision": "qwen3-vl:8b-instruct",
+  "planificador": "modelo",
+  "reutilizar_lecturas": true
+ },
+ "segundos": 9.6,
+ "origen": "guardada",
+ "fecha": "18/10/2026 00:12",
+ "caso": "extra_falla",
+ "pregunta": "¿Cuántos pares de STREET_ONE_ARENA_41 aceptó Goya en junio y cuándo llegó la última entrega?",
+ "imagen": null
+}

@@ -1,0 +1,51 @@
+{
+ "tipo": "albaran",
+ "modelo": "qwen3-vl:4b-instruct",
+ "json_crudo": "{\"albaran_id\": \"DL-0604-MAL\", \"tienda_codigo\": \"MAD-MAL\", \"fecha_programada\": \"2026-04-06\", \"estado_entrega\": \"ENTREGA FALLIDA 06/04\", \"incidencia\": \"avera del vehiculo. Recepcion de esta ruta: no realizada. Reposicion alternativa pendiente de coordinacion.\", \"recepcion_realizada\": false, \"lineas\": [{\"sku\": \"STREET_ONE_NEGRO_41\", \"unidades_previstas\": 3}, {\"sku\": \"STREET_ONE_NEGRO_42\", \"unidades_previstas\": 3}, {\"sku\": \"STREET_ONE_ARENA_41\", \"unidades_previstas\": 3}, {\"sku\": \"STREET_ONE_ARENA_42\", \"unidades_previstas\": 3}], \"campos_ilegibles\": [], \"legibilidad_declarada\": \"buena\"}",
+ "valido": true,
+ "errores_validacion": [],
+ "datos": {
+  "albaran_id": "DL-0604-MAL",
+  "tienda_codigo": "MAD-MAL",
+  "fecha_programada": "2026-04-06",
+  "estado_entrega": "ENTREGA FALLIDA 06/04",
+  "incidencia": "avera del vehiculo. Recepcion de esta ruta: no realizada. Reposicion alternativa pendiente de coordinacion.",
+  "recepcion_realizada": false,
+  "lineas": [
+   {
+    "sku": "STREET_ONE_NEGRO_41",
+    "unidades_previstas": 3
+   },
+   {
+    "sku": "STREET_ONE_NEGRO_42",
+    "unidades_previstas": 3
+   },
+   {
+    "sku": "STREET_ONE_ARENA_41",
+    "unidades_previstas": 3
+   },
+   {
+    "sku": "STREET_ONE_ARENA_42",
+    "unidades_previstas": 3
+   }
+  ],
+  "campos_ilegibles": [],
+  "legibilidad_declarada": "buena"
+ },
+ "tiempos": {
+  "modelo": "qwen3-vl:4b-instruct",
+  "segundos": 33.6,
+  "carga": 0.0,
+  "entrada": 9.0,
+  "salida": 24.4,
+  "tokens_entrada": 1828,
+  "tokens_salida": 217,
+  "tokens_por_segundo": 8.9
+ },
+ "imagen": {
+  "sha256": "913c54b3b781",
+  "px": "1024×853",
+  "px_original": "1500×1250"
+ },
+ "reutilizada": false
+}

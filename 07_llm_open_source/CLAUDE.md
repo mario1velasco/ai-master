@@ -11,6 +11,7 @@ guía `EXPLICACION_tema_N.md` (lee la guía antes de responder sobre esa sesión
 | Sesión | Tema | Guía |
 |---|---|---|
 | `clase_01` | Caso DropLab: LLM local (Ollama) que redacta sobre cifras calculadas por código; tool calling | [EXPLICACION_tema_1.md](clase_01/EXPLICACION_tema_1.md) |
+| `clase_02` | Capa semántica + verificador + examen; Whisper (voz); RAG local con citas; analista datos + documentos | [EXPLICACION_tema_2.md](clase_02/EXPLICACION_tema_2.md) · [CLAUDE.md](clase_02/CLAUDE.md) |
 
 Hilo del tema: caso de negocio **DropLab** (3 tiendas, correo con −20.000 € por comprobar). Regla de oro:
 **el código calcula, el modelo redacta, tú verificas.**
@@ -25,11 +26,21 @@ Hilo del tema: caso de negocio **DropLab** (3 tiendas, correo con −20.000 € 
 - Función fija (fiable, limitada) > SQL libre (falla sin error). Barreras en el código, no en el prompt.
 - Código: `clase_01/Ejercicios/{practica,ejercicio_3,DropLab}/`.
 
+## Sesión 2 en breve
+
+- Respuesta a «¿qué cambió el 30 de marzo?»: terminó el **Pack 4** (regalo por 4+ unidades); pedidos 4+ de
+  Malasaña **108 → 7**. Modelo de clase `qwen3:30b-a3b-instruct` (MoE, 18 GB: no cabe en el portátil → 4B).
+- Capa semántica (vistas DuckDB con comentarios) es la palanca grande: 30B 58 % → 91 %; 4B solo 67 %.
+- Whisper alucina en silencios; RAG: ficha por fragmento, bge-m3 + BM25 + RRF, «la similitud no sabe qué documento manda».
+- Arquitectura, archivos, avisos (WAV por canal ausentes) y qué sirve para `travel-agency`: [clase_02/CLAUDE.md](clase_02/CLAUDE.md).
+
 ## Entorno
 
 - Un único `.venv` en la raíz (Python 3.11), compartido por todas las clases; nada se instala en el sistema.
   `requirements.txt` raíz incluye con `-r` el de cada clase (añadir una línea por clase nueva).
-- Cómo ejecutar cada script con sus opciones: sección 12 de [EXPLICACION_tema_1.md](clase_01/EXPLICACION_tema_1.md).
+- Cómo ejecutar cada script con sus opciones: sección 12 de [EXPLICACION_tema_1.md](clase_01/EXPLICACION_tema_1.md)
+  y sección 16 de [EXPLICACION_tema_2.md](clase_02/EXPLICACION_tema_2.md). Whisper (sesión 2) va aparte:
+  PyTorch + `clase_02/DropLab_sesion_2/requirements_audio.txt`.
 
 ## Reglas para Claude
 

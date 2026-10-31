@@ -1,0 +1,52 @@
+{
+ "tipo": "ticket",
+ "modelo": "qwen3-vl:4b-instruct",
+ "json_crudo": "{\"pedido_id\": \"A-MAD-MAL-ORD-0014\", \"fecha\": \"2026-03-16\", \"tienda_codigo\": \"MAD-MAL\", \"lineas\": [{\"producto\": \"PULSE RUNNER\", \"sku\": \"PULSE_RUNNER_GRIS_43\", \"linea_id\": \"A-MAD-MAL-0030\", \"cantidad\": 2, \"precio_unitario\": 120, \"descuento\": 27.63, \"importe\": 212.37}, {\"producto\": \"METRO COURT\", \"sku\": \"METRO_COURT_BLANCO_42\", \"linea_id\": \"A-MAD-MAL-0031\", \"cantidad\": 2, \"precio_unitario\": 110, \"descuento\": 25.33, \"importe\": 194.67}], \"total_impreso\": 407.04, \"texto_campana\": \"PACK 4 - Tote bag de regalo por compra de 4 o más unidades. Vigente hasta 29/03/2026.\", \"campos_ilegibles\": [], \"legibilidad_declarada\": \"buena\"}",
+ "valido": true,
+ "errores_validacion": [],
+ "datos": {
+  "pedido_id": "A-MAD-MAL-ORD-0014",
+  "fecha": "2026-03-16",
+  "tienda_codigo": "MAD-MAL",
+  "lineas": [
+   {
+    "producto": "PULSE RUNNER",
+    "sku": "PULSE_RUNNER_GRIS_43",
+    "linea_id": "A-MAD-MAL-0030",
+    "cantidad": 2,
+    "precio_unitario": 120.0,
+    "descuento": 27.63,
+    "importe": 212.37
+   },
+   {
+    "producto": "METRO COURT",
+    "sku": "METRO_COURT_BLANCO_42",
+    "linea_id": "A-MAD-MAL-0031",
+    "cantidad": 2,
+    "precio_unitario": 110.0,
+    "descuento": 25.33,
+    "importe": 194.67
+   }
+  ],
+  "total_impreso": 407.04,
+  "texto_campana": "PACK 4 - Tote bag de regalo por compra de 4 o más unidades. Vigente hasta 29/03/2026.",
+  "campos_ilegibles": [],
+  "legibilidad_declarada": "buena"
+ },
+ "tiempos": {
+  "modelo": "qwen3-vl:4b-instruct",
+  "segundos": 35.6,
+  "carga": 0.0,
+  "entrada": 3.5,
+  "salida": 32.1,
+  "tokens_entrada": 2045,
+  "tokens_salida": 280,
+  "tokens_por_segundo": 8.7
+ },
+ "imagen": {
+  "sha256": "9504275e4112",
+  "px": "724×1024",
+  "px_original": "1060×1500"
+ },
+ "reutilizada": false
+}

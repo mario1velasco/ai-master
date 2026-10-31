@@ -1,0 +1,230 @@
+{
+ "fecha": "18/10/2026 00:08",
+ "origen": "guardada",
+ "imagen": "ticket_marzo.png",
+ "sintetica": false,
+ "libre": {
+  "respuesta": "Este documento es un justificante de compra de la tienda DROP LAB, ubicada en Malasaña, Madrid.  \nIndica que se compraron dos unidades de \"Pulse Runner\" por 212,37 EUR y dos de \"Metro Court\" por 194,67 EUR, con un total de 407,04 EUR.  \nAdemás, se ofrece un regalo de bolsa tote por la compra de 4 o más unidades, válido hasta el 29 de marzo de 2026.",
+  "tiempos": {
+   "modelo": "qwen3-vl:8b-instruct",
+   "segundos": 5.7,
+   "carga": 0.0,
+   "entrada": 0.1,
+   "salida": 5.5,
+   "tokens_entrada": 1083,
+   "tokens_salida": 118,
+   "tokens_por_segundo": 21.5
+  }
+ },
+ "extraccion": {
+  "tipo": "ticket",
+  "modelo": "qwen3-vl:8b-instruct",
+  "json_crudo": "{\"pedido_id\":\"A-MAD-MAL-ORD-0014\",\"fecha\":\"2026-03-16\",\"tienda_codigo\":\"MAD-MAL\",\"lineas\":[{\"producto\":\"PULSE RUNNER\",\"sku\":\"PULSE_RUNNER_GRIS_43\",\"linea_id\":\"A-MAD-MAL-0030\",\"cantidad\":2,\"precio_unitario\":120.0,\"descuento\":27.63,\"importe\":212.37},{\"producto\":\"METRO COURT\",\"sku\":\"METRO_COURT_BLANCO_42\",\"linea_id\":\"A-MAD-MAL-0031\",\"cantidad\":2,\"precio_unitario\":110.0,\"descuento\":25.33,\"importe\":194.67}],\"total_impreso\":407.04,\"texto_campana\":\"PACK 4 · Tote bag de regalo por compra de 4 o más unidades. Vigente hasta 29/03/2026.\",\"campos_ilegibles\":[],\"legibilidad_declarada\":\"buena\"}",
+  "valido": true,
+  "errores_validacion": [],
+  "datos": {
+   "pedido_id": "A-MAD-MAL-ORD-0014",
+   "fecha": "2026-03-16",
+   "tienda_codigo": "MAD-MAL",
+   "lineas": [
+    {
+     "producto": "PULSE RUNNER",
+     "sku": "PULSE_RUNNER_GRIS_43",
+     "linea_id": "A-MAD-MAL-0030",
+     "cantidad": 2,
+     "precio_unitario": 120.0,
+     "descuento": 27.63,
+     "importe": 212.37
+    },
+    {
+     "producto": "METRO COURT",
+     "sku": "METRO_COURT_BLANCO_42",
+     "linea_id": "A-MAD-MAL-0031",
+     "cantidad": 2,
+     "precio_unitario": 110.0,
+     "descuento": 25.33,
+     "importe": 194.67
+    }
+   ],
+   "total_impreso": 407.04,
+   "texto_campana": "PACK 4 · Tote bag de regalo por compra de 4 o más unidades. Vigente hasta 29/03/2026.",
+   "campos_ilegibles": [],
+   "legibilidad_declarada": "buena"
+  },
+  "tiempos": {
+   "modelo": "qwen3-vl:8b-instruct",
+   "segundos": 12.8,
+   "carga": 0.0,
+   "entrada": 1.3,
+   "salida": 11.4,
+   "tokens_entrada": 2045,
+   "tokens_salida": 244,
+   "tokens_por_segundo": 21.4
+  },
+  "imagen": {
+   "sha256": "9504275e4112",
+   "px": "724×1024",
+   "px_original": "1060×1500"
+  },
+  "reutilizada": false
+ },
+ "comprobacion": {
+  "tipo": "ticket",
+  "veredicto": "coincide",
+  "recuento": {
+   "coincide": 11,
+   "no_coincide": 0,
+   "sin_dato": 0,
+   "aviso": 0
+  },
+  "comprobaciones": [
+   {
+    "campo": "línea 1: cantidad × precio − descuento",
+    "en_imagen": "212,37 €",
+    "en_registro": "212,37 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "coherencia"
+   },
+   {
+    "campo": "línea 2: cantidad × precio − descuento",
+    "en_imagen": "194,67 €",
+    "en_registro": "194,67 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "coherencia"
+   },
+   {
+    "campo": "total impreso = suma de sus líneas",
+    "en_imagen": "407,04 €",
+    "en_registro": "407,04 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "coherencia"
+   },
+   {
+    "campo": "pedido",
+    "en_imagen": "A-MAD-MAL-ORD-0014",
+    "en_registro": "A-MAD-MAL-ORD-0014",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "fecha",
+    "en_imagen": "2026-03-16",
+    "en_registro": "2026-03-16",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "tienda",
+    "en_imagen": "MAD-MAL",
+    "en_registro": "MAD-MAL",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "línea 1 (PULSE_RUNNER_GRIS_43): cantidad",
+    "en_imagen": 2,
+    "en_registro": 2,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "línea 1 (PULSE_RUNNER_GRIS_43): importe",
+    "en_imagen": "212,37 €",
+    "en_registro": "212,37 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "línea 2 (METRO_COURT_BLANCO_42): cantidad",
+    "en_imagen": 2,
+    "en_registro": 2,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "línea 2 (METRO_COURT_BLANCO_42): importe",
+    "en_imagen": "194,67 €",
+    "en_registro": "194,67 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "total: impreso frente a caja",
+    "en_imagen": "407,04 €",
+    "en_registro": "407,04 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   }
+  ],
+  "consultas": [
+   {
+    "herramienta": "pedido",
+    "titulo": "Líneas del pedido A-MAD-MAL-ORD-0014 en caja",
+    "sql": "SELECT linea_id, strftime(fecha_venta, '%Y-%m-%d') AS fecha_venta, periodo, local_id, tienda, sku, cantidad, precio_unitario, descuento_linea, importe_antes_reembolsos AS importe FROM ventas_lineas WHERE pedido_id = ? ORDER BY linea_id",
+    "parametros": [
+     "A-MAD-MAL-ORD-0014"
+    ],
+    "filas": [
+     {
+      "linea_id": "A-MAD-MAL-0030",
+      "fecha_venta": "2026-03-16",
+      "periodo": "A",
+      "local_id": "MAD-MAL",
+      "tienda": "Malasaña",
+      "sku": "PULSE_RUNNER_GRIS_43",
+      "cantidad": 2,
+      "precio_unitario": 120.0,
+      "descuento_linea": 27.63,
+      "importe": 212.37
+     },
+     {
+      "linea_id": "A-MAD-MAL-0031",
+      "fecha_venta": "2026-03-16",
+      "periodo": "A",
+      "local_id": "MAD-MAL",
+      "tienda": "Malasaña",
+      "sku": "METRO_COURT_BLANCO_42",
+      "cantidad": 2,
+      "precio_unitario": 110.0,
+      "descuento_linea": 25.33,
+      "importe": 194.67
+     }
+    ]
+   },
+   {
+    "herramienta": "abonos_pedido",
+    "titulo": "Abonos de las líneas del pedido A-MAD-MAL-ORD-0014",
+    "sql": "SELECT reembolso_id, linea_id, strftime(fecha_reconocimiento, '%Y-%m-%d') AS fecha_reconocimiento, periodo, unidades_devueltas, importe_abonado, motivo FROM abonos WHERE pedido_id = ? ORDER BY fecha_reconocimiento, linea_id",
+    "parametros": [
+     "A-MAD-MAL-ORD-0014"
+    ],
+    "filas": [
+     {
+      "reembolso_id": "REF-0031",
+      "linea_id": "A-MAD-MAL-0030",
+      "fecha_reconocimiento": "2026-04-01",
+      "periodo": "B",
+      "unidades_devueltas": 2,
+      "importe_abonado": 212.37,
+      "motivo": "talla"
+     }
+    ]
+   }
+  ],
+  "explicacion": [
+   "Todo lo que se ha podido leer coincide con los registros (11 comprobaciones). Leer bien un documento no demuestra que el documento sea correcto; aquí, además, coincide con caja.",
+   "Después de la venta constan 1 abono(s) de este pedido por 212,37 € (A-MAD-MAL-0030 el 2026-04-01, talla). No cambian lo que dice el ticket, pero sí el neto de esa venta."
+  ]
+ }
+}

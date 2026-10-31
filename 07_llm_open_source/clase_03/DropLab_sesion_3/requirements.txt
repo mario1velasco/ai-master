@@ -1,0 +1,9 @@
+# Librerías de los scripts de la sesión 2 (carpeta practica/).
+# Instalación: pip install -r requirements.txt  (con el entorno virtual activado)
+pandas>=2.2,<3
+duckdb>=1.5,<2
+rich>=13.7,<14
+requests>=2.31,<3
+numpy
+matplotlib>=3.8,<4
+pymupdf>=1.24,<2

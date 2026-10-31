@@ -1,0 +1,241 @@
+{
+ "fecha": "18/10/2026 00:08",
+ "origen": "guardada",
+ "imagen": "ticket_abril.png",
+ "sintetica": false,
+ "libre": {
+  "respuesta": "Este documento es un justificante de compra de la tienda DROP LAB, ubicada en Malasaña, Madrid.  \nIndica que se compraron dos artículos: \"NIGHT SHIFT\" por 117,27 EUR y \"CLOUD STEP\" por 94,72 EUR, con un total de 231,99 EUR.  \nEl documento también incluye la fecha de la compra (2026-04-04) y un mensaje de agradecimiento por la compra.",
+  "tiempos": {
+   "modelo": "qwen3-vl:8b-instruct",
+   "segundos": 5.7,
+   "carga": 0.0,
+   "entrada": 0.1,
+   "salida": 5.2,
+   "tokens_entrada": 1083,
+   "tokens_salida": 114,
+   "tokens_por_segundo": 21.8
+  }
+ },
+ "extraccion": {
+  "tipo": "ticket",
+  "modelo": "qwen3-vl:8b-instruct",
+  "json_crudo": "{\"pedido_id\":\"B-MAD-MAL-ORD-0005\",\"fecha\":\"2026-04-04\",\"tienda_codigo\":\"MAD-MAL\",\"lineas\":[{\"producto\":\"NIGHT SHIFT\",\"sku\":\"NIGHT_SHIFT_LILA_41\",\"linea_id\":\"B-MAD-MAL-0732\",\"cantidad\":1,\"precio_unitario\":130.0,\"descuento\":12.73,\"importe\":117.27},{\"producto\":\"CLOUD STEP\",\"sku\":\"CLOUD_STEP_AZUL_40\",\"linea_id\":\"B-MAD-MAL-0733\",\"cantidad\":1,\"precio_unitario\":105.0,\"descuento\":10.28,\"importe\":94.72}],\"total_impreso\":231.99,\"texto_campana\":null,\"campos_ilegibles\":[],\"legibilidad_declarada\":\"buena\"}",
+  "valido": true,
+  "errores_validacion": [],
+  "datos": {
+   "pedido_id": "B-MAD-MAL-ORD-0005",
+   "fecha": "2026-04-04",
+   "tienda_codigo": "MAD-MAL",
+   "lineas": [
+    {
+     "producto": "NIGHT SHIFT",
+     "sku": "NIGHT_SHIFT_LILA_41",
+     "linea_id": "B-MAD-MAL-0732",
+     "cantidad": 1,
+     "precio_unitario": 130.0,
+     "descuento": 12.73,
+     "importe": 117.27
+    },
+    {
+     "producto": "CLOUD STEP",
+     "sku": "CLOUD_STEP_AZUL_40",
+     "linea_id": "B-MAD-MAL-0733",
+     "cantidad": 1,
+     "precio_unitario": 105.0,
+     "descuento": 10.28,
+     "importe": 94.72
+    }
+   ],
+   "total_impreso": 231.99,
+   "texto_campana": null,
+   "campos_ilegibles": [],
+   "legibilidad_declarada": "buena"
+  },
+  "tiempos": {
+   "modelo": "qwen3-vl:8b-instruct",
+   "segundos": 11.0,
+   "carga": 0.0,
+   "entrada": 1.3,
+   "salida": 9.7,
+   "tokens_entrada": 2045,
+   "tokens_salida": 207,
+   "tokens_por_segundo": 21.4
+  },
+  "imagen": {
+   "sha256": "2cba619839ab",
+   "px": "724×1024",
+   "px_original": "1060×1500"
+  },
+  "reutilizada": false
+ },
+ "comprobacion": {
+  "tipo": "ticket",
+  "veredicto": "discrepancia",
+  "recuento": {
+   "coincide": 9,
+   "no_coincide": 2,
+   "sin_dato": 0,
+   "aviso": 0
+  },
+  "comprobaciones": [
+   {
+    "campo": "línea 1: cantidad × precio − descuento",
+    "en_imagen": "117,27 €",
+    "en_registro": "117,27 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "coherencia"
+   },
+   {
+    "campo": "línea 2: cantidad × precio − descuento",
+    "en_imagen": "94,72 €",
+    "en_registro": "94,72 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "coherencia"
+   },
+   {
+    "campo": "total impreso = suma de sus líneas",
+    "en_imagen": "231,99 €",
+    "en_registro": "211,99 €",
+    "resultado": "no_coincide",
+    "nota": "El ticket no cuadra consigo mismo: diferencia de 20,00 €.",
+    "clase": "coherencia"
+   },
+   {
+    "campo": "pedido",
+    "en_imagen": "B-MAD-MAL-ORD-0005",
+    "en_registro": "B-MAD-MAL-ORD-0005",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "fecha",
+    "en_imagen": "2026-04-04",
+    "en_registro": "2026-04-04",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "tienda",
+    "en_imagen": "MAD-MAL",
+    "en_registro": "MAD-MAL",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "línea 1 (NIGHT_SHIFT_LILA_41): cantidad",
+    "en_imagen": 1,
+    "en_registro": 1,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "línea 1 (NIGHT_SHIFT_LILA_41): importe",
+    "en_imagen": "117,27 €",
+    "en_registro": "117,27 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "línea 2 (CLOUD_STEP_AZUL_40): cantidad",
+    "en_imagen": 1,
+    "en_registro": 1,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "línea 2 (CLOUD_STEP_AZUL_40): importe",
+    "en_imagen": "94,72 €",
+    "en_registro": "94,72 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "total: impreso frente a caja",
+    "en_imagen": "231,99 €",
+    "en_registro": "211,99 €",
+    "resultado": "no_coincide",
+    "nota": "Diferencia de 20,00 €.",
+    "clase": "registro"
+   }
+  ],
+  "consultas": [
+   {
+    "herramienta": "pedido",
+    "titulo": "Líneas del pedido B-MAD-MAL-ORD-0005 en caja",
+    "sql": "SELECT linea_id, strftime(fecha_venta, '%Y-%m-%d') AS fecha_venta, periodo, local_id, tienda, sku, cantidad, precio_unitario, descuento_linea, importe_antes_reembolsos AS importe FROM ventas_lineas WHERE pedido_id = ? ORDER BY linea_id",
+    "parametros": [
+     "B-MAD-MAL-ORD-0005"
+    ],
+    "filas": [
+     {
+      "linea_id": "B-MAD-MAL-0732",
+      "fecha_venta": "2026-04-04",
+      "periodo": "B",
+      "local_id": "MAD-MAL",
+      "tienda": "Malasaña",
+      "sku": "NIGHT_SHIFT_LILA_41",
+      "cantidad": 1,
+      "precio_unitario": 130.0,
+      "descuento_linea": 12.73,
+      "importe": 117.27
+     },
+     {
+      "linea_id": "B-MAD-MAL-0733",
+      "fecha_venta": "2026-04-04",
+      "periodo": "B",
+      "local_id": "MAD-MAL",
+      "tienda": "Malasaña",
+      "sku": "CLOUD_STEP_AZUL_40",
+      "cantidad": 1,
+      "precio_unitario": 105.0,
+      "descuento_linea": 10.28,
+      "importe": 94.72
+     }
+    ]
+   },
+   {
+    "herramienta": "abonos_pedido",
+    "titulo": "Abonos de las líneas del pedido B-MAD-MAL-ORD-0005",
+    "sql": "SELECT reembolso_id, linea_id, strftime(fecha_reconocimiento, '%Y-%m-%d') AS fecha_reconocimiento, periodo, unidades_devueltas, importe_abonado, motivo FROM abonos WHERE pedido_id = ? ORDER BY fecha_reconocimiento, linea_id",
+    "parametros": [
+     "B-MAD-MAL-ORD-0005"
+    ],
+    "filas": [
+     {
+      "reembolso_id": "REF-0042",
+      "linea_id": "B-MAD-MAL-0732",
+      "fecha_reconocimiento": "2026-04-12",
+      "periodo": "B",
+      "unidades_devueltas": 1,
+      "importe_abonado": 117.27,
+      "motivo": "defecto_embalaje"
+     },
+     {
+      "reembolso_id": "REF-0043",
+      "linea_id": "B-MAD-MAL-0733",
+      "fecha_reconocimiento": "2026-04-13",
+      "periodo": "B",
+      "unidades_devueltas": 1,
+      "importe_abonado": 94.72,
+      "motivo": "talla"
+     }
+    ]
+   }
+  ],
+  "explicacion": [
+   "Hay 2 discrepancia(s) entre la imagen y los registros. Una discrepancia pide revisión: no indica por sí sola la causa ni un responsable.",
+   "Después de la venta constan 2 abono(s) de este pedido por 211,99 € (B-MAD-MAL-0732 el 2026-04-12, defecto_embalaje; B-MAD-MAL-0733 el 2026-04-13, talla). Los abonos NO explican la diferencia del total: se calculan sobre el importe de caja (211,99 €), no sobre el impreso.",
+   "total impreso = suma de sus líneas: El ticket no cuadra consigo mismo: diferencia de 20,00 €.",
+   "total: impreso frente a caja: Diferencia de 20,00 €."
+  ]
+ }
+}

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "V01",
+    "tipo": "ranking de días por neto",
+    "pregunta": "¿Qué día del periodo B tuvo Malasaña más ventas netas y cuánto fueron?",
+    "esperado": {
+      "neto": 1244.84
+    },
+    "texto_esperado": {
+      "dia": [
+        "23",
+        "2026-04-23"
+      ]
+    },
+    "nota": "top3 [(datetime.date(2026, 4, 23), 1244.84), (datetime.date(2026, 3, 30), 1169.97), (datetime.date(2026, 3, 31), 1162.76)]"
+  },
+  {
+    "id": "V02",
+    "tipo": "ratio abonos / ventas",
+    "pregunta": "¿Qué porcentaje de las ventas antes de reembolsos de Goya en el periodo A representan los abonos reconocidos en ese mismo periodo?",
+    "esperado": {
+      "pct": 3.03
+    },
+    "nota": "1000.0 / 32999.99999999999"
+  },
+  {
+    "id": "V03",
+    "tipo": "ratio unidades / pedidos",
+    "pregunta": "¿Cuántas unidades por pedido tuvo de media Eixample en el periodo A?",
+    "esperado": {
+      "uds_pedido": 2.57
+    },
+    "nota": "308/120"
+  },
+  {
+    "id": "V04",
+    "tipo": "ranking de motivos (fecha de reconocimiento)",
+    "pregunta": "¿Cuál fue el motivo de reembolso más frecuente en el periodo A en todo DropLab y cuántos abonos tuvo?",
+    "esperado": {
+      "n": 10
+    },
+    "texto_esperado": {
+      "motivo": [
+        "talla"
+      ]
+    },
+    "nota": "[('talla', 10), ('cambio_de_opinion', 8), ('defecto_embalaje', 7), ('ajuste_comercial', 5)]"
+  },
+  {
+    "id": "V05",
+    "tipo": "filtro por categoría del catálogo",
+    "pregunta": "¿Cuántas unidades de la categoría camiseta se vendieron en total en el periodo B?",
+    "esperado": {
+      "unidades": 76
+    }
+  },
+  {
+    "id": "V06",
+    "tipo": "variación B − A del neto",
+    "pregunta": "¿Cuánto variaron las ventas netas de Goya entre el periodo A y el B (B menos A)?",
+    "esperado": {
+      "variacion": -2000.0
+    }
+  },
+  {
+    "id": "V07",
+    "tipo": "ranking de tallas de un modelo",
+    "pregunta": "¿Qué talla de Street One vendió más unidades en Malasaña en el periodo B y cuántas?",
+    "esperado": {
+      "unidades": 14
+    },
+    "texto_esperado": {
+      "talla": [
+        "40"
+      ]
+    },
+    "nota": "[('40', 14), ('42', 13), ('43', 12), ('41', 11)]"
+  },
+  {
+    "id": "V08",
+    "tipo": "stock: suma de horas por SKU",
+    "pregunta": "Sumando las horas de cada SKU, ¿cuántas horas estuvo sin stock la talla 42 de Street One en Malasaña?",
+    "esperado": {
+      "horas": 24.0
+    }
+  },
+  {
+    "id": "V09",
+    "tipo": "imposible (no hay costes)",
+    "pregunta": "¿Cuál fue el margen de beneficio de Malasaña en el periodo B?",
+    "esperado": {},
+    "debe_negar": true
+  },
+  {
+    "id": "V10",
+    "tipo": "días concretos, todas las tiendas",
+    "pregunta": "¿Cuántos pedidos hubo en total en las tres tiendas el fin de semana del 11 y 12 de abril de 2026?",
+    "esperado": {
+      "pedidos": 24
+    }
+  }
+]

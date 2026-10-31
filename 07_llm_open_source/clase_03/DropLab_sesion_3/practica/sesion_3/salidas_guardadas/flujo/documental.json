@@ -1,0 +1,168 @@
+{
+ "respuesta": "**Respuesta**  \nEl Pack 4 estuvo vigente en Malasaña hasta el 29 de marzo de 2026, ambos incluidos. [D2]\n\n**Documentos y llamada**  \nLa fecha final aprobada se establece en el calendario comercial aprobado el 01/03/2026, que indica como último día incluido el 29/03/2026. [D2] El diario de operaciones confirma que el cartel se retiró el 30/03/2026, tras la vigencia aprobada. [D3] La llamada del 7/04 no contradice esta fecha, solo informa sobre una incidencia de entrega. [D4]\n\n**Límites**  \nNo se dispone de registro de entregas de regalos ni de marca de campaña en ventas.csv. [D2] La transcripción automática de la llamada no acredita hechos, solo refleja una conversación. [D4] No se verifica si todos los clientes que cumplieron la condición recibieron el regalo.",
+ "evidencias": [
+  {
+   "id": "D1",
+   "tipo": "documento",
+   "cita": "expediente_comercial_y_operaciones.pdf · pág. 7",
+   "titulo": "Propuesta inicial de Pack 4",
+   "estado": "sustituido",
+   "fecha": "27/02/2026",
+   "sustituido_por": "CAM-2026-03-FINAL",
+   "lectura": null,
+   "texto": "Propuesta inicial de Pack 4\nEstado de origen: PENDIENTE DE APROBACIÓN. Propuesta del equipo comercial de\n27/02/2026. Conservada como antecedente; sustituida por CAM-2026-03-FINAL, versión 2, aprobado el 01/03/2026.\nCondiciones propuestas\nTienda: Malasaña (MAD-MAL). Inicio propuesto: 02/03/2026. Último día propuesto: 31/03/2026.\nRegalo de tote bag exclusiva DropLab al comprar cuatro o más unidades de catálogo en un mismo pedido. Sin descuento monetario adicional.\nPendientes recogidos en la propuesta\nConfirmar la fecha final con Dirección Comercial y comunicar las condiciones a caja. No distribuir la propuesta a clientes hasta recibir aprobación. Las tiendas utilizarán el calendario final aprobado para la ejecución.\nConservación en el expediente\nLa propuesta se incorpora para mantener la secuencia de elaboración de la campaña. Sus fechas son las planteadas por el equipo comercial antes de la decisión final. La presencia del borrador en el expediente no constituye autorización para aplicarlas.\nDocumento que resuelve la vigencia\nLa comunicación final se encuentra en la página 2 de este expediente. Identificador:\nCAM-2026-03-FINAL. Fecha de aprobación: 01/03/2026. Si una consulta solicita la fecha ejecutada, debe contrastarse la propuesta con esa comunicación.\nResponsable de la propuesta: equipo comercial. Responsable de la aprobación y comunicación final: Dirección Comercial. No consta una aprobación posterior que restablezca el último día propuesto en este borrador.",
+   "citada": false
+  },
+  {
+   "id": "D2",
+   "tipo": "documento",
+   "cita": "expediente_comercial_y_operaciones.pdf · pág. 2",
+   "titulo": "Calendario comercial aprobado",
+   "estado": "aprobado",
+   "fecha": "01/03/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Calendario comercial aprobado\nResponsable: Dirección Comercial. Comunicación final remitida a tiendas el 01/03/2026. Esta versión sustituye a CAM-2026-03-DRAFT, versión 0.\nMalasaña / MAD-MAL: Pack 4\nVigencia aprobada: desde el 02/03/2026 hasta el 29/03/2026, ambos incluidos. Desde el\n30/03/2026 se retira el regalo. Condición: tote bag exclusiva DropLab de regalo al comprar cuatro o más unidades de catálogo en un mismo pedido.\nParticipan zapatillas, camisetas y sudaderas. Las unidades pueden corresponder a distintos\nSKU y categorías. Cada par de zapatillas cuenta como una unidad. La condición se comprueba sobre el pedido completo, no exigiendo cuatro unidades en un único renglón.\nPack 4 no modifica los precios de lista y no añade un descuento monetario. Los descuentos de caja son independientes. Las tote bags se gestionan como material promocional; no aparecen como SKU vendido en ventas.csv ni referencias.csv.\nGoya / MAD-GOY: Semana Running\nDel 09/03/2026 al 15/03/2026, ambos incluidos. Exposición de Pulse Runner y asesoramiento en tienda, sin descuento específico. Goya no participa en Pack 4.\nEixample / BCN-EIX\nSin campaña local del 02/03/2026 al 26/04/2026. Operativa habitual. Eixample no participa en\nPack 4.\nInformación pendiente de Operaciones\nLa exportación no contiene el registro de regalos entregados ni una marca de campaña aplicada a cada pedido. Se debe solicitar ese detalle antes de elaborar un resultado de campaña. Las condiciones aprobadas no acreditan por sí solas la entrega efectiva de cada regalo.",
+   "citada": true
+  },
+  {
+   "id": "D3",
+   "tipo": "documento",
+   "cita": "expediente_comercial_y_operaciones.pdf · pág. 3",
+   "titulo": "Diario de operaciones",
+   "estado": "registro",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Diario de operaciones\nConsolidado por coordinación de tiendas a partir de anotaciones del equipo. Las entradas describen hechos y comentarios comunicados; no constituyen un conteo de clientes ni una medición sistemática de motivos de compra.\nMalasaña / MAD-MAL\nFecha\nAnotación\n30/03\nRetiramos el cartel Pack 4. Dos consultas por el regalo de marzo; informamos de que la campaña terminó.\n02/04\nVarios clientes comentan la incomodidad de las vallas de la calle.\n06/04\nLa entrega de mañana no llega. Street One negro y arena, tallas 41 y 42, sin disponibilidad de\n10:00 a 16:00. Reposición alternativa a las 16:00.\n07/04\nNueva consulta por el regalo.\n16/04\nSegunda incidencia de mañana con las mismas variantes. Reposición alternativa a las 16:00.\nRevisamos turnos y aire acondicionado; no hubo cierre de la tienda. No llevamos contador de entradas ni registro sistemático de consultas sin compra. Pendiente revisar el impacto con\nAdministración y Logística.\nGoya / MAD-GOY\nSemana Running estuvo expuesta del 9 al 15 de marzo. En abril reorganizamos el escaparate y cambiamos algunos turnos. No hubo campaña Pack 4. El equipo no comunica incidencias relevantes de Street One.\nEixample / BCN-EIX\nEl equipo comenta que ha sido un buen periodo. Movimos la exposición de camisetas y actualizamos la música. No hubo campaña Pack 4. Sin incidencias relevantes comunicadas de\nStreet One.\nLas anotaciones de Goya y Eixample aportan contexto de esas tiendas. No acreditan que todas las condiciones de demanda, clientela y operación fueran equivalentes a las de Malasaña.",
+   "citada": true
+  },
+  {
+   "id": "D4",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 0:57–1:16",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Álex (Operaciones) [0:57]: Muy bien, y lo de ayer, día 6, ¿qué pasó exactamente con Street One?\nDani (tienda Malasaña) [1:03]: La entrega de la mañana no llegó. Nos quedamos sin negro y arena en el 41 y el 42, desde las 10 hasta las 4 de la tarde. A las 4 tuvimos la reposición alternativa. La tienda siguió abierta.",
+   "citada": true
+  },
+  {
+   "id": "D5",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 0:00–0:09",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Álex (Operaciones) [0:00]: Hola, Malasaña. Soy Alex, de Operaciones. ¿Tienes un momento? Quería revisar contigo lo del pack 4 y la entrega de ayer.",
+   "citada": false
+  },
+  {
+   "id": "D6",
+   "tipo": "documento",
+   "cita": "calendario_comercial_aprobado.md · Campañas",
+   "titulo": "Calendario comercial aprobado",
+   "estado": "aprobado",
+   "fecha": "01/03/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "| Tienda | Campaña | Inicio | Último día incluido | Condiciones |\n|---|---|---|---|---|\n| MAD-MAL | Pack 4 | 02/03/2026 | 29/03/2026 | Tote bag exclusiva DropLab de regalo al comprar cuatro o más unidades de catálogo en un mismo pedido. |\n| MAD-GOY | Semana Running | 09/03/2026 | 15/03/2026 | Exposición de Pulse Runner y asesoramiento en tienda. Sin descuento específico. |\n| BCN-EIX | Sin campaña local | 02/03/2026 | 26/04/2026 | Operativa habitual. |",
+   "citada": false
+  }
+ ],
+ "comprobaciones": [
+  {
+   "nombre": "versiones",
+   "resultado": "aviso",
+   "detalle": "expediente_comercial_y_operaciones.pdf · pág. 7 está SUSTITUIDO por CAM-2026-03-FINAL: solo vale como antecedente.",
+   "fuentes": []
+  },
+  {
+   "nombre": "fuente automática",
+   "resultado": "aviso",
+   "detalle": "La llamada es una transcripción automática (Whisper): testimonio, no registro.",
+   "fuentes": []
+  }
+ ],
+ "limitaciones": [],
+ "verificacion": [],
+ "plan": {
+  "tareas": [
+   "documentos"
+  ],
+  "tienda": "MAD-MAL",
+  "consulta": "ninguna",
+  "motivo": "",
+  "origen": "modelo",
+  "nota": ""
+ },
+ "traza": [
+  {
+   "nodo": "planificar",
+   "segundos": 0.9,
+   "herramienta": "plan por modelo",
+   "detalle": "documentos",
+   "plan": {
+    "tareas": [
+     "documentos"
+    ],
+    "tienda": "MAD-MAL",
+    "consulta": "ninguna",
+    "motivo": "",
+    "origen": "modelo",
+    "nota": ""
+   }
+  },
+  {
+   "nodo": "buscar_documentos",
+   "segundos": 0.1,
+   "herramienta": "RAG · bge-m3 híbrida · índice ampliado (sesión 2 + junio)",
+   "detalle": "1 búsqueda(s) → 6 fragmentos: expediente_comercial_y_operaciones.pdf · pág. 7, expediente_comercial_y_operaciones.pdf · pág. 2, expediente_comercial_y_operaciones.pdf · pág. 3, llamada_0704 · 0:57–1:16…"
+  },
+  {
+   "nodo": "contrastar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "2 comprobación(es) · 0 límite(s)"
+  },
+  {
+   "nodo": "redactar",
+   "segundos": 7.6,
+   "herramienta": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+   "detalle": "2542 tokens de entrada · 252 de salida · 34.0 tok/s",
+   "tiempos": {
+    "modelo": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    "segundos": 7.6,
+    "carga": 0.0,
+    "entrada": 0.1,
+    "salida": 7.4,
+    "tokens_entrada": 2542,
+    "tokens_salida": 252,
+    "tokens_por_segundo": 34.0
+   }
+  },
+  {
+   "nodo": "verificar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "✓ limpia"
+  }
+ ],
+ "errores": [],
+ "configuracion": {
+  "modelo_texto": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+  "modelo_vision": "qwen3-vl:8b-instruct",
+  "planificador": "modelo",
+  "reutilizar_lecturas": true
+ },
+ "segundos": 8.6,
+ "origen": "guardada",
+ "fecha": "18/10/2026 00:03",
+ "caso": "documental",
+ "pregunta": "¿Hasta qué día estuvo vigente el Pack 4 en Malasaña?",
+ "imagen": null
+}

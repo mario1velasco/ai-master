@@ -1,0 +1,155 @@
+{
+ "fecha": "18/10/2026 00:09",
+ "origen": "guardada",
+ "imagen": "ticket_abril_muy_borroso.png",
+ "sintetica": true,
+ "libre": {
+  "respuesta": "Este documento es un justificante de compra de la tienda \"DROP LAB\" en Palagá.  \nIndica que se compraron dos productos: \"NIGHT SHIFT\" por 137,27 EUR y \"CLOUD STEP\" por 84,72 EUR.  \nEl total de la compra es de 231,99 EUR, y el documento agradece la compra y pide conservarlo.",
+  "tiempos": {
+   "modelo": "qwen3-vl:8b-instruct",
+   "segundos": 8.1,
+   "carga": 0.0,
+   "entrada": 3.6,
+   "salida": 4.3,
+   "tokens_entrada": 1083,
+   "tokens_salida": 93,
+   "tokens_por_segundo": 21.5
+  }
+ },
+ "extraccion": {
+  "tipo": "ticket",
+  "modelo": "qwen3-vl:8b-instruct",
+  "json_crudo": "{\"pedido_id\": \"8-MAD-MAL-000-0005\", \"fecha\": \"2020-04-04\", \"tienda_codigo\": \"MAD-MAL\", \"lineas\": [{\"producto\": \"NIGHT SHIFT\", \"sku\": \"NIGHT_SHIFT_LILA_41\", \"linea_id\": \"8-MAD-MAL-0732\", \"cantidad\": 1, \"precio_unitario\": 138.88, \"descuento\": 12.75, \"importe\": 126.13}, {\"producto\": \"CLOUD STEP\", \"sku\": \"CLOUD_STEP_AZUL_41\", \"linea_id\": \"8-MAD-MAL-0732\", \"cantidad\": 1, \"precio_unitario\": 105.98, \"descuento\": 18.28, \"importe\": 87.7}], \"total_impreso\": 231.99, \"texto_campana\": null, \"campos_ilegibles\": [], \"legibilidad_declarada\": \"buena\"}",
+  "valido": true,
+  "errores_validacion": [],
+  "datos": {
+   "pedido_id": "8-MAD-MAL-000-0005",
+   "fecha": "2020-04-04",
+   "tienda_codigo": "MAD-MAL",
+   "lineas": [
+    {
+     "producto": "NIGHT SHIFT",
+     "sku": "NIGHT_SHIFT_LILA_41",
+     "linea_id": "8-MAD-MAL-0732",
+     "cantidad": 1,
+     "precio_unitario": 138.88,
+     "descuento": 12.75,
+     "importe": 126.13
+    },
+    {
+     "producto": "CLOUD STEP",
+     "sku": "CLOUD_STEP_AZUL_41",
+     "linea_id": "8-MAD-MAL-0732",
+     "cantidad": 1,
+     "precio_unitario": 105.98,
+     "descuento": 18.28,
+     "importe": 87.7
+    }
+   ],
+   "total_impreso": 231.99,
+   "texto_campana": null,
+   "campos_ilegibles": [],
+   "legibilidad_declarada": "buena"
+  },
+  "tiempos": {
+   "modelo": "qwen3-vl:8b-instruct",
+   "segundos": 13.1,
+   "carga": 0.0,
+   "entrada": 1.3,
+   "salida": 11.6,
+   "tokens_entrada": 2045,
+   "tokens_salida": 249,
+   "tokens_por_segundo": 21.4
+  },
+  "imagen": {
+   "sha256": "0925bda59219",
+   "px": "724×1024",
+   "px_original": "1060×1500"
+  },
+  "reutilizada": false
+ },
+ "comprobacion": {
+  "tipo": "ticket",
+  "veredicto": "lectura_dudosa",
+  "recuento": {
+   "coincide": 2,
+   "no_coincide": 1,
+   "sin_dato": 1,
+   "aviso": 4
+  },
+  "comprobaciones": [
+   {
+    "campo": "formato del pedido",
+    "en_imagen": "8-MAD-MAL-000-0005",
+    "en_registro": "A|B-TIENDA-ORD-0000",
+    "resultado": "aviso",
+    "nota": "No es un número de pedido posible: probable error de lectura.",
+    "clase": "formato"
+   },
+   {
+    "campo": "fecha dentro de los datos",
+    "en_imagen": "2020-04-04",
+    "en_registro": "02/03–26/04/2026",
+    "resultado": "aviso",
+    "nota": "Fecha fuera del periodo con datos: probable error de lectura.",
+    "clase": "formato"
+   },
+   {
+    "campo": "línea 1: formato",
+    "en_imagen": "8-MAD-MAL-0732",
+    "en_registro": "A|B-TIENDA-0000",
+    "resultado": "aviso",
+    "nota": "No es un identificador de línea posible.",
+    "clase": "formato"
+   },
+   {
+    "campo": "línea 2: formato",
+    "en_imagen": "8-MAD-MAL-0732",
+    "en_registro": "A|B-TIENDA-0000",
+    "resultado": "aviso",
+    "nota": "No es un identificador de línea posible.",
+    "clase": "formato"
+   },
+   {
+    "campo": "línea 1: cantidad × precio − descuento",
+    "en_imagen": "126,13 €",
+    "en_registro": "126,13 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "coherencia"
+   },
+   {
+    "campo": "línea 2: cantidad × precio − descuento",
+    "en_imagen": "87,70 €",
+    "en_registro": "87,70 €",
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "coherencia"
+   },
+   {
+    "campo": "total impreso = suma de sus líneas",
+    "en_imagen": "231,99 €",
+    "en_registro": "213,83 €",
+    "resultado": "no_coincide",
+    "nota": "El ticket no cuadra consigo mismo: diferencia de 18,16 €.",
+    "clase": "coherencia"
+   },
+   {
+    "campo": "pedido",
+    "en_imagen": "8-MAD-MAL-000-0005",
+    "en_registro": null,
+    "resultado": "sin_dato",
+    "nota": "Formato de pedido no válido: '8-MAD-MAL-000-0005'",
+    "clase": "registro"
+   }
+  ],
+  "consultas": [],
+  "explicacion": [
+   "La extracción tiene valores imposibles (4): lo más probable es un error de LECTURA. Antes de comparar con los registros, repetir la imagen o revisarla a mano. El modelo no lo marcó como ilegible: su «legibilidad» no es una probabilidad.",
+   "formato del pedido: No es un número de pedido posible: probable error de lectura.",
+   "fecha dentro de los datos: Fecha fuera del periodo con datos: probable error de lectura.",
+   "línea 1: formato: No es un identificador de línea posible.",
+   "total impreso = suma de sus líneas: El ticket no cuadra consigo mismo: diferencia de 18,16 €."
+  ]
+ }
+}

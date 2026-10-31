@@ -1,0 +1,202 @@
+{
+ "respuesta": "**Respuesta**  \nLas ventas netas disminuyeron 14.000 € y los pedidos de 4 o más unidades disminuyeron 101 entre los periodos A y B en Malasaña.\n\n**Cifras**  \n- Ventas netas: de 40.000 € (A) a 26.000 € (B), diferencia: –14.000 € [S1].  \n- Pedidos de 4 o más unidades: de 108 (A) a 7 (B), diferencia: –101 [S1].\n\n**Documentos y llamada**  \n- [S1] muestra las cifras clave por periodo.  \n- [D3] y [D5] confirman que el cartel del regalo se retiró el 30 de marzo, tras la finalización de la campaña el 29 [D3, D5].  \n- [D1] registra consultas sobre el regalo el 30 de marzo y 7 de abril, coincidiendo con la retirada del cartel [D1].  \n- [D4] indica incidencias de reposición el 6 y 16 de abril, con falta de disponibilidad de Street One negro y arena, tallas 41 y 42, entre 10:00 y 16:00 [D4].\n\n**Límites**  \nNo se dispone de datos sobre el número de clientes que preguntaron, ni de movimientos de almacén completos, ni de solicitudes no atendidas. No se puede cuantificar el impacto de las incidencias de reposición ni de las consultas sin compra.",
+ "evidencias": [
+  {
+   "id": "S1",
+   "tipo": "datos",
+   "titulo": "Cifras clave de Malasaña por periodo",
+   "sql": "WITH r AS ( SELECT periodo, SUM(ventas_antes_reembolsos) AS ventas_antes_reembolsos, SUM(abonos_reconocidos) AS abonos, SUM(ventas_netas) AS ventas_netas, CAST(SUM(pedidos) AS INTEGER) AS pedidos, CAST(SUM(unidades) AS INTEGER) AS unidades FROM resumen_diario WHERE local_id = ? AND periodo IS NOT NULL GROUP BY periodo), p AS ( SELECT periodo, COUNT(*) FILTER (WHERE unidades >= 4) AS pedidos_4_o_mas_unidades FROM pedidos WHERE local_id = ? AND periodo IS NOT NULL GROUP BY periodo) , t AS ( SELECT r.periodo, r.ventas_antes_reembolsos, r.abonos, r.ventas_netas, r.pedidos, r.unidades, ROUND(r.unidades / r.pedidos, 2) AS unidades_por_pedido, p.pedidos_4_o_mas_unidades FROM r JOIN p USING (periodo)) SELECT * FROM t UNION ALL -- la diferencia la calcula el SQL, no el modelo SELECT 'B - A', b.ventas_antes_reembolsos - a.ventas_antes_reembolsos, b.abonos - a.abonos, b.ventas_netas - a.ventas_netas, b.pedidos - a.pedidos, b.unidades - a.unidades, ROUND(b.unidades_por_pedido - a.unidades_por_pedido, 2), b.pedidos_4_o_mas_unidades - a.pedidos_4_o_mas_unidades FROM t a, t b WHERE a.periodo = 'A' AND b.periodo = 'B' ORDER BY 1",
+   "parametros": [
+    "MAD-MAL",
+    "MAD-MAL"
+   ],
+   "filas": [
+    {
+     "periodo": "A",
+     "ventas_antes_reembolsos": 42000.0,
+     "abonos": 2000.0,
+     "ventas_netas": 40000.0,
+     "pedidos": 120,
+     "unidades": 467,
+     "unidades_por_pedido": 3.89,
+     "pedidos_4_o_mas_unidades": 108
+    },
+    {
+     "periodo": "B",
+     "ventas_antes_reembolsos": 28000.0,
+     "abonos": 2000.0,
+     "ventas_netas": 26000.0,
+     "pedidos": 120,
+     "unidades": 304,
+     "unidades_por_pedido": 2.53,
+     "pedidos_4_o_mas_unidades": 7
+    },
+    {
+     "periodo": "B - A",
+     "ventas_antes_reembolsos": -14000.0,
+     "abonos": 0.0,
+     "ventas_netas": -14000.0,
+     "pedidos": 0,
+     "unidades": -163,
+     "unidades_por_pedido": -1.36,
+     "pedidos_4_o_mas_unidades": -101
+    }
+   ],
+   "texto": "[{\"periodo\": \"A\", \"ventas_antes_reembolsos\": 42000.0, \"abonos\": 2000.0, \"ventas_netas\": 40000.0, \"pedidos\": 120, \"unidades\": 467, \"unidades_por_pedido\": 3.89, \"pedidos_4_o_mas_unidades\": 108}, {\"periodo\": \"B\", \"ventas_antes_reembolsos\": 28000.0, \"abonos\": 2000.0, \"ventas_netas\": 26000.0, \"pedidos\": 120, \"unidades\": 304, \"unidades_por_pedido\": 2.53, \"pedidos_4_o_mas_unidades\": 7}, {\"periodo\": \"B - A\", \"ventas_antes_reembolsos\": -14000.0, \"abonos\": 0.0, \"ventas_netas\": -14000.0, \"pedidos\": 0, \"unidades\": -163, \"unidades_por_pedido\": -1.36, \"pedidos_4_o_mas_unidades\": -101}]",
+   "citada": true
+  },
+  {
+   "id": "D1",
+   "tipo": "documento",
+   "cita": "diario_operaciones_abril.md · Malasaña · MAD-MAL",
+   "titulo": "Diario de operaciones de tienda",
+   "estado": "consolidado",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "30/03: retiramos el cartel Pack 4. Dos consultas por el regalo de marzo; informamos de que la campaña terminó. 02/04: varios clientes comentan la incomodidad de las vallas de la calle. 07/04: nueva consulta por el regalo.\n06/04: la entrega de mañana no llega. Street One negro y arena, tallas 41 y 42, sin disponibilidad entre 10:00 y 16:00. Reposición alternativa a las 16:00.\n16/04: segunda incidencia de mañana con las mismas variantes. Reposición alternativa a las 16:00.\nRevisamos turnos y aire acondicionado; no hubo cierre. No llevamos contador de entradas ni registro sistemático de consultas sin compra. Pendiente revisar el impacto con administración y logística.",
+   "citada": true
+  },
+  {
+   "id": "D2",
+   "tipo": "documento",
+   "cita": "expediente_comercial_y_operaciones.pdf · pág. 1",
+   "titulo": "Expediente comercial y de operaciones",
+   "estado": "consolidado",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Expediente comercial y de operaciones\nÁmbito: Malasaña y referencias operativas de Goya y Eixample. Preparado para el equipo de\nAnalítica por coordinación de tiendas. Reúne comunicaciones comerciales, anotaciones operativas y registros de incidencias disponibles al 27/04/2026.\nEncargo de Dirección Comercial «Me han trasladado que las ventas netas han caído 20.000 EUR al comparar el 2-29 de marzo con el 30 de marzo-26 de abril. Necesito que comprobéis esa cifra». Mensaje de\n27/04/2026, 09:15. El importe comunicado está pendiente de comprobación con caja.\nDirección solicita conocer la caída real, los cambios en las compras, las explicaciones respaldadas por la información disponible y los datos que faltan. Se mencionan devoluciones, obras frente a la tienda y problemas de reposición. Antes de decidir si se repite una campaña se requiere una recomendación con cifras y fuentes.\nPágina\nDocumento / contenido\nEstado\n2\nCalendario comercial CAM-2026-03-FINAL\nAprobado\n3\nDiario OPS-ABR-2026\nRegistro operativo\n4\nInforme LOG-ABR-2026-02\nInforme de incidencias\n5\nDetalle de disponibilidad de Street One\nRegistro observado\n6\nAviso LOC-MAL-2026-04\nPlanificación recibida\n7\nPropuesta CAM-2026-03-DRAFT\nBorrador sustituido\n8\nPendientes del expediente\nSolicitud de información\nEl expediente conserva documentos de distinto estado. Su inclusión no convierte los borradores en comunicaciones aprobadas ni las observaciones de tienda en resultados de un análisis cuantitativo.",
+   "citada": false
+  },
+  {
+   "id": "D3",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 0:22–0:46",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Dani (tienda Malasaña) [0:22]: Que ya terminó, pero te quería preguntar una cosa. Yo tenía una propuesta donde ponía hasta el 31 de marzo. ¿Al final se cambió?\nÁlex (Operaciones) [0:31]: Sí, el 31 aparecía en el borrador. El calendario que aprobó Comercial terminaba el 29, incluido. Desde el 30 ya no se entregaba la Totebag y era un regalo por comprar 4 unidades o más en el mismo pedido, no un descuento.",
+   "citada": true
+  },
+  {
+   "id": "D4",
+   "tipo": "documento",
+   "cita": "informe_logistica_abril.pdf · pág. 1",
+   "titulo": "Incidencias de reposición",
+   "estado": "emitido",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Local: Malasaña (MAD-MAL). Proveedor: Distribuciones DL. Responsable: coordinación de logística.\nEntregas de mañana\nFecha\nReferencia\nIncidencia y resolución\n06/04/2026\nDL-0604-MAL\nAvería del vehículo. Ruta de mañana no completada. Entrega alternativa a las\n16:00.\n16/04/2026\nDL-1604-MAL\nError de asignación de ruta. Entrega alternativa a las 16:00.\nDisponibilidad comunicada por tienda\nEn ambas fechas, Street One negro y arena, tallas 41 y 42, figura sin unidades disponibles entre las 10:00 y las 16:00. Desde las 16:00, el registro muestra tres unidades por variante. Las tallas 40 y 43 mantienen cuatro unidades en el registro.\nMercancía prevista el 6 de abril\nVariante\nUnidades previstas\nSTREET_ONE_NEGRO_41\n3\nSTREET_ONE_NEGRO_42\n3\nSTREET_ONE_ARENA_41\n3\nSTREET_ONE_ARENA_42\n3\nSeguimiento\nEl albarán DL-0604-MAL corresponde a la ruta fallida. La tienda comunicó reposición alternativa a las 16:00.\nEl detalle de movimientos de almacén y las solicitudes de clientes no atendidas no se incluyen en este informe. Pendiente conciliación de la recepción alternativa con el libro de almacén.",
+   "citada": true
+  },
+  {
+   "id": "D5",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 0:31–0:56",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Álex (Operaciones) [0:31]: Sí, el 31 aparecía en el borrador. El calendario que aprobó Comercial terminaba el 29, incluido. Desde el 30 ya no se entregaba la Totebag y era un regalo por comprar 4 unidades o más en el mismo pedido, no un descuento.\nDani (tienda Malasaña) [0:46]: Vale, entonces lo hicimos bien. Retiramos el cartel el 30. Hoy han vuelto a preguntar por el regalo y les hemos dicho que la campaña ya había terminado.",
+   "citada": true
+  }
+ ],
+ "comprobaciones": [
+  {
+   "nombre": "fuente automática",
+   "resultado": "aviso",
+   "detalle": "La llamada es una transcripción automática (Whisper): testimonio, no registro.",
+   "fuentes": []
+  }
+ ],
+ "limitaciones": [],
+ "verificacion": [],
+ "plan": {
+  "tareas": [
+   "cifras",
+   "documentos"
+  ],
+  "tienda": "MAD-MAL",
+  "consulta": "resumen_tienda",
+  "motivo": "",
+  "origen": "modelo",
+  "nota": ""
+ },
+ "traza": [
+  {
+   "nodo": "planificar",
+   "segundos": 1.9,
+   "herramienta": "plan por modelo",
+   "detalle": "cifras → documentos",
+   "plan": {
+    "tareas": [
+     "cifras",
+     "documentos"
+    ],
+    "tienda": "MAD-MAL",
+    "consulta": "resumen_tienda",
+    "motivo": "",
+    "origen": "modelo",
+    "nota": ""
+   }
+  },
+  {
+   "nodo": "consultar_datos",
+   "segundos": 0.7,
+   "herramienta": "DuckDB · capa semántica",
+   "detalle": "resumen_tienda(MAD-MAL)"
+  },
+  {
+   "nodo": "buscar_documentos",
+   "segundos": 0.0,
+   "herramienta": "RAG · bge-m3 híbrida · índice ampliado (sesión 2 + junio)",
+   "detalle": "1 búsqueda(s) → 5 fragmentos: diario_operaciones_abril.md · Malasaña · MAD-MAL, expediente_comercial_y_operaciones.pdf · pág. 1, llamada_0704 · 0:22–0:46, informe_logistica_abril.pdf · pág. 1…"
+  },
+  {
+   "nodo": "contrastar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "1 comprobación(es) · 0 límite(s)"
+  },
+  {
+   "nodo": "redactar",
+   "segundos": 13.9,
+   "herramienta": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+   "detalle": "2355 tokens de entrada · 381 de salida · 34.7 tok/s",
+   "tiempos": {
+    "modelo": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    "segundos": 13.9,
+    "carga": 0.0,
+    "entrada": 2.8,
+    "salida": 11.0,
+    "tokens_entrada": 2355,
+    "tokens_salida": 381,
+    "tokens_por_segundo": 34.7
+   }
+  },
+  {
+   "nodo": "verificar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "✓ limpia"
+  }
+ ],
+ "errores": [],
+ "configuracion": {
+  "modelo_texto": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+  "modelo_vision": "qwen3-vl:8b-instruct",
+  "planificador": "modelo",
+  "reutilizar_lecturas": true
+ },
+ "segundos": 16.5,
+ "origen": "guardada",
+ "fecha": "18/10/2026 00:03",
+ "caso": "numerica",
+ "pregunta": "¿Cuánto cambiaron las ventas netas y los pedidos de 4 o más unidades en Malasaña entre A y B?",
+ "imagen": null
+}

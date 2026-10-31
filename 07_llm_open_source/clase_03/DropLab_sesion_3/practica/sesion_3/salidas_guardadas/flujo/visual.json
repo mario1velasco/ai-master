@@ -1,0 +1,324 @@
+{
+ "respuesta": "**Respuesta**  \nEl ticket muestra una discrepancia de 20,00 € entre el total impreso (231,99 €) y el total registrado en caja (211,99 €). Las líneas individuales coinciden en cantidad, precio y descuento, pero la suma de los importes no cuadra con el total impreso. Los abonos posteriores (por defecto de embalaje y talla) no explican la diferencia, ya que se basan en el importe de caja, no en el impreso. [V1]\n\n**Documentos y llamada**  \n[D1] establece que el Pack 4 en MAD-MAL fue válido del 02/03/2026 al 29/03/2026. El ticket es del 04/04/2026, fuera de campaña. No se aplicó el pack, ya que solo se compraron dos unidades. [V1]\n\n**Imagen**  \nLa imagen del ticket presenta un total impreso de 231,99 €, que no coincide con la suma de sus líneas (211,99 €). [V1]\n\n**Límites**  \nNo se puede atribuir la discrepancia a una causa específica sin datos adicionales: visitas, tráfico, regalos entregados, campaña aplicada a cada pedido o demanda no atendida. Una discrepancia no demuestra fraude ni indica responsabilidad. [V1]",
+ "evidencias": [
+  {
+   "id": "D1",
+   "tipo": "documento",
+   "cita": "calendario_comercial_aprobado.md · Campañas",
+   "titulo": "Calendario comercial aprobado",
+   "estado": "aprobado",
+   "fecha": "01/03/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "| Tienda | Campaña | Inicio | Último día incluido | Condiciones |\n|---|---|---|---|---|\n| MAD-MAL | Pack 4 | 02/03/2026 | 29/03/2026 | Tote bag exclusiva DropLab de regalo al comprar cuatro o más unidades de catálogo en un mismo pedido. |\n| MAD-GOY | Semana Running | 09/03/2026 | 15/03/2026 | Exposición de Pulse Runner y asesoramiento en tienda. Sin descuento específico. |\n| BCN-EIX | Sin campaña local | 02/03/2026 | 26/04/2026 | Operativa habitual. |",
+   "citada": true
+  },
+  {
+   "id": "V1",
+   "tipo": "imagen",
+   "titulo": "Lectura de la imagen (ticket) y comprobación con los registros",
+   "modelo": "qwen3-vl:8b-instruct",
+   "valido": true,
+   "extraccion": {
+    "pedido_id": "B-MAD-MAL-ORD-0005",
+    "fecha": "2026-04-04",
+    "tienda_codigo": "MAD-MAL",
+    "lineas": [
+     {
+      "producto": "NIGHT SHIFT",
+      "sku": "NIGHT_SHIFT_LILA_41",
+      "linea_id": "B-MAD-MAL-0732",
+      "cantidad": 1,
+      "precio_unitario": 130.0,
+      "descuento": 12.73,
+      "importe": 117.27
+     },
+     {
+      "producto": "CLOUD STEP",
+      "sku": "CLOUD_STEP_AZUL_40",
+      "linea_id": "B-MAD-MAL-0733",
+      "cantidad": 1,
+      "precio_unitario": 105.0,
+      "descuento": 10.28,
+      "importe": 94.72
+     }
+    ],
+    "total_impreso": 231.99,
+    "texto_campana": null,
+    "campos_ilegibles": [],
+    "legibilidad_declarada": "buena"
+   },
+   "errores_validacion": [],
+   "veredicto": "discrepancia",
+   "comprobaciones": [
+    {
+     "campo": "línea 1: cantidad × precio − descuento",
+     "en_imagen": "117,27 €",
+     "en_registro": "117,27 €",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "coherencia"
+    },
+    {
+     "campo": "línea 2: cantidad × precio − descuento",
+     "en_imagen": "94,72 €",
+     "en_registro": "94,72 €",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "coherencia"
+    },
+    {
+     "campo": "total impreso = suma de sus líneas",
+     "en_imagen": "231,99 €",
+     "en_registro": "211,99 €",
+     "resultado": "no_coincide",
+     "nota": "El ticket no cuadra consigo mismo: diferencia de 20,00 €.",
+     "clase": "coherencia"
+    },
+    {
+     "campo": "pedido",
+     "en_imagen": "B-MAD-MAL-ORD-0005",
+     "en_registro": "B-MAD-MAL-ORD-0005",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "fecha",
+     "en_imagen": "2026-04-04",
+     "en_registro": "2026-04-04",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "tienda",
+     "en_imagen": "MAD-MAL",
+     "en_registro": "MAD-MAL",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "línea 1 (NIGHT_SHIFT_LILA_41): cantidad",
+     "en_imagen": 1,
+     "en_registro": 1,
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "línea 1 (NIGHT_SHIFT_LILA_41): importe",
+     "en_imagen": "117,27 €",
+     "en_registro": "117,27 €",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "línea 2 (CLOUD_STEP_AZUL_40): cantidad",
+     "en_imagen": 1,
+     "en_registro": 1,
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "línea 2 (CLOUD_STEP_AZUL_40): importe",
+     "en_imagen": "94,72 €",
+     "en_registro": "94,72 €",
+     "resultado": "coincide",
+     "nota": "",
+     "clase": "registro"
+    },
+    {
+     "campo": "total: impreso frente a caja",
+     "en_imagen": "231,99 €",
+     "en_registro": "211,99 €",
+     "resultado": "no_coincide",
+     "nota": "Diferencia de 20,00 €.",
+     "clase": "registro"
+    }
+   ],
+   "consultas": [
+    {
+     "herramienta": "pedido",
+     "titulo": "Líneas del pedido B-MAD-MAL-ORD-0005 en caja",
+     "sql": "SELECT linea_id, strftime(fecha_venta, '%Y-%m-%d') AS fecha_venta, periodo, local_id, tienda, sku, cantidad, precio_unitario, descuento_linea, importe_antes_reembolsos AS importe FROM ventas_lineas WHERE pedido_id = ? ORDER BY linea_id",
+     "parametros": [
+      "B-MAD-MAL-ORD-0005"
+     ],
+     "filas": [
+      {
+       "linea_id": "B-MAD-MAL-0732",
+       "fecha_venta": "2026-04-04",
+       "periodo": "B",
+       "local_id": "MAD-MAL",
+       "tienda": "Malasaña",
+       "sku": "NIGHT_SHIFT_LILA_41",
+       "cantidad": 1,
+       "precio_unitario": 130.0,
+       "descuento_linea": 12.73,
+       "importe": 117.27
+      },
+      {
+       "linea_id": "B-MAD-MAL-0733",
+       "fecha_venta": "2026-04-04",
+       "periodo": "B",
+       "local_id": "MAD-MAL",
+       "tienda": "Malasaña",
+       "sku": "CLOUD_STEP_AZUL_40",
+       "cantidad": 1,
+       "precio_unitario": 105.0,
+       "descuento_linea": 10.28,
+       "importe": 94.72
+      }
+     ]
+    },
+    {
+     "herramienta": "abonos_pedido",
+     "titulo": "Abonos de las líneas del pedido B-MAD-MAL-ORD-0005",
+     "sql": "SELECT reembolso_id, linea_id, strftime(fecha_reconocimiento, '%Y-%m-%d') AS fecha_reconocimiento, periodo, unidades_devueltas, importe_abonado, motivo FROM abonos WHERE pedido_id = ? ORDER BY fecha_reconocimiento, linea_id",
+     "parametros": [
+      "B-MAD-MAL-ORD-0005"
+     ],
+     "filas": [
+      {
+       "reembolso_id": "REF-0042",
+       "linea_id": "B-MAD-MAL-0732",
+       "fecha_reconocimiento": "2026-04-12",
+       "periodo": "B",
+       "unidades_devueltas": 1,
+       "importe_abonado": 117.27,
+       "motivo": "defecto_embalaje"
+      },
+      {
+       "reembolso_id": "REF-0043",
+       "linea_id": "B-MAD-MAL-0733",
+       "fecha_reconocimiento": "2026-04-13",
+       "periodo": "B",
+       "unidades_devueltas": 1,
+       "importe_abonado": 94.72,
+       "motivo": "talla"
+      }
+     ]
+    }
+   ],
+   "texto": "{\"tipo\": \"ticket\", \"extraccion\": {\"pedido_id\": \"B-MAD-MAL-ORD-0005\", \"fecha\": \"2026-04-04\", \"tienda_codigo\": \"MAD-MAL\", \"lineas\": [{\"producto\": \"NIGHT SHIFT\", \"sku\": \"NIGHT_SHIFT_LILA_41\", \"linea_id\": \"B-MAD-MAL-0732\", \"cantidad\": 1, \"precio_unitario\": 130.0, \"descuento\": 12.73, \"importe\": 117.27}, {\"producto\": \"CLOUD STEP\", \"sku\": \"CLOUD_STEP_AZUL_40\", \"linea_id\": \"B-MAD-MAL-0733\", \"cantidad\": 1, \"precio_unitario\": 105.0, \"descuento\": 10.28, \"importe\": 94.72}], \"total_impreso\": 231.99, \"texto_campana\": null, \"campos_ilegibles\": [], \"legibilidad_declarada\": \"buena\"}, \"veredicto\": \"discrepancia\", \"explicacion\": [\"Hay 2 discrepancia(s) entre la imagen y los registros. Una discrepancia pide revisión: no indica por sí sola la causa ni un responsable.\", \"Después de la venta constan 2 abono(s) de este pedido por 211,99 € (B-MAD-MAL-0732 el 2026-04-12, defecto_embalaje; B-MAD-MAL-0733 el 2026-04-13, talla). Los abonos NO explican la diferencia del total: se calculan sobre el importe de caja (211,99 €), no sobre el impreso.\", \"total impreso = suma de sus líneas: El ticket no cuadra consigo mismo: diferencia de 20,00 €.\", \"total: impreso frente a caja: Diferencia de 20,00 €.\"], \"comprobaciones\": [{\"campo\": \"línea 1: cantidad × precio − descuento\", \"en_imagen\": \"117,27 €\", \"en_registro\": \"117,27 €\", \"resultado\": \"coincide\"}, {\"campo\": \"línea 2: cantidad × precio − descuento\", \"en_imagen\": \"94,72 €\", \"en_registro\": \"94,72 €\", \"resultado\": \"coincide\"}, {\"campo\": \"total impreso = suma de sus líneas\", \"en_imagen\": \"231,99 €\", \"en_registro\": \"211,99 €\", \"resultado\": \"no_coincide\"}, {\"campo\": \"pedido\", \"en_imagen\": \"B-MAD-MAL-ORD-0005\", \"en_registro\": \"B-MAD-MAL-ORD-0005\", \"resultado\": \"coincide\"}, {\"campo\": \"fecha\", \"en_imagen\": \"2026-04-04\", \"en_registro\": \"2026-04-04\", \"resultado\": \"coincide\"}, {\"campo\": \"tienda\", \"en_imagen\": \"MAD-MAL\", \"en_registro\": \"MAD-MAL\", \"resultado\": \"coincide\"}, {\"campo\": \"línea 1 (NIGHT_SHIFT_LILA_41): cantidad\", \"en_imagen\": 1, \"en_registro\": 1, \"resultado\": \"coincide\"}, {\"campo\": \"línea 1 (NIGHT_SHIFT_LILA_41): importe\", \"en_imagen\": \"117,27 €\", \"en_registro\": \"117,27 €\", \"resultado\": \"coincide\"}, {\"campo\": \"línea 2 (CLOUD_STEP_AZUL_40): cantidad\", \"en_imagen\": 1, \"en_registro\": 1, \"resultado\": \"coincide\"}, {\"campo\": \"línea 2 (CLOUD_STEP_AZUL_40): importe\", \"en_imagen\": \"94,72 €\", \"en_registro\": \"94,72 €\", \"resultado\": \"coincide\"}, {\"campo\": \"total: impreso frente a caja\", \"en_imagen\": \"231,99 €\", \"en_registro\": \"211,99 €\", \"resultado\": \"no_coincide\"}]}",
+   "citada": true
+  }
+ ],
+ "comprobaciones": [
+  {
+   "nombre": "ticket frente a los registros",
+   "resultado": "discrepancia",
+   "detalle": "Hay 2 discrepancia(s) entre la imagen y los registros. Una discrepancia pide revisión: no indica por sí sola la causa ni un responsable.",
+   "fuentes": [
+    "V1"
+   ]
+  },
+  {
+   "nombre": "ticket frente a Pack 4",
+   "resultado": "no_elegible",
+   "detalle": "Ticket del 2026-04-04 con 2 unidades. Pack 4 aprobado: del 02/03/2026 al 29/03/2026, 4 o más unidades. No cumple las condiciones de Pack 4.",
+   "fuentes": [
+    "V1",
+    "D1"
+   ]
+  }
+ ],
+ "limitaciones": [
+  "Coincidir en el tiempo no prueba una causa. Faltan datos para atribuirla: visitas o tráfico, regalos entregados, campaña aplicada a cada pedido y demanda no atendida.",
+  "Una discrepancia en un ticket pide revisión; no demuestra fraude ni dice quién se equivocó."
+ ],
+ "verificacion": [],
+ "plan": {
+  "tareas": [
+   "imagen"
+  ],
+  "tienda": null,
+  "consulta": "ninguna",
+  "motivo": "",
+  "origen": "modelo",
+  "nota": ""
+ },
+ "traza": [
+  {
+   "nodo": "planificar",
+   "segundos": 0.8,
+   "herramienta": "plan por modelo",
+   "detalle": "imagen",
+   "plan": {
+    "tareas": [
+     "imagen"
+    ],
+    "tienda": null,
+    "consulta": "ninguna",
+    "motivo": "",
+    "origen": "modelo",
+    "nota": ""
+   }
+  },
+  {
+   "nodo": "leer_imagen",
+   "segundos": 0.1,
+   "herramienta": "VLM + Pydantic + SQL con parámetros",
+   "detalle": "ticket · qwen3-vl:8b-instruct · JSON válido · discrepancia · lectura REUTILIZADA (misma imagen ya leída: caché por huella sha256)",
+   "pasos": [
+    {
+     "paso": "extraer",
+     "modelo": "qwen3-vl:8b-instruct",
+     "segundos": 10.4,
+     "carga": 0.0,
+     "entrada": 0.1,
+     "salida": 10.2,
+     "tokens_entrada": 2045,
+     "tokens_salida": 207,
+     "tokens_por_segundo": 20.3,
+     "reutilizada": true
+    }
+   ]
+  },
+  {
+   "nodo": "contrastar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "2 comprobación(es) · 2 límite(s)"
+  },
+  {
+   "nodo": "redactar",
+   "segundos": 9.6,
+   "herramienta": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+   "detalle": "1885 tokens de entrada · 330 de salida · 34.9 tok/s",
+   "tiempos": {
+    "modelo": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    "segundos": 9.6,
+    "carga": 0.0,
+    "entrada": 0.0,
+    "salida": 9.5,
+    "tokens_entrada": 1885,
+    "tokens_salida": 330,
+    "tokens_por_segundo": 34.9
+   }
+  },
+  {
+   "nodo": "verificar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "✓ limpia"
+  }
+ ],
+ "errores": [],
+ "configuracion": {
+  "modelo_texto": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+  "modelo_vision": "qwen3-vl:8b-instruct",
+  "planificador": "modelo",
+  "reutilizar_lecturas": true
+ },
+ "segundos": 10.5,
+ "origen": "guardada",
+ "fecha": "18/10/2026 00:04",
+ "caso": "visual",
+ "pregunta": "¿Qué demuestra este ticket? Compáralo con caja.",
+ "imagen": "ticket_abril.png"
+}

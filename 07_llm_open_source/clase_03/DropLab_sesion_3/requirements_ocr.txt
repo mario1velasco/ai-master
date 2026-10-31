@@ -1,0 +1,26 @@
+# Sesión 3 · Leer documentos difíciles (PaddleOCR en la GPU del Jetson). Entorno APARTE: .venv-ocr
+#
+# Por qué aparte: PaddleOCR trae muchas dependencias (OpenCV, scikit-learn, transformers 5…) que no hacen falta en el
+# resto del curso. Así el .venv del curso no cambia. Solo lo usa 08_leer_documentos.py en directo (--leer … --con ocr|vl
+# y --guardar); todo lo demás funciona con las lecturas guardadas y el .venv normal.
+#
+# Por qué NO «pip install paddlepaddle»: en ARM (Jetson) el paquete de PyPI es solo CPU: el OCR tarda ~40 s por página
+# y en modo 30 W ni arranca (segmentation fault: se reparte en los 12 núcleos y solo hay 8 encendidos). Desde
+# PaddleOCR 3.5 los modelos pueden ejecutarse con PyTorch (engine="transformers"), y PyTorch sí tiene CUDA en el Jetson:
+# ~2 s por página el OCR y ~25 s el parser de documentos (PaddleOCR-VL), medido el 17/10/2026 en MAXN.
+#
+# Instalación en el Jetson (JetPack 6, CUDA 12.6, Python 3.10), desde la raíz del proyecto:
+#   python3 -m venv .venv-ocr
+#   .venv-ocr/bin/pip install --index-url https://pypi.jetson-ai-lab.io/jp6/cu126/+simple/ torch==2.8.0 torchvision==0.23.0
+#   .venv-ocr/bin/pip install -r requirements_ocr.txt
+# Detrás del proxy del aula: export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt REQUESTS_CA_BUNDLE=$SSL_CERT_FILE
+#   HF_HUB_DISABLE_XET=1 (los modelos, ~2,5 GB, se descargan de Hugging Face la primera vez a ~/.paddlex/official_models/).
+#
+# En un PC con GPU NVIDIA: torch con CUDA de pytorch.org y lo mismo. Sin GPU: funciona en CPU (device="cpu"), lento.
+
+numpy<2                          # el PyTorch del Jetson está compilado con NumPy 1.x
+paddleocr[doc-parser]==3.7.0     # PP-OCRv6 (OCR) y PaddleOCR-VL-1.6 (parser de documentos); probado: 3.7.0 / paddlex 3.7.2
+transformers>=5.10,<6            # el motor «transformers» de PaddleOCR (probado: 5.20.1)
+pymupdf                          # leer el PDF y pasar cada página a imagen
+rich                             # la salida en la terminal
+requests

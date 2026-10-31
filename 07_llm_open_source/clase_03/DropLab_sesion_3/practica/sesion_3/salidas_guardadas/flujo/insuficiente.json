@@ -1,0 +1,216 @@
+{
+ "respuesta": "**Respuesta**  \nNo se puede determinar cuántas tote bags se entregaron en marzo ni cuántas ventas se perdieron por las obras.  \n\n**Cifras**  \n[S1] Las ventas netas de Malasaña cayeron 14.000 EUR entre el periodo A (02/03–29/03/2026) y el periodo B (30/03–26/04/2026). No hay datos de ventas por obra, ni de regalos entregados.  \n\n**Documentos y llamada**  \n[D1], [D2], [D6] confirman que el Pack 4 (tote bag por 4+ unidades) se ejecutó del 02/03 al 29/03/2026. [D3] indica que el aviso de obras llegó el 25/03/2026, pero no hay datos de impacto en ventas. [D4] menciona obras como posible causa, pero no cuantifica pérdidas.  \n\n**Límites**  \nNo hay registro de regalos entregados ni de incidencias concretas en caja. No se puede vincular el descenso de ventas a obras ni a la campaña. El código confirma que no hay datos de clientes, visitas, regalos ni costes.",
+ "evidencias": [
+  {
+   "id": "S1",
+   "tipo": "datos",
+   "titulo": "Cifras clave de Malasaña por periodo",
+   "sql": "WITH r AS ( SELECT periodo, SUM(ventas_antes_reembolsos) AS ventas_antes_reembolsos, SUM(abonos_reconocidos) AS abonos, SUM(ventas_netas) AS ventas_netas, CAST(SUM(pedidos) AS INTEGER) AS pedidos, CAST(SUM(unidades) AS INTEGER) AS unidades FROM resumen_diario WHERE local_id = ? AND periodo IS NOT NULL GROUP BY periodo), p AS ( SELECT periodo, COUNT(*) FILTER (WHERE unidades >= 4) AS pedidos_4_o_mas_unidades FROM pedidos WHERE local_id = ? AND periodo IS NOT NULL GROUP BY periodo) , t AS ( SELECT r.periodo, r.ventas_antes_reembolsos, r.abonos, r.ventas_netas, r.pedidos, r.unidades, ROUND(r.unidades / r.pedidos, 2) AS unidades_por_pedido, p.pedidos_4_o_mas_unidades FROM r JOIN p USING (periodo)) SELECT * FROM t UNION ALL -- la diferencia la calcula el SQL, no el modelo SELECT 'B - A', b.ventas_antes_reembolsos - a.ventas_antes_reembolsos, b.abonos - a.abonos, b.ventas_netas - a.ventas_netas, b.pedidos - a.pedidos, b.unidades - a.unidades, ROUND(b.unidades_por_pedido - a.unidades_por_pedido, 2), b.pedidos_4_o_mas_unidades - a.pedidos_4_o_mas_unidades FROM t a, t b WHERE a.periodo = 'A' AND b.periodo = 'B' ORDER BY 1",
+   "parametros": [
+    "MAD-MAL",
+    "MAD-MAL"
+   ],
+   "filas": [
+    {
+     "periodo": "A",
+     "ventas_antes_reembolsos": 42000.0,
+     "abonos": 2000.0,
+     "ventas_netas": 40000.0,
+     "pedidos": 120,
+     "unidades": 467,
+     "unidades_por_pedido": 3.89,
+     "pedidos_4_o_mas_unidades": 108
+    },
+    {
+     "periodo": "B",
+     "ventas_antes_reembolsos": 28000.0,
+     "abonos": 2000.0,
+     "ventas_netas": 26000.0,
+     "pedidos": 120,
+     "unidades": 304,
+     "unidades_por_pedido": 2.53,
+     "pedidos_4_o_mas_unidades": 7
+    },
+    {
+     "periodo": "B - A",
+     "ventas_antes_reembolsos": -14000.0,
+     "abonos": 0.0,
+     "ventas_netas": -14000.0,
+     "pedidos": 0,
+     "unidades": -163,
+     "unidades_por_pedido": -1.36,
+     "pedidos_4_o_mas_unidades": -101
+    }
+   ],
+   "texto": "[{\"periodo\": \"A\", \"ventas_antes_reembolsos\": 42000.0, \"abonos\": 2000.0, \"ventas_netas\": 40000.0, \"pedidos\": 120, \"unidades\": 467, \"unidades_por_pedido\": 3.89, \"pedidos_4_o_mas_unidades\": 108}, {\"periodo\": \"B\", \"ventas_antes_reembolsos\": 28000.0, \"abonos\": 2000.0, \"ventas_netas\": 26000.0, \"pedidos\": 120, \"unidades\": 304, \"unidades_por_pedido\": 2.53, \"pedidos_4_o_mas_unidades\": 7}, {\"periodo\": \"B - A\", \"ventas_antes_reembolsos\": -14000.0, \"abonos\": 0.0, \"ventas_netas\": -14000.0, \"pedidos\": 0, \"unidades\": -163, \"unidades_por_pedido\": -1.36, \"pedidos_4_o_mas_unidades\": -101}]",
+   "citada": true
+  },
+  {
+   "id": "D1",
+   "tipo": "documento",
+   "cita": "expediente_comercial_y_operaciones.pdf · pág. 2",
+   "titulo": "Calendario comercial aprobado",
+   "estado": "aprobado",
+   "fecha": "01/03/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Calendario comercial aprobado\nResponsable: Dirección Comercial. Comunicación final remitida a tiendas el 01/03/2026. Esta versión sustituye a CAM-2026-03-DRAFT, versión 0.\nMalasaña / MAD-MAL: Pack 4\nVigencia aprobada: desde el 02/03/2026 hasta el 29/03/2026, ambos incluidos. Desde el\n30/03/2026 se retira el regalo. Condición: tote bag exclusiva DropLab de regalo al comprar cuatro o más unidades de catálogo en un mismo pedido.\nParticipan zapatillas, camisetas y sudaderas. Las unidades pueden corresponder a distintos\nSKU y categorías. Cada par de zapatillas cuenta como una unidad. La condición se comprueba sobre el pedido completo, no exigiendo cuatro unidades en un único renglón.\nPack 4 no modifica los precios de lista y no añade un descuento monetario. Los descuentos de caja son independientes. Las tote bags se gestionan como material promocional; no aparecen como SKU vendido en ventas.csv ni referencias.csv.\nGoya / MAD-GOY: Semana Running\nDel 09/03/2026 al 15/03/2026, ambos incluidos. Exposición de Pulse Runner y asesoramiento en tienda, sin descuento específico. Goya no participa en Pack 4.\nEixample / BCN-EIX\nSin campaña local del 02/03/2026 al 26/04/2026. Operativa habitual. Eixample no participa en\nPack 4.\nInformación pendiente de Operaciones\nLa exportación no contiene el registro de regalos entregados ni una marca de campaña aplicada a cada pedido. Se debe solicitar ese detalle antes de elaborar un resultado de campaña. Las condiciones aprobadas no acreditan por sí solas la entrega efectiva de cada regalo.",
+   "citada": true
+  },
+  {
+   "id": "D2",
+   "tipo": "documento",
+   "cita": "calendario_comercial_aprobado.md · Pack 4: ejecución",
+   "titulo": "Calendario comercial aprobado",
+   "estado": "aprobado",
+   "fecha": "01/03/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Incluye zapatillas, camisetas y sudaderas. Cada par de zapatillas cuenta como una unidad. Las unidades pueden corresponder a distintos SKU. Desde el 30/03/2026 se retira el regalo.\nPack 4 no modifica los precios de lista ni añade un descuento monetario. Los descuentos de caja son independientes. Las tote bags se gestionan como material promocional y no aparecen como SKU vendido en las exportaciones.\nEste calendario sustituye a CAM-2026-03-DRAFT, versión 0. Comunicación final remitida a tiendas el 01/03/2026.\nOperaciones no incluyó en la exportación el registro de regalos entregados. Solicitar ese detalle antes de calcular resultados de campaña.",
+   "citada": true
+  },
+  {
+   "id": "D3",
+   "tipo": "documento",
+   "cita": "aviso_obras.md · Seguimiento",
+   "titulo": "Comunicación de obras frente a Malasaña",
+   "estado": "recibido",
+   "fecha": "25/03/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "El equipo de tienda trasladará cualquier incidencia de acceso a coordinación. No se ha solicitado conteo de peatones o entradas a la tienda. La fecha del 25 de marzo corresponde a la recepción del aviso; la ejecución está programada desde el 1 de abril.",
+   "citada": true
+  },
+  {
+   "id": "D4",
+   "tipo": "documento",
+   "cita": "expediente_comercial_y_operaciones.pdf · pág. 1",
+   "titulo": "Expediente comercial y de operaciones",
+   "estado": "consolidado",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Expediente comercial y de operaciones\nÁmbito: Malasaña y referencias operativas de Goya y Eixample. Preparado para el equipo de\nAnalítica por coordinación de tiendas. Reúne comunicaciones comerciales, anotaciones operativas y registros de incidencias disponibles al 27/04/2026.\nEncargo de Dirección Comercial «Me han trasladado que las ventas netas han caído 20.000 EUR al comparar el 2-29 de marzo con el 30 de marzo-26 de abril. Necesito que comprobéis esa cifra». Mensaje de\n27/04/2026, 09:15. El importe comunicado está pendiente de comprobación con caja.\nDirección solicita conocer la caída real, los cambios en las compras, las explicaciones respaldadas por la información disponible y los datos que faltan. Se mencionan devoluciones, obras frente a la tienda y problemas de reposición. Antes de decidir si se repite una campaña se requiere una recomendación con cifras y fuentes.\nPágina\nDocumento / contenido\nEstado\n2\nCalendario comercial CAM-2026-03-FINAL\nAprobado\n3\nDiario OPS-ABR-2026\nRegistro operativo\n4\nInforme LOG-ABR-2026-02\nInforme de incidencias\n5\nDetalle de disponibilidad de Street One\nRegistro observado\n6\nAviso LOC-MAL-2026-04\nPlanificación recibida\n7\nPropuesta CAM-2026-03-DRAFT\nBorrador sustituido\n8\nPendientes del expediente\nSolicitud de información\nEl expediente conserva documentos de distinto estado. Su inclusión no convierte los borradores en comunicaciones aprobadas ni las observaciones de tienda en resultados de un análisis cuantitativo.",
+   "citada": true
+  },
+  {
+   "id": "D5",
+   "tipo": "documento",
+   "cita": "propuesta_pack4_borrador.md · Propuesta",
+   "titulo": "Propuesta de campaña Pack 4",
+   "estado": "sustituido",
+   "fecha": "27/02/2026",
+   "sustituido_por": "CAM-2026-03-FINAL",
+   "lectura": null,
+   "texto": "Tienda: MAD-MAL. Inicio propuesto: 02/03/2026. Último día propuesto: 31/03/2026.\nRegalo de tote bag exclusiva al comprar cuatro o más unidades de catálogo en un mismo pedido. Sin descuento monetario adicional.",
+   "citada": false
+  },
+  {
+   "id": "D6",
+   "tipo": "documento",
+   "cita": "calendario_comercial_aprobado.md · Campañas",
+   "titulo": "Calendario comercial aprobado",
+   "estado": "aprobado",
+   "fecha": "01/03/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "| Tienda | Campaña | Inicio | Último día incluido | Condiciones |\n|---|---|---|---|---|\n| MAD-MAL | Pack 4 | 02/03/2026 | 29/03/2026 | Tote bag exclusiva DropLab de regalo al comprar cuatro o más unidades de catálogo en un mismo pedido. |\n| MAD-GOY | Semana Running | 09/03/2026 | 15/03/2026 | Exposición de Pulse Runner y asesoramiento en tienda. Sin descuento específico. |\n| BCN-EIX | Sin campaña local | 02/03/2026 | 26/04/2026 | Operativa habitual. |",
+   "citada": true
+  }
+ ],
+ "comprobaciones": [
+  {
+   "nombre": "versiones",
+   "resultado": "aviso",
+   "detalle": "propuesta_pack4_borrador.md · Propuesta está SUSTITUIDO por CAM-2026-03-FINAL: solo vale como antecedente.",
+   "fuentes": []
+  }
+ ],
+ "limitaciones": [
+  "Ese dato no existe en DropLab: no hay clientes (un pedido no es una persona), visitas, regalos entregados ni costes."
+ ],
+ "verificacion": [],
+ "plan": {
+  "tareas": [
+   "cifras",
+   "documentos"
+  ],
+  "tienda": null,
+  "consulta": "resumen_tienda",
+  "motivo": "Para responder cuántas tote bags se entregaron en marzo se necesitan cifras de entregas, y para saber cuántas ventas se perdieron por las obras se requieren documentos que expliquen el impacto de las obras en las ventas.",
+  "origen": "modelo",
+  "nota": ""
+ },
+ "traza": [
+  {
+   "nodo": "planificar",
+   "segundos": 2.7,
+   "herramienta": "plan por modelo",
+   "detalle": "cifras → documentos",
+   "plan": {
+    "tareas": [
+     "cifras",
+     "documentos"
+    ],
+    "tienda": null,
+    "consulta": "resumen_tienda",
+    "motivo": "Para responder cuántas tote bags se entregaron en marzo se necesitan cifras de entregas, y para saber cuántas ventas se perdieron por las obras se requieren documentos que expliquen el impacto de las obras en las ventas.",
+    "origen": "modelo",
+    "nota": ""
+   }
+  },
+  {
+   "nodo": "consultar_datos",
+   "segundos": 0.0,
+   "herramienta": "DuckDB · capa semántica",
+   "detalle": "resumen_tienda(MAD-MAL)"
+  },
+  {
+   "nodo": "buscar_documentos",
+   "segundos": 0.0,
+   "herramienta": "RAG · bge-m3 híbrida · índice ampliado (sesión 2 + junio)",
+   "detalle": "1 búsqueda(s) → 6 fragmentos: expediente_comercial_y_operaciones.pdf · pág. 2, calendario_comercial_aprobado.md · Pack 4: ejecución, aviso_obras.md · Seguimiento, expediente_comercial_y_operaciones.pdf · pág. 1…"
+  },
+  {
+   "nodo": "contrastar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "1 comprobación(es) · 1 límite(s)"
+  },
+  {
+   "nodo": "redactar",
+   "segundos": 12.5,
+   "herramienta": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+   "detalle": "2553 tokens de entrada · 303 de salida · 32.9 tok/s",
+   "tiempos": {
+    "modelo": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    "segundos": 12.5,
+    "carga": 0.0,
+    "entrada": 3.2,
+    "salida": 9.2,
+    "tokens_entrada": 2553,
+    "tokens_salida": 303,
+    "tokens_por_segundo": 32.9
+   }
+  },
+  {
+   "nodo": "verificar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "✓ limpia"
+  }
+ ],
+ "errores": [],
+ "configuracion": {
+  "modelo_texto": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+  "modelo_vision": "qwen3-vl:8b-instruct",
+  "planificador": "modelo",
+  "reutilizar_lecturas": true
+ },
+ "segundos": 15.3,
+ "origen": "guardada",
+ "fecha": "18/10/2026 00:04",
+ "caso": "insuficiente",
+ "pregunta": "¿Cuántas tote bags se entregaron en marzo y cuántas ventas se perdieron por las obras?",
+ "imagen": null
+}

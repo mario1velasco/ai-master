@@ -1,0 +1,158 @@
+{
+ "respuesta": "**Respuesta**  \nNo se puede afirmar que la campaña de junio aumentó las ventas de Street One. No hay datos de ventas de junio en las evidencias. El informe de junio solo registra reposiciones y disponibilidad, no resultados comerciales.\n\n**Documentos y llamada**  \n[D1] y [D3] informan sobre operaciones en abril sin mencionar ventas. [D4] registra incidencias de reposición en abril, pero no ventas. [D5] detalla la reposición de junio, con datos de aceptación en tienda, pero no de ventas ni de impacto en el volumen de ventas. [D2] es una transcripción automática de una llamada sobre una campaña pasada, sin datos de resultados.\n\n**Límites**  \nLas cifras de junio no están disponibles en los datos de ventas (que terminan el 26/04). El informe de junio no incluye ventas, cierre de ventas ni inventario final. No se puede establecer relación causal entre reposición y aumento de ventas.",
+ "evidencias": [
+  {
+   "id": "D1",
+   "tipo": "documento",
+   "cita": "diario_operaciones_abril.md · Eixample · BCN-EIX",
+   "titulo": "Diario de operaciones de tienda",
+   "estado": "consolidado",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "El equipo comenta que ha sido un buen periodo. Movimos la exposición de camisetas y actualizamos la música. No hubo campaña Pack 4. Sin incidencias relevantes comunicadas de Street One.",
+   "citada": true
+  },
+  {
+   "id": "D2",
+   "tipo": "documento",
+   "cita": "llamada_0704 · 0:46–1:02",
+   "titulo": "Llamada de Operaciones a la tienda de Malasaña",
+   "estado": "transcripción automática (Whisper turbo, solo voz)",
+   "fecha": "07/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Dani (tienda Malasaña) [0:46]: Vale, entonces lo hicimos bien. Retiramos el cartel el 30. Hoy han vuelto a preguntar por el regalo y les hemos dicho que la campaña ya había terminado.\nÁlex (Operaciones) [0:57]: Muy bien, y lo de ayer, día 6, ¿qué pasó exactamente con Street One?",
+   "citada": true
+  },
+  {
+   "id": "D3",
+   "tipo": "documento",
+   "cita": "diario_operaciones_abril.md · Goya · MAD-GOY",
+   "titulo": "Diario de operaciones de tienda",
+   "estado": "consolidado",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Semana Running estuvo expuesta del 9 al 15 de marzo. En abril reorganizamos el escaparate y cambiamos algunos turnos. No hubo campaña Pack 4. El equipo no comunica incidencias relevantes de Street One.",
+   "citada": true
+  },
+  {
+   "id": "D4",
+   "tipo": "documento",
+   "cita": "expediente_comercial_y_operaciones.pdf · pág. 3",
+   "titulo": "Diario de operaciones",
+   "estado": "registro",
+   "fecha": "27/04/2026",
+   "sustituido_por": null,
+   "lectura": null,
+   "texto": "Diario de operaciones\nConsolidado por coordinación de tiendas a partir de anotaciones del equipo. Las entradas describen hechos y comentarios comunicados; no constituyen un conteo de clientes ni una medición sistemática de motivos de compra.\nMalasaña / MAD-MAL\nFecha\nAnotación\n30/03\nRetiramos el cartel Pack 4. Dos consultas por el regalo de marzo; informamos de que la campaña terminó.\n02/04\nVarios clientes comentan la incomodidad de las vallas de la calle.\n06/04\nLa entrega de mañana no llega. Street One negro y arena, tallas 41 y 42, sin disponibilidad de\n10:00 a 16:00. Reposición alternativa a las 16:00.\n07/04\nNueva consulta por el regalo.\n16/04\nSegunda incidencia de mañana con las mismas variantes. Reposición alternativa a las 16:00.\nRevisamos turnos y aire acondicionado; no hubo cierre de la tienda. No llevamos contador de entradas ni registro sistemático de consultas sin compra. Pendiente revisar el impacto con\nAdministración y Logística.\nGoya / MAD-GOY\nSemana Running estuvo expuesta del 9 al 15 de marzo. En abril reorganizamos el escaparate y cambiamos algunos turnos. No hubo campaña Pack 4. El equipo no comunica incidencias relevantes de Street One.\nEixample / BCN-EIX\nEl equipo comenta que ha sido un buen periodo. Movimos la exposición de camisetas y actualizamos la música. No hubo campaña Pack 4. Sin incidencias relevantes comunicadas de\nStreet One.\nLas anotaciones de Goya y Eixample aportan contexto de esas tiendas. No acreditan que todas las condiciones de demanda, clientela y operación fueran equivalentes a las de Malasaña.",
+   "citada": true
+  },
+  {
+   "id": "D5",
+   "tipo": "documento",
+   "cita": "01_DropLab_informe_reposicion_junio.pdf · pág. 1",
+   "titulo": "Reposición de verano",
+   "estado": "aprobado",
+   "fecha": "04/07/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · 13/13 valores coinciden con la capa de texto",
+   "texto": "01 / NOTA DE CIERRE\n\n# Reposición de verano\n\nJunio de 2026 | Edición aprobada 1.1 | Responsable: Lucía Vidal, Operaciones\n\nDistribución: Dirección Comercial, coordinación de tiendas y Administración. Conciliación de tres variantes de Street One en las tres tiendas, con un indicador de servicio del catálogo completo. No incluye cierre de ventas ni inventario final.\n\n| Control documental | Registro |\n| Código y estado | LOG-2026-06 · versión 1.1 · APROBADO |\n| Aprobación / fecha de corte | 04/07/2026 / hechos hasta 30/06/2026, 20:00 Europe/Madrid |\n| Sustitución | Esta edición sustituye a LOG-2026-06 v0.9, de 01/07/2026. |\n| Fuentes anexas | Expediente REC-2026-0617: albarán A-0617-04, incidencia INC-0617-02 y rectificación RC-0620-01. |\n\n## Lectura para el comité\n\n## Criteria operativo\n\nEl cierre considera únicamente unidades aceptadas por tienda. Las unidades retenidas en cuarentena no son vendibles y no se incluyen en la recepción aceptada. Una expedición es una salida del centro logístico; no acredita por sí sola la entrada en tienda.\n\n## Límite del análisis\n\nLa continuidad del suministro se revisa con dos medidas de distinto alcance: pares de las variantes seleccionadas y porcentaje de líneas completas del catálogo. No deben promediarse los porcentajes de semanas o tiendas sin sus denominadores. Los gráficos describen incidencias, no estiman ventas perdidas.\n\nLocalización. P. 2: tabla T1, primera parte. P. 3: continuación y notas de conciliación. P. 4: figura G1. P. 5: decisión y alcance. P. 6: anexo histórico de versión sustituida. Pp. 7-8: detalle de expediciones y notas de conciliación.\n\nProcedimiento de cierre. Operaciones contrasta las órdenes de reposición con las hojas de preparación del centro y los registros de aceptación de tienda. Cuando existen diferencias, la cantidad expedida se mantiene en transporte y la cantidad aceptada se actualiza tras el dictamen de recepción. Administración conserva ambos valores para conciliar la documentación sin sobrescribir la evidencia original.\n\nLas copias de ruta pueden incorporar fechas de firma posteriores a la recepción física. Para asignar el periodo se utiliza el hecho logístico documentado y no la fecha de incorporación al archivo. Este informe se distribuye como fotografía del cierre; las actuaciones posteriores se registrarán en el expediente de seguimiento.",
+   "citada": true
+  }
+ ],
+ "comprobaciones": [
+  {
+   "nombre": "lectura automática",
+   "resultado": "aviso",
+   "detalle": "1 página(s) leídas por PaddleOCR-VL, sin revisión humana. Sus cifras coinciden con el texto del PDF.",
+   "fuentes": []
+  },
+  {
+   "nombre": "fuente automática",
+   "resultado": "aviso",
+   "detalle": "La llamada es una transcripción automática (Whisper): testimonio, no registro.",
+   "fuentes": []
+  }
+ ],
+ "limitaciones": [
+  "Junio no está en los datos de ventas (acaban el 26/04): las cifras de junio salen solo de los documentos de junio."
+ ],
+ "verificacion": [],
+ "plan": {
+  "tareas": [
+   "documentos"
+  ],
+  "tienda": null,
+  "consulta": "ninguna",
+  "motivo": "",
+  "origen": "modelo",
+  "nota": ""
+ },
+ "traza": [
+  {
+   "nodo": "planificar",
+   "segundos": 0.9,
+   "herramienta": "plan por modelo",
+   "detalle": "documentos",
+   "plan": {
+    "tareas": [
+     "documentos"
+    ],
+    "tienda": null,
+    "consulta": "ninguna",
+    "motivo": "",
+    "origen": "modelo",
+    "nota": ""
+   }
+  },
+  {
+   "nodo": "buscar_documentos",
+   "segundos": 0.0,
+   "herramienta": "RAG · bge-m3 híbrida · índice ampliado (sesión 2 + junio)",
+   "detalle": "1 búsqueda(s) → 5 fragmentos: diario_operaciones_abril.md · Eixample · BCN-EIX, llamada_0704 · 0:46–1:02, diario_operaciones_abril.md · Goya · MAD-GOY, expediente_comercial_y_operaciones.pdf · pág. 3…"
+  },
+  {
+   "nodo": "contrastar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "2 comprobación(es) · 1 límite(s)"
+  },
+  {
+   "nodo": "redactar",
+   "segundos": 7.2,
+   "herramienta": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+   "detalle": "2167 tokens de entrada · 235 de salida · 33.7 tok/s",
+   "tiempos": {
+    "modelo": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    "segundos": 7.1,
+    "carga": 0.0,
+    "entrada": 0.0,
+    "salida": 7.0,
+    "tokens_entrada": 2167,
+    "tokens_salida": 235,
+    "tokens_por_segundo": 33.7
+   }
+  },
+  {
+   "nodo": "verificar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "✓ limpia"
+  }
+ ],
+ "errores": [],
+ "configuracion": {
+  "modelo_texto": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+  "modelo_vision": "qwen3-vl:8b-instruct",
+  "planificador": "modelo",
+  "reutilizar_lecturas": true
+ },
+ "segundos": 8.1,
+ "origen": "guardada",
+ "fecha": "18/10/2026 00:12",
+ "caso": "extra_campana",
+ "pregunta": "¿La campaña de junio aumentó las ventas de Street One?",
+ "imagen": null
+}

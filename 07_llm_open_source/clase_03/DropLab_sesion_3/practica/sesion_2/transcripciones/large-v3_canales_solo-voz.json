@@ -1,0 +1,1877 @@
+{
+  "modelo": "large-v3",
+  "modo": "canales",
+  "solo_voz": true,
+  "pista": false,
+  "dispositivo": "cuda",
+  "segundos_carga": 27.2,
+  "segundos_transcripcion": 110.4,
+  "segmentos": [
+    {
+      "quien": "central",
+      "inicio": 1.04,
+      "fin": 9.32,
+      "texto": "Hola, Malasaña. Soy Alex, de Operaciones. ¿Tienes un momento? Quería revisar contigo lo del PAC-4 y la entrega de ayer.",
+      "palabras": [
+        {
+          "palabra": "Hola,",
+          "inicio": 1.04,
+          "fin": 1.56,
+          "p": 0.964
+        },
+        {
+          "palabra": "Malasaña.",
+          "inicio": 1.56,
+          "fin": 2.08,
+          "p": 0.978
+        },
+        {
+          "palabra": "Soy",
+          "inicio": 2.26,
+          "fin": 2.78,
+          "p": 1.0
+        },
+        {
+          "palabra": "Alex,",
+          "inicio": 2.78,
+          "fin": 3.04,
+          "p": 0.847
+        },
+        {
+          "palabra": "de",
+          "inicio": 3.2,
+          "fin": 3.34,
+          "p": 1.0
+        },
+        {
+          "palabra": "Operaciones.",
+          "inicio": 3.34,
+          "fin": 3.88,
+          "p": 0.902
+        },
+        {
+          "palabra": "¿Tienes",
+          "inicio": 4.26,
+          "fin": 4.78,
+          "p": 0.998
+        },
+        {
+          "palabra": "un",
+          "inicio": 4.78,
+          "fin": 4.84,
+          "p": 1.0
+        },
+        {
+          "palabra": "momento?",
+          "inicio": 4.84,
+          "fin": 5.14,
+          "p": 1.0
+        },
+        {
+          "palabra": "Quería",
+          "inicio": 5.68,
+          "fin": 6.2,
+          "p": 0.999
+        },
+        {
+          "palabra": "revisar",
+          "inicio": 6.2,
+          "fin": 6.64,
+          "p": 1.0
+        },
+        {
+          "palabra": "contigo",
+          "inicio": 6.64,
+          "fin": 7.12,
+          "p": 0.999
+        },
+        {
+          "palabra": "lo",
+          "inicio": 7.12,
+          "fin": 7.36,
+          "p": 0.997
+        },
+        {
+          "palabra": "del",
+          "inicio": 7.36,
+          "fin": 7.52,
+          "p": 0.999
+        },
+        {
+          "palabra": "PAC",
+          "inicio": 7.52,
+          "fin": 7.72,
+          "p": 0.515
+        },
+        {
+          "palabra": "-4",
+          "inicio": 7.72,
+          "fin": 8.04,
+          "p": 0.878
+        },
+        {
+          "palabra": "y",
+          "inicio": 8.04,
+          "fin": 8.48,
+          "p": 0.999
+        },
+        {
+          "palabra": "la",
+          "inicio": 8.48,
+          "fin": 8.6,
+          "p": 1.0
+        },
+        {
+          "palabra": "entrega",
+          "inicio": 8.6,
+          "fin": 9.0,
+          "p": 1.0
+        },
+        {
+          "palabra": "de",
+          "inicio": 9.0,
+          "fin": 9.04,
+          "p": 1.0
+        },
+        {
+          "palabra": "ayer.",
+          "inicio": 9.04,
+          "fin": 9.32,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.181
+    },
+    {
+      "quien": "tienda",
+      "inicio": 10.78,
+      "fin": 15.28,
+      "texto": "Sí, dime, soy Dani. Estoy en caja, pero ahora está tranquilo.",
+      "palabras": [
+        {
+          "palabra": "Sí,",
+          "inicio": 10.78,
+          "fin": 11.22,
+          "p": 0.92
+        },
+        {
+          "palabra": "dime,",
+          "inicio": 11.22,
+          "fin": 11.66,
+          "p": 0.996
+        },
+        {
+          "palabra": "soy",
+          "inicio": 11.82,
+          "fin": 12.32,
+          "p": 1.0
+        },
+        {
+          "palabra": "Dani.",
+          "inicio": 12.32,
+          "fin": 12.58,
+          "p": 0.993
+        },
+        {
+          "palabra": "Estoy",
+          "inicio": 13.02,
+          "fin": 13.46,
+          "p": 1.0
+        },
+        {
+          "palabra": "en",
+          "inicio": 13.46,
+          "fin": 13.64,
+          "p": 0.999
+        },
+        {
+          "palabra": "caja,",
+          "inicio": 13.64,
+          "fin": 14.02,
+          "p": 0.978
+        },
+        {
+          "palabra": "pero",
+          "inicio": 14.04,
+          "fin": 14.46,
+          "p": 1.0
+        },
+        {
+          "palabra": "ahora",
+          "inicio": 14.46,
+          "fin": 14.64,
+          "p": 1.0
+        },
+        {
+          "palabra": "está",
+          "inicio": 14.64,
+          "fin": 14.78,
+          "p": 1.0
+        },
+        {
+          "palabra": "tranquilo.",
+          "inicio": 14.78,
+          "fin": 15.28,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.134
+    },
+    {
+      "quien": "central",
+      "inicio": 16.5,
+      "fin": 21.2,
+      "texto": "Perfecto, nos han llegado consultas sobre el regalo. ¿Qué estáis diciendo a los clientes?",
+      "palabras": [
+        {
+          "palabra": "Perfecto,",
+          "inicio": 16.5,
+          "fin": 17.06,
+          "p": 0.974
+        },
+        {
+          "palabra": "nos",
+          "inicio": 17.06,
+          "fin": 17.48,
+          "p": 0.999
+        },
+        {
+          "palabra": "han",
+          "inicio": 17.48,
+          "fin": 17.62,
+          "p": 0.995
+        },
+        {
+          "palabra": "llegado",
+          "inicio": 17.62,
+          "fin": 17.94,
+          "p": 1.0
+        },
+        {
+          "palabra": "consultas",
+          "inicio": 17.94,
+          "fin": 18.48,
+          "p": 0.999
+        },
+        {
+          "palabra": "sobre",
+          "inicio": 18.48,
+          "fin": 18.68,
+          "p": 1.0
+        },
+        {
+          "palabra": "el",
+          "inicio": 18.68,
+          "fin": 18.82,
+          "p": 0.999
+        },
+        {
+          "palabra": "regalo.",
+          "inicio": 18.82,
+          "fin": 19.12,
+          "p": 1.0
+        },
+        {
+          "palabra": "¿Qué",
+          "inicio": 19.28,
+          "fin": 19.84,
+          "p": 0.999
+        },
+        {
+          "palabra": "estáis",
+          "inicio": 19.84,
+          "fin": 20.12,
+          "p": 0.998
+        },
+        {
+          "palabra": "diciendo",
+          "inicio": 20.12,
+          "fin": 20.4,
+          "p": 1.0
+        },
+        {
+          "palabra": "a",
+          "inicio": 20.4,
+          "fin": 20.56,
+          "p": 0.999
+        },
+        {
+          "palabra": "los",
+          "inicio": 20.56,
+          "fin": 20.62,
+          "p": 1.0
+        },
+        {
+          "palabra": "clientes?",
+          "inicio": 20.62,
+          "fin": 21.2,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.009
+    },
+    {
+      "quien": "tienda",
+      "inicio": 22.24,
+      "fin": 24.94,
+      "texto": "Que ya terminó, pero te quería preguntar una cosa.",
+      "palabras": [
+        {
+          "palabra": "Que",
+          "inicio": 22.24,
+          "fin": 22.5,
+          "p": 0.589
+        },
+        {
+          "palabra": "ya",
+          "inicio": 22.5,
+          "fin": 22.6,
+          "p": 0.999
+        },
+        {
+          "palabra": "terminó,",
+          "inicio": 22.6,
+          "fin": 23.14,
+          "p": 0.999
+        },
+        {
+          "palabra": "pero",
+          "inicio": 23.16,
+          "fin": 23.68,
+          "p": 0.999
+        },
+        {
+          "palabra": "te",
+          "inicio": 23.68,
+          "fin": 23.82,
+          "p": 1.0
+        },
+        {
+          "palabra": "quería",
+          "inicio": 23.82,
+          "fin": 24.04,
+          "p": 1.0
+        },
+        {
+          "palabra": "preguntar",
+          "inicio": 24.04,
+          "fin": 24.58,
+          "p": 1.0
+        },
+        {
+          "palabra": "una",
+          "inicio": 24.58,
+          "fin": 24.68,
+          "p": 0.998
+        },
+        {
+          "palabra": "cosa.",
+          "inicio": 24.68,
+          "fin": 24.94,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.105
+    },
+    {
+      "quien": "tienda",
+      "inicio": 25.1,
+      "fin": 28.64,
+      "texto": "Yo tenía una propuesta donde ponía hasta el 31 de marzo.",
+      "palabras": [
+        {
+          "palabra": "Yo",
+          "inicio": 25.1,
+          "fin": 25.6,
+          "p": 0.999
+        },
+        {
+          "palabra": "tenía",
+          "inicio": 25.6,
+          "fin": 25.84,
+          "p": 1.0
+        },
+        {
+          "palabra": "una",
+          "inicio": 25.84,
+          "fin": 26.0,
+          "p": 1.0
+        },
+        {
+          "palabra": "propuesta",
+          "inicio": 26.0,
+          "fin": 26.52,
+          "p": 1.0
+        },
+        {
+          "palabra": "donde",
+          "inicio": 26.52,
+          "fin": 26.68,
+          "p": 0.999
+        },
+        {
+          "palabra": "ponía",
+          "inicio": 26.68,
+          "fin": 27.16,
+          "p": 1.0
+        },
+        {
+          "palabra": "hasta",
+          "inicio": 27.16,
+          "fin": 27.52,
+          "p": 0.995
+        },
+        {
+          "palabra": "el",
+          "inicio": 27.52,
+          "fin": 27.64,
+          "p": 1.0
+        },
+        {
+          "palabra": "31",
+          "inicio": 27.64,
+          "fin": 27.94,
+          "p": 1.0
+        },
+        {
+          "palabra": "de",
+          "inicio": 27.94,
+          "fin": 28.26,
+          "p": 1.0
+        },
+        {
+          "palabra": "marzo.",
+          "inicio": 28.26,
+          "fin": 28.64,
+          "p": 0.999
+        }
+      ],
+      "prob_silencio": 0.105
+    },
+    {
+      "quien": "tienda",
+      "inicio": 28.84,
+      "fin": 30.12,
+      "texto": "¿Al final se cambió?",
+      "palabras": [
+        {
+          "palabra": "¿Al",
+          "inicio": 28.84,
+          "fin": 29.34,
+          "p": 0.98
+        },
+        {
+          "palabra": "final",
+          "inicio": 29.34,
+          "fin": 29.58,
+          "p": 1.0
+        },
+        {
+          "palabra": "se",
+          "inicio": 29.58,
+          "fin": 29.7,
+          "p": 1.0
+        },
+        {
+          "palabra": "cambió?",
+          "inicio": 29.7,
+          "fin": 30.12,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.105
+    },
+    {
+      "quien": "central",
+      "inicio": 31.26,
+      "fin": 38.06,
+      "texto": "Sí, el 31 aparecía en el borrador. El calendario que aprobó comercial terminaba el 29, incluido.",
+      "palabras": [
+        {
+          "palabra": "Sí,",
+          "inicio": 31.26,
+          "fin": 31.58,
+          "p": 0.926
+        },
+        {
+          "palabra": "el",
+          "inicio": 31.66,
+          "fin": 32.14,
+          "p": 0.999
+        },
+        {
+          "palabra": "31",
+          "inicio": 32.14,
+          "fin": 32.44,
+          "p": 0.994
+        },
+        {
+          "palabra": "aparecía",
+          "inicio": 32.44,
+          "fin": 33.5,
+          "p": 0.991
+        },
+        {
+          "palabra": "en",
+          "inicio": 33.5,
+          "fin": 33.54,
+          "p": 1.0
+        },
+        {
+          "palabra": "el",
+          "inicio": 33.54,
+          "fin": 33.66,
+          "p": 0.995
+        },
+        {
+          "palabra": "borrador.",
+          "inicio": 33.66,
+          "fin": 34.0,
+          "p": 0.999
+        },
+        {
+          "palabra": "El",
+          "inicio": 34.12,
+          "fin": 34.58,
+          "p": 1.0
+        },
+        {
+          "palabra": "calendario",
+          "inicio": 34.58,
+          "fin": 35.12,
+          "p": 1.0
+        },
+        {
+          "palabra": "que",
+          "inicio": 35.12,
+          "fin": 35.2,
+          "p": 1.0
+        },
+        {
+          "palabra": "aprobó",
+          "inicio": 35.2,
+          "fin": 35.5,
+          "p": 0.997
+        },
+        {
+          "palabra": "comercial",
+          "inicio": 35.5,
+          "fin": 35.78,
+          "p": 0.47
+        },
+        {
+          "palabra": "terminaba",
+          "inicio": 35.78,
+          "fin": 36.64,
+          "p": 0.999
+        },
+        {
+          "palabra": "el",
+          "inicio": 36.64,
+          "fin": 36.74,
+          "p": 1.0
+        },
+        {
+          "palabra": "29,",
+          "inicio": 36.74,
+          "fin": 37.02,
+          "p": 1.0
+        },
+        {
+          "palabra": "incluido.",
+          "inicio": 37.32,
+          "fin": 38.06,
+          "p": 0.998
+        }
+      ],
+      "prob_silencio": 0.009
+    },
+    {
+      "quien": "central",
+      "inicio": 38.36,
+      "fin": 45.94,
+      "texto": "Desde el 30 ya no se entregaba la totebag y era un regalo por comprar cuatro unidades o más en el mismo pedido, no un descuento.",
+      "palabras": [
+        {
+          "palabra": "Desde",
+          "inicio": 38.36,
+          "fin": 38.96,
+          "p": 1.0
+        },
+        {
+          "palabra": "el",
+          "inicio": 38.96,
+          "fin": 39.12,
+          "p": 1.0
+        },
+        {
+          "palabra": "30",
+          "inicio": 39.12,
+          "fin": 39.44,
+          "p": 1.0
+        },
+        {
+          "palabra": "ya",
+          "inicio": 39.44,
+          "fin": 39.78,
+          "p": 0.997
+        },
+        {
+          "palabra": "no",
+          "inicio": 39.78,
+          "fin": 39.94,
+          "p": 0.981
+        },
+        {
+          "palabra": "se",
+          "inicio": 39.94,
+          "fin": 40.0,
+          "p": 1.0
+        },
+        {
+          "palabra": "entregaba",
+          "inicio": 40.0,
+          "fin": 40.48,
+          "p": 1.0
+        },
+        {
+          "palabra": "la",
+          "inicio": 40.48,
+          "fin": 40.56,
+          "p": 0.986
+        },
+        {
+          "palabra": "totebag",
+          "inicio": 40.56,
+          "fin": 40.94,
+          "p": 0.611
+        },
+        {
+          "palabra": "y",
+          "inicio": 40.94,
+          "fin": 41.32,
+          "p": 0.734
+        },
+        {
+          "palabra": "era",
+          "inicio": 41.32,
+          "fin": 41.74,
+          "p": 1.0
+        },
+        {
+          "palabra": "un",
+          "inicio": 41.74,
+          "fin": 41.84,
+          "p": 1.0
+        },
+        {
+          "palabra": "regalo",
+          "inicio": 41.84,
+          "fin": 42.18,
+          "p": 1.0
+        },
+        {
+          "palabra": "por",
+          "inicio": 42.18,
+          "fin": 42.34,
+          "p": 0.998
+        },
+        {
+          "palabra": "comprar",
+          "inicio": 42.34,
+          "fin": 42.72,
+          "p": 1.0
+        },
+        {
+          "palabra": "cuatro",
+          "inicio": 42.72,
+          "fin": 42.98,
+          "p": 0.709
+        },
+        {
+          "palabra": "unidades",
+          "inicio": 42.98,
+          "fin": 43.38,
+          "p": 1.0
+        },
+        {
+          "palabra": "o",
+          "inicio": 43.38,
+          "fin": 43.56,
+          "p": 1.0
+        },
+        {
+          "palabra": "más",
+          "inicio": 43.56,
+          "fin": 43.76,
+          "p": 1.0
+        },
+        {
+          "palabra": "en",
+          "inicio": 43.76,
+          "fin": 44.06,
+          "p": 0.999
+        },
+        {
+          "palabra": "el",
+          "inicio": 44.06,
+          "fin": 44.2,
+          "p": 1.0
+        },
+        {
+          "palabra": "mismo",
+          "inicio": 44.2,
+          "fin": 44.46,
+          "p": 1.0
+        },
+        {
+          "palabra": "pedido,",
+          "inicio": 44.46,
+          "fin": 45.0,
+          "p": 1.0
+        },
+        {
+          "palabra": "no",
+          "inicio": 45.02,
+          "fin": 45.36,
+          "p": 1.0
+        },
+        {
+          "palabra": "un",
+          "inicio": 45.36,
+          "fin": 45.46,
+          "p": 1.0
+        },
+        {
+          "palabra": "descuento.",
+          "inicio": 45.46,
+          "fin": 45.94,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.009
+    },
+    {
+      "quien": "tienda",
+      "inicio": 47.26,
+      "fin": 56.24,
+      "texto": "Vale, entonces lo hicimos bien. Retiramos el cartel el 30. Hoy han vuelto a preguntar por el regalo y les hemos dicho que la campaña ya había terminado.",
+      "palabras": [
+        {
+          "palabra": "Vale,",
+          "inicio": 47.26,
+          "fin": 47.74,
+          "p": 0.952
+        },
+        {
+          "palabra": "entonces",
+          "inicio": 47.74,
+          "fin": 48.22,
+          "p": 1.0
+        },
+        {
+          "palabra": "lo",
+          "inicio": 48.22,
+          "fin": 48.56,
+          "p": 1.0
+        },
+        {
+          "palabra": "hicimos",
+          "inicio": 48.56,
+          "fin": 48.8,
+          "p": 1.0
+        },
+        {
+          "palabra": "bien.",
+          "inicio": 48.8,
+          "fin": 49.04,
+          "p": 1.0
+        },
+        {
+          "palabra": "Retiramos",
+          "inicio": 49.58,
+          "fin": 50.06,
+          "p": 1.0
+        },
+        {
+          "palabra": "el",
+          "inicio": 50.06,
+          "fin": 50.22,
+          "p": 1.0
+        },
+        {
+          "palabra": "cartel",
+          "inicio": 50.22,
+          "fin": 50.64,
+          "p": 1.0
+        },
+        {
+          "palabra": "el",
+          "inicio": 50.64,
+          "fin": 50.7,
+          "p": 0.847
+        },
+        {
+          "palabra": "30.",
+          "inicio": 50.7,
+          "fin": 50.94,
+          "p": 0.999
+        },
+        {
+          "palabra": "Hoy",
+          "inicio": 51.42,
+          "fin": 51.9,
+          "p": 0.999
+        },
+        {
+          "palabra": "han",
+          "inicio": 51.9,
+          "fin": 52.18,
+          "p": 0.999
+        },
+        {
+          "palabra": "vuelto",
+          "inicio": 52.18,
+          "fin": 52.46,
+          "p": 1.0
+        },
+        {
+          "palabra": "a",
+          "inicio": 52.46,
+          "fin": 52.48,
+          "p": 1.0
+        },
+        {
+          "palabra": "preguntar",
+          "inicio": 52.48,
+          "fin": 52.96,
+          "p": 1.0
+        },
+        {
+          "palabra": "por",
+          "inicio": 52.96,
+          "fin": 53.08,
+          "p": 1.0
+        },
+        {
+          "palabra": "el",
+          "inicio": 53.08,
+          "fin": 53.18,
+          "p": 1.0
+        },
+        {
+          "palabra": "regalo",
+          "inicio": 53.18,
+          "fin": 53.6,
+          "p": 1.0
+        },
+        {
+          "palabra": "y",
+          "inicio": 53.6,
+          "fin": 54.06,
+          "p": 0.992
+        },
+        {
+          "palabra": "les",
+          "inicio": 54.06,
+          "fin": 54.2,
+          "p": 1.0
+        },
+        {
+          "palabra": "hemos",
+          "inicio": 54.2,
+          "fin": 54.38,
+          "p": 1.0
+        },
+        {
+          "palabra": "dicho",
+          "inicio": 54.38,
+          "fin": 54.66,
+          "p": 1.0
+        },
+        {
+          "palabra": "que",
+          "inicio": 54.66,
+          "fin": 54.8,
+          "p": 1.0
+        },
+        {
+          "palabra": "la",
+          "inicio": 54.8,
+          "fin": 54.9,
+          "p": 1.0
+        },
+        {
+          "palabra": "campaña",
+          "inicio": 54.9,
+          "fin": 55.36,
+          "p": 1.0
+        },
+        {
+          "palabra": "ya",
+          "inicio": 55.36,
+          "fin": 55.48,
+          "p": 1.0
+        },
+        {
+          "palabra": "había",
+          "inicio": 55.48,
+          "fin": 55.62,
+          "p": 1.0
+        },
+        {
+          "palabra": "terminado.",
+          "inicio": 55.62,
+          "fin": 56.24,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.009
+    },
+    {
+      "quien": "central",
+      "inicio": 57.26,
+      "fin": 61.9,
+      "texto": "Muy bien, y lo de ayer, día 6, ¿qué pasó exactamente con Street One?",
+      "palabras": [
+        {
+          "palabra": "Muy",
+          "inicio": 57.26,
+          "fin": 57.52,
+          "p": 0.734
+        },
+        {
+          "palabra": "bien,",
+          "inicio": 57.52,
+          "fin": 57.74,
+          "p": 1.0
+        },
+        {
+          "palabra": "y",
+          "inicio": 57.9,
+          "fin": 58.28,
+          "p": 0.997
+        },
+        {
+          "palabra": "lo",
+          "inicio": 58.28,
+          "fin": 58.42,
+          "p": 1.0
+        },
+        {
+          "palabra": "de",
+          "inicio": 58.42,
+          "fin": 58.48,
+          "p": 1.0
+        },
+        {
+          "palabra": "ayer,",
+          "inicio": 58.48,
+          "fin": 58.84,
+          "p": 1.0
+        },
+        {
+          "palabra": "día",
+          "inicio": 58.86,
+          "fin": 59.1,
+          "p": 0.999
+        },
+        {
+          "palabra": "6,",
+          "inicio": 59.1,
+          "fin": 59.46,
+          "p": 0.989
+        },
+        {
+          "palabra": "¿qué",
+          "inicio": 59.66,
+          "fin": 59.98,
+          "p": 0.989
+        },
+        {
+          "palabra": "pasó",
+          "inicio": 59.98,
+          "fin": 60.18,
+          "p": 1.0
+        },
+        {
+          "palabra": "exactamente",
+          "inicio": 60.18,
+          "fin": 60.5,
+          "p": 1.0
+        },
+        {
+          "palabra": "con",
+          "inicio": 60.5,
+          "fin": 61.12,
+          "p": 1.0
+        },
+        {
+          "palabra": "Street",
+          "inicio": 61.12,
+          "fin": 61.62,
+          "p": 0.99
+        },
+        {
+          "palabra": "One?",
+          "inicio": 61.62,
+          "fin": 61.9,
+          "p": 0.857
+        }
+      ],
+      "prob_silencio": 0.035
+    },
+    {
+      "quien": "tienda",
+      "inicio": 63.04,
+      "fin": 71.66,
+      "texto": "La entrega de la mañana no llegó. Nos quedamos sin negro y arena en el 41 y el 42, desde las 10 hasta las 4 de la tarde.",
+      "palabras": [
+        {
+          "palabra": "La",
+          "inicio": 63.04,
+          "fin": 63.34,
+          "p": 0.979
+        },
+        {
+          "palabra": "entrega",
+          "inicio": 63.34,
+          "fin": 63.72,
+          "p": 0.999
+        },
+        {
+          "palabra": "de",
+          "inicio": 63.72,
+          "fin": 63.78,
+          "p": 0.998
+        },
+        {
+          "palabra": "la",
+          "inicio": 63.78,
+          "fin": 63.92,
+          "p": 0.996
+        },
+        {
+          "palabra": "mañana",
+          "inicio": 63.92,
+          "fin": 64.2,
+          "p": 1.0
+        },
+        {
+          "palabra": "no",
+          "inicio": 64.2,
+          "fin": 64.6,
+          "p": 0.999
+        },
+        {
+          "palabra": "llegó.",
+          "inicio": 64.6,
+          "fin": 64.86,
+          "p": 0.997
+        },
+        {
+          "palabra": "Nos",
+          "inicio": 65.0,
+          "fin": 65.58,
+          "p": 0.999
+        },
+        {
+          "palabra": "quedamos",
+          "inicio": 65.58,
+          "fin": 66.0,
+          "p": 1.0
+        },
+        {
+          "palabra": "sin",
+          "inicio": 66.0,
+          "fin": 66.14,
+          "p": 1.0
+        },
+        {
+          "palabra": "negro",
+          "inicio": 66.14,
+          "fin": 66.46,
+          "p": 0.976
+        },
+        {
+          "palabra": "y",
+          "inicio": 66.46,
+          "fin": 66.7,
+          "p": 0.999
+        },
+        {
+          "palabra": "arena",
+          "inicio": 66.7,
+          "fin": 67.0,
+          "p": 0.999
+        },
+        {
+          "palabra": "en",
+          "inicio": 67.0,
+          "fin": 67.4,
+          "p": 0.988
+        },
+        {
+          "palabra": "el",
+          "inicio": 67.4,
+          "fin": 67.52,
+          "p": 1.0
+        },
+        {
+          "palabra": "41",
+          "inicio": 67.52,
+          "fin": 67.92,
+          "p": 0.994
+        },
+        {
+          "palabra": "y",
+          "inicio": 67.92,
+          "fin": 68.54,
+          "p": 0.998
+        },
+        {
+          "palabra": "el",
+          "inicio": 68.54,
+          "fin": 68.68,
+          "p": 0.996
+        },
+        {
+          "palabra": "42,",
+          "inicio": 68.68,
+          "fin": 69.08,
+          "p": 1.0
+        },
+        {
+          "palabra": "desde",
+          "inicio": 69.38,
+          "fin": 69.86,
+          "p": 0.998
+        },
+        {
+          "palabra": "las",
+          "inicio": 69.86,
+          "fin": 70.1,
+          "p": 1.0
+        },
+        {
+          "palabra": "10",
+          "inicio": 70.1,
+          "fin": 70.36,
+          "p": 0.998
+        },
+        {
+          "palabra": "hasta",
+          "inicio": 70.36,
+          "fin": 70.7,
+          "p": 0.996
+        },
+        {
+          "palabra": "las",
+          "inicio": 70.7,
+          "fin": 70.88,
+          "p": 1.0
+        },
+        {
+          "palabra": "4",
+          "inicio": 70.88,
+          "fin": 71.14,
+          "p": 0.999
+        },
+        {
+          "palabra": "de",
+          "inicio": 71.14,
+          "fin": 71.3,
+          "p": 0.999
+        },
+        {
+          "palabra": "la",
+          "inicio": 71.3,
+          "fin": 71.36,
+          "p": 1.0
+        },
+        {
+          "palabra": "tarde.",
+          "inicio": 71.36,
+          "fin": 71.66,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.007
+    },
+    {
+      "quien": "tienda",
+      "inicio": 71.86,
+      "fin": 76.28,
+      "texto": "A las 4 tuvimos la reposición alternativa. La tienda seguía abierta.",
+      "palabras": [
+        {
+          "palabra": "A",
+          "inicio": 71.86,
+          "fin": 72.42,
+          "p": 1.0
+        },
+        {
+          "palabra": "las",
+          "inicio": 72.42,
+          "fin": 72.52,
+          "p": 1.0
+        },
+        {
+          "palabra": "4",
+          "inicio": 72.52,
+          "fin": 72.8,
+          "p": 0.999
+        },
+        {
+          "palabra": "tuvimos",
+          "inicio": 72.8,
+          "fin": 73.36,
+          "p": 0.999
+        },
+        {
+          "palabra": "la",
+          "inicio": 73.36,
+          "fin": 73.5,
+          "p": 1.0
+        },
+        {
+          "palabra": "reposición",
+          "inicio": 73.5,
+          "fin": 73.98,
+          "p": 1.0
+        },
+        {
+          "palabra": "alternativa.",
+          "inicio": 73.98,
+          "fin": 74.64,
+          "p": 1.0
+        },
+        {
+          "palabra": "La",
+          "inicio": 74.68,
+          "fin": 75.26,
+          "p": 1.0
+        },
+        {
+          "palabra": "tienda",
+          "inicio": 75.26,
+          "fin": 75.62,
+          "p": 1.0
+        },
+        {
+          "palabra": "seguía",
+          "inicio": 75.62,
+          "fin": 75.84,
+          "p": 0.636
+        },
+        {
+          "palabra": "abierta.",
+          "inicio": 75.84,
+          "fin": 76.28,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.007
+    },
+    {
+      "quien": "central",
+      "inicio": 77.82,
+      "fin": 81.24,
+      "texto": "Sí, Logistica nos ha comunicado una avería del vehículo.",
+      "palabras": [
+        {
+          "palabra": "Sí,",
+          "inicio": 77.82,
+          "fin": 78.42,
+          "p": 0.961
+        },
+        {
+          "palabra": "Logistica",
+          "inicio": 78.42,
+          "fin": 79.02,
+          "p": 0.779
+        },
+        {
+          "palabra": "nos",
+          "inicio": 79.02,
+          "fin": 79.16,
+          "p": 0.997
+        },
+        {
+          "palabra": "ha",
+          "inicio": 79.16,
+          "fin": 79.3,
+          "p": 1.0
+        },
+        {
+          "palabra": "comunicado",
+          "inicio": 79.3,
+          "fin": 79.9,
+          "p": 1.0
+        },
+        {
+          "palabra": "una",
+          "inicio": 79.9,
+          "fin": 80.2,
+          "p": 0.999
+        },
+        {
+          "palabra": "avería",
+          "inicio": 80.2,
+          "fin": 80.64,
+          "p": 0.999
+        },
+        {
+          "palabra": "del",
+          "inicio": 80.64,
+          "fin": 80.76,
+          "p": 0.999
+        },
+        {
+          "palabra": "vehículo.",
+          "inicio": 80.76,
+          "fin": 81.24,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.02
+    },
+    {
+      "quien": "central",
+      "inicio": 81.52,
+      "fin": 85.92,
+      "texto": "Otra cosa, con las vallas de las obras, ¿habéis notado problemas para entrar?",
+      "palabras": [
+        {
+          "palabra": "Otra",
+          "inicio": 81.52,
+          "fin": 82.12,
+          "p": 0.992
+        },
+        {
+          "palabra": "cosa,",
+          "inicio": 82.12,
+          "fin": 82.4,
+          "p": 1.0
+        },
+        {
+          "palabra": "con",
+          "inicio": 82.54,
+          "fin": 82.98,
+          "p": 0.674
+        },
+        {
+          "palabra": "las",
+          "inicio": 82.98,
+          "fin": 83.14,
+          "p": 1.0
+        },
+        {
+          "palabra": "vallas",
+          "inicio": 83.14,
+          "fin": 83.5,
+          "p": 0.997
+        },
+        {
+          "palabra": "de",
+          "inicio": 83.5,
+          "fin": 83.62,
+          "p": 1.0
+        },
+        {
+          "palabra": "las",
+          "inicio": 83.62,
+          "fin": 83.72,
+          "p": 1.0
+        },
+        {
+          "palabra": "obras,",
+          "inicio": 83.72,
+          "fin": 83.98,
+          "p": 0.995
+        },
+        {
+          "palabra": "¿habéis",
+          "inicio": 84.18,
+          "fin": 84.62,
+          "p": 0.997
+        },
+        {
+          "palabra": "notado",
+          "inicio": 84.62,
+          "fin": 84.94,
+          "p": 1.0
+        },
+        {
+          "palabra": "problemas",
+          "inicio": 84.94,
+          "fin": 85.24,
+          "p": 1.0
+        },
+        {
+          "palabra": "para",
+          "inicio": 85.24,
+          "fin": 85.62,
+          "p": 1.0
+        },
+        {
+          "palabra": "entrar?",
+          "inicio": 85.62,
+          "fin": 85.92,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.02
+    },
+    {
+      "quien": "tienda",
+      "inicio": 87.7,
+      "fin": 91.54,
+      "texto": "Algunos clientes han comentado que resulta incómodo, pero se puede entrar.",
+      "palabras": [
+        {
+          "palabra": "Algunos",
+          "inicio": 87.7,
+          "fin": 88.22,
+          "p": 0.988
+        },
+        {
+          "palabra": "clientes",
+          "inicio": 88.22,
+          "fin": 88.74,
+          "p": 1.0
+        },
+        {
+          "palabra": "han",
+          "inicio": 88.74,
+          "fin": 88.9,
+          "p": 0.999
+        },
+        {
+          "palabra": "comentado",
+          "inicio": 88.9,
+          "fin": 89.38,
+          "p": 1.0
+        },
+        {
+          "palabra": "que",
+          "inicio": 89.38,
+          "fin": 89.5,
+          "p": 1.0
+        },
+        {
+          "palabra": "resulta",
+          "inicio": 89.5,
+          "fin": 89.94,
+          "p": 1.0
+        },
+        {
+          "palabra": "incómodo,",
+          "inicio": 89.94,
+          "fin": 90.44,
+          "p": 1.0
+        },
+        {
+          "palabra": "pero",
+          "inicio": 90.44,
+          "fin": 90.96,
+          "p": 1.0
+        },
+        {
+          "palabra": "se",
+          "inicio": 90.96,
+          "fin": 91.1,
+          "p": 0.999
+        },
+        {
+          "palabra": "puede",
+          "inicio": 91.1,
+          "fin": 91.28,
+          "p": 1.0
+        },
+        {
+          "palabra": "entrar.",
+          "inicio": 91.28,
+          "fin": 91.54,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.043
+    },
+    {
+      "quien": "tienda",
+      "inicio": 91.88,
+      "fin": 95.62,
+      "texto": "Lo que no tengo es un número de visitas para decirte cuánto ha afectado.",
+      "palabras": [
+        {
+          "palabra": "Lo",
+          "inicio": 91.88,
+          "fin": 92.4,
+          "p": 1.0
+        },
+        {
+          "palabra": "que",
+          "inicio": 92.4,
+          "fin": 92.52,
+          "p": 1.0
+        },
+        {
+          "palabra": "no",
+          "inicio": 92.52,
+          "fin": 92.64,
+          "p": 1.0
+        },
+        {
+          "palabra": "tengo",
+          "inicio": 92.64,
+          "fin": 92.9,
+          "p": 1.0
+        },
+        {
+          "palabra": "es",
+          "inicio": 92.9,
+          "fin": 93.08,
+          "p": 1.0
+        },
+        {
+          "palabra": "un",
+          "inicio": 93.08,
+          "fin": 93.2,
+          "p": 1.0
+        },
+        {
+          "palabra": "número",
+          "inicio": 93.2,
+          "fin": 93.46,
+          "p": 0.999
+        },
+        {
+          "palabra": "de",
+          "inicio": 93.46,
+          "fin": 93.64,
+          "p": 1.0
+        },
+        {
+          "palabra": "visitas",
+          "inicio": 93.64,
+          "fin": 94.12,
+          "p": 1.0
+        },
+        {
+          "palabra": "para",
+          "inicio": 94.12,
+          "fin": 94.28,
+          "p": 1.0
+        },
+        {
+          "palabra": "decirte",
+          "inicio": 94.28,
+          "fin": 94.74,
+          "p": 1.0
+        },
+        {
+          "palabra": "cuánto",
+          "inicio": 94.74,
+          "fin": 95.14,
+          "p": 0.998
+        },
+        {
+          "palabra": "ha",
+          "inicio": 95.14,
+          "fin": 95.18,
+          "p": 0.885
+        },
+        {
+          "palabra": "afectado.",
+          "inicio": 95.18,
+          "fin": 95.62,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.043
+    },
+    {
+      "quien": "central",
+      "inicio": 96.64,
+      "fin": 101.46,
+      "texto": "De acuerdo, pásame las notas que tengáis sobre las consultas del regalo y la incidencia de ayer.",
+      "palabras": [
+        {
+          "palabra": "De",
+          "inicio": 96.64,
+          "fin": 96.88,
+          "p": 0.979
+        },
+        {
+          "palabra": "acuerdo,",
+          "inicio": 96.88,
+          "fin": 97.22,
+          "p": 1.0
+        },
+        {
+          "palabra": "pásame",
+          "inicio": 97.34,
+          "fin": 97.86,
+          "p": 0.998
+        },
+        {
+          "palabra": "las",
+          "inicio": 97.86,
+          "fin": 98.02,
+          "p": 1.0
+        },
+        {
+          "palabra": "notas",
+          "inicio": 98.02,
+          "fin": 98.36,
+          "p": 1.0
+        },
+        {
+          "palabra": "que",
+          "inicio": 98.36,
+          "fin": 98.42,
+          "p": 1.0
+        },
+        {
+          "palabra": "tengáis",
+          "inicio": 98.42,
+          "fin": 98.78,
+          "p": 1.0
+        },
+        {
+          "palabra": "sobre",
+          "inicio": 98.78,
+          "fin": 98.94,
+          "p": 1.0
+        },
+        {
+          "palabra": "las",
+          "inicio": 98.94,
+          "fin": 99.14,
+          "p": 1.0
+        },
+        {
+          "palabra": "consultas",
+          "inicio": 99.14,
+          "fin": 99.74,
+          "p": 1.0
+        },
+        {
+          "palabra": "del",
+          "inicio": 99.74,
+          "fin": 99.82,
+          "p": 1.0
+        },
+        {
+          "palabra": "regalo",
+          "inicio": 99.82,
+          "fin": 100.26,
+          "p": 0.999
+        },
+        {
+          "palabra": "y",
+          "inicio": 100.26,
+          "fin": 100.46,
+          "p": 0.999
+        },
+        {
+          "palabra": "la",
+          "inicio": 100.46,
+          "fin": 100.56,
+          "p": 1.0
+        },
+        {
+          "palabra": "incidencia",
+          "inicio": 100.56,
+          "fin": 101.1,
+          "p": 1.0
+        },
+        {
+          "palabra": "de",
+          "inicio": 101.1,
+          "fin": 101.14,
+          "p": 0.999
+        },
+        {
+          "palabra": "ayer.",
+          "inicio": 101.14,
+          "fin": 101.46,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.012
+    },
+    {
+      "quien": "central",
+      "inicio": 101.6,
+      "fin": 104.82,
+      "texto": "Vamos a contrastarlo con caja antes de sacar conclusiones.",
+      "palabras": [
+        {
+          "palabra": "Vamos",
+          "inicio": 101.6,
+          "fin": 102.06,
+          "p": 1.0
+        },
+        {
+          "palabra": "a",
+          "inicio": 102.06,
+          "fin": 102.24,
+          "p": 1.0
+        },
+        {
+          "palabra": "contrastarlo",
+          "inicio": 102.24,
+          "fin": 102.86,
+          "p": 1.0
+        },
+        {
+          "palabra": "con",
+          "inicio": 102.86,
+          "fin": 103.04,
+          "p": 1.0
+        },
+        {
+          "palabra": "caja",
+          "inicio": 103.04,
+          "fin": 103.4,
+          "p": 0.819
+        },
+        {
+          "palabra": "antes",
+          "inicio": 103.4,
+          "fin": 103.7,
+          "p": 0.999
+        },
+        {
+          "palabra": "de",
+          "inicio": 103.7,
+          "fin": 103.92,
+          "p": 1.0
+        },
+        {
+          "palabra": "sacar",
+          "inicio": 103.92,
+          "fin": 104.1,
+          "p": 1.0
+        },
+        {
+          "palabra": "conclusiones.",
+          "inicio": 104.1,
+          "fin": 104.82,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.012
+    },
+    {
+      "quien": "tienda",
+      "inicio": 106.68,
+      "fin": 109.92,
+      "texto": "Perfecto, te las paso. Gracias por aclararme lo de las fechas.",
+      "palabras": [
+        {
+          "palabra": "Perfecto,",
+          "inicio": 106.68,
+          "fin": 107.08,
+          "p": 0.973
+        },
+        {
+          "palabra": "te",
+          "inicio": 107.08,
+          "fin": 107.28,
+          "p": 0.999
+        },
+        {
+          "palabra": "las",
+          "inicio": 107.28,
+          "fin": 107.42,
+          "p": 0.999
+        },
+        {
+          "palabra": "paso.",
+          "inicio": 107.42,
+          "fin": 107.7,
+          "p": 1.0
+        },
+        {
+          "palabra": "Gracias",
+          "inicio": 108.04,
+          "fin": 108.44,
+          "p": 0.999
+        },
+        {
+          "palabra": "por",
+          "inicio": 108.44,
+          "fin": 108.7,
+          "p": 1.0
+        },
+        {
+          "palabra": "aclararme",
+          "inicio": 108.7,
+          "fin": 109.18,
+          "p": 0.999
+        },
+        {
+          "palabra": "lo",
+          "inicio": 109.18,
+          "fin": 109.34,
+          "p": 1.0
+        },
+        {
+          "palabra": "de",
+          "inicio": 109.34,
+          "fin": 109.44,
+          "p": 1.0
+        },
+        {
+          "palabra": "las",
+          "inicio": 109.44,
+          "fin": 109.56,
+          "p": 1.0
+        },
+        {
+          "palabra": "fechas.",
+          "inicio": 109.56,
+          "fin": 109.92,
+          "p": 1.0
+        }
+      ],
+      "prob_silencio": 0.011
+    },
+    {
+      "quien": "central",
+      "inicio": 111.2,
+      "fin": 112.4,
+      "texto": "Gracias a ti. Hablamos.",
+      "palabras": [
+        {
+          "palabra": "Gracias",
+          "inicio": 111.2,
+          "fin": 111.48,
+          "p": 0.982
+        },
+        {
+          "palabra": "a",
+          "inicio": 111.48,
+          "fin": 111.62,
+          "p": 0.999
+        },
+        {
+          "palabra": "ti.",
+          "inicio": 111.62,
+          "fin": 111.76,
+          "p": 1.0
+        },
+        {
+          "palabra": "Hablamos.",
+          "inicio": 112.12,
+          "fin": 112.4,
+          "p": 0.968
+        }
+      ],
+      "prob_silencio": 0.008
+    }
+  ]
+}

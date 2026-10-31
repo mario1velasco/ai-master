@@ -1,0 +1,680 @@
+{
+ "fecha": "12/10/2026 03:01",
+ "texto": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+ "vision": "qwen3-vl:8b-instruct",
+ "resultados": {
+  "integracion": [
+   {
+    "id": "I1",
+    "prueba": "Ollama caído (dirección equivocada)",
+    "esperado": "OLLAMA_NO_DISPONIBLE",
+    "obtenido": "OLLAMA_NO_DISPONIBLE",
+    "ok": true,
+    "segundos": 0.0
+   },
+   {
+    "id": "I2",
+    "prueba": "Modelo no instalado",
+    "esperado": "MODELO_NO_INSTALADO",
+    "obtenido": "MODELO_NO_INSTALADO",
+    "ok": true,
+    "segundos": 0.01
+   },
+   {
+    "id": "I3",
+    "prueba": "Archivo que no es una imagen",
+    "esperado": "IMAGEN_NO_VALIDA",
+    "obtenido": "IMAGEN_NO_VALIDA",
+    "ok": true,
+    "segundos": 0.05
+   },
+   {
+    "id": "I4",
+    "prueba": "Parámetro malicioso en una consulta",
+    "esperado": "PARAMETRO_NO_VALIDO",
+    "obtenido": "PARAMETRO_NO_VALIDO",
+    "ok": true,
+    "segundos": 0.0
+   },
+   {
+    "id": "I5",
+    "prueba": "Pregunta vacía",
+    "esperado": "PREGUNTA_VACIA",
+    "obtenido": "PREGUNTA_VACIA",
+    "ok": true,
+    "segundos": 0.0
+   },
+   {
+    "id": "I6",
+    "prueba": "La Pipe extrae la pregunta y la imagen como las envía Open WebUI 0.12",
+    "esperado": "ok",
+    "obtenido": "ok",
+    "ok": true,
+    "segundos": 0.0
+   },
+   {
+    "id": "I7",
+    "prueba": "API caída: la Pipe lo dice con su nombre",
+    "esperado": "API_NO_DISPONIBLE",
+    "obtenido": "API_NO_DISPONIBLE",
+    "ok": true,
+    "segundos": 0.25
+   },
+   {
+    "id": "I8",
+    "prueba": "Tarea interna de Open WebUI (título del chat): la Pipe no la envía a la API",
+    "esperado": "ignorada",
+    "obtenido": "ignorada",
+    "ok": true,
+    "segundos": 0.0
+   },
+   {
+    "id": "I9",
+    "prueba": "La imagen se decodifica desde un data URI",
+    "esperado": "ok",
+    "obtenido": "ok",
+    "ok": true,
+    "segundos": 0.11
+   },
+   {
+    "id": "I10",
+    "prueba": "La Pipe no bloquea Open WebUI mientras espera a la API (asíncrona)",
+    "esperado": "no bloquea",
+    "obtenido": "no bloquea",
+    "ok": true,
+    "segundos": 2.58
+   }
+  ],
+  "calculo": [
+   {
+    "id": "C1",
+    "prueba": "resumen_tienda(MAD-MAL) · A.ventas_netas",
+    "esperado": 40000,
+    "obtenido": 40000.0,
+    "ok": true,
+    "segundos": 0.84
+   },
+   {
+    "id": "C1",
+    "prueba": "resumen_tienda(MAD-MAL) · B.ventas_netas",
+    "esperado": 26000,
+    "obtenido": 26000.0,
+    "ok": true,
+    "segundos": 0.84
+   },
+   {
+    "id": "C1",
+    "prueba": "resumen_tienda(MAD-MAL) · B - A.ventas_netas",
+    "esperado": -14000,
+    "obtenido": -14000.0,
+    "ok": true,
+    "segundos": 0.84
+   },
+   {
+    "id": "C1",
+    "prueba": "resumen_tienda(MAD-MAL) · A.pedidos_4_o_mas_unidades",
+    "esperado": 108,
+    "obtenido": 108,
+    "ok": true,
+    "segundos": 0.84
+   },
+   {
+    "id": "C1",
+    "prueba": "resumen_tienda(MAD-MAL) · B.pedidos_4_o_mas_unidades",
+    "esperado": 7,
+    "obtenido": 7,
+    "ok": true,
+    "segundos": 0.84
+   },
+   {
+    "id": "C1",
+    "prueba": "resumen_tienda(MAD-MAL) · A.pedidos",
+    "esperado": 120,
+    "obtenido": 120,
+    "ok": true,
+    "segundos": 0.84
+   },
+   {
+    "id": "C1",
+    "prueba": "resumen_tienda(MAD-MAL) · B.pedidos",
+    "esperado": 120,
+    "obtenido": 120,
+    "ok": true,
+    "segundos": 0.84
+   },
+   {
+    "id": "C2",
+    "prueba": "resumen_tienda(MAD-GOY) · A.ventas_netas",
+    "esperado": 32000,
+    "obtenido": 32000.0,
+    "ok": true,
+    "segundos": 0.03
+   },
+   {
+    "id": "C2",
+    "prueba": "resumen_tienda(MAD-GOY) · B.ventas_netas",
+    "esperado": 30000,
+    "obtenido": 30000.0,
+    "ok": true,
+    "segundos": 0.03
+   },
+   {
+    "id": "C3",
+    "prueba": "pedido(B-MAD-MAL-ORD-0005) · total",
+    "esperado": 211.99,
+    "obtenido": 211.99,
+    "ok": true,
+    "segundos": 0.03
+   },
+   {
+    "id": "C4",
+    "prueba": "disponibilidad_en(MAD-MAL, 2026-04-06 10:00, ['STREET_ONE_ARENA_43']) · STREET_ONE_ARENA_43.unidades_disponibles",
+    "esperado": 4,
+    "obtenido": 4,
+    "ok": true,
+    "segundos": 0.01
+   }
+  ],
+  "recuperacion": [
+   {
+    "id": "B1",
+    "prueba": "¿Hasta qué día estuvo vigente el Pack 4 en Malasaña?",
+    "esperado": "calendario_comercial_aprobado.md o expediente_comercial_y_operaciones.pdf#2",
+    "obtenido": "puesto 2: expediente_comercial_y_operaciones.pdf · pág. 2",
+    "ok": true,
+    "segundos": 0.12
+   },
+   {
+    "id": "B2",
+    "prueba": "¿Por qué no llegó la entrega del 6 de abril a Malasaña y cuándo se repuso?",
+    "esperado": "informe_logistica_abril.pdf o expediente_comercial_y_operaciones.pdf#4",
+    "obtenido": "puesto 3: expediente_comercial_y_operaciones.pdf · pág. 4",
+    "ok": true,
+    "segundos": 0.04
+   },
+   {
+    "id": "B3",
+    "prueba": "¿Cuándo estaba previsto que empezaran las obras frente a la tienda?",
+    "esperado": "aviso_obras.md o expediente_comercial_y_operaciones.pdf#6",
+    "obtenido": "puesto 1: aviso_obras.md · Planificación comunicada",
+    "ok": true,
+    "segundos": 0.08
+   },
+   {
+    "id": "B4",
+    "prueba": "¿Qué dijo Operaciones en la llamada sobre la fecha final de la campaña?",
+    "esperado": "llamada_0704",
+    "obtenido": "puesto 1: llamada_0704 · 0:16–0:30",
+    "ok": true,
+    "segundos": 0.07
+   },
+   {
+    "id": "B5",
+    "prueba": "¿Con qué fecha se asigna un abono a un periodo?",
+    "esperado": "politica_reembolsos.md o diccionario_datos.md",
+    "obtenido": "puesto 1: manual_datos_y_criterios.pdf · pág. 5",
+    "ok": true,
+    "segundos": 0.05
+   },
+   {
+    "id": "B6",
+    "prueba": "¿Qué SKU cubre el registro de disponibilidad?",
+    "esperado": "diccionario_datos.md o expediente_comercial_y_operaciones.pdf#5",
+    "obtenido": "puesto 1: diccionario_datos.md · disponibilidad.csv",
+    "ok": true,
+    "segundos": 0.1
+   }
+  ],
+  "lectura": [
+   {
+    "id": "L1",
+    "prueba": "ticket_marzo.png",
+    "esperado": "10 campos · coincide",
+    "obtenido": "10/10 campos · coincide",
+    "ok": true,
+    "campos_bien": 10,
+    "campos": 10,
+    "segundos": 50.3,
+    "tiempos": {
+     "modelo": "qwen3-vl:8b-instruct",
+     "segundos": 49.4,
+     "carga": 0.0,
+     "entrada": 6.3,
+     "salida": 43.0,
+     "tokens_entrada": 2045,
+     "tokens_salida": 244,
+     "tokens_por_segundo": 5.7
+    }
+   },
+   {
+    "id": "L2",
+    "prueba": "ticket_abril.png",
+    "esperado": "10 campos · discrepancia",
+    "obtenido": "10/10 campos · discrepancia",
+    "ok": true,
+    "campos_bien": 10,
+    "campos": 10,
+    "segundos": 57.6,
+    "tiempos": {
+     "modelo": "qwen3-vl:8b-instruct",
+     "segundos": 57.4,
+     "carga": 0.0,
+     "entrada": 20.8,
+     "salida": 36.3,
+     "tokens_entrada": 2045,
+     "tokens_salida": 207,
+     "tokens_por_segundo": 5.7
+    }
+   },
+   {
+    "id": "L3",
+    "prueba": "recuento_stock_0604.png",
+    "esperado": "11 campos · discrepancia",
+    "obtenido": "11/11 campos · discrepancia",
+    "ok": true,
+    "campos_bien": 11,
+    "campos": 11,
+    "segundos": 51.0,
+    "tiempos": {
+     "modelo": "qwen3-vl:8b-instruct",
+     "segundos": 50.8,
+     "carga": 0.0,
+     "entrada": 18.1,
+     "salida": 32.5,
+     "tokens_entrada": 1610,
+     "tokens_salida": 183,
+     "tokens_por_segundo": 5.6
+    }
+   },
+   {
+    "id": "L4",
+    "prueba": "albaran_0604.png",
+    "esperado": "7 campos · revisar",
+    "obtenido": "7/7 campos · revisar",
+    "ok": true,
+    "campos_bien": 7,
+    "campos": 7,
+    "segundos": 54.1,
+    "tiempos": {
+     "modelo": "qwen3-vl:8b-instruct",
+     "segundos": 54.0,
+     "carga": 0.0,
+     "entrada": 21.4,
+     "salida": 32.4,
+     "tokens_entrada": 1828,
+     "tokens_salida": 187,
+     "tokens_por_segundo": 5.8
+    }
+   },
+   {
+    "id": "L5",
+    "prueba": "ticket_abril_borroso.png (sintética)",
+    "esperado": "5 campos · discrepancia",
+    "obtenido": "5/5 campos · discrepancia",
+    "ok": true,
+    "campos_bien": 5,
+    "campos": 5,
+    "segundos": 60.3,
+    "tiempos": {
+     "modelo": "qwen3-vl:8b-instruct",
+     "segundos": 60.1,
+     "carga": 0.0,
+     "entrada": 22.0,
+     "salida": 38.0,
+     "tokens_entrada": 2045,
+     "tokens_salida": 209,
+     "tokens_por_segundo": 5.5
+    }
+   },
+   {
+    "id": "L6",
+    "prueba": "ticket_abril_muy_borroso.png (sintética)",
+    "esperado": "el sistema detecta la mala lectura",
+    "obtenido": "1/5 campos · lectura_dudosa · mal: {\"pedido_id\": \"8-MAD-MAL-000-0005\", \"fecha\": \"2020-04-04\", \"lineas.0.importe\": 126.13, \"li",
+    "ok": true,
+    "campos_bien": 1,
+    "campos": 5,
+    "segundos": 63.6,
+    "tiempos": {
+     "modelo": "qwen3-vl:8b-instruct",
+     "segundos": 63.5,
+     "carga": 0.0,
+     "entrada": 21.1,
+     "salida": 42.1,
+     "tokens_entrada": 2045,
+     "tokens_salida": 249,
+     "tokens_por_segundo": 5.9
+    }
+   }
+  ],
+  "respuesta": [
+   {
+    "id": "R1",
+    "prueba": "documental · ¿Hasta qué día estuvo vigente el Pack 4 en Malasaña?",
+    "esperado": "hechos y límites",
+    "obtenido": "✓ 3 evidencias citadas",
+    "ok": true,
+    "verificacion_limpia": true,
+    "citas": 3,
+    "segundos": 47.6,
+    "respuesta": "**Respuesta**  \nEl Pack 4 estuvo vigente en Malasaña hasta el 29 de marzo de 2026, ambos incluidos. [D2]\n\n**Documentos y llamada**  \nLa fecha final aprobada se establece en el calendario comercial aprobado el 01/03/2026, que indica como último día incluido el 29/03/2026. [D2] El diario de operaciones confirma que el cartel se retiró el 30/03/2026, tras la vigencia aprobada. [D3] La llamada del 7/04 no contradice esta fecha, solo informa sobre una incidencia de entrega. [D4]\n\n**Límites**  \nNo se dispone de registro de entregas de tote bags ni de marca de campaña en ventas.csv. [D2] No se acredita la entrega efectiva de regalos. [D2] La transcripción automática de la llamada no aporta datos nuevos. [D4]",
+    "plan": [
+     "documentos"
+    ],
+    "traza": [
+     {
+      "nodo": "planificar",
+      "segundos": 4.0,
+      "detalle": "documentos"
+     },
+     {
+      "nodo": "buscar_documentos",
+      "segundos": 5.1,
+      "detalle": "1 búsqueda(s) → 6 fragmentos: expediente_comercial_y_operaciones.pdf · pág. 7, expediente_comercial_y_operaciones.pdf · pág. 2, expediente_comercial_y_operaciones.pdf · pág. 3, llamada_0704 · 0:57–1:16…"
+     },
+     {
+      "nodo": "contrastar",
+      "segundos": 0.0,
+      "detalle": "2 comprobación(es) · 0 límite(s)"
+     },
+     {
+      "nodo": "redactar",
+      "segundos": 38.4,
+      "detalle": "2503 tokens de entrada · 241 de salida · 9.9 tok/s"
+     },
+     {
+      "nodo": "verificar",
+      "segundos": 0.0,
+      "detalle": "✓ limpia"
+     }
+    ]
+   },
+   {
+    "id": "R2",
+    "prueba": "numerica · ¿Cuánto cambiaron las ventas netas y los pedidos de 4 o más ",
+    "esperado": "hechos y límites",
+    "obtenido": "✓ 5 evidencias citadas",
+    "ok": true,
+    "verificacion_limpia": true,
+    "citas": 5,
+    "segundos": 49.8,
+    "respuesta": "**Respuesta**  \nLas ventas netas disminuyeron 14.000 EUR y los pedidos de 4 o más unidades disminuyeron 101 entre los periodos A y B.\n\n**Cifras**  \n- Ventas netas: de 40.000,00 EUR a 26.000,00 EUR → cambio de -14.000,00 EUR [S1].  \n- Pedidos de 4 o más unidades: de 108 a 7 → cambio de -101 [S1].\n\n**Documentos y llamada**  \n- [D1] registra la retirada del cartel del Pack 4 el 30/03 y consultas sobre el regalo el 07/04, coincidiendo con el fin de la campaña.  \n- [D3] y [D5] confirman que el regalo terminó el 29/03, y que desde el 30 no se entregaba la Totebag, solo se aplicaba como regalo por compra de 4 unidades [D3].  \n- [D4] menciona una falta de disponibilidad de Street One el 6/04, con reposición a las 16:00, sin cierre.\n\n**Límites**  \nNo se dispone de datos sobre el impacto de las obras, ni de registros sistemáticos de consultas sin compra. No se confirma si la caída en pedidos de 4+ unidades se debió exclusivamente al cambio de campaña o a otros factores.",
+    "plan": [
+     "cifras",
+     "documentos"
+    ],
+    "traza": [
+     {
+      "nodo": "planificar",
+      "segundos": 5.5,
+      "detalle": "cifras → documentos"
+     },
+     {
+      "nodo": "consultar_datos",
+      "segundos": 0.1,
+      "detalle": "resumen_tienda(MAD-MAL)"
+     },
+     {
+      "nodo": "buscar_documentos",
+      "segundos": 0.1,
+      "detalle": "1 búsqueda(s) → 5 fragmentos: diario_operaciones_abril.md · Malasaña · MAD-MAL, expediente_comercial_y_operaciones.pdf · pág. 1, llamada_0704 · 0:22–0:46, llamada_0704 · 0:57–1:16…"
+     },
+     {
+      "nodo": "contrastar",
+      "segundos": 0.0,
+      "detalle": "1 comprobación(es) · 0 límite(s)"
+     },
+     {
+      "nodo": "redactar",
+      "segundos": 44.2,
+      "detalle": "2078 tokens de entrada · 351 de salida · 10.4 tok/s"
+     },
+     {
+      "nodo": "verificar",
+      "segundos": 0.0,
+      "detalle": "✓ limpia"
+     }
+    ]
+   },
+   {
+    "id": "R3",
+    "prueba": "visual · ¿Qué demuestra este ticket? Compáralo con caja.",
+    "esperado": "hechos y límites",
+    "obtenido": "✓ 2 evidencias citadas",
+    "ok": true,
+    "verificacion_limpia": true,
+    "citas": 2,
+    "segundos": 43.5,
+    "respuesta": "**Respuesta**  \nEl ticket muestra una discrepancia de 20,00 € entre el total impreso (231,99 €) y el total registrado en caja (211,99 €). Las líneas individuales coinciden en cantidad, precio y descuento, pero la suma de los importes no cuadra con el total impreso. No se aplica la campaña Pack 4, ya que el pedido tiene solo 2 unidades y la campaña finalizó el 29/03/2026 [D1].\n\n**Documentos y llamada**  \n[D1] confirma que la campaña Pack 4 fue aprobada del 02/03/2026 al 29/03/2026, pero no se cumplen sus condiciones en este pedido [V1].\n\n**Imagen**  \n[V1] verifica que el ticket tiene un total impreso de 231,99 €, que no coincide con la suma de sus líneas (211,99 €), y que el pedido, fecha y tienda coinciden con los registros.\n\n**Límites**  \nNo se puede atribuir la discrepancia a una causa específica. La coincidencia temporal con la campaña no prueba su aplicación. Faltan datos sobre regalos, tráfico o demanda no atendida. Una discrepancia pide revisión, pero no demuestra fraude ni indica responsabilidad [V1].",
+    "plan": [
+     "imagen"
+    ],
+    "traza": [
+     {
+      "nodo": "planificar",
+      "segundos": 2.2,
+      "detalle": "imagen"
+     },
+     {
+      "nodo": "leer_imagen",
+      "segundos": 0.2,
+      "detalle": "ticket · qwen3-vl:8b-instruct · JSON válido · discrepancia · lectura REUTILIZADA (misma imagen ya leída: caché por huella sha256)"
+     },
+     {
+      "nodo": "contrastar",
+      "segundos": 0.0,
+      "detalle": "2 comprobación(es) · 2 límite(s)"
+     },
+     {
+      "nodo": "redactar",
+      "segundos": 41.1,
+      "detalle": "1846 tokens de entrada · 318 de salida · 10.0 tok/s"
+     },
+     {
+      "nodo": "verificar",
+      "segundos": 0.0,
+      "detalle": "✓ limpia"
+     }
+    ]
+   },
+   {
+    "id": "R4",
+    "prueba": "combinada · ¿Qué cambió en las ventas de Malasaña, qué aportan los docum",
+    "esperado": "hechos y límites",
+    "obtenido": "✓ 5 evidencias citadas",
+    "ok": true,
+    "verificacion_limpia": true,
+    "citas": 5,
+    "segundos": 76.7,
+    "respuesta": "**Respuesta**  \nLas ventas netas de Malasaña cayeron 14.000 € entre el periodo A (2-29 mar) y B (30 mar-26 abr), con reducción de unidades vendidas de 467 a 304 y de pedidos con 4+ unidades de 108 a 7. La campaña Pack 4 finalizó el 29 de marzo, según el calendario aprobado [D6]. Las consultas posteriores sobre el regalo indican que el cartel fue retirado el 30 de marzo [D2], pero hubo nuevas preguntas el 7 de abril [D1]. El ticket del 4 de abril no cumple las condiciones del Pack 4 [D6], y presenta discrepancias en el total impreso frente al caja [V1].\n\n**Cifras**  \nVentas netas: 40.000 € (A) → 26.000 € (B), caída de 14.000 € [S1]. Unidades: 467 → 304, -163 [S1]. Pedidos con 4+ unidades: 108 → 7, -101 [S1].\n\n**Documentos y llamada**  \nEl calendario aprobado termina el 29 de marzo [D6]. El equipo de Malasaña retiró el cartel el 30 de marzo [D2]. Las llamadas confirman consultas sobre el regalo tras su finalización [D1, D3, D5], pero no indican que se reanudara la campaña. No hay registro de tráfico, consultas sin compra ni contador de entradas [D2].\n\n**Imagen**  \nEl ticket del 4 de abril (B-MAD-MAL-ORD-0005) muestra un total impreso de 231,99 €, pero el registro indica 211,99 € [V1]. Hay discrepancia en el total, no explicada por abonos [V1]. No cumple condiciones del Pack 4 [D6].\n\n**Límites**  \nNo hay datos de tráfico, demanda no atendida ni número de regalos entregados. Coincidir en el tiempo no prueba causa. Las discrepancias piden revisión, no demuestran fraude [V1].",
+    "plan": [
+     "imagen",
+     "cifras",
+     "documentos"
+    ],
+    "traza": [
+     {
+      "nodo": "planificar",
+      "segundos": 4.0,
+      "detalle": "imagen → cifras → documentos"
+     },
+     {
+      "nodo": "leer_imagen",
+      "segundos": 0.1,
+      "detalle": "ticket · qwen3-vl:8b-instruct · JSON válido · discrepancia · lectura REUTILIZADA (misma imagen ya leída: caché por huella sha256)"
+     },
+     {
+      "nodo": "consultar_datos",
+      "segundos": 0.0,
+      "detalle": "resumen_tienda(MAD-MAL)"
+     },
+     {
+      "nodo": "buscar_documentos",
+      "segundos": 0.1,
+      "detalle": "1 búsqueda(s) → 5 fragmentos: llamada_0704 · 0:16–0:30, expediente_comercial_y_operaciones.pdf · pág. 3, llamada_0704 · 0:22–0:46, expediente_comercial_y_operaciones.pdf · pág. 1…"
+     },
+     {
+      "nodo": "contrastar",
+      "segundos": 0.0,
+      "detalle": "3 comprobación(es) · 2 límite(s)"
+     },
+     {
+      "nodo": "redactar",
+      "segundos": 72.4,
+      "detalle": "3720 tokens de entrada · 532 de salida · 10.1 tok/s"
+     },
+     {
+      "nodo": "verificar",
+      "segundos": 0.0,
+      "detalle": "✓ limpia"
+     }
+    ]
+   },
+   {
+    "id": "R5",
+    "prueba": "insuficiente · ¿Cuántas tote bags se entregaron en marzo y cuántas ventas s",
+    "esperado": "hechos y límites",
+    "obtenido": "✓ 7 evidencias citadas",
+    "ok": true,
+    "verificacion_limpia": true,
+    "citas": 7,
+    "segundos": 53.6,
+    "respuesta": "**Respuesta**  \nNo se puede determinar cuántas tote bags se entregaron en marzo ni cuántas ventas se perdieron por las obras.  \n\n**Cifras**  \n[S1] Las ventas netas de Malasaña cayeron 14.000 € entre el periodo A (02–29/03) y el periodo B (30/03–26/04). No se especifica el impacto de las obras ni el número de regalos entregados.  \n\n**Documentos y llamada**  \n[D1], [D2], [D6] confirman que el Pack 4 se ejecutó del 02 al 29/03/2026, con tote bags como regalo por pedidos de 4+ unidades. [D3] indica que el aviso de obras llegó el 25/03/2026, con ejecución desde el 1/4. [D4] menciona las obras como posible causa, pero no cuantifica su impacto. [D5] es un borrador sustituido.  \n\n**Límites**  \nNo hay datos sobre regalos entregados, visitas, clientes, costes ni impacto cuantitativo de las obras. El código confirma que no se registra el número de tote bags ni el efecto de las obras en las ventas.",
+    "plan": [
+     "cifras",
+     "documentos"
+    ],
+    "traza": [
+     {
+      "nodo": "planificar",
+      "segundos": 8.2,
+      "detalle": "cifras → documentos"
+     },
+     {
+      "nodo": "consultar_datos",
+      "segundos": 0.0,
+      "detalle": "resumen_tienda(MAD-MAL)"
+     },
+     {
+      "nodo": "buscar_documentos",
+      "segundos": 0.1,
+      "detalle": "1 búsqueda(s) → 6 fragmentos: expediente_comercial_y_operaciones.pdf · pág. 2, calendario_comercial_aprobado.md · Pack 4: ejecución, aviso_obras.md · Seguimiento, expediente_comercial_y_operaciones.pdf · pág. 1…"
+     },
+     {
+      "nodo": "contrastar",
+      "segundos": 0.0,
+      "detalle": "1 comprobación(es) · 1 límite(s)"
+     },
+     {
+      "nodo": "redactar",
+      "segundos": 45.3,
+      "detalle": "2514 tokens de entrada · 307 de salida · 9.9 tok/s"
+     },
+     {
+      "nodo": "verificar",
+      "segundos": 0.0,
+      "detalle": "✓ limpia"
+     }
+    ]
+   },
+   {
+    "id": "R6",
+    "prueba": "causal · ¿La rotura de stock del 6 de abril es la causa de la caída d",
+    "esperado": "hechos y límites",
+    "obtenido": "✓ 5 evidencias citadas",
+    "ok": true,
+    "verificacion_limpia": true,
+    "citas": 5,
+    "segundos": 55.2,
+    "respuesta": "**Respuesta**  \nNo se puede confirmar que la rotura de stock del 6 de abril cause la caída de ventas netas en Malasaña.\n\n**Cifras**  \nLas ventas netas de Malasaña bajaron de 40.000 € (periodo A) a 26.000 € (periodo B), una disminución de 14.000 € [S1]. El periodo B incluye el 6 de abril, día de la rotura de stock. Sin embargo, no se dispone de datos de ventas por día ni de tráfico de clientes.\n\n**Documentos y llamada**  \nLa llamada del 7 de abril confirma que el stock de Street One negro y arena (tallas 41 y 42) faltó entre las 10:00 y las 16:00 del 6 de abril [D1]. El informe logístico confirma la incidencia de entrega fallida y la reposición alternativa a las 16:00 [D4][D5]. El expediente menciona la caída de ventas como hipótesis, pero no la vincula con la incidencia [D3].\n\n**Límites**  \nNo hay datos de ventas por hora, tráfico de tienda, regalos entregados ni demanda no atendida. La coincidencia temporal no prueba causalidad. Faltan datos para cuantificar pérdidas reales.",
+    "plan": [
+     "cifras",
+     "documentos"
+    ],
+    "traza": [
+     {
+      "nodo": "planificar",
+      "segundos": 11.3,
+      "detalle": "cifras → documentos"
+     },
+     {
+      "nodo": "consultar_datos",
+      "segundos": 0.0,
+      "detalle": "resumen_tienda(MAD-MAL)"
+     },
+     {
+      "nodo": "buscar_documentos",
+      "segundos": 0.1,
+      "detalle": "1 búsqueda(s) → 5 fragmentos: llamada_0704 · 0:57–1:16, llamada_0704 · 0:46–1:02, expediente_comercial_y_operaciones.pdf · pág. 1, informe_logistica_abril.pdf · pág. 1…"
+     },
+     {
+      "nodo": "contrastar",
+      "segundos": 0.0,
+      "detalle": "1 comprobación(es) · 1 límite(s)"
+     },
+     {
+      "nodo": "redactar",
+      "segundos": 43.7,
+      "detalle": "2512 tokens de entrada · 321 de salida · 10.4 tok/s"
+     },
+     {
+      "nodo": "verificar",
+      "segundos": 0.0,
+      "detalle": "✓ limpia"
+     }
+    ]
+   },
+   {
+    "id": "R7",
+    "prueba": "documental · ¿El aviso de obras acredita que las obras comenzaron el 25 d",
+    "esperado": "hechos y límites",
+    "obtenido": "✓ 5 evidencias citadas",
+    "ok": true,
+    "verificacion_limpia": true,
+    "citas": 5,
+    "segundos": 74.3,
+    "respuesta": "**Respuesta**  \nNo, el aviso de obras no acredita que las obras comenzaron el 25 de marzo.  \nLa fecha del 25 de marzo es la de recepción del aviso, no de inicio [D1].  \nEl inicio programado es el 1 de abril de 2026 [D3].  \nNo hay evidencia de que las obras comenzaran antes de esa fecha.  \n\n**Documentos y llamada**  \n[D1] El aviso fue recibido el 25/03/2026; inicio programado: 01/04/2026.  \n[D2] Fecha de recepción: 25/03/2026; ejecución programada desde el 1 de abril.  \n[D3] Inicio: 01/04/2026; fin previsto: 20/04/2026.  \n[D4] Llamada del 07/04/2026: Dani menciona que los clientes comentan incomodidad, pero no hay datos de acceso.  \n[D5] Expediente consolidado el 27/04/2026; no incluye confirmación de inicio efectivo.  \n\n**Límites**  \nNo hay registro de inicio efectivo de obras.  \nNo hay conteo de visitas ni datos de ventas comparativos en el aviso.  \nLa llamada es transcripción automática; no acredita hechos.",
+    "plan": [
+     "documentos"
+    ],
+    "traza": [
+     {
+      "nodo": "planificar",
+      "segundos": 2.5,
+      "detalle": "documentos"
+     },
+     {
+      "nodo": "buscar_documentos",
+      "segundos": 0.1,
+      "detalle": "1 búsqueda(s) → 5 fragmentos: expediente_comercial_y_operaciones.pdf · pág. 6, aviso_obras.md · Seguimiento, aviso_obras.md · Planificación comunicada, llamada_0704 · 1:17–1:35…"
+     },
+     {
+      "nodo": "contrastar",
+      "segundos": 0.0,
+      "detalle": "1 comprobación(es) · 0 límite(s)"
+     },
+     {
+      "nodo": "redactar",
+      "segundos": 36.6,
+      "detalle": "1788 tokens de entrada · 299 de salida · 10.6 tok/s"
+     },
+     {
+      "nodo": "verificar",
+      "segundos": 0.0,
+      "detalle": "⚠ cita inexistente [D6]"
+     },
+     {
+      "nodo": "redactar",
+      "segundos": 35.2,
+      "detalle": "1831 tokens de entrada · 329 de salida · 9.6 tok/s · reintento"
+     },
+     {
+      "nodo": "verificar",
+      "segundos": 0.0,
+      "detalle": "✓ limpia"
+     }
+    ]
+   }
+  ]
+ }
+}

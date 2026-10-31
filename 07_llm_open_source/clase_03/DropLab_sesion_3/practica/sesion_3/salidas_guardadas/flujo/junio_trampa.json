@@ -1,0 +1,152 @@
+{
+ "respuesta": "**Respuesta**  \nNo se puede afirmar que falten 18 pares en las tiendas tras la reposición de junio. La rectificación RC-0620-01 corrige la aceptación de 24 a 18 pares aceptados en MAD-MAL, pero no indica que se hayan perdido 18 pares en venta. La reposición de 6 pares está autorizada para cubrir la diferencia, pero no se confirma su entrega ni recepción [D1]. El coste de la incidencia es de 203,50 EUR, sin deducir los 240 EUR solicitados al transportista, ya que no son un ingreso contabilizado [D1].\n\n**Documentos y llamada**  \n[D1]: reposición autorizada, 6 pares, salida prevista 06/07/2026, pendiente confirmación recepción. [D2]: cierre hasta 30/06/2026, aceptados 66 pares en MAD-MAL. [D3]: 6 pares segregados, no devueltos. [D4]: 66 pares aceptados, incluye rectificación RC-0620-01. [D5]: rectificación de 24 a 18 pares aceptados, no nueva entrega. No hay llamada ni transcripción.\n\n**Límites**  \nNo se confirma la entrega de los 6 pares reposicionados. No se dispone de datos de ventas posteriores a junio ni de stock final. No se puede calcular el impacto real en ventas ni el coste neto sin conciliación contable.",
+ "evidencias": [
+  {
+   "id": "D1",
+   "tipo": "documento",
+   "cita": "01_DropLab_informe_reposicion_junio.pdf · pág. 5",
+   "titulo": "Medidas autorizadas",
+   "estado": "aprobado",
+   "fecha": "04/07/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · 9/9 valores coinciden con la capa de texto",
+   "texto": "05 / DECISIONES Y SEGUIMIENTO\n\n# Medidas autorizadas\n\nResponsable de seguimiento: Lucía Vidal. Registro de acuerdos: 04/07/2026.\n\n| Acción | Responsable | Fecha / estado |\n| Reponer 6 pares STREET_ONE_NEGRO_41 en MAD-MAL | Diego Ríos · Logística | Salida prevista: 06/07/2026. PENDIENTE de confirmación de recepción. |\n| Mantener segregados los 6 pares afectados | Nuria Campos · MAD-MAL | Hasta resolución de calidad. ABIERTO a 04/07. |\n| Revisar protección del embalaje en ruta Madrid | Lucía Vidal · Operaciones | Revisión programada para 08/07/2026. |\n| Verificar registro de abono del transportista | Administración | SIN CONFIRMACIÓN contable al cierre. |\n\n## Qué puede afirmarse al cierre\n\nSe ha autorizado la reposición y existe una fecha de salida prevista. No consta en este expediente un justificante de entrega de julio. La rectificación de junio no confirma que la reposición de julio se haya ejecutado. El expediente se cierra documentalmente para el informe, pero la incidencia de calidad sigue abierta.\n\n## Importes y compensaciones\n\nEl transportista ha recibido una solicitud de compensación por 240,00 EUR. El importe es una reclamación, no un abono aceptado ni cobrado. No deducirlo de los 203,50 EUR de costes de gestión como si fuera ingreso contabilizado. Los importes están expresados en EUR y sin IVA.\n\nDistribución. Este informe documenta la reposición de junio. Se remite a Operaciones y Administración para seguimiento del cierre. Margen, ventas perdidas y existencias se tratan en sus respectivos expedientes.\n\nSeguimiento del acuerdo. Logística comunicará a tienda la referencia de salida y el número de bultos antes de solicitar una nueva aceptación. Calidad documentará por separado el destino de los seis pares segregados. La aprobación de este informe no autoriza a eliminar el parte de incidencia ni a compensar importes entre proveedores sin conciliación de Administración.",
+   "citada": true
+  },
+  {
+   "id": "D2",
+   "tipo": "documento",
+   "cita": "01_DropLab_informe_reposicion_junio.pdf · pág. 1",
+   "titulo": "Reposición de verano",
+   "estado": "aprobado",
+   "fecha": "04/07/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · 13/13 valores coinciden con la capa de texto",
+   "texto": "01 / NOTA DE CIERRE\n\n# Reposición de verano\n\nJunio de 2026 | Edición aprobada 1.1 | Responsable: Lucía Vidal, Operaciones\n\nDistribución: Dirección Comercial, coordinación de tiendas y Administración. Conciliación de tres variantes de Street One en las tres tiendas, con un indicador de servicio del catálogo completo. No incluye cierre de ventas ni inventario final.\n\n| Control documental | Registro |\n| Código y estado | LOG-2026-06 · versión 1.1 · APROBADO |\n| Aprobación / fecha de corte | 04/07/2026 / hechos hasta 30/06/2026, 20:00 Europe/Madrid |\n| Sustitución | Esta edición sustituye a LOG-2026-06 v0.9, de 01/07/2026. |\n| Fuentes anexas | Expediente REC-2026-0617: albarán A-0617-04, incidencia INC-0617-02 y rectificación RC-0620-01. |\n\n## Lectura para el comité\n\n## Criteria operativo\n\nEl cierre considera únicamente unidades aceptadas por tienda. Las unidades retenidas en cuarentena no son vendibles y no se incluyen en la recepción aceptada. Una expedición es una salida del centro logístico; no acredita por sí sola la entrada en tienda.\n\n## Límite del análisis\n\nLa continuidad del suministro se revisa con dos medidas de distinto alcance: pares de las variantes seleccionadas y porcentaje de líneas completas del catálogo. No deben promediarse los porcentajes de semanas o tiendas sin sus denominadores. Los gráficos describen incidencias, no estiman ventas perdidas.\n\nLocalización. P. 2: tabla T1, primera parte. P. 3: continuación y notas de conciliación. P. 4: figura G1. P. 5: decisión y alcance. P. 6: anexo histórico de versión sustituida. Pp. 7-8: detalle de expediciones y notas de conciliación.\n\nProcedimiento de cierre. Operaciones contrasta las órdenes de reposición con las hojas de preparación del centro y los registros de aceptación de tienda. Cuando existen diferencias, la cantidad expedida se mantiene en transporte y la cantidad aceptada se actualiza tras el dictamen de recepción. Administración conserva ambos valores para conciliar la documentación sin sobrescribir la evidencia original.\n\nLas copias de ruta pueden incorporar fechas de firma posteriores a la recepción física. Para asignar el periodo se utiliza el hecho logístico documentado y no la fecha de incorporación al archivo. Este informe se distribuye como fotografía del cierre; las actuaciones posteriores se registrarán en el expediente de seguimiento.",
+   "citada": true
+  },
+  {
+   "id": "D3",
+   "tipo": "documento",
+   "cita": "02_DropLab_expediente_escaneado.pdf · pág. 2",
+   "titulo": "Revisión de mercancía",
+   "estado": "abierta (pendiente)",
+   "fecha": "18/06/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · escaneada, sin capa de texto: 11 valores SIN COMPROBAR",
+   "texto": "PARTE DE INCIDENCIA\n\n# Revisión de mercancía\n\nINC-0617-02 | Abierta el 18/06/2026 a las 09:15 | Responsable: Nuria Campos\n\nReferencia de transporte: A-0617-04, recibido físicamente el 17/06. Durante la apertura se detecta humedad y deterioro de caja interior. Las seis unidades de la caja 4 se segregan en la zona de cuarentena. Unidad operativa: par.\n\n| Caja | Pares revisados | Conformes | Cuarentena | Observación |\n| 1 | 6 | 6 | 0 | Sin incidencia |\n| 2 | 6 | 6 | 0 | Sin incidencia |\n| 3 | 6 | 6 | 0 | Sin incidencia |\n| 4 | 6 | 0 | 6 | Humedad / embalaje |\n| TOTAL | 24 | 18 | 6 | Revisión completa |\n\n| Seguimiento | Registro |\n| SKU afectado | STREET_ONE_NEGRO_41 |\n| Estado a 18/06 | ABIERTA · mercancía segregada; pendiente de dictamen |\n| Decisión de tienda | No poner a la venta los seis pares segregados. |\n| Petición a Administración | Rectificar la aceptación del albarán, sin crear otra recepción. |\n\nNo se registra una devolución al centro logístico en este parte. Cuarentena no equivale a destrucción, venta o devolución. La disponibilidad vendible queda supeditada al registro de aceptación corregido.\n\nControl de inspección. Se revisaron las cuatro cajas. Los ceros de cuarentena de las cajas 1 a 3 corresponden a comprobaciones realizadas. La segregación de la caja 4 es preventiva: el parte acredita deterioro de embalaje y no confirma por sí solo que todos los pares tengan un defecto de producto.",
+   "citada": true
+  },
+  {
+   "id": "D4",
+   "tipo": "documento",
+   "cita": "01_DropLab_informe_reposicion_junio.pdf · pág. 2",
+   "titulo": "T1. Recepciones por tienda",
+   "estado": "aprobado",
+   "fecha": "04/07/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · 20/20 valores coinciden con la capa de texto",
+   "texto": "02 / CONCILIACIÓN DE UNIDADES\n\n# T1. Recepciones por tienda\n\nUna unidad de zapatilla equivale a un par. Periodo: 01/06 a 30/06/2026, ambos incluidos.\n\n| Destino / referencia | Junio 2026: flujo de pares |\n| Tienda · SKU | Solicitados | Expedidos | Aceptados (1) |\n| MAD-MAL · STREET_ONE_NEGRO_41 | 80 | 72 | 66 |\n| MAD-MAL · STREET_ONE_NEGRO_42 | 70 | 70 | 70 |\n| MAD-MAL · STREET_ONE_ARENA_41 | 50 | 48 | 48 |\n| MAD-GOY · STREET_ONE_NEGRO_41 | 60 | 60 | 60 |\n| MAD-GOY · STREET_ONE_NEGRO_42 | 60 | 58 | 58 |\n\nT1 continúa en la página 3. Estas cinco filas no constituyen el total del expediente. Los subtotales por destino y las notas de conciliación se presentan al final de la tabla.\n\n## Notas de recepción\n\n(1) Aceptados: unidades recibidas y admitidas como vendibles. La cifra de MAD-MAL / STREET_ONE_NEGRO_41 integra la rectificación RC-0620-01; no añadir de nuevo las unidades del albarán adjunto. La misma entrega puede aparecer en el justificante y en este resumen mensual.\n\n| Registro | Tratamiento en T1 |\n| A-0617-04 / MAD-MAL | 24 pares expedidos; recepción aceptada de 18 pares tras la rectificación. |\n| INC-0617-02 | 6 pares en cuarentena a 30/06. No se añaden a aceptados. |\n| RC-0620-01 | Corrige la aceptación del albarán; no representa otra entrega. |\n\nControl: la tabla expresa flujos del mes, no stock a fecha de cierre. Faltan las ventas, los traslados posteriores y otras salidas para reconstruir existencias.\n\nSelección del cierre. La conciliación se limita a negro 41, negro 42 y arena 41. Otras tallas y colores de Street One no se agregan a T1. El indicador de servicio de la página 4 sigue el catálogo completo y se presenta como referencia operativa; no permite reconstruir las cantidades de estas tres variantes.",
+   "citada": true
+  },
+  {
+   "id": "D5",
+   "tipo": "documento",
+   "cita": "02_DropLab_expediente_escaneado.pdf · pág. 3",
+   "titulo": "Aceptación corregida",
+   "estado": "aprobado",
+   "fecha": "20/06/2026",
+   "sustituido_por": null,
+   "lectura": "PaddleOCR-VL-1.6 · sin revisar · escaneada, sin capa de texto: 13 valores SIN COMPROBAR",
+   "texto": "RECTIFICACIÓN DE RECEPCIÓN\n\n# Aceptación corregida\n\nRC-0620-01 | Emitida: 20/06/2026 | Aprobación: Lucía Vidal, Operaciones\n\nEsta rectificación sustituye exclusivamente la cifra de pares conformes de A-0617-04. Se mantienen la fecha de llegada, las cuatro cajas recibidas y los 24 pares expedidos. No es un nuevo albarán ni una segunda entrega.\n\n| Campo | Registro original | Valor corregido |\n| Pares expedidos | 24 | 24 |\n| Pares aceptados como vendibles | 24 | 18 |\n| Pares en cuarentena | Sin desglose | 6 |\n| Fecha de recepción física | 17/06/2026 | 17/06/2026 |\n\n## Instrucciones de conciliación\n\nAplicar 18 pares aceptados a la entrega A-0617-04. El resto de recepciones de junio para MAD-MAL / STREET_ONE_NEGRO_41 suma 48 pares aceptados. El albarán y su rectificación describen un mismo hecho logístico: no sumar 24 + 18.\n\nEstado de INC-0617-02 a 20/06: ABIERTA. Pendiente de resolución de calidad. Una reposición solicitada no se considera recibida sin justificante de entrada.\n\nRECTIFICACIÓN APROBADA\n\n20 JUN 2026 · L. Vidal",
+   "citada": true
+  }
+ ],
+ "comprobaciones": [
+  {
+   "nombre": "lectura automática",
+   "resultado": "aviso",
+   "detalle": "5 página(s) leídas por PaddleOCR-VL, sin revisión humana. Cifras que no se han podido comprobar con el texto del PDF (escaneado o gráfico): escaneado pág. 2, escaneado pág. 3.",
+   "fuentes": []
+  }
+ ],
+ "limitaciones": [
+  "Junio no está en los datos de ventas (acaban el 26/04): las cifras de junio salen solo de los documentos de junio."
+ ],
+ "verificacion": [],
+ "plan": {
+  "tareas": [
+   "documentos"
+  ],
+  "tienda": null,
+  "consulta": "ninguna",
+  "motivo": "Para determinar si faltan 18 pares tras la reposición de junio y calcular el costo de la incidencia (descontando los 240 € del transportista), se necesitan: (1) documentos que confirmen la reposición de junio y el estado de stock tras ella; (2) cifras sobre el número de pares recibidos, entregados o pendientes, y el costo total de la incidencia.",
+  "origen": "modelo",
+  "nota": "junio no está en los datos (acaban el 26/04): solo documentos"
+ },
+ "traza": [
+  {
+   "nodo": "planificar",
+   "segundos": 4.0,
+   "herramienta": "plan por modelo",
+   "detalle": "documentos (junio no está en los datos (acaban el 26/04): solo documentos)",
+   "plan": {
+    "tareas": [
+     "documentos"
+    ],
+    "tienda": null,
+    "consulta": "ninguna",
+    "motivo": "Para determinar si faltan 18 pares tras la reposición de junio y calcular el costo de la incidencia (descontando los 240 € del transportista), se necesitan: (1) documentos que confirmen la reposición de junio y el estado de stock tras ella; (2) cifras sobre el número de pares recibidos, entregados o pendientes, y el costo total de la incidencia.",
+    "origen": "modelo",
+    "nota": "junio no está en los datos (acaban el 26/04): solo documentos"
+   }
+  },
+  {
+   "nodo": "buscar_documentos",
+   "segundos": 0.0,
+   "herramienta": "RAG · bge-m3 híbrida · índice ampliado (sesión 2 + junio)",
+   "detalle": "1 búsqueda(s) → 5 fragmentos: 01_DropLab_informe_reposicion_junio.pdf · pág. 5, 01_DropLab_informe_reposicion_junio.pdf · pág. 1, 02_DropLab_expediente_escaneado.pdf · pág. 2, 01_DropLab_informe_reposicion_junio.pdf · pág. 2…"
+  },
+  {
+   "nodo": "contrastar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "1 comprobación(es) · 1 límite(s)"
+  },
+  {
+   "nodo": "redactar",
+   "segundos": 15.9,
+   "herramienta": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+   "detalle": "3660 tokens de entrada · 373 de salida · 32.1 tok/s",
+   "tiempos": {
+    "modelo": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    "segundos": 15.9,
+    "carga": 0.0,
+    "entrada": 4.2,
+    "salida": 11.6,
+    "tokens_entrada": 3660,
+    "tokens_salida": 373,
+    "tokens_por_segundo": 32.1
+   }
+  },
+  {
+   "nodo": "verificar",
+   "segundos": 0.0,
+   "herramienta": "código",
+   "detalle": "✓ limpia"
+  }
+ ],
+ "errores": [],
+ "configuracion": {
+  "modelo_texto": "qwen3:30b-a3b-instruct-2507-q4_K_M",
+  "modelo_vision": "qwen3-vl:8b-instruct",
+  "planificador": "modelo",
+  "reutilizar_lecturas": true
+ },
+ "segundos": 20.0,
+ "origen": "guardada",
+ "fecha": "18/10/2026 00:06",
+ "caso": "junio_trampa",
+ "pregunta": "Tras la reposición de junio, ¿faltan 18 pares en las tiendas? ¿Cuánto costó la incidencia descontando los 240 euros del transportista?",
+ "imagen": null
+}

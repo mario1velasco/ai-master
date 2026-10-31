@@ -1,0 +1,234 @@
+{
+ "fecha": "18/10/2026 00:08",
+ "origen": "guardada",
+ "imagen": "recuento_stock_0604.png",
+ "sintetica": false,
+ "libre": {
+  "respuesta": "Este documento es un recuento de apertura de la tienda \"Street One\" en Malasaña, realizado el 6 de abril de 2026 a las 10:00 horas. Muestra el inventario inicial de productos, especificando unidades por SKU (por ejemplo, 4 unidades del modelo negro 40 y 4 del modelo arena 40). El documento indica que fue revisado en apertura por el responsable de turno.",
+  "tiempos": {
+   "modelo": "qwen3-vl:8b-instruct",
+   "segundos": 8.2,
+   "carga": 0.0,
+   "entrada": 3.5,
+   "salida": 4.5,
+   "tokens_entrada": 1074,
+   "tokens_salida": 98,
+   "tokens_por_segundo": 21.9
+  }
+ },
+ "extraccion": {
+  "tipo": "recuento",
+  "modelo": "qwen3-vl:8b-instruct",
+  "json_crudo": "{\"tienda\":\"Malasaña\",\"fecha\":\"2026-04-06\",\"hora\":\"10:00\",\"filas\":[{\"sku\":\"STREET_ONE_NEGRO_40\",\"unidades\":4},{\"sku\":\"STREET_ONE_NEGRO_41\",\"unidades\":0},{\"sku\":\"STREET_ONE_NEGRO_42\",\"unidades\":0},{\"sku\":\"STREET_ONE_NEGRO_43\",\"unidades\":4},{\"sku\":\"STREET_ONE_ARENA_40\",\"unidades\":4},{\"sku\":\"STREET_ONE_ARENA_41\",\"unidades\":0},{\"sku\":\"STREET_ONE_ARENA_42\",\"unidades\":0},{\"sku\":\"STREET_ONE_ARENA_43\",\"unidades\":0}],\"campos_ilegibles\":[],\"legibilidad_declarada\":\"buena\"}",
+  "valido": true,
+  "errores_validacion": [],
+  "datos": {
+   "tienda": "Malasaña",
+   "fecha": "2026-04-06",
+   "hora": "10:00",
+   "filas": [
+    {
+     "sku": "STREET_ONE_NEGRO_40",
+     "unidades": 4
+    },
+    {
+     "sku": "STREET_ONE_NEGRO_41",
+     "unidades": 0
+    },
+    {
+     "sku": "STREET_ONE_NEGRO_42",
+     "unidades": 0
+    },
+    {
+     "sku": "STREET_ONE_NEGRO_43",
+     "unidades": 4
+    },
+    {
+     "sku": "STREET_ONE_ARENA_40",
+     "unidades": 4
+    },
+    {
+     "sku": "STREET_ONE_ARENA_41",
+     "unidades": 0
+    },
+    {
+     "sku": "STREET_ONE_ARENA_42",
+     "unidades": 0
+    },
+    {
+     "sku": "STREET_ONE_ARENA_43",
+     "unidades": 0
+    }
+   ],
+   "campos_ilegibles": [],
+   "legibilidad_declarada": "buena"
+  },
+  "tiempos": {
+   "modelo": "qwen3-vl:8b-instruct",
+   "segundos": 9.3,
+   "carga": 0.0,
+   "entrada": 0.8,
+   "salida": 8.4,
+   "tokens_entrada": 1610,
+   "tokens_salida": 183,
+   "tokens_por_segundo": 21.7
+  },
+  "imagen": {
+   "sha256": "9725a13ba6ec",
+   "px": "1024×819",
+   "px_original": "1500×1200"
+  },
+  "reutilizada": false
+ },
+ "comprobacion": {
+  "tipo": "recuento",
+  "veredicto": "discrepancia",
+  "recuento": {
+   "coincide": 7,
+   "no_coincide": 1,
+   "sin_dato": 0,
+   "aviso": 0
+  },
+  "comprobaciones": [
+   {
+    "campo": "STREET_ONE_NEGRO_40",
+    "en_imagen": 4,
+    "en_registro": 4,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "STREET_ONE_NEGRO_41",
+    "en_imagen": 0,
+    "en_registro": 0,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "STREET_ONE_NEGRO_42",
+    "en_imagen": 0,
+    "en_registro": 0,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "STREET_ONE_NEGRO_43",
+    "en_imagen": 4,
+    "en_registro": 4,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "STREET_ONE_ARENA_40",
+    "en_imagen": 4,
+    "en_registro": 4,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "STREET_ONE_ARENA_41",
+    "en_imagen": 0,
+    "en_registro": 0,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "STREET_ONE_ARENA_42",
+    "en_imagen": 0,
+    "en_registro": 0,
+    "resultado": "coincide",
+    "nota": "",
+    "clase": "registro"
+   },
+   {
+    "campo": "STREET_ONE_ARENA_43",
+    "en_imagen": 0,
+    "en_registro": 4,
+    "resultado": "no_coincide",
+    "nota": "La hoja y el registro no coinciden en el mismo momento.",
+    "clase": "registro"
+   }
+  ],
+  "consultas": [
+   {
+    "herramienta": "disponibilidad_en",
+    "titulo": "Stock registrado en Malasaña el 06/04/2026 10:00",
+    "sql": "SELECT sku, strftime(timezone('Europe/Madrid', inicio), '%Y-%m-%d %H:%M') AS desde, strftime(timezone('Europe/Madrid', fin), '%Y-%m-%d %H:%M') AS hasta, unidades_disponibles FROM disponibilidad WHERE local_id = ? AND inicio <= timezone('Europe/Madrid', CAST(? AS TIMESTAMP)) AND timezone('Europe/Madrid', CAST(? AS TIMESTAMP)) < fin AND sku IN (?, ?, ?, ?, ?, ?, ?, ?) ORDER BY sku",
+    "parametros": [
+     "MAD-MAL",
+     "2026-04-06 10:00:00",
+     "2026-04-06 10:00:00",
+     "STREET_ONE_NEGRO_40",
+     "STREET_ONE_NEGRO_41",
+     "STREET_ONE_NEGRO_42",
+     "STREET_ONE_NEGRO_43",
+     "STREET_ONE_ARENA_40",
+     "STREET_ONE_ARENA_41",
+     "STREET_ONE_ARENA_42",
+     "STREET_ONE_ARENA_43"
+    ],
+    "filas": [
+     {
+      "sku": "STREET_ONE_ARENA_40",
+      "desde": "2026-04-06 10:00",
+      "hasta": "2026-04-06 20:00",
+      "unidades_disponibles": 4
+     },
+     {
+      "sku": "STREET_ONE_ARENA_41",
+      "desde": "2026-04-06 10:00",
+      "hasta": "2026-04-06 16:00",
+      "unidades_disponibles": 0
+     },
+     {
+      "sku": "STREET_ONE_ARENA_42",
+      "desde": "2026-04-06 10:00",
+      "hasta": "2026-04-06 16:00",
+      "unidades_disponibles": 0
+     },
+     {
+      "sku": "STREET_ONE_ARENA_43",
+      "desde": "2026-04-06 10:00",
+      "hasta": "2026-04-06 20:00",
+      "unidades_disponibles": 4
+     },
+     {
+      "sku": "STREET_ONE_NEGRO_40",
+      "desde": "2026-04-06 10:00",
+      "hasta": "2026-04-06 20:00",
+      "unidades_disponibles": 4
+     },
+     {
+      "sku": "STREET_ONE_NEGRO_41",
+      "desde": "2026-04-06 10:00",
+      "hasta": "2026-04-06 16:00",
+      "unidades_disponibles": 0
+     },
+     {
+      "sku": "STREET_ONE_NEGRO_42",
+      "desde": "2026-04-06 10:00",
+      "hasta": "2026-04-06 16:00",
+      "unidades_disponibles": 0
+     },
+     {
+      "sku": "STREET_ONE_NEGRO_43",
+      "desde": "2026-04-06 10:00",
+      "hasta": "2026-04-06 20:00",
+      "unidades_disponibles": 4
+     }
+    ]
+   }
+  ],
+  "explicacion": [
+   "Hay 1 discrepancia(s) entre la imagen y los registros. Una discrepancia pide revisión: no indica por sí sola la causa ni un responsable.",
+   "El registro de disponibilidad no concilia todos los movimientos (ventas, ajustes, mermas): una diferencia no permite atribuir un error a una persona.",
+   "STREET_ONE_ARENA_43: La hoja y el registro no coinciden en el mismo momento."
+  ]
+ }
+}
