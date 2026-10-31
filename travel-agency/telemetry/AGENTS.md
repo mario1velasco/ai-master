@@ -59,7 +59,8 @@ Una línea por span en `<log_dir>/<componente>/events-AAAA-MM-DD.jsonl` (día de
 
 `metrics_type` dice con qué clase releer `metrics` (`extra="forbid"` no deja leer una `LlmCallMetrics` como
 `BaseMetrics`). **Cada clase nueva de métricas de `contracts` se añade a `METRICS_TYPES` en `event.py`**; si no,
-el span escribe bien pero `read_events` falla al releerlo.
+el span escribe bien pero `read_events` falla al releerlo. `test_every_metrics_class_in_contracts_is_registered`
+falla si una clase exportada por `contracts.metrics` no está registrada.
 
 ## Ejecutar y testear
 

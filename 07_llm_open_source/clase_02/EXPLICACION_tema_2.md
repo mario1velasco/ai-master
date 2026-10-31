@@ -1469,8 +1469,9 @@ python practica/sesion_2/15_analista.py --llm qwen3:4b-instruct -q "¿La rotura 
 ## 18. ¿Qué sigue?
 
 Las diapositivas cierran con «*Datos, voz y documentos, en local y con fuentes: el analista de DropLab,
-completo*». En la sesión 1 se anunció que en la sesión 3 llegarían **tickets e imágenes**; el material ya está en
-[`clase_03/`](../clase_03/), pero lo veremos con su propia guía.
+completo*». En la sesión 3 llegan los **tickets, las imágenes y los PDF escaneados**, y todo se une en un asistente
+con API e interfaz web: [guía de la sesión 3](../clase_03/EXPLICACION_tema_3.md). Esa sesión empieza terminando el
+bloque III de esta y da la clave del test.
 
 ### Preguntas para repasar
 

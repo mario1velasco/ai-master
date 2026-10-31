@@ -4,8 +4,9 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+import contracts.metrics
 from contracts.metrics import BaseMetrics
-from telemetry import Event, events_path, read_events, write_event
+from telemetry import METRICS_TYPES, Event, events_path, read_events, write_event
 
 STARTED_AT = datetime(2026, 10, 31, 12, 0, 0, tzinfo=UTC)
 
@@ -58,7 +59,7 @@ def test_events_path_uses_component_and_day(log_dir: Path) -> None:
 
 def test_event_rejects_unknown_metrics_type() -> None:
     data = Event.from_metrics(_metrics(), environment="test").model_dump(mode="json")
-    data["metrics_type"] = "SqlMetrics"
+    data["metrics_type"] = "NoExisteMetrics"
 
     with pytest.raises(ValidationError, match="metrics_type desconocido"):
         Event.model_validate(data)
@@ -73,3 +74,64 @@ def test_every_event_field_has_description() -> None:
     properties = Event.model_json_schema()["properties"]
     missing = [name for name, prop in properties.items() if not prop.get("description")]
     assert missing == []
+
+
+# Campos propios mínimos de cada clase de métricas, encima de los de BaseMetrics.
+_EXTRA_FIELDS: dict[str, dict[str, object]] = {
+    "BaseMetrics": {},
+    "LlmCallMetrics": {
+        "provider": "ollama",
+        "model": "qwen3:4b-instruct",
+        "purpose": "generate_sql",
+        "temperature": 0.0,
+        "max_tokens": 700,
+        "input_tokens": 600,
+        "output_tokens": 42,
+        "finish_reason": "stop",
+    },
+    "SqlMetrics": {"sql_valid": True, "sql_chars": 84},
+    "RagMetrics": {
+        "search_ms": 35.0,
+        "candidate_count": 0,
+        "passages_returned": 0,
+        "distinct_docs": 0,
+        "context_chars": 0,
+    },
+    "AgentMetrics": {
+        "iterations": 1,
+        "llm_call_count": 1,
+        "tool_call_count": 0,
+        "input_tokens": 10,
+        "output_tokens": 5,
+        "llm_ms": 1.0,
+        "tools_ms": 0.0,
+    },
+    "ApiMetrics": {
+        "endpoint": "/health",
+        "http_method": "GET",
+        "status_code": 200,
+        "request_bytes": 0,
+        "response_bytes": 120,
+    },
+}
+
+
+def test_every_metrics_class_in_contracts_is_registered() -> None:
+    exported = {
+        name
+        for name in contracts.metrics.__all__
+        if isinstance(cls := getattr(contracts.metrics, name), type) and issubclass(cls, BaseMetrics)
+    }
+    assert exported == set(METRICS_TYPES), "añade la clase nueva a METRICS_TYPES en telemetry/event.py"
+
+
+@pytest.mark.parametrize("metrics_type", sorted(METRICS_TYPES))
+def test_every_metrics_type_roundtrips(metrics_type: str) -> None:
+    base = _metrics().model_dump()
+    metrics = METRICS_TYPES[metrics_type].model_validate(base | _EXTRA_FIELDS[metrics_type])
+
+    path = write_event(Event.from_metrics(metrics, environment="test"))
+
+    [event] = read_events(path)
+    assert type(event.metrics) is METRICS_TYPES[metrics_type]
+    assert event.metrics == metrics

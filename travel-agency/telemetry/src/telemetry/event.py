@@ -7,12 +7,14 @@ from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, Field, SerializeAsAny, model_validator
 
-from contracts.metrics import BaseMetrics, LlmCallMetrics
+from contracts.metrics import AgentMetrics, ApiMetrics, BaseMetrics, LlmCallMetrics, RagMetrics, SqlMetrics
 
 EVENT_SCHEMA_VERSION = "event_v1"
 
 # Clases de métricas que se saben releer. Cada clase nueva de contracts se añade aquí.
-METRICS_TYPES: dict[str, type[BaseMetrics]] = {cls.__name__: cls for cls in (BaseMetrics, LlmCallMetrics)}
+METRICS_TYPES: dict[str, type[BaseMetrics]] = {
+    cls.__name__: cls for cls in (BaseMetrics, LlmCallMetrics, SqlMetrics, RagMetrics, AgentMetrics, ApiMetrics)
+}
 
 
 @cache

@@ -219,6 +219,14 @@ Un `diccionario.md` describe cada vista y columna (tipo, unidades, ejemplos, val
 **contexto que recibe el LLM text-to-SQL** y la base para generar el dataset de evaluación (y de fine-tuning, si
 llega a hacer falta; sección 6).
 
+**No se escribe a mano: se genera** (decidido el 2026-10-31). Cada vista y cada columna llevan su `COMMENT ON` en
+`database/schema/`, y el diccionario (y el esquema que ve el LLM) sale de `duckdb_views()` / `duckdb_columns()`.
+Así hay una sola fuente de verdad y la vista y su descripción no se desincronizan. Se añade una **guía** escrita
+(qué vista usar para cada tipo de pregunta, cálculos que se hacen dentro del SQL y **datos que NO existen**) y unas
+**comprobaciones** con cifras calculadas a mano, que son la base de los tests de integridad. Referencia:
+`07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py` (`VISTAS`, `COMENTARIOS`,
+`GUIA`, `esquema()`, `COMPROBACIONES`); con esa capa semántica el 30B pasó del 58 % al 91 % (el 4B, al 67 %).
+
 ---
 
 ## 4. Corpus documental
@@ -427,6 +435,11 @@ En los tests se usa un **mock determinista** como en triage.
 ⚠️ **Para la fase 5:** la API compatible con OpenAI (`/v1`) solo devuelve el uso de tokens. Los tiempos internos
 de Ollama que guarda `OllamaTimings` (`load_duration`, `prompt_eval_duration`, `eval_duration`…) **solo los da la
 API nativa** (`/api/chat`). El cliente LLM tendrá que usar la nativa, o perderemos esas métricas.
+
+⚠️ **Un único `num_ctx` (y `keep_alive`) para Qwen3-4B en todo el proyecto.** `agent/` y `text2sql/` usan el mismo
+modelo: si piden ventanas de contexto distintas, Ollama **recarga el modelo** en cada pregunta mixta (~25 s por
+pregunta, medido en el tema 7, sesión 3). El valor vive en un solo sitio de configuración y lo leen los dos paquetes.
+Referencia: `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_3/asistente/config.py` (`CTX_TEXTO`).
 
 ---
 
@@ -686,19 +699,20 @@ tokens, coste y versiones) y se amplía a **cada componente y cada paso**.
 devuelve también cuánto tardó y cuánto consumió.
 
 Los **nombres de campo van en inglés**, como en la clase 4 (`latency_ms`, `input_tokens`), con descripciones en
-español. `BaseMetrics` y `LlmCallMetrics` ya están implementados (fase 1a; detalle en `contracts/AGENTS.md`).
-El resto de filas se pasará a inglés al implementarlas. Los valores marcados ✚ se añadieron al implementar,
+español. Implementadas en la fase 1: `BaseMetrics`, `LlmCallMetrics`, `SqlMetrics`, `RagMetrics`, `AgentMetrics` y
+`ApiMetrics` (detalle en `contracts/AGENTS.md`). `ConversionMetrics` y `SystemMetrics` se crean en su fase (4 y 7);
+sus filas se pasarán a inglés al implementarlas. Los valores marcados ✚ se añadieron al implementar,
 para medir más.
 
 | Contrato | Métricas que incluye |
 |---|---|
 | `BaseMetrics` (todas) | `metrics_schema_version` ✚, `trace_id`, `span_id`, `parent_span_id`, `component`, `name` ✚ (nombre del span), `started_at`, `ended_at`, `latency_ms`, `status` (ok / error / rejected), `error_type`, `error_message`, `input_chars`, `output_chars`, `input_hash` ✚, `versions` (prompt, schema, rules, dataset ✚, corpus ✚, index ✚, adapter_hash ✚, package ✚), `attributes` ✚ (métricas libres, como los span attributes de MLflow) |
 | `LlmCallMetrics` (cada llamada a un LLM) | `provider` (ollama / mock), `model`, `model_digest` ✚, `parameter_size` ✚, `quantization`, `purpose` ✚ (route_tool / generate_sql / answer / summarize / judge), `temperature`, `max_tokens`, `top_p` ✚, `seed` ✚, `num_ctx` ✚, `message_count` ✚, `system_prompt_chars` ✚, salida estructurada ✚ (`structured_output`, `output_schema`, `output_valid`, `validation_errors`), `tools_offered` ✚, `tool_calls` ✚, `thinking_enabled` ✚, `thinking_tokens` ✚, `input_tokens`, `output_tokens`, `total_tokens`, `context_usage_pct` ✚, `time_to_first_token_ms`, `tokens_per_second`, `finish_reason` (stop / length / tool_call), `truncated` ✚, `retries`, `cost` (`CostEstimate`) y `ollama` (`OllamaTimings`: `load_duration`, `prompt_eval_count`, `prompt_eval_duration`, `eval_count`, `eval_duration`, `total_duration` en ns, más sus derivados en ms, tokens/s y `cold_start` ✚) |
-| `SqlMetrics` (text2sql) | `generacion_ms`, `validacion_ms`, `ejecucion_ms`, `sql_valido`, `motivo_rechazo`, `vistas_usadas`, `chars_sql`, `filas_devueltas`, `columnas`, `limite_aplicado`, `timeout` |
-| `RagMetrics` (rag) | `busqueda_ms`, `rerank_ms`, `n_candidatos`, `n_pasajes_devueltos`, `scores` (máx / mín / media), `docs_distintos`, `chars_contexto`, `tokens_contexto`, `abstencion` |
+| `SqlMetrics` (text2sql) | `generation_ms`, `validation_ms`, `execution_ms`, `sql_valid`, `rejection_reason`, `views_used`, `sql_chars`, `rows_returned`, `column_count`, `limit_applied`, `timed_out` |
+| `RagMetrics` (rag) | `search_ms`, `rerank_ms`, `candidate_count`, `passages_returned`, `scores` (`ScoreStats`: max / min / mean), `distinct_docs`, `context_chars`, `context_tokens`, `abstained` |
 | `ConversionMetrics` (rag/conversion) | `archivo`, `formato`, `metodo` (copia / texto / PaddleOCR), `paginas`, `duracion_ms`, `ms_por_pagina`, `chars_salida`, `tablas_detectadas`, `paginas_vacias` |
-| `AgentMetrics` (agent) | `iteraciones`, `llamadas_llm`, `llamadas_herramientas`, `herramientas_usadas`, suma de tokens y tiempos de todos los pasos, `tiempo_llm_ms` vs `tiempo_herramientas_ms`, `abstencion`, lista de `pasos` (cada uno con sus métricas) |
-| `ApiMetrics` (api) | `request_id`, `session_id`, `endpoint`, `metodo_http`, `status_code`, `duracion_total_ms`, `tamano_peticion`, `tamano_respuesta`, `turno_en_sesion`, `resumen_aplicado` |
+| `AgentMetrics` (agent) | `iterations`, `llm_call_count`, `tool_call_count`, `tools_used`, `input_tokens`, `output_tokens`, `total_tokens`, `llm_ms` vs `tools_ms`, `abstained`. Sin lista de pasos: cada paso es su propio span hijo |
+| `ApiMetrics` (api) | `session_id`, `endpoint`, `http_method`, `status_code`, `request_bytes`, `response_bytes`, `session_turn`, `summary_applied`. La duración total es `latency_ms` y el id de la petición es `trace_id` |
 | `SystemMetrics` (opcional, por petición) | CPU %, RAM usada, VRAM usada y GPU % (si hay GPU), modelos cargados en Ollama |
 
 Coste: los modelos son locales (0 €), pero se guarda un **coste estimado equivalente** configurable

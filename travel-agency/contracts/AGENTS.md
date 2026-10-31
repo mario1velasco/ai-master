@@ -1,7 +1,7 @@
 # AGENTS.md — `contracts/`
 
-> Estado: **fase 1a**. Hechas las métricas comunes (`BaseMetrics`) y las de una llamada a un LLM (`LlmCallMetrics`).
-> Faltan las de SQL, RAG, agente, API y conversión, y los resultados (`SqlResult`, `RagHit`, `AgentAnswer`…).
+> Estado: **fase 1c**. Hechas las métricas `BaseMetrics`, `LlmCallMetrics`, `SqlMetrics`, `RagMetrics`,
+> `AgentMetrics` y `ApiMetrics`. Lo que falta se crea en la fase de su paquete: ver **Pendiente** al final.
 
 ## Propósito
 
@@ -15,6 +15,10 @@ src/contracts/metrics/
 ├── __init__.py      # reexporta todo lo público
 ├── enums.py         # Status, Component
 ├── base.py          # BaseMetrics, Versions, METRICS_SCHEMA_VERSION, short_hash, check_or_fill
+├── sql.py           # SqlMetrics (span text2sql.consultar)
+├── rag.py           # RagMetrics, ScoreStats (span rag.search)
+├── agent.py         # AgentMetrics (span agent.responder; solo totales)
+├── api.py           # ApiMetrics (span raíz de cada petición)
 └── llm/
     ├── enums.py     # LlmProvider, LlmPurpose, FinishReason
     ├── ollama.py    # OllamaTimings (tiempos en ns de la API nativa de Ollama + derivados)
@@ -26,7 +30,8 @@ src/contracts/metrics/
 
 ```python
 from contracts.metrics import (
-    BaseMetrics, LlmCallMetrics, OllamaTimings, CostRate, CostEstimate, Versions,
+    BaseMetrics, LlmCallMetrics, SqlMetrics, RagMetrics, ScoreStats, AgentMetrics, ApiMetrics,
+    OllamaTimings, CostRate, CostEstimate, Versions,
     Status, Component, LlmProvider, LlmPurpose, FinishReason, METRICS_SCHEMA_VERSION, short_hash,
 )
 ```
@@ -34,6 +39,7 @@ from contracts.metrics import (
 - `OllamaTimings.from_ollama_response(data)`: lee los tiempos del JSON de `/api/chat` e ignora el resto.
 - `CostEstimate.from_tokens(input_tokens, output_tokens, rate)`: coste equivalente frente a una tarifa de referencia.
 - `short_hash(text)`: sha256 de 16 caracteres para `input_hash`.
+- `ScoreStats.from_scores(scores)`: máximo, mínimo y media de los scores; `None` si no hay pasajes.
 
 ## Ejecutar y testear
 
@@ -68,3 +74,26 @@ Sin variables de entorno.
   es como llegan los datos al releer un JSONL.
 - Los tiempos de `OllamaTimings` solo los da la API **nativa** de Ollama (`/api/chat`), no la compatible con
   OpenAI (`/v1`).
+- **Clase de métricas nueva → regístrala en `METRICS_TYPES` de `telemetry/src/telemetry/event.py`.** Si no, se
+  escribe pero no se puede releer. Un test de telemetry falla si se te olvida.
+- Las métricas de un paso padre llevan **solo totales**: el detalle de cada paso hijo está en su propio span
+  (`parent_span_id`). Por eso `AgentMetrics` no tiene lista de pasos y `ApiMetrics` no repite `latency_ms`
+  (duración total) ni un `request_id` (es el `trace_id`).
+- `ApiMetrics.http_method` usa `http.HTTPMethod` de la librería estándar, no un enum propio.
+- Reglas entre campos: SQL rechazado ⇒ `rejection_reason` y nunca `execution_ms` ni `rows_returned`;
+  RAG con pasajes ⇔ `scores`; `tools_used` sin repetidos y `tool_call_count` ≥ su longitud.
+- `ruff format` también formatea los bloques de código de los `.md`: pásalo solo a `src/` y `tests/`.
+
+## Pendiente (no olvidar)
+
+Se decidió el 2026-10-31 no diseñarlos antes de tiempo: dependen de decisiones de su fase. Cada uno se crea
+**en la fase indicada**, con su campo de métricas, y se tacha de aquí (y de la sección "Contratos pendientes"
+del `AGENTS.md` raíz).
+
+| Qué | Fase | Depende de |
+|---|---|---|
+| `ConversionMetrics` (archivo, formato, método, páginas, ms/página, tablas, páginas vacías) | 4 | Herramienta de conversión: referencia en el tema 7, sesión 3 (fila 4 del `AGENTS.md` raíz); decidir con Mario |
+| `SqlResult` (SQL, columnas, filas + `metrics: SqlMetrics`) | 5 | Qué devuelve el validador y cómo viajan las filas |
+| `AgentAnswer` (respuesta, fuentes, herramientas, abstención + `metrics: AgentMetrics`) | 6 | Forma de las fuentes (sección 7 de `PROYECTO.md`) |
+| `SystemMetrics` (CPU, RAM, VRAM, GPU, modelos cargados), opcional | 7 | Si compensa medirlo por petición |
+| `RagHit` / `RagResult` (pasaje, documento, página, score + `metrics: RagMetrics`) | 8 | Chunking (decisión pendiente 1) |
