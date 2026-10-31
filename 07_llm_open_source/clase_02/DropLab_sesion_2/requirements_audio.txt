@@ -1,0 +1,5 @@
+# Whisper, para el ejercicio 2 (transcribir la llamada). Se instala ENCIMA de requirements.txt.
+# 1) Antes, PyTorch para vuestro sistema: https://pytorch.org/get-started/locally/
+#    Sin GPU NVIDIA, elegid la versión CPU (pesa mucho menos).
+# 2) Después: pip install -r requirements_audio.txt
+openai-whisper

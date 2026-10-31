@@ -1,0 +1,94 @@
+[
+  {
+    "id": "T01",
+    "tipo": "líneas (no pedidos)",
+    "pregunta": "¿Cuántas líneas de venta tuvo Goya en el periodo B?",
+    "esperado": {
+      "lineas": 240
+    }
+  },
+  {
+    "id": "T02",
+    "tipo": "porcentaje por categoría",
+    "pregunta": "¿Qué porcentaje de las unidades vendidas por Malasaña en el periodo A fueron zapatillas?",
+    "esperado": {
+      "pct": 83.73
+    },
+    "nota": "391/467"
+  },
+  {
+    "id": "T03",
+    "tipo": "precio realizado por unidad",
+    "pregunta": "¿Cuál fue el precio realizado por unidad (ventas antes de reembolsos entre unidades) de Eixample en el periodo B?",
+    "esperado": {
+      "precio": 88.14
+    },
+    "nota": "25999.999999999985/295"
+  },
+  {
+    "id": "T04",
+    "tipo": "abonos por motivo y tienda",
+    "pregunta": "¿Cuánto se abonó en total por el motivo «talla» en Malasaña en el periodo B?",
+    "esperado": {
+      "importe": 839.32
+    },
+    "nota": "6 abonos"
+  },
+  {
+    "id": "T05",
+    "tipo": "ranking de colores de un modelo",
+    "pregunta": "¿Qué color de Cloud Step vendió más unidades en todo DropLab en el periodo A, y cuántas?",
+    "esperado": {
+      "unidades": 100
+    },
+    "texto_esperado": {
+      "color": [
+        "hueso"
+      ]
+    },
+    "nota": "[('hueso', 100), ('azul', 98)]"
+  },
+  {
+    "id": "T06",
+    "tipo": "variación porcentual del neto",
+    "pregunta": "¿Cuál fue la variación porcentual de las ventas netas de Eixample del periodo A al B?",
+    "esperado": {
+      "pct": 4.17
+    },
+    "nota": "24000.0 → 25000.0"
+  },
+  {
+    "id": "T07",
+    "tipo": "pedidos de exactamente dos unidades",
+    "pregunta": "¿Cuántos pedidos de exactamente dos unidades hubo en Goya en el periodo B?",
+    "esperado": {
+      "pedidos": 63
+    }
+  },
+  {
+    "id": "T08",
+    "tipo": "imposible (no hay visitas)",
+    "pregunta": "¿Cuántas visitas recibió la tienda de Goya en abril?",
+    "esperado": {},
+    "debe_negar": true
+  },
+  {
+    "id": "T09",
+    "tipo": "máximo por pedido y empates",
+    "pregunta": "¿Cuál fue el importe del pedido más caro de Malasaña en el periodo B (antes de reembolsos) y cuántos pedidos alcanzaron ese mismo importe?",
+    "esperado": {
+      "importe": 433.0,
+      "pedidos": 3
+    },
+    "nota": "[('B-MAD-MAL-ORD-0049', 433.0), ('B-MAD-MAL-ORD-0025', 433.0), ('B-MAD-MAL-ORD-0056', 433.0)]"
+  },
+  {
+    "id": "T10",
+    "tipo": "ventas de una categoría en dos periodos",
+    "pregunta": "¿Cuánto vendió Eixample en sudaderas (antes de reembolsos) en el periodo A y en el periodo B?",
+    "esperado": {
+      "A": 1397.62,
+      "B": 1419.11
+    }
+  }
+]
