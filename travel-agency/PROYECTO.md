@@ -55,6 +55,9 @@ Se usa desde un **backend FastAPI** con el mismo esqueleto que `llm-customer-sup
 - **Sin evidencia, abstención** (tema 5): toda afirmación normativa va citada.
 - **Los datos son datos, no instrucciones**: protección frente a inyección de prompt en documentos y mensajes.
 - **Todo local y open source**: sin APIs de pago; modelos con licencias abiertas.
+- **Se implementa igual que en clase**: cada pieza ejecuta el mismo código que el del máster que la cubre; nombres,
+  archivos y organización pueden cambiar. Código en inglés (archivos, funciones, variables); comentarios y
+  documentación en castellano. No se inventan implementaciones; los desvíos obligados se apuntan en `AGENTS.md`.
 
 ### Qué NO hace (alcance)
 
@@ -101,7 +104,7 @@ y `tests/`. Se ejecuta, se prueba y se evalúa por separado.
 |---|---|---|---|
 | `contracts/` | Esquemas Pydantic compartidos (`SqlResult`, `RagHit`, `AgentAnswer`…), **todos con métricas** (sección 8) | — | nada |
 | `telemetry/` | Logger, escritor JSONL, cronómetros, IDs de traza; futuro exportador a MLflow (sección 8) | — | `contracts` |
-| `database/` | CSV propios, vistas DuckDB de solo lectura, diccionario de datos | — | nada |
+| `database/` | CSV propios y capa semántica: vistas DuckDB con comentarios, esquema generado, guía | — | nada |
 | `rag/` | Corpus documental, conversión a Markdown (PaddleOCR) y búsqueda híbrida (sección 4) | — (embeddings y reranker) | `contracts` |
 | `text2sql/` | Traducir pregunta → SQL y ejecutarlo de forma segura | **Qwen3-4B** (el mismo del agente) | `contracts`, `database` |
 | `agent/` | Decidir dónde buscar, combinar y redactar | **LLM del agente** | `contracts`, `rag`, `text2sql` |
@@ -119,9 +122,8 @@ travel-agency/
 ├── telemetry/              ← logs, métricas y trazas compartidos
 ├── database/
 │   ├── data/               ← *.csv creados por nosotros
-│   ├── schema/             ← vistas DuckDB
 │   ├── seed/               ← generar.py (Faker, semilla fija)
-│   └── docs/               ← diccionario de datos
+│   └── src/database/semantic_layer.py ← vistas + comentarios + guía + comprobaciones (como en clase)
 ├── rag/
 │   ├── corpus/             ← originales: leyes/ · seguridad/ · salud/ · empresa/ · general/ + SOURCES.md
 │   ├── conversion/         ← scripts PDF/imagen → Markdown con PaddleOCR (solo cuando haga falta)
@@ -170,8 +172,9 @@ Igual que en el resto del repo `ebis`, se usa `AGENTS.md` como fuente única de 
 
 - Los datos son **CSV escritos por nosotros** en `database/data/`. Así conocemos cada columna, controlamos
   los casos difíciles y la licencia es nuestra (Apache 2.0). Los clientes son **sintéticos**.
-- **DuckDB** lee los CSV directamente (sin servidor, un solo fichero `.duckdb` regenerable) y sobre ellos
-  se definen **vistas de solo lectura**. El LLM text-to-SQL **solo ve las vistas**, nunca las tablas.
+- **DuckDB** lee los CSV directamente (sin servidor) y sobre ellos se definen **vistas**. Como en clase
+  (`abrir()` de `02_capa_semantica.py`, aquí `open_db()`), la base se construye **en memoria** cada vez que se abre: no hay fichero
+  `.duckdb` ni `DUCKDB_PATH`. El LLM text-to-SQL **solo ve las vistas** (las tablas quedan en el esquema `crudo`).
 - Proceso: primero unas pocas filas **a mano** para fijar el esquema → después `seed/generar.py`
   (Faker, **semilla fija**, reproducible) amplía a cientos de filas.
 - Inspiración para el esquema (no se copian datos): [Postgres Pro demo "Airlines"](https://postgrespro.com/education/demodb) (MIT)
@@ -182,23 +185,23 @@ Igual que en el resto del repo `ebis`, se usa `AGENTS.md` como fuente única de 
 | CSV | Columnas principales | Notas |
 |---|---|---|
 | `aerolineas.csv` | `aerolinea_id` (IATA, `IB`), `nombre`, `pais` | Pocas filas, a mano |
-| `aeropuertos.csv` | `aeropuerto_id` (IATA, `MAD`), `nombre`, `ciudad`, `pais`, `latitud`, `longitud`, `es_ue` | Coordenadas para calcular distancias (Reglamento 261/2004) |
+| `aeropuertos.csv` | `aeropuerto_id` (IATA, `MAD`), `nombre`, `ciudad`, `pais`, `latitud`, `longitud`, `es_ue`, `zona_horaria` | Datos reales. Coordenadas para calcular distancias (Reglamento 261/2004); zona IANA para la hora local |
 | `clientes.csv` | `cliente_id`, `nombre`, `apellidos`, `email`, `pais`, `fecha_alta`, `nivel_fidelidad` | Sintéticos (Faker `es_ES`) |
-| `vuelos.csv` | `vuelo_id`, `codigo_vuelo` (`IB3166`), `aerolinea_id`, `origen`, `destino`, `salida_prevista`, `llegada_prevista`, `salida_real`, `llegada_real`, `estado` | `estado`: programado, en hora, retrasado, cancelado, desviado |
+| `vuelos.csv` | `vuelo_id`, `codigo_vuelo` (`IB3166`), `aerolinea_id`, `origen`, `destino`, `salida_prevista`, `llegada_prevista`, `salida_real`, `llegada_real`, `estado` | Horas en ISO 8601 con desfase (`2026-07-01T10:05:00+02:00`): hora local y UTC a la vez. `estado`: programado, en_hora, retrasado, cancelado |
 | `reservas.csv` | `reserva_id` (`R-1042`), `cliente_id`, `fecha_reserva`, `estado`, `tipo` (solo vuelo / paquete), `importe_total`, `moneda` | Una reserva puede tener varios tramos |
-| `reservas_tramos.csv` | `reserva_id`, `orden`, `vuelo_id`, `clase`, `asiento`, `equipaje_facturado` | Tabla puente reserva ↔ vuelo (ida/vuelta, escalas) |
+| `reservas_tramos.csv` | `reserva_id`, `orden`, `trayecto` (ida / vuelta), `vuelo_id`, `clase`, `asiento`, `equipaje_facturado` | Tabla puente reserva ↔ vuelo. `trayecto` separa la ida de la vuelta: sin él, el "destino final" de un ida y vuelta sería el origen |
 | `pagos.csv` | `pago_id`, `reserva_id`, `fecha`, `importe`, `tipo` (cargo / reembolso), `metodo` | Los reembolsos son importes **negativos** |
 | `incidencias.csv` | `incidencia_id`, `reserva_id`, `vuelo_id`, `tipo` (retraso, cancelación, equipaje), `fecha`, `estado`, `compensacion` | Une la BBDD con la normativa del RAG |
 
-### Vistas para el LLM (`database/schema/`)
+### Vistas para el LLM (`VIEWS` en `semantic_layer.py`)
 
 | Vista | Para qué |
 |---|---|
 | `v_reservas_cliente` | Reservas con nombre del cliente, estado e importe neto (cargos − reembolsos) |
 | `v_vuelos_detalle` | Vuelo con aerolínea, ciudades, **minutos de retraso** y **distancia en km** ya calculados |
-| `v_itinerarios` | Cada reserva con sus tramos en orden (origen inicial → destino final) |
-| `v_incidencias` | Incidencias con datos del vuelo y del cliente |
-| `v_resumen_clientes` | Agregados por cliente: nº reservas, canceladas, gasto neto |
+| `v_itinerarios` | Una fila por reserva y trayecto: origen inicial → destino final, escalas, retraso en destino final y distancia del viaje |
+| `v_incidencias` | Incidencias con el cliente, el vuelo y el retraso y la distancia **del viaje** (no del vuelo suelto) |
+| `v_resumen_clientes` | Agregados por cliente (también sin reservas): nº reservas, canceladas, gasto neto, incidencias |
 
 Los cálculos delicados (retraso, distancia, importe neto) se hacen **en la vista**, no en el LLM:
 *el código calcula, el modelo redacta*.
@@ -209,23 +212,27 @@ Los cálculos delicados (retraso, distancia, importe neto) se hacen **en la vist
 - **Importe bruto vs neto**: sumar `pagos` sin restar reembolsos infla la facturación.
 - **Retraso a la llegada, no a la salida**: el Reglamento 261/2004 mide el retraso **en destino final**.
 - **Vuelos con escala**: la distancia que cuenta es origen → destino final, no la suma de tramos.
-- **Zonas horarias**: horas en hora local de cada aeropuerto (se guarda también en UTC).
+- **Zonas horarias**: horas en hora local de cada aeropuerto (el CSV guarda el desfase, así que también el UTC).
 - **Nombres repetidos**: dos clientes "Ana López" → hay que distinguir por `cliente_id`.
 - **Datos ausentes**: vuelos futuros sin `salida_real` (NULL ≠ 0 minutos de retraso).
 
-### Diccionario de datos (`database/docs/`)
+### Diccionario de datos: el esquema generado
 
-Un `diccionario.md` describe cada vista y columna (tipo, unidades, ejemplos, valores posibles). Es el
-**contexto que recibe el LLM text-to-SQL** y la base para generar el dataset de evaluación (y de fine-tuning, si
-llega a hacer falta; sección 6).
+El diccionario es el **contexto que recibe el LLM text-to-SQL** y la base para generar el dataset de evaluación
+(y de fine-tuning, si llega a hacer falta; sección 6).
 
-**No se escribe a mano: se genera** (decidido el 2026-10-31). Cada vista y cada columna llevan su `COMMENT ON` en
-`database/schema/`, y el diccionario (y el esquema que ve el LLM) sale de `duckdb_views()` / `duckdb_columns()`.
-Así hay una sola fuente de verdad y la vista y su descripción no se desincronizan. Se añade una **guía** escrita
-(qué vista usar para cada tipo de pregunta, cálculos que se hacen dentro del SQL y **datos que NO existen**) y unas
-**comprobaciones** con cifras calculadas a mano, que son la base de los tests de integridad. Referencia:
-`07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py` (`VISTAS`, `COMENTARIOS`,
-`GUIA`, `esquema()`, `COMPROBACIONES`); con esa capa semántica el 30B pasó del 58 % al 91 % (el 4B, al 67 %).
+**No se escribe a mano: lo genera `schema()`**, como en clase (decidido el 2026-10-31). Todo vive en
+`database/src/database/semantic_layer.py`, igual que en
+`07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py`:
+
+- `VIEWS`: el SQL de las vistas, en una cadena que se parte por `;`.
+- `COMMENTS`: diccionario `{vista: (descripción, {columna: comentario})}` que `open_db()` convierte en `COMMENT ON`.
+- `schema()`: lee `duckdb_views()` / `duckdb_columns()` y escribe cada vista con sus columnas, tipos, valores o un
+  ejemplo, y sus comentarios. Una sola fuente de verdad: la vista y su descripción no se desincronizan.
+- `GUIDE`: qué vista usar para cada pregunta, métricas, cálculos dentro del SQL y **datos que NO existen**.
+- `CHECKS` + `run_checks()`: cifras calculadas a mano que las vistas tienen que dar (base de los tests).
+
+Con esa capa semántica, en clase el 30B pasó del 58 % al 91 % (el 4B, al 67 %). No hay `diccionario.md`.
 
 ---
 
@@ -868,7 +875,7 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 |---|---|---|---|
 | **0. Esqueleto** | Estructura del monorepo | uv workspace, carpetas, `AGENTS.md` raíz y por carpeta, `README.md`, `.gitignore`, `.env.example` | `uv sync` sin errores; cada paquete importa |
 | **1. Contratos y telemetría** | Base común | `contracts/` (incl. `metrics.py`) y `telemetry/` (logger, `span`, JSONL) | Tests: un `span` de prueba escribe un evento válido |
-| **2. Base de datos** | Datos consultables | CSV a mano → `seed/generar.py` → vistas DuckDB → `diccionario.md` | Tests de integridad (claves, importes netos, retrasos); consultas de ejemplo |
+| **2. Base de datos** | Datos consultables | CSV a mano → capa semántica (vistas + comentarios + `schema()` + guía) → `seed/generar.py` | Tests de integridad (claves, importes netos, retrasos); consultas de ejemplo |
 | **3. Corpus** | Material reunido | Descargas en `rag/corpus/` + `SOURCES.md`; documentos de `empresa/` redactados | Cada documento con fuente y licencia; ninguno de uso privado en git |
 | **4. Conversión a Markdown** | Corpus homogéneo | `rag/conversion/` con PaddleOCR → `rag/markdown/` | Revisión de una muestra; eventos `ConversionMetrics` |
 | **5. Text-to-SQL (línea base)** | SQL sin entrenar | Validador SQL + `text2sql.consultar()` con Qwen3-4B + prompt con diccionario (escalones 1–3 de la sección 6) | Eval sobre las ~50 preguntas a mano; validador bloquea todo lo prohibido |

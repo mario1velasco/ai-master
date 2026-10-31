@@ -27,7 +27,7 @@ uv sync
 uv run pytest api/tests
 ```
 
-Variables en `.env` (copiar de `.env.example`): `OLLAMA_BASE_URL`, `AGENT_MODEL`, `TEXT2SQL_MODEL`, `DUCKDB_PATH`.
+Variables en `.env` (copiar de `.env.example`): `OLLAMA_BASE_URL`, `AGENT_MODEL`, `TEXT2SQL_MODEL`.
 
 ## Decisiones y trampas
 

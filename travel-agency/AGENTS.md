@@ -5,12 +5,16 @@ datos (DuckDB, vía text-to-SQL) o en la documentación (RAG). Todo open source 
 expuesto con FastAPI. El diseño completo está en [`PROYECTO.md`](PROYECTO.md); léelo antes de decidir algo de
 arquitectura.
 
-> Estado: **fase 1 terminada** (contratos de métricas + `telemetry/`). Siguiente: fase 2, base de datos (sección 10 de `PROYECTO.md`). Antes de cada fase, mira **Contratos pendientes** más abajo.
+> Estado: **fase 2a terminada** (8 CSV a mano + capa semántica en `database/`). Siguiente: 2b, `seed/generar.py` (sección 10 de `PROYECTO.md`). Antes de cada fase, mira **Contratos pendientes** más abajo.
 
 ## Hoja de ruta y dónde mirar en el repo
 
-**IMPORTANTE: no te inventes nada.** Antes de planear una fase o subfase, lee las referencias de su fila y copia su
-patrón, sus clases y su forma de trabajar. Si una fase no tiene referencia en el repo, dilo y pregunta a Mario antes
+**IMPORTANTE: no te inventes nada. Se implementa igual que en clase.** Antes de planear una fase o subfase, lee
+**enteras** las referencias de su fila: el código que se ejecuta tiene que ser el mismo. Nombres, archivos y
+organización pueden cambiar. **Código en inglés** (archivos, funciones, variables, constantes, opciones), **comentarios
+y documentación en castellano**. No inventes otra implementación aunque te parezca mejor.
+Solo se cambia lo que obligan las reglas del proyecto (uv workspace, tipos, ruff/ty, tests) o lo que la referencia no
+cubre, y se dice como **desvío** en la propuesta. Si una fase no tiene referencia en el repo, dilo y pregunta a Mario antes
 de proponer nada. Al terminar una subfase, actualiza esta tabla: estado, en qué te fijaste y qué se desvió del patrón.
 
 Rutas relativas a la raíz del repo `ebis/`. Fases y entregables: sección 10 de `PROYECTO.md`.
@@ -21,7 +25,7 @@ Rutas relativas a la raíz del repo `ebis/`. Fases y entregables: sección 10 de
 | **1a. Métricas** `contracts/metrics` | ✅ | **Tema 4**: `04_api_sdks_ia/Clases/02/schemas.py`, `Clases/03/llm_client.py`, `Clases/06/app/{dto.py, api_clients/anthropic_client.py, utils/observability.py}`, `Clases/06/config.yml` | `ConfigDict(extra="forbid")`, `Field(description=…)`, enums de texto, submodelos anidados (`RequestMetrics`), `estimate_cost`, versiones de prompt/esquema/reglas. Desvíos: `StrEnum` (lo pide ruff) y derivados como campos normales, no `computed_field` (ver `contracts/AGENTS.md`) |
 | **1b. Telemetría** `span()` + `write_event()` | ✅ | **Tema 4**: `Clases/06/app/utils/{observability.py, logger.py}` (`build_observability_event`, `write_jsonl`, `read_jsonl`, `get_logger`), `Clases/06/app/services/event_service.py` (cuándo se escribe el evento y cómo se clasifican los errores). **Tema 8**: `tema8-agentes/comun/medidor.py` (`perf_counter` alrededor de cada llamada) | El evento JSONL del tema 4 es la base: se amplía con `trace_id`/`span_id`, no se cambia su forma de escribir. Desvíos: evento Pydantic con `metrics_type` para releer (allí `dict`), logger con `trace_id` y archivo rotado, sin propagar (ver `telemetry/AGENTS.md`) |
 | **1c. Resto de contratos** | ✅ | **Tema 4**: `Clases/06/app/dto.py` (`EventResponse` con `metrics` anidado); JSON de respuesta de `PROYECTO.md` sección 7 | Un modelo de resultado por paquete, cada uno con su campo de métricas. Hecho: `SqlMetrics`, `RagMetrics`, `AgentMetrics`, `ApiMetrics`. Desvío: los resultados y `ConversionMetrics` se aplazan a su fase (ver **Contratos pendientes**); quitados `pasos`, `duracion_total_ms` y `request_id` (los da la traza) |
-| **2. Base de datos** | ⏭ siguiente | **Tema 7**: `07_llm_open_source/clase_01/Ejercicios/DropLab/{datos, documentos/diccionario_datos.md}`, `practica/01_inspeccionar_datos.py`, `practica/02_auditoria_integridad.py`. **Tema 8**: `tema8-agentes/comun/tienda.py` (BBDD simulada). **Tema 7 S2**: `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py` (`VISTAS`, `COMENTARIOS`, `GUIA`, `esquema()`, `COMPROBACIONES`) | CSV pequeños con trampas a propósito; auditoría de claves y relaciones antes de calcular nada. **Diccionario generado, no a mano**: tablas en un esquema oculto + vistas con `COMMENT ON` en cada vista y columna → el esquema que ve el LLM sale de `duckdb_views()`/`duckdb_columns()`; `GUIA` con qué vista usar y "datos que NO existen"; `COMPROBACIONES` con cifras calculadas a mano → tests de integridad |
+| **2. Base de datos** | 2a ✅ · 2b ⏭ siguiente | **Tema 7**: `07_llm_open_source/clase_01/Ejercicios/DropLab/{datos, documentos/diccionario_datos.md}`, `practica/01_inspeccionar_datos.py`, `practica/02_auditoria_integridad.py`. **Tema 8**: `tema8-agentes/comun/tienda.py` (BBDD simulada). **Tema 7 S2**: `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py` (`VISTAS`, `COMENTARIOS`, `GUIA`, `esquema()`, `COMPROBACIONES`) | CSV pequeños con trampas a propósito; auditoría de claves y relaciones antes de calcular nada. **Diccionario generado, no a mano**: tablas en un esquema oculto + vistas con `COMMENT ON` en cada vista y columna → el esquema que ve el LLM sale de `duckdb_views()`/`duckdb_columns()`; `GUIA` con qué vista usar y "datos que NO existen"; `COMPROBACIONES` con cifras calculadas a mano → tests de integridad. Hecho en 2a igual que en clase: `database/src/database/semantic_layer.py` con la misma implementación; auditoría de la clase 1 pasada a tests SQL. Desvíos: auditoría en SQL y no en pandas (los CSV ya están en DuckDB), sin `--sql`/`--prompt` ni `INSTRUCCIONES` (son de la fase 5), columna nueva `reservas_tramos.trayecto`, base en memoria sin `DUCKDB_PATH` |
 | **3. Corpus** | pendiente | **Tema 5**: `05_rag_langchain/practica/` y `Ejercicios/rag-tenerife/` (PDF con página en los metadatos). **Tema 7**: `DropLab/documentos/politica_reembolsos.md` (modelo para los documentos de `empresa/`) | El documento y la página viajan con cada fragmento para poder citar. No hay en el repo un modelo de `SOURCES.md`: preguntar |
 | **4. Conversión a Markdown** | pendiente | `Skills-mario/any-to-any/` (MarkItDown + segundo lector para detectar texto perdido) y `06_mcp/03-skills/img-to-text/` **Tema 7 S3**: `S3/08_leer_documentos.py` (texto / OCR PP-OCRv6 / parser PaddleOCR-VL-1.6 / VLM), `S3/asistente/lectura.py` (limpiar, unir fila partida, comprobar con la capa de texto, ficha "sin revisar"), `requirements_ocr.txt` en la raíz de `DropLab_sesion_3/` | Mismo contenido, solo formato; avisar de páginas sin texto. PaddleOCR en un **entorno aparte**. Allí se midió PaddleOCR-VL-1.6 y `PROYECTO.md` dice PP-StructureV3: decidirlo con Mario. GTX 1650 de 4 GB: medir antes (en CPU ~40 s/página) |
 | **5. Text-to-SQL (línea base)** | pendiente | **Tema 7**: `clase_01/Ejercicios/practica/04_conectar_ollama.py` (escalera de contexto), `07_herramienta_funcion.py` (función fija), `08_herramienta_sql.py` (SQL libre sobre DuckDB, esquema generado), `ejercicio_3/herramientas.py`, `EXPLICACION_tema_1.md`. **Tema 4**: `Clases/02` y `03` (salida estructurada con esquema). **Tema 8**: `comun/llm.py` (cliente Ollama). **Tema 7 S2/S3**: `S2/01_preguntar_datos.py` (bucle, error de DuckDB devuelto al modelo, `cifras_sin_respaldo()`), `S3/asistente/datos.py` (consultas fijas con `?` + regex del valor), `S3/asistente/ollama.py` (cliente `/api/chat` con tiempos), `S3/asistente/config.py` | "El código calcula, el modelo redacta"; barreras en el código, no en el prompt. Ojo: `comun/llm.py` usa `/v1` y las métricas de Ollama necesitan `/api/chat`. Con la capa semántica el 4B solo llegó al 67 %: consultas fijas para las preguntas frecuentes, SQL libre para el resto. **Un único `num_ctx`** para Qwen3-4B, compartido con `agent/` (sección 5 de `PROYECTO.md`). La barrera de clase no tiene lista blanca de vistas: añadirla |
@@ -53,7 +57,7 @@ en `contracts/` (y regístralos en `METRICS_TYPES` de telemetry si son métricas
 |---|---|---|
 | `contracts/` | Esquemas Pydantic compartidos, todos con métricas | nada |
 | `telemetry/` | Logger, `span()`, `trace_id`, eventos JSONL | `contracts` |
-| `database/` | CSV propios → vistas DuckDB de solo lectura + diccionario | `telemetry` |
+| `database/` | CSV propios → capa semántica en memoria (vistas + comentarios + esquema generado + guía) | `telemetry` (para los eventos del seed, 2b) |
 | `rag/` | Corpus, conversión a Markdown, búsqueda híbrida | `contracts`, `telemetry` |
 | `text2sql/` | Pregunta → SQL validado → DuckDB | `contracts`, `telemetry`, `database` |
 | `agent/` | Decide herramienta, combina y redacta | `contracts`, `telemetry`, `rag`, `text2sql` |
@@ -82,6 +86,9 @@ Dependencia entre paquetes: `travel-<otro>` en `dependencies` + `{ workspace = t
 
 ## Reglas
 
+- **Se implementa igual que en clase** (ver "Hoja de ruta"): el mismo código ejecutado; nombres y archivos pueden cambiar.
+  Código en inglés (archivos, funciones, variables); comentarios y documentación en castellano.
+- Antes de escribir código, se enseña la propuesta a Mario y se espera su visto bueno.
 - `.env` **por carpeta** (se copia de su `.env.example`); nunca en la raíz, nunca se muestra ni se sube.
 - Todo local y open source: sin APIs de pago. Los tests no necesitan Ollama (mock determinista).
 - Datos de clientes **sintéticos**; no se registran datos personales en los logs salvo opción explícita.

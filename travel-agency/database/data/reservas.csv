@@ -1,0 +1,8 @@
+reserva_id,cliente_id,fecha_reserva,estado,tipo,importe_total,moneda
+R-1042,C-001,2026-05-02,completada,paquete,1250.00,EUR
+R-1043,C-004,2026-06-01,completada,solo_vuelo,230.00,EUR
+R-1044,C-002,2026-04-20,completada,solo_vuelo,189.00,EUR
+R-1045,C-003,2026-07-01,cancelada,solo_vuelo,260.00,EUR
+R-1046,C-005,2026-08-15,completada,solo_vuelo,175.00,EUR
+R-1047,C-001,2026-10-05,confirmada,solo_vuelo,95.00,EUR
+R-1048,C-006,2026-06-20,cancelada,solo_vuelo,120.00,EUR

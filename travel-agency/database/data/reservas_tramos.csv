@@ -1,0 +1,13 @@
+reserva_id,orden,trayecto,vuelo_id,clase,asiento,equipaje_facturado
+R-1042,1,ida,V-01,turista,23A,1
+R-1042,2,vuelta,V-02,turista,31C,1
+R-1043,1,ida,V-03,turista,12F,0
+R-1043,2,vuelta,V-04,turista,14A,0
+R-1044,1,ida,V-05,turista,8C,1
+R-1044,2,ida,V-06,turista,17D,1
+R-1045,1,ida,V-07,business,2A,1
+R-1045,2,vuelta,V-08,business,3C,1
+R-1046,1,ida,V-09,turista,21B,1
+R-1046,2,vuelta,V-11,turista,19E,1
+R-1047,1,ida,V-10,turista,,0
+R-1048,1,ida,V-08,turista,25F,0

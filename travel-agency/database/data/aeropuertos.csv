@@ -1,0 +1,9 @@
+aeropuerto_id,nombre,ciudad,pais,latitud,longitud,es_ue,zona_horaria
+MAD,Adolfo Suárez Madrid-Barajas,Madrid,España,40.4719,-3.5626,true,Europe/Madrid
+BCN,Josep Tarradellas Barcelona-El Prat,Barcelona,España,41.2971,2.0785,true,Europe/Madrid
+TFN,Tenerife Norte-Ciudad de La Laguna,San Cristóbal de La Laguna,España,28.4827,-16.3415,true,Atlantic/Canary
+CDG,París-Charles de Gaulle,París,Francia,49.0097,2.5479,true,Europe/Paris
+AMS,Ámsterdam-Schiphol,Ámsterdam,Países Bajos,52.3105,4.7683,true,Europe/Amsterdam
+FCO,Roma-Fiumicino,Roma,Italia,41.8003,12.2389,true,Europe/Rome
+LHR,Londres-Heathrow,Londres,Reino Unido,51.4700,-0.4543,false,Europe/London
+JFK,John F. Kennedy,Nueva York,Estados Unidos,40.6413,-73.7781,false,America/New_York

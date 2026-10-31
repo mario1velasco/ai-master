@@ -1,0 +1,12 @@
+pago_id,reserva_id,fecha,importe,tipo,metodo
+P-001,R-1042,2026-05-02,1250.00,cargo,tarjeta
+P-002,R-1043,2026-06-01,230.00,cargo,tarjeta
+P-003,R-1044,2026-04-20,189.00,cargo,bizum
+P-004,R-1045,2026-07-01,260.00,cargo,tarjeta
+P-005,R-1045,2026-08-04,-260.00,reembolso,tarjeta
+P-006,R-1046,2026-08-15,140.00,cargo,tarjeta
+P-007,R-1046,2026-09-01,35.00,cargo,tarjeta
+P-008,R-1047,2026-10-05,95.00,cargo,paypal
+P-009,R-1048,2026-06-20,120.00,cargo,tarjeta
+P-010,R-1048,2026-07-02,-60.00,reembolso,tarjeta
+P-011,R-1042,2026-07-20,-150.00,reembolso,transferencia

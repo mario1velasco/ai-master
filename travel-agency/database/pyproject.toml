@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "CSV propios y vistas DuckDB de solo lectura"
 requires-python = ">=3.12"
 dependencies = [
+    "duckdb>=2.0.0",
+    "rich>=15.0.0",
     "travel-telemetry",
 ]
 

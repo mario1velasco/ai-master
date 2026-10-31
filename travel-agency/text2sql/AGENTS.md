@@ -29,7 +29,7 @@ uv sync
 uv run pytest text2sql/tests
 ```
 
-Variables en `.env` (copiar de `.env.example`): `OLLAMA_BASE_URL`, `TEXT2SQL_MODEL`, `DUCKDB_PATH`.
+Variables en `.env` (copiar de `.env.example`): `OLLAMA_BASE_URL`, `TEXT2SQL_MODEL`.
 
 ## Decisiones y trampas
 

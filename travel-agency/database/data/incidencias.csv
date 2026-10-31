@@ -1,0 +1,6 @@
+incidencia_id,reserva_id,vuelo_id,tipo,fecha,estado,compensacion
+I-01,R-1042,V-01,retraso,2026-07-02,resuelta,600.00
+I-02,R-1043,V-03,retraso,2026-07-11,rechazada,
+I-03,R-1044,V-06,retraso,2026-06-06,abierta,
+I-04,R-1045,V-07,cancelacion,2026-08-03,resuelta,250.00
+I-05,R-1046,V-09,equipaje,2026-09-12,abierta,
