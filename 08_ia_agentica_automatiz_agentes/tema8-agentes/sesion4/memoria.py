@@ -8,6 +8,7 @@ lógica de memoria, no el motor).
 - Recuperar: puntuación = similitud con la consulta + recencia.
 - Olvidar: borrar todo lo de un cliente (derecho de supresión, RGPD).
 """
+
 import hashlib
 import json
 import math
@@ -26,7 +27,7 @@ EXTRACTOR = (
     "Analiza la conversación entre un cliente y Lumen Shop y extrae solo lo que merezca recordarse en "
     "futuras conversaciones. Tipos: 'semantica' (hechos o preferencias estables del cliente) y "
     "'episodica' (qué pasó en esta interacción, en una frase). No guardes datos de pago ni de salud "
-    'más allá de lo necesario para recomendar productos. Responde solo con JSON: '
+    "más allá de lo necesario para recomendar productos. Responde solo con JSON: "
     '{"memorias": [{"tipo": "semantica", "texto": "..."}]}'
 )
 
@@ -45,13 +46,19 @@ def coseno(a, b) -> float:
 
 
 class MemoriaClientes:
-    def __init__(self, ruta: Path = RUTA, cliente_llm=None, peso_recencia: float = 0.3, vida_media_dias: float = 30):
+    def __init__(
+        self,
+        ruta: Path = RUTA,
+        cliente_llm=None,
+        peso_recencia: float = 0.3,
+        vida_media_dias: float = 30,
+    ):
         self.ruta, self.llm = Path(ruta), cliente_llm
         self.peso_recencia, self.vida_media = peso_recencia, vida_media_dias
         self.datos = json.loads(self.ruta.read_text()) if self.ruta.exists() else {}
         self._usar_embeddings_del_modelo = True
 
-    # --- utilidades -------------------------------------------------------
+    # ! ---  utilidades -------------------------------------------------------
     def _llm(self):
         self.llm = self.llm or crear_cliente()
         return self.llm
@@ -59,9 +66,16 @@ class MemoriaClientes:
     def _embedding(self, texto: str) -> list[float]:
         if self._usar_embeddings_del_modelo:
             try:
-                return self._llm().embeddings.create(model=MODELO_EMBEDDINGS, input=texto).data[0].embedding
+                return (
+                    self._llm()
+                    .embeddings.create(model=MODELO_EMBEDDINGS, input=texto)
+                    .data[0]
+                    .embedding
+                )
             except Exception:
-                print("ℹ️  Sin modelo de embeddings disponible: uso la alternativa local.")
+                print(
+                    "ℹ️  Sin modelo de embeddings disponible: uso la alternativa local."
+                )
                 self._usar_embeddings_del_modelo = False
         return embedding_local(texto)
 
@@ -69,36 +83,58 @@ class MemoriaClientes:
         self.ruta.parent.mkdir(parents=True, exist_ok=True)
         self.ruta.write_text(json.dumps(self.datos, ensure_ascii=False, indent=1))
 
-    # --- escribir ---------------------------------------------------------
-    def guardar(self, email: str, texto: str, tipo: str = "semantica", fecha: datetime | None = None):
-        self.datos.setdefault(email, []).append({
-            "texto": texto, "tipo": tipo, "fecha": (fecha or datetime.now()).isoformat(),
-            "vector": self._embedding(texto)})
+    # ! --- escribir ---------------------------------------------------------
+    def guardar(
+        self,
+        email: str,
+        texto: str,
+        tipo: str = "semantica",
+        fecha: datetime | None = None,
+    ):
+        self.datos.setdefault(email, []).append(
+            {
+                "texto": texto,
+                "tipo": tipo,
+                "fecha": (fecha or datetime.now()).isoformat(),
+                "vector": self._embedding(texto),
+            }
+        )
         self._guardar_en_disco()
 
     def recordar_conversacion(self, email: str, conversacion: str) -> list[dict]:
-        respuesta = self._llm().chat.completions.create(model=MODELO, messages=[
-            {"role": "system", "content": EXTRACTOR}, {"role": "user", "content": conversacion}])
+        respuesta = self._llm().chat.completions.create(
+            model=MODELO,
+            messages=[
+                {"role": "system", "content": EXTRACTOR},
+                {"role": "user", "content": conversacion},
+            ],
+        )
         memorias = extraer_json(respuesta.choices[0].message.content)["memorias"]
         for m in memorias:
             self.guardar(email, m["texto"], m["tipo"])
         return memorias
 
-    # --- recuperar --------------------------------------------------------
+    # ! --- recuperar --------------------------------------------------------
     def puntuar(self, memoria: dict, vector_consulta, ahora: datetime) -> float:
         dias = (ahora - datetime.fromisoformat(memoria["fecha"])).days
         recencia = 0.5 ** (dias / self.vida_media)
-        return (1 - self.peso_recencia) * coseno(vector_consulta, memoria["vector"]) + self.peso_recencia * recencia
+        return (1 - self.peso_recencia) * coseno(
+            vector_consulta, memoria["vector"]
+        ) + self.peso_recencia * recencia
 
-    def recuperar(self, email: str, consulta: str, k: int = 3, ahora: datetime | None = None) -> list[str]:
+    def recuperar(
+        self, email: str, consulta: str, k: int = 3, ahora: datetime | None = None
+    ) -> list[str]:
         memorias = self.datos.get(email, [])
         if not memorias:
             return []
         vector, ahora = self._embedding(consulta), ahora or datetime.now()
-        ordenadas = sorted(memorias, key=lambda m: self.puntuar(m, vector, ahora), reverse=True)
+        ordenadas = sorted(
+            memorias, key=lambda m: self.puntuar(m, vector, ahora), reverse=True
+        )
         return [m["texto"] for m in ordenadas[:k]]
 
-    # --- olvidar ----------------------------------------------------------
+    # ! --- olvidar ----------------------------------------------------------
     def olvidar(self, email: str) -> int:
         borradas = len(self.datos.pop(email, []))
         self._guardar_en_disco()

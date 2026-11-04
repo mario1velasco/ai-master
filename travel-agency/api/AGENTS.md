@@ -32,3 +32,5 @@ Variables en `.env` (copiar de `.env.example`): `OLLAMA_BASE_URL`, `AGENT_MODEL`
 ## Decisiones y trampas
 
 - Solo se importa la función pública de otros paquetes, nunca sus módulos internos.
+- Las sesiones **no** son la ventana deslizante de triage: hilo con checkpoint en SQLite, compresión por tokens y
+  memoria por cliente, como en el tema 8, sesión 4 (fase 7b; `PROYECTO.md` sección 7, «Memoria y estado del chat»).

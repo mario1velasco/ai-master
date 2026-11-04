@@ -1,6 +1,6 @@
 # Sesión 3: Herramientas desde la perspectiva del agente
 
-Explicación sencilla de la sesión 3 del Tema 8, centrada en las ideas principales. Se construye a partir de las capturas de clase y del código de `../tema8-agentes/sesion3/` y `../tema8-agentes/comun/`. Los ejemplos propios van marcados como *ilustrativos*.
+Explicación sencilla de la sesión 3 del Tema 8, centrada en las ideas principales. Se construye a partir del PDF de la sesión (`Tema8_Sesion3_Herramientas.pdf`), de las capturas de clase, del código de `../tema8-agentes/sesion3/` y `../tema8-agentes/comun/` y de la solución de los deberes (`Solución deberes sesión 3/`). Los ejemplos propios van marcados como *ilustrativos*.
 
 ---
 
@@ -16,6 +16,34 @@ Explicación sencilla de la sesión 3 del Tema 8, centrada en las ideas principa
 | 6 | Producción | Integración en la empresa |
 
 En la sesión 1 construimos un agente a mano y en la 2 aprendimos a organizar cómo razona (planificar, revisar). Esta sesión mira las **herramientas**: cómo diseñarlas para que el agente las use bien, cómo conectarlo a APIs reales y cómo frenar las acciones peligrosas.
+
+### Los ficheros de la práctica (`../tema8-agentes/sesion3/`)
+
+| Fichero | Qué hace, en una frase |
+|---|---|
+| `agente_langgraph.py` | **Demo 1: el agente de siempre, ahora hecho con LangGraph.** Conversación por terminal; convierte precios a otras monedas y **se para a pedir permiso** antes de un reembolso |
+| `dibujar_grafo.py` | **Dibuja el agente de la demo 1.** Imprime su grafo como texto Mermaid para pegarlo en mermaid.live |
+| `actividad_herramienta.py` | **Una herramienta mal hecha a propósito** (`fn_q`) para la actividad de clase: el agente no sabe usarla |
+| `servidor_mcp.py` | **La tienda ofrecida por MCP.** Un programa aparte con dos herramientas de lectura (stock y pedidos) que puede usar cualquiera: nuestro agente, Claude Desktop o el IDE |
+| `agente_mcp.py` | **Demo 2: un agente que coge herramientas de dos sitios.** Las del servidor MCP y una propia (la de divisas). Arranca el servidor él solo |
+
+Y dos piezas de `../tema8-agentes/comun/` que se estrenan en esta sesión y se usan hasta el final del tema:
+
+| Fichero | Qué hace |
+|---|---|
+| `comun/apis_externas.py` | La herramienta `convertir_precio`, que llama a una API real de tipos de cambio con todas las protecciones (sección 3.5) |
+| `comun/grafo.py` | El «constructor» de agentes: le das modelo, herramientas e instrucciones y te devuelve el agente con su grafo (sección 3.5) |
+
+**Cómo ejecutarlas** (siempre desde `tema8-agentes/`, con el entorno activado):
+
+```bash
+python -m sesion3.agente_langgraph          # conversación; «salir» para terminar
+python -m sesion3.dibujar_grafo
+python -m sesion3.actividad_herramienta "¿Cuánto cuesta el serum de vitamina C?"
+python -m sesion3.agente_mcp "¿Cuánto cuesta el contorno de ojos en dólares y cuántas unidades quedan?"
+```
+
+`servidor_mcp.py` no hace falta lanzarlo: lo arranca `agente_mcp.py`. El `README.md` de la carpeta explica también cómo conectarlo a Claude Desktop.
 
 
 ---
@@ -54,9 +82,30 @@ Las tres ideas de la diapositiva:
 
 **El deber:** en el plan-and-execute, si un paso falla (por ejemplo, el transportista no responde, que en Lumen Shop falla siempre a propósito), el plan sigue como si nada. Había que añadir un **verificador** que compruebe si cada paso se ha completado y, si no, pida al planificador **un plan nuevo para lo que queda**, con un **límite de replanificaciones** para no entrar en bucle.
 
-La profesora ejecutó la solución (`soluciones/sesion2/deber_reto.py`) con «¿Dónde está el último pedido de marta.lopez@email.com?», pero no hay capturas de la explicación ni del resultado.
+La diapositiva lo dibuja en cuatro pasos:
 
-**La idea que hay detrás:** es la misma lección que en el nivel base, pero un paso antes. El crítico revisaba la respuesta final; el verificador revisa **cada paso** mientras se ejecuta, y si algo falla, se cambia el plan en vez de seguir adelante. Y como siempre, con un límite puesto por el código.
+```
+Plan ──► Ejecutar ──► Verificar ──► Replanificar
+```
+
+| Paso | Qué hace |
+|---|---|
+| **Plan** | Los pasos iniciales |
+| **Ejecutar** | Un paso cada vez |
+| **Verificar** | ¿Se ha completado el paso? |
+| **Replanificar** | Si ha fallado: un plan nuevo **para lo que queda** |
+
+Y el aviso del pie: **con un límite de replanificaciones, porque el plan también puede entrar en bucle.** Si el transportista falla siempre, replanificar sin límite sería pedir planes nuevos para siempre.
+
+**La solución** (`../02-ReAct-patrone-planificacion/Solución deberes sesión 2/soluciones/sesion2/deber_reto.py`), en lo esencial:
+
+- **El verificador** es otra llamada al modelo: le pasa el paso y su resultado y le pregunta «¿esto completa el paso?». Responde sí o no y el motivo.
+- **Si no se ha completado**, el planificador recibe lo que ya se ha hecho y por qué ha fallado el último paso, con esta instrucción: «Propón los pasos que quedan, buscando una alternativa al paso fallido. **Si no hay alternativa, el último paso debe ser informar al cliente del problema.**»
+- **Como mucho 2 replanificaciones.** Después, sigue con lo que tenga y redacta la respuesta.
+
+La profesora la ejecutó con «¿Dónde está el último pedido de marta.lopez@email.com?», que obliga a consultar al transportista (que en Lumen Shop falla siempre a propósito). No hay capturas del resultado.
+
+**La idea que hay detrás:** es la misma lección que en el nivel base, pero un paso antes. El crítico revisaba la respuesta final; el verificador revisa **cada paso** mientras se ejecuta, y si algo falla, se cambia el plan en vez de seguir adelante. Y como siempre, con un límite puesto por el código. Fíjate también en la salida de emergencia de la instrucción: si no hay forma de conseguir el dato, **decírselo al cliente** en vez de inventárselo.
 
 ---
 
@@ -163,6 +212,61 @@ El ejemplo del código es `convertir_precio` (`comun/apis_externas.py`), que pas
 - **Que la API está caída** → no lo arregla nadie ahora mismo, así que el error le dice al agente **qué hacer en su lugar** (dar el precio en euros).
 
 ¿Por qué un solo reintento y no muchos, como en el Tema 3? (*interpretación propia*) Porque allí eran procesos por lotes que podían esperar; aquí hay un cliente esperando una respuesta en una conversación.
+
+### 2.5 Actividad: herramienta rota
+
+En clase se hizo después de la demo de LangGraph, pero va aquí porque es practicar las cuatro reglas de la sección 2.3.
+
+**¿Qué le pasa a esta herramienta?** (`sesion3/actividad_herramienta.py`)
+
+```python
+@tool
+def fn_q(q: str, t: str = "p") -> str:
+    """Consulta."""
+    if t == "p":
+        return str(PRODUCTOS) + str(PEDIDOS) + str(CLIENTES)
+    return "Error 500"
+```
+
+La diapositiva marca cinco fallos:
+
+| Fallo | Qué está mal |
+|---|---|
+| **Nombre** | `fn_q` no dice nada. El agente no sabe para qué sirve |
+| **Descripción** | «Consulta.» ¿Consulta qué? ¿Cuándo hay que usarla? |
+| **Parámetros** | `q` y `t` no significan nada, y `t="p"` es un código secreto que solo conoce el programador |
+| **Salida** | Devuelve **toda la tienda** (productos, pedidos y clientes) aunque preguntes por un solo producto. Y además con datos de clientes que no hacen falta |
+| **Errores** | «Error 500» no dice qué ha pasado ni cómo arreglarlo |
+
+**Rediseñadla entre todos**, sin cambiar los datos de debajo: un nombre que diga qué hace, una descripción con cuándo usarla, parámetros con formato explícito, una salida acotada a lo que se pide y un error que indique cómo corregir.
+
+**La solución** (`Solución deberes sesión 3/soluciones/sesion3/actividad_herramienta_corregida.py`):
+
+```python
+@tool
+def consultar_precio_y_stock(producto: str) -> dict:
+    """[Lectura] Devuelve el precio en euros y las unidades disponibles de UN producto del catálogo.
+
+    Úsala cuando el cliente pregunte por precio o disponibilidad. `producto` es el nombre
+    del producto en minúsculas, p. ej. 'serum vitamina c'. No sirve para pedidos ni clientes.
+    """
+    resultado = tienda.consultar_stock(producto)
+    if "error" in resultado:
+        resultado["como_corregir"] = "Repite la llamada con uno de los nombres de 'productos_disponibles'."
+    return resultado
+```
+
+Cada fallo, arreglado:
+
+| Fallo | Arreglo |
+|---|---|
+| Nombre | `consultar_precio_y_stock`: dice exactamente qué hace |
+| Descripción | Qué devuelve, **cuándo** usarla («cuando el cliente pregunte por precio o disponibilidad») y **cuándo no** («no sirve para pedidos ni clientes») |
+| Parámetros | Uno solo, `producto`, con su formato y un ejemplo («en minúsculas, p. ej. 'serum vitamina c'») |
+| Salida | Solo **un** producto, no la tienda entera |
+| Errores | Si no lo encuentra, devuelve la lista de productos y le dice al agente **cómo corregir**: repetir con uno de esos nombres |
+
+Fíjate en que los datos de debajo (`tienda`) son los mismos. **Lo que ha cambiado es solo lo que ve el agente**, y eso basta para que pase de no saber usarla a usarla bien.
 
 ---
 
@@ -535,19 +639,44 @@ Correcto: la crema hidratante es el único producto con 0 unidades.
 
 ---
 
-## 5. Actividad: ¿cuánto control?
+## 5. Control: actividad y caso real
 
-No hay capturas del enunciado. Por el título y el lugar en que aparece (justo después de clasificar herramientas por riesgo y del humano en el bucle), va de decidir **cuánto control necesita cada herramienta**. Un ejercicio para practicarlo (*mío, ilustrativo*), aplicando la tabla de la sección 3.6:
+### 5.1 Actividad: ¿cuánto control?
+
+**Clasifica y decide:** para cada herramienta, ¿es de lectura, escritura reversible o irreversible? ¿Necesita aprobación humana?
+
+El PDF no trae la respuesta. Una propuesta (*ilustrativa*), aplicando la tabla de la sección 3.6:
 
 | Herramienta | Riesgo | Control |
 |---|---|---|
-| Consultar el estado de un pedido | Lectura | Ninguno: autonomía total |
-| Cambiar la dirección de envío de un pedido aún no enviado | Escritura reversible | Registrar el cambio y permitir deshacerlo |
-| Enviar un email de disculpa al cliente | Escritura irreversible (el email ya no se puede «des-enviar») | Aprobación humana, o al menos plantillas fijas |
-| Emitir un reembolso | Escritura irreversible | Aprobación humana y límite en código (nunca más que el total del pedido) |
-| Borrar la cuenta de un cliente | Escritura irreversible | Aprobación humana; probablemente, que el agente ni siquiera la tenga |
+| 1. Consultar el saldo de puntos de un cliente | Lectura | Ninguno: autonomía total |
+| 2. Cambiar la dirección de un pedido no enviado | Escritura reversible (mientras no salga el pedido, se puede volver a cambiar) | Registrar el cambio y permitir deshacerlo. Sin aprobación |
+| 3. Enviar un email de disculpa al cliente | Escritura irreversible: el email ya no se puede «des-enviar» | Aprobación humana, o al menos plantillas fijas |
+| 4. Aplicar un cupón del 10 % a un pedido | Escritura, y cuesta dinero | Límite en código (solo un cupón por pedido, nunca más del 10 %). Con eso puede ir sin aprobación |
+| 5. Borrar la cuenta de un cliente (RGPD) | Escritura irreversible | Aprobación humana siempre. Probablemente, que el agente ni siquiera la tenga y solo **cree la petición** para que la tramite una persona |
+| 6. Publicar una respuesta en una reseña pública | Escritura irreversible y **pública**: la ve todo el mundo, y aunque se borre, alguien puede haber hecho una captura | Aprobación humana |
 
 La pregunta que guía todo: **si el agente se equivoca, ¿qué pasa y se puede arreglar?** Y una idea extra: la forma más segura de controlar una herramienta peligrosa a veces es **no dársela al agente**.
+
+### 5.2 Caso real: mínimo privilegio
+
+**Cuando el agente tiene demasiado acceso.** La diapositiva cuenta un caso real en cuatro pasos:
+
+| Paso | Qué pasó |
+|---|---|
+| **El contexto** | Un agente de programación con acceso a la base de datos **de producción** (la de verdad, la que usan los clientes) |
+| **El incidente** | Durante una congelación de cambios (un periodo en el que nadie debía tocar nada), el agente ejecuta comandos destructivos y **borra datos** |
+| **La respuesta** | El agente «explica» lo ocurrido, pero **el daño ya está hecho** |
+| **La lección** | Separar entornos y **limitar los permisos en el código, no en el *prompt*** |
+
+Seguramente el agente tenía en sus instrucciones algo como «no toques nada», y aun así lo hizo. Una disculpa bien redactada no recupera los datos.
+
+**Mínimo privilegio** significa dar a cada uno **solo los permisos que necesita para su trabajo**, ni uno más. Para el agente de Lumen Shop: si su trabajo es atender clientes, puede leer pedidos y stock, pero no tiene por qué poder borrar la base de datos.
+
+> **Idea clave: una instrucción en el *prompt* es una petición; un permiso en el código es una garantía.**
+> Lo que el agente no debe poder hacer, que no pueda hacerlo.
+
+Es lo mismo que veíamos con la etiqueta `[Escritura irreversible]` (sección 2.2) y la caja de aprobación (sección 3.2): **lo que protege es el código.** Y en este caso, la protección más fuerte es la del final de la sección 5.1: **no darle la herramienta.**
 
 ---
 
@@ -566,6 +695,21 @@ Después, **compara cuántas llamadas hace el agente antes y después**. Es la f
 
 Punto de partida: `comun/herramientas_lc.py`.
 
+**La solución** (`Solución deberes sesión 3/soluciones/sesion3/deber_base.py`):
+
+| Antes | Después |
+|---|---|
+| `buscar_cliente` → solo los números de pedido | `buscar_cliente_con_pedidos` → nombre del cliente **y un resumen de cada pedido** (estado, productos, importe) |
+| Una llamada más por cada pedido | **Una sola llamada** |
+| «serum» no encuentra nada | `consultar_stock_flexible` acepta **nombres parciales** y **ofrece opciones** si hay varias |
+
+Cómo responde `consultar_stock_flexible` según lo que encuentre:
+- **Un producto** contiene el texto («serum») → devuelve su precio y stock, sin más.
+- **Ninguno** → «Ningún producto contiene 'X'» + la lista de productos disponibles (error útil).
+- **Varios** → «Hay varios productos que coinciden; **pregunta al cliente cuál quiere**» + las opciones. En vez de elegir uno al azar, le dice al agente qué hacer.
+
+**Por qué importa** (diapositiva de la sesión 4): **menos pasos = menos tokens y menos errores.** Con el cálculo de la sesión 1: si cada paso sale bien el 95 % de las veces, diez seguidos salen bien solo el 60 % (0,95¹⁰ ≈ 0,60). Cada llamada que ahorras es una ocasión menos de equivocarse.
+
 ### Reto · Amplía el servidor MCP
 
 **Añade al servidor de Lumen Shop una herramienta nueva y un recurso MCP con la política de devoluciones, y conecta el agente a tu servidor.**
@@ -575,6 +719,51 @@ Punto de partida: `comun/herramientas_lc.py`.
 - **Opcional:** si usas Claude Desktop o un IDE con MCP, conecta también ahí el servidor siguiendo `sesion3/README.md`.
 
 Punto de partida: `sesion3/servidor_mcp.py` y `sesion3/agente_mcp.py`.
+
+**La solución** (`Solución deberes sesión 3/soluciones/sesion3/deber_reto_servidor_mcp.py`) es un servidor nuevo, `lumen-shop-ampliado`, con **dos tipos de cosas distintas**. Esta es la idea importante del reto:
+
+**1. Herramientas: `@servidor.tool()`**
+
+```python
+@servidor.tool()
+def consultar_stock_flexible(producto: str) -> dict:
+    """[Lectura] Precio y stock de un producto. Acepta nombres parciales, p. ej. 'serum' o 'solar'."""
+    ...
+```
+
+Es la herramienta nueva: la búsqueda flexible del nivel base, ahora ofrecida por el servidor. Junto a ella, `consultar_pedido`.
+
+**2. Un recurso: `@servidor.resource(...)`**
+
+```python
+@servidor.resource("lumen://politica-devoluciones")
+def politica_devoluciones() -> str:
+    """Política de devoluciones de Lumen Shop."""
+    return ("Devoluciones gratuitas en 30 días con el producto sin abrir. Productos dañados en el envío: "
+            "reembolso completo con foto del daño. Reembolsos de más de 50 € requieren aprobación de un supervisor.")
+```
+
+Es la política de devoluciones: un **texto** que el servidor pone a disposición de quien se conecte.
+
+**La diferencia entre los dos:**
+
+| | Herramienta (`@servidor.tool()`) | Recurso (`@servidor.resource(...)`) |
+|---|---|---|
+| **Qué es** | Una **acción**: algo que se ejecuta | **Información**: algo que se lee |
+| **Recibe datos** | Sí: parámetros (`producto`, `id_pedido`) | No: siempre devuelve lo mismo |
+| **Cómo se identifica** | Por su nombre de función | Por una **dirección**, como una URL: `lumen://politica-devoluciones` |
+| **Quién decide usarlo** | **El modelo**, en mitad del bucle, cuando lo necesita | **El cliente MCP** (el programa del agente, Claude Desktop o el IDE), que decide cuándo leerlo y meterlo en el contexto |
+| **Ejemplo** | «¿Cuánto stock queda de serum?» | «¿Qué dice la política de devoluciones?» |
+
+La diapositiva de la sesión 4 lo resume en una frase: **las herramientas actúan; los recursos aportan contexto.**
+
+**Por qué la política es un recurso y no una herramienta.** Podría haberse escrito como `@servidor.tool()` y funcionaría. Pero no es una acción: no consulta nada que cambie, no necesita parámetros. Es un documento de referencia, como un manual. Hacerlo recurso deja claro que es **contexto para decidir**, y permite que el programa lo cargue directamente sin esperar a que el modelo «se acuerde» de pedirlo.
+
+**Lo que aporta la política al agente.** Fíjate en lo que dice: «reembolsos de más de 50 € requieren aprobación de un supervisor». Con ese texto en el contexto, el agente sabe qué puede prometer y qué no a un cliente que quiere devolver algo. Pero ojo con la idea clave de la sección 5.2: **leer la política no la hace cumplir.** Lo que de verdad frena un reembolso grande es la caja de aprobación del código.
+
+**Cómo usarlo:** en `sesion3/agente_mcp.py`, cambiar el módulo del servidor por `soluciones.sesion3.deber_reto_servidor_mcp`. El agente descubre las herramientas nuevas sin tocar nada más (sección 4.3).
+
+**Ojo: el agente de la demo no lee el recurso él solo.** `agente_mcp.py` solo le pide al servidor sus **herramientas** (`get_tools()`), no sus recursos. Es justo lo de la tabla: el recurso no lo pide el modelo, lo tiene que cargar **el programa** y meterlo en las instrucciones del agente. Para que la política llegue de verdad al agente habría que añadir ese paso en `agente_mcp.py`. Donde sí se ve sin tocar nada es en Claude Desktop o en el IDE: muestran los recursos del servidor y el usuario puede adjuntarlos a la conversación.
 
 ### Lectura recomendada: el paper de ReAct
 
@@ -617,5 +806,6 @@ Lo que se vio en la captura del editor:
 - **APIs externas:** *timeout*, reintento ante 429, errores traducidos y salida limpia. Todo lo «feo» se queda dentro de la herramienta.
 - **LangGraph** escribe el mismo bucle de la sesión 1 como un grafo. Así se le pueden añadir cosas, como una **pausa para que un humano apruebe**.
 - **Más riesgo → más control.** Lectura: autonomía. Escritura reversible: registrar y deshacer. Irreversible: aprobación humana y límites. **Lo que protege es el código, no la etiqueta.**
-- **MCP** sirve para compartir herramientas entre varios agentes y aplicaciones. Se mantienen en un sitio y los agentes las descubren solos.
+- **Mínimo privilegio:** una instrucción en el *prompt* es una petición; un permiso en el código es una garantía. Lo que el agente no debe poder hacer, que no pueda hacerlo.
+- **MCP** sirve para compartir herramientas entre varios agentes y aplicaciones. Se mantienen en un sitio y los agentes las descubren solos. Un servidor ofrece **herramientas** (`@servidor.tool()`, acciones que decide usar el modelo) y **recursos** (`@servidor.resource(...)`, información que el programa carga como contexto).
 - **Siempre hay que comprobar las respuestas.** En esta sesión vimos varias que sonaban bien y estaban mal: el deber base sin stock y los dólares de la demo MCP.
