@@ -125,8 +125,8 @@ travel-agency/
 ├── telemetry/              ← logs, métricas y trazas compartidos
 ├── database/
 │   ├── data/               ← *.csv creados por nosotros
-│   ├── seed/               ← generar.py (Faker, semilla fija)
-│   └── src/database/semantic_layer.py ← vistas + comentarios + guía + comprobaciones (como en clase)
+│   ├── data_generated/     ← los CSV a mano + miles de filas generadas (semilla fija)
+│   └── src/database/       ← semantic_layer.py (vistas + comentarios + guía + comprobaciones, como en clase) · seed.py (generador)
 ├── rag/
 │   ├── corpus/             ← originales: leyes/ · seguridad/ · salud/ · empresa/ · general/ + SOURCES.md
 │   ├── conversion/         ← scripts PDF/imagen → Markdown con PaddleOCR (solo cuando haga falta)
@@ -144,7 +144,7 @@ travel-agency/
 ### Reglas de dependencia
 
 - Las flechas van **en un solo sentido**: `api → agent → (text2sql, rag) → contracts`. Nada importa `api`.
-- `telemetry/` lo usan todos los paquetes con código (`database`, `rag`, `text2sql`, `agent`, `api`) para medir y registrar.
+- `telemetry/` lo usan los paquetes que hablan con un modelo o atienden peticiones (`rag`, `text2sql`, `agent`, `api`) para medir y registrar. `database` no: son datos y su generador es determinista (decidido el 2026-11-07).
 - Cada paquete expone **una función pública** con tipos de `contracts/`
   (p. ej. `text2sql.consultar(Pregunta) -> SqlResult`); el resto no importa sus módulos internos.
 - `database/` y el corpus de `rag/` no saben nada de LLMs: son datos.
@@ -178,8 +178,9 @@ Igual que en el resto del repo `ebis`, se usa `AGENTS.md` como fuente única de 
 - **DuckDB** lee los CSV directamente (sin servidor) y sobre ellos se definen **vistas**. Como en clase
   (`abrir()` de `02_capa_semantica.py`, aquí `open_db()`), la base se construye **en memoria** cada vez que se abre: no hay fichero
   `.duckdb` ni `DUCKDB_PATH`. El LLM text-to-SQL **solo ve las vistas** (las tablas quedan en el esquema `crudo`).
-- Proceso: primero unas pocas filas **a mano** para fijar el esquema → después `seed/generar.py`
-  (Faker, **semilla fija**, reproducible) amplía a cientos de filas.
+- Proceso: primero unas pocas filas **a mano** para fijar el esquema → después `database.seed`
+  (**semilla fija**, reproducible; sin Faker: listas escritas a mano y `random`) amplía a miles de filas en
+  `data_generated/`, conservando las filas a mano. `data/` sigue siendo la base exacta de los tests.
 - Inspiración para el esquema (no se copian datos): [Postgres Pro demo "Airlines"](https://postgrespro.com/education/demodb) (MIT)
   y [stebenc/AirlineBooking](https://github.com/stebenc/AirlineBooking) (Apache 2.0).
 
@@ -189,7 +190,7 @@ Igual que en el resto del repo `ebis`, se usa `AGENTS.md` como fuente única de 
 |---|---|---|
 | `aerolineas.csv` | `aerolinea_id` (IATA, `IB`), `nombre`, `pais` | Pocas filas, a mano |
 | `aeropuertos.csv` | `aeropuerto_id` (IATA, `MAD`), `nombre`, `ciudad`, `pais`, `latitud`, `longitud`, `es_ue`, `zona_horaria` | Datos reales. Coordenadas para calcular distancias (Reglamento 261/2004); zona IANA para la hora local |
-| `clientes.csv` | `cliente_id`, `nombre`, `apellidos`, `email`, `pais`, `fecha_alta`, `nivel_fidelidad` | Sintéticos (Faker `es_ES`) |
+| `clientes.csv` | `cliente_id`, `nombre`, `apellidos`, `email`, `pais`, `fecha_alta`, `nivel_fidelidad` | Sintéticos (listas de nombres a mano, sin Faker) |
 | `vuelos.csv` | `vuelo_id`, `codigo_vuelo` (`IB3166`), `aerolinea_id`, `origen`, `destino`, `salida_prevista`, `llegada_prevista`, `salida_real`, `llegada_real`, `estado` | Horas en ISO 8601 con desfase (`2026-07-01T10:05:00+02:00`): hora local y UTC a la vez. `estado`: programado, en_hora, retrasado, cancelado |
 | `reservas.csv` | `reserva_id` (`R-1042`), `cliente_id`, `fecha_reserva`, `estado`, `tipo` (solo vuelo / paquete), `importe_total`, `moneda` | Una reserva puede tener varios tramos |
 | `reservas_tramos.csv` | `reserva_id`, `orden`, `trayecto` (ida / vuelta), `vuelo_id`, `clase`, `asiento`, `equipaje_facturado` | Tabla puente reserva ↔ vuelo. `trayecto` separa la ida de la vuelta: sin él, el "destino final" de un ida y vuelta sería el origen |
@@ -854,7 +855,6 @@ No solo se mide el chat: también los procesos *batch*, con el mismo formato:
 
 | Proceso | Eventos |
 |---|---|
-| `database/seed` | Filas generadas por tabla, semilla, duración, checks de integridad |
 | `rag/conversion` | Un evento por documento (`ConversionMetrics`) + resumen del lote |
 | `text2sql/dataset` | Ejemplos generados, descartados y por qué, reparto train/dev/test |
 | `text2sql/finetune` | Hiperparámetros, *loss* por paso, tiempo por época, VRAM máxima, tamaño del adaptador |
@@ -957,7 +957,7 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 |---|---|---|---|
 | **0. Esqueleto** | Estructura del monorepo | uv workspace, carpetas, `AGENTS.md` raíz y por carpeta, `README.md`, `.gitignore`, `.env.example` | `uv sync` sin errores; cada paquete importa |
 | **1. Contratos y telemetría** | Base común | `contracts/` (incl. `metrics.py`) y `telemetry/` (logger, `span`, JSONL) | Tests: un `span` de prueba escribe un evento válido |
-| **2. Base de datos** | Datos consultables | CSV a mano → capa semántica (vistas + comentarios + `schema()` + guía) → `seed/generar.py` | Tests de integridad (claves, importes netos, retrasos); consultas de ejemplo |
+| **2. Base de datos** | Datos consultables | CSV a mano → capa semántica (vistas + comentarios + `schema()` + guía) → `database.seed` (`data_generated/`) | Tests de integridad (claves, importes netos, retrasos); consultas de ejemplo |
 | **3. Corpus** | Material reunido | Descargas en `rag/corpus/` + `SOURCES.md`; documentos de `empresa/` redactados | Cada documento con fuente y licencia; ninguno de uso privado en git |
 | **4. Conversión a Markdown** | Corpus homogéneo | `rag/conversion/` con PaddleOCR → `rag/markdown/` | Revisión de una muestra; eventos `ConversionMetrics` |
 | **5. Text-to-SQL (línea base)** | SQL sin entrenar | Validador SQL + `text2sql.consultar()` con Qwen3-4B + prompt con diccionario (escalones 1–3 de la sección 6) | Eval sobre las ~50 preguntas a mano; validador bloquea todo lo prohibido |

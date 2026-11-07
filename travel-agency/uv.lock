@@ -527,14 +527,12 @@ source = { editable = "database" }
 dependencies = [
     { name = "duckdb" },
     { name = "rich" },
-    { name = "travel-telemetry" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "duckdb", specifier = ">=2.0.0" },
     { name = "rich", specifier = ">=15.0.0" },
-    { name = "travel-telemetry", editable = "telemetry" },
 ]
 
 [[package]]

@@ -4,7 +4,7 @@
 |---|---|
 | Tipo | Story |
 | Carpeta del proyecto | `travel-agency/` (`database/`) |
-| Estado | Borrador, pendiente de revisión |
+| Estado | Hecho, pendiente de commit |
 | Creado | 2026-11-07 |
 | Etiquetas | database, datos, seed, fase-2b |
 
@@ -35,7 +35,10 @@ reproducibles).
 - **Sin Faker** (decisión de Mario): listas de nombres y apellidos escritas a mano + `random` de la biblioteca
   estándar con semilla. `PROYECTO.md` §3 decía Faker: se actualiza.
 - **Conjunto generado en carpeta aparte** (`database/data_generated/`, subido a git) en lugar de ampliar `data/`.
-- Script en inglés (`generate.py` y no `generar.py`, como dice `PROYECTO.md`), por la regla de código en inglés.
+- El generador va en `src/database/seed.py` (`uv run python -m database.seed`, como `python -m database.semantic_layer`) y no en `seed/generar.py`: así los tests lo importan. Código en inglés. Acordado con Mario.
+- CSV escritos con `csv.DictWriter` (como `Ejercicios/rag-tenerife/utilidades.py`), sin dependencias nuevas.
+- Aeropuertos nuevos con coordenadas de OurAirports (dominio público); zona IANA comprobada con `zoneinfo`.
+- Cómo se generan las filas no tiene referencia: lo diseña quien desarrolla dentro de los AC y supuestos, con `random.Random(semilla)`, `zoneinfo` para el desfase y la haversine de `VIEWS` para la distancia; Mario lo aprueba en cada ciclo.
 
 ## Alcance
 
@@ -46,13 +49,13 @@ reproducibles).
 - Coherencia del negocio en las filas generadas: horas y zonas, estados, itinerarios, fechas, pagos y
   compensaciones del Reglamento 261/2004.
 - Tests: auditoría y `CHECKS` por id sobre el conjunto generado, reproducibilidad y errores del comando.
-- Un evento de telemetría por ejecución.
 
 **Fuera**
 - Que text2sql o el agente usen el conjunto generado (fase 5 y siguientes).
 - Cambiar las vistas, `COMMENTS`, `GUIDE` o los `CHECKS` actuales.
 - Aerolíneas nuevas (se quedan las 6 actuales).
 - Contrato de métricas nuevo en `contracts/`.
+- Evento de telemetría del generador (AC-18, descartado).
 
 ## Criterios de aceptación
 
@@ -142,6 +145,25 @@ reproducibles).
   reserva con escala, ida y vuelta, reembolso parcial, cancelación con reembolso total, vuelo que llega pasada
   la medianoche por el retraso, vuelo programado y vuelo cancelado
 
+**AC-20 — Ninguna reserva es posterior a la fecha de corte**
+- **Dado** la fecha de corte fija 2026-11-01 («hoy» del conjunto)
+- **Cuando** se miran las reservas
+- **Entonces** todas tienen `fecha_reserva` anterior al corte, también las de vuelos de 2027
+- (añadido en el ciclo 9: había 299 reservas hechas «en el futuro»)
+
+**AC-21 — El estado de la reserva cuadra con sus vuelos**
+- **Dado** la fecha de corte 2026-11-01
+- **Cuando** se mira el estado de cada reserva y la salida de su último tramo
+- **Entonces** si el último tramo sale antes del corte, la reserva está `completada` o `cancelada`
+- **Y** si sale el día del corte o después, está `confirmada` o `cancelada`
+- (añadido en el ciclo 9: el estado era al azar)
+
+**AC-22 — Una reserva en un vuelo cancelado queda cancelada**
+- **Dado** el conjunto generado
+- **Cuando** se miran las reservas con algún tramo en un vuelo `cancelado`
+- **Entonces** todas están `cancelada` (y, por el AC-11, con al menos un reembolso), como R-1045 en AF1001
+- (añadido en el ciclo 13: quedaban `completada`)
+
 ### Errores
 
 **AC-14 — Una semilla que no es un número entero da un error de uso**
@@ -169,11 +191,11 @@ reproducibles).
 - **Entonces** las filas generadas son distintas
 - **Y** las filas a mano son las mismas en los dos
 
-**AC-18 — Cada ejecución deja un evento de telemetría**
-- **Dado** la telemetría apuntando a una carpeta temporal
-- **Cuando** se ejecuta el generador con la semilla 42
-- **Entonces** se escribe un evento `database.seed` del componente `database` con `status = ok`
-- **Y** el evento incluye la semilla y el número de filas por tabla
+**AC-18 — ~~Cada ejecución deja un evento de telemetría~~ (descartado)**
+- Descartado por Mario el 2026-11-07: el generador es determinista (misma semilla, mismos bytes, AC-16) y se
+  ejecuta a mano; el evento solo repetiría la semilla y las filas, que ya están en el código y en git, y MLflow
+  (`PROYECTO.md` §8) no lo usaría. `database` deja de depender de `telemetry` y se quita la fila de `database/seed`
+  de «Eventos fuera de la API».
 
 **AC-19 — Lo que ya existe no se rompe**
 - **Dado** el cambio terminado
@@ -183,12 +205,12 @@ reproducibles).
 
 ## Definición de hecho
 
-- [ ] Cada AC cubierto por un test automático que pasa
-- [ ] Toda la suite del proyecto en verde (`uv run pytest`)
-- [ ] ruff y ty limpios
-- [ ] `database/AGENTS.md` y `README.md` actualizados (comando, `data_generated/`, sin Faker); fila 2 de
+- [x] Cada AC cubierto por un test automático que pasa (21 AC; el AC-18 se descartó)
+- [x] Toda la suite del proyecto en verde (`uv run pytest`: 212 passed)
+- [x] ruff y ty limpios (`ruff format` solo marca Markdown que ya estaba así: `database/AGENTS.md` y otros dos)
+- [x] `database/AGENTS.md` y `README.md` actualizados (comando, `data_generated/`, sin Faker); fila 2 de
       `travel-agency/AGENTS.md` con el estado, en qué se fijó y los desvíos; `PROYECTO.md` §3 sin Faker
-- [ ] Commits sin atribución a la IA
+- [ ] Commits sin atribución a la IA (pendiente: el commit lo hace Mario)
 
 ## Supuestos y preguntas abiertas
 
