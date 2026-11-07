@@ -7,6 +7,7 @@ dependencies = [
     "travel-contracts",
     "travel-telemetry",
     "travel-database",
+    "pandas>=3.1.1",
 ]
 
 [build-system]
