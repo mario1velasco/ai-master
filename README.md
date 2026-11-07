@@ -25,6 +25,7 @@ El recorrido va de los fundamentos de machine learning y LLMs hasta agentes de I
 | [`Ejercicios`](Ejercicios) | Ejercicios propios fuera del temario (p. ej. un RAG sobre Tenerife) |
 | [`Skills-mario`](Skills-mario) | Skills para Claude Code: transcribir audio, describir imágenes, resumir textos, crear presentaciones |
 | [`llm-customer-support-triage`](llm-customer-support-triage) | API con FastAPI que usa Claude para clasificar y encaminar mensajes de soporte al cliente |
+| [`travel-agency`](travel-agency) | Agente de una agencia de viajes ficticia que responde con su base de datos (text-to-SQL sobre DuckDB) o con su documentación (RAG), todo open source en local. En construcción: base de datos y validador de SQL hechos |
 
 ## Cómo usarlo
 
@@ -38,4 +39,4 @@ Cada carpeta es **independiente**, con sus propias dependencias y su propia conf
 
 ## Tecnologías
 
-Python, OpenAI y Anthropic (Claude) SDKs, LangChain, LangGraph, MCP, Ollama, FastAPI, PyTorch y TensorFlow, entre otras.
+Python, OpenAI y Anthropic (Claude) SDKs, LangChain, LangGraph, MCP, Ollama, DuckDB, FastAPI, PyTorch y TensorFlow, entre otras.
