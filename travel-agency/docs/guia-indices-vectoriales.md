@@ -603,10 +603,10 @@ pregunta ─┬─► BM25 (top-50) ──────────┐
 | Salud: Ministerio de Sanidad y Tu Europa (~9.000 palabras) | ~50 |
 | Seguridad: EASA, AESA y Exteriores (páginas HTML) | ~100 |
 | tabiji (5 tablas: alerts, countries, safety, scams, destinations) | 10.000 – 25.000 |
-| Documentos de Viajes Nimbo | ~500 |
-| **Total** | **~12.000 – 28.000** |
+| Documentos de Viajes Nimbo (26 documentos, ~8.300 palabras) | ~50 |
+| **Total** | **~11.000 – 27.000** |
 
-*Corpus reunido en TRAVEL-003 (`rag/corpus/SOURCES.md`). Se quitaron el Yellow Book de CDC (no se puede descargar
+*Corpus reunido en TRAVEL-003 y TRAVEL-004 (`rag/corpus/SOURCES.md`). Se quitaron el Yellow Book de CDC (no se puede descargar
 gratis) y BAAI IndustryCorpus; con menos chunks, `IndexFlatIP` encaja todavía mejor.*
 
 ### Decisión propuesta

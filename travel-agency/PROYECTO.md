@@ -250,7 +250,8 @@ Con esa capa semántica, en clase el 30B pasó del 58 % al 91 % (el 4B, al 67 %)
 
 Apache 2.0 es una licencia de **software**: los textos casi nunca la usan. Para documentos lo equivalente es
 **dominio público** o **reutilización libre** (normas de reutilización de la UE y del BOE, CC BY). Cada documento
-se apunta en `rag/corpus/SOURCES.md` con: **título, URL, fecha de descarga, licencia y carpeta**.
+se apunta en `rag/corpus/SOURCES.md` con: **archivo, título, URL, fecha de descarga, licencia, carpeta, si va en git y
+huella SHA-256**.
 Si la licencia no está clara, el documento no entra.
 
 ### Fuentes por carpeta (`rag/corpus/`)
@@ -320,6 +321,7 @@ con los datos de la BBDD (mismas aerolíneas, niveles de fidelidad, tipos de res
 - En `pruebas/`: un documento con una **instrucción inyectada** ("ignora las normas anteriores…") → los documentos son datos.
 
 Cada documento lleva una cabecera con `titulo`, `version`, `vigente_desde`, `ambito` y `publico` (cliente / interno),
+escrita como en DropLab (texto libre que se lee con expresiones regulares, formato en `rag/AGENTS.md`),
 para poder filtrar después (p. ej. no citar el manual interno a un cliente).
 
 ### De original a Markdown

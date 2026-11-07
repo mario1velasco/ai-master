@@ -1,7 +1,7 @@
 # AGENTS.md — `rag/`
 
-> Estado: **fase 3 en curso**. Corpus externo reunido con `rag/corpus/SOURCES.md` (TRAVEL-003, hecho). Documentos
-> de `empresa/` pendientes (TRAVEL-004). El paquete sigue vacío: la fase 3 es solo de datos.
+> Estado: **fase 3 terminada**. Corpus externo con `rag/corpus/SOURCES.md` (TRAVEL-003) y 26 documentos propios en
+> `corpus/empresa/` (TRAVEL-004). El paquete sigue vacío: la fase 3 es solo de datos. Siguiente: fase 4 (conversión).
 
 ## Propósito
 
@@ -45,12 +45,31 @@ Variables en `.env` (copiar de `.env.example`): `RAG_EMBEDDING_MODEL`, `RAG_RERA
   archivo en `.gitignore`).
 - Los originales no se tocan: la conversión (fase 4) escribe en `markdown/`.
 
+Documentos de `empresa/` (TRAVEL-004): Markdown al estilo de DropLab (`politica_reembolsos.md` del tema 7), con esta
+cabecera, que se lee con las mismas expresiones que `leer_md` de `S2/10_corpus.py`:
+
+```text
+# Viajes Nimbo · <título>
+Documento <CÓDIGO> · Versión <n> · Vigente desde <dd/mm/aaaa>
+Responsable: <área>
+Ámbito: <subcarpeta> · Público: cliente|interno
+```
+
+- `Público: interno` solo en `interno/` (no se cita a clientes); `pruebas/documento_trampa.md` lleva una instrucción
+  inyectada a propósito y no es documentación real.
+- Versiones: `politicas/historico/` guarda la política de cancelación antigua (POL-CAN-2023-01, hasta el 28/02/2025);
+  la vigente dice «sustituye a POL-CAN-2023-01». Las reservas de `database/data/` caen a los dos lados del cambio.
+- Los datos (sedes, horarios, niveles, plazos) son los mismos en todos los documentos y cuadran con `database/`
+  (niveles `basico`/`plata`/`oro`, `paquete`/`solo_vuelo`, `turista`/`business`, 6 aerolíneas, compensaciones
+  250/400/600 €). Si cambias una cifra, búscala en todos (`grep -rn` en `corpus/empresa/`), FAQ incluida.
+- Correos y webs solo en `viajesnimbo.example`; empresa, CIF y licencia, ficticios.
+
 Comprobar el corpus cuando cambie (desde `travel-agency/`; no hay tests, es un entregable de datos):
 
 ```bash
 cd rag/corpus
-# Huellas: todos OK
-grep '^| [a-z]' SOURCES.md | awk -F' \\| ' '{gsub(/^\| /,"",$1); gsub(/ \|$/,"",$8); print $8"  "$1}' | sha256sum -c --quiet
+# Huellas: todos OK (las filas de empresa/ llevan «—» y se saltan)
+grep '^| [a-z]' SOURCES.md | awk -F' \\| ' '{gsub(/^\| /,"",$1); gsub(/ \|$/,"",$8); if ($8 != "—") print $8"  "$1}' | sha256sum -c --quiet
 # Cada archivo con su fila: sin salida
 diff <(find . -type f ! -name .gitkeep ! -name SOURCES.md | sed 's|^\./||' | sort) \
      <(grep '^| [a-z]' SOURCES.md | awk -F' \\| ' '{gsub(/^\| /,"",$1); print $1}' | sort)

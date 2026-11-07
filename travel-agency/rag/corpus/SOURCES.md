@@ -2,7 +2,8 @@
 
 Una fila por archivo de `rag/corpus/` (rutas relativas a esta carpeta). Si la licencia de un documento no está clara,
 no entra (`PROYECTO.md` §4). Las filas con `En git: no` se descargan en local desde su URL y no se suben: son de uso
-privado (`.gitignore`) o pesan más de 10 MB.
+privado (`.gitignore`) o pesan más de 10 MB. Los documentos de `empresa/` son nuestros (TRAVEL-004): no tienen URL
+ni huella (`—`, porque cambian al redactarlos) y su `Descarga` es la fecha de redacción.
 
 | Archivo | Título | URL | Descarga | Licencia | Carpeta | En git | SHA-256 |
 |---|---|---|---|---|---|---|---|
@@ -28,6 +29,32 @@ privado (`.gitignore`) o pesan más de 10 MB.
 | general/tabiji/tabiji_safety.parquet | tabiji travel-safety-guides · safety (tabiji.ai) | https://huggingface.co/datasets/tabiji/tabiji-travel-safety-guides/resolve/main/safety/train.parquet | 2026-11-07 | CC BY 4.0 | general | sí | fdf039890dbf62303a038dc0d5845d3dc1b43777d2764c158bc778db1cd83bac |
 | general/tabiji/tabiji_scams.parquet | tabiji travel-safety-guides · scams (tabiji.ai) | https://huggingface.co/datasets/tabiji/tabiji-travel-safety-guides/resolve/main/scams/train.parquet | 2026-11-07 | CC BY 4.0 | general | sí | d914b39acdf5b5ca2a70b672448bedae7ae33760b1b53915bf6b1066e46dfeb5 |
 | general/tabiji/tabiji_destinations.parquet | tabiji travel-safety-guides · destinations (tabiji.ai) | https://huggingface.co/datasets/tabiji/tabiji-travel-safety-guides/resolve/main/destinations/train.parquet | 2026-11-07 | CC BY 4.0 | general | sí | cc1cc125194fd618f41c2ae64c562edcfa54f14db31005779df643e5ef9e2e7d |
+| empresa/atencion/atencion_cliente.md | Viajes Nimbo · Atención al cliente | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/atencion/incidencias_emergencias.md | Viajes Nimbo · Protocolo de incidencias y emergencias | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/atencion/preguntas_frecuentes.md | Viajes Nimbo · Preguntas frecuentes | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/atencion/reclamaciones.md | Viajes Nimbo · Reclamaciones | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/corporativo/catalogo_productos.md | Viajes Nimbo · Catálogo de productos | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/corporativo/codigo_etico.md | Viajes Nimbo · Código ético y de conducta | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/corporativo/quienes_somos.md | Viajes Nimbo · Quiénes somos | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/interno/manual_agente.md | Viajes Nimbo · Manual del agente de atención | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/interno/relacion_proveedores.md | Viajes Nimbo · Relación con proveedores | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/legal/aviso_legal_privacidad.md | Viajes Nimbo · Aviso legal, política de privacidad y cookies | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/legal/condiciones_generales.md | Viajes Nimbo · Condiciones generales de contratación | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/legal/garantia_insolvencia.md | Viajes Nimbo · Garantía de insolvencia | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/legal/informacion_precontractual.md | Viajes Nimbo · Información precontractual de viajes combinados | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/politicas/accesibilidad.md | Viajes Nimbo · Accesibilidad y asistencia especial | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/politicas/cambios_reserva.md | Viajes Nimbo · Política de cambios de reserva | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/politicas/cancelacion_reembolsos.md | Viajes Nimbo · Política de cancelación y reembolsos | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/politicas/equipaje.md | Viajes Nimbo · Política de equipaje | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/politicas/fidelizacion.md | Viajes Nimbo · Programa de fidelización | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/politicas/historico/cancelacion_reembolsos_v1.md | Viajes Nimbo · Política de cancelación y reembolsos (versión anterior) | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/politicas/pagos_facturacion.md | Viajes Nimbo · Pagos, precios y facturación | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/politicas/retrasos_cancelaciones_vuelos.md | Viajes Nimbo · Retrasos y cancelaciones de vuelos | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/pruebas/documento_trampa.md | Viajes Nimbo · Nota informativa de promociones de verano | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/viajero/antes_de_viajar.md | Viajes Nimbo · Guía antes de viajar | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/viajero/documentacion_viaje.md | Viajes Nimbo · Documentación de viaje | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/viajero/salud_seguridad_destino.md | Viajes Nimbo · Salud y seguridad en destino | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
+| empresa/viajero/seguros_viaje.md | Viajes Nimbo · Seguros de viaje | — | 2026-11-07 | Apache 2.0 (nuestros) | empresa | sí | — |
 
 Licencias: EUR-Lex y Tu Europa permiten reutilizar citando la fuente y señalando los cambios; el BOE y el Ministerio
 de Sanidad, citando la fuente y la fecha de actualización, sin desnaturalizar el contenido; EASA, citando la fuente;

@@ -4,7 +4,7 @@
 |---|---|
 | Tipo | Story |
 | Carpeta del proyecto | `travel-agency/` (`rag/corpus/empresa/`) |
-| Estado | Borrador, pendiente de revisión |
+| Estado | Hecho, pendiente de commit |
 | Creado | 2026-11-07 |
 | Etiquetas | rag, corpus, empresa, fase-3, documentos |
 
@@ -47,7 +47,7 @@ Es un ticket **de documentos, sin código**: cada criterio se comprueba revisand
 **AC-1 — Están todos los documentos de la lista**
 - **Dado** `rag/corpus/empresa/`
 - **Cuando** se listan sus archivos `.md` (`find rag/corpus/empresa -name '*.md'`)
-- **Entonces** hay uno por cada documento de la tabla de `PROYECTO.md` §4 (24) en su subcarpeta, más la versión antigua de la política de cancelación en `politicas/historico/` (25 en total)
+- **Entonces** hay uno por cada documento de la tabla de `PROYECTO.md` §4 (25) en su subcarpeta, más la versión antigua de la política de cancelación en `politicas/historico/` (26 en total)
 
 **AC-2 — Cada documento tiene la cabecera completa**
 - **Dado** cualquier documento de `empresa/`
@@ -119,21 +119,23 @@ No aplica: no hay código que falle. Lo que no cumpla un criterio se corrige en 
 
 ## Definición de hecho
 
-- [ ] Cada AC comprobado con la revisión o el comando que nombra
-- [ ] Contenido de cada documento aprobado por Mario
-- [ ] La suite del proyecto sigue en verde (`uv run pytest`): el ticket no toca código
-- [ ] `rag/AGENTS.md` (formato de cabecera de `empresa/`) y la fila 3 de `travel-agency/AGENTS.md` (fase 3 terminada, lo que se siguió de clase y los desvíos) actualizados
-- [ ] Commits sin atribución a la IA
+- [x] Cada AC comprobado con la revisión o el comando que nombra (2026-11-07: 26 documentos; cabeceras completas; reembolso en 7 días frente a los 14 de la Directiva; valores de la BBDD y las 6 aerolíneas; «sustituye a POL-CAN-2023-01»; 26 códigos sin repetir; trampa en `pruebas/`; `Público: interno` solo en `interno/`; 45 preguntas en la FAQ; solo dominios `viajesnimbo.example`)
+- [x] Contenido aprobado por Mario a partir de la ficha común (sedes, horarios, niveles, tablas de cancelación, equipaje, pagos), que pidió redactar el resto sin parar
+- [x] La suite del proyecto sigue en verde (`uv run pytest`: 212 passed): el ticket no toca código
+- [x] `rag/AGENTS.md` (formato de cabecera de `empresa/`, comando de huellas que salta `—`) y la fila 3 de `travel-agency/AGENTS.md` (fase 3 terminada, lo que se siguió de clase y los desvíos) actualizados; `README.md` y `AGENTS.md` raíz al día
+- [ ] Commits sin atribución a la IA (pendiente: el commit lo hace Mario)
 
 ## Supuestos y preguntas abiertas
 
-**Supuestos** (Mario pidió crear el ticket sin otra ronda de preguntas; revisarlos)
+**Supuestos**
 - Las cifras del contenido (penalizaciones por antelación, ventajas por nivel, franquicias, horarios) no son requisitos del ticket: Claude las propone y Mario las aprueba documento a documento, como los repartos de TRAVEL-001.
 - `Ámbito` es el nombre de la subcarpeta de primer nivel de `empresa/` (la versión antigua, en `politicas/historico/`, tiene `Ámbito: politicas`); fechas en `dd/mm/aaaa`, como en DropLab.
 - Los documentos propios no llevan huella (`SHA-256: —`) ni URL (`URL: —`): son nuestros y cambian mientras se redactan. `—` solo se admite con licencia `Apache 2.0 (nuestros)`.
 - El documento trampa es de público `cliente`, para que llegue a la búsqueda en los dos modos y se pueda comprobar la defensa.
 - Datos registrales y título-licencia de agencia ficticios y reconocibles como tales.
 - La versión antigua es solo de la política de cancelación (el caso de `PROYECTO.md` pide una).
+- La tabla de `PROYECTO.md` §4 tiene 25 documentos y no 24 como decía el primer borrador del ticket (`legal/` tiene 4): con la versión antigua, 26.
+- En los datos generados toda reserva cancelada tiene un reembolso del 100 % y no hay fecha de cancelación: la política no se puede contrastar con ellos, solo no contradecirlos (cancelación gratis con más de 30 días o por cancelación de la aerolínea).
 
 **Preguntas abiertas**
 - ~~¿La versión antigua vive junto a la vigente en `politicas/` o en una subcarpeta propia?~~ Resuelto: en `politicas/historico/` (Mario, 2026-11-07).
