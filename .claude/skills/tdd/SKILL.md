@@ -7,7 +7,8 @@ description: >
   it and stops for review after every cycle. Use when the user asks to develop or implement a
   ticket written by plan-ticket (a <KEY>-<NNN>-*.md file with acceptance criteria), to work
   test-first, mentions TDD or red-green, or wants to fix a bug starting from a failing test. If
-  there is no ticket with acceptance criteria yet, run plan-ticket first.
+  there is no ticket with acceptance criteria yet, run plan-ticket first. Not for tickets whose
+  deliverable is data or documents (downloads, tables, written docs): those are checked by review.
 ---
 
 # Test-Driven Development
@@ -37,6 +38,7 @@ Load `python-developer` before writing any test or code, and follow the folder's
 
 ## Before the loop (once per ticket)
 
+0. **Check the ticket needs code.** If its deliverable is data or documents and its ACs are checked by a review or an existing command, TDD doesn't apply: tell the user and stop. Don't propose seams for it.
 1. **Read the ticket and its context.** The ticket, the `AGENTS.md` / `CLAUDE.md` / `README.md` of the folder and of the subfolder the change touches, and the code and tests around it.
 2. **Find the reference (rule 0).** Look in this order and stop at the first that covers the feature:
    1. the ticket's *References read*;

@@ -64,7 +64,7 @@ Copy this structure exactly. Translate headings and the Given/When/Then keywords
 
 ## Definition of Done
 
-- [ ] Every AC is covered by a passing automated test
+- [ ] Every AC is covered by a passing automated test *(code tickets)* / checked by the review or command named in the AC *(data or document tickets)*
 - [ ] The full test suite of the project is green
 - [ ] Lint, format and type checks pass (where the project has them)
 - [ ] `AGENTS.md` of the folder updated if the change makes it outdated

@@ -16,6 +16,7 @@ Acceptance criteria (ACs) are the testable conditions one ticket must meet to be
 - **Given**: the starting state, concrete enough to set up in a test (which case, which data, which config).
 - **When**: one action or event: a request, a call, a message, a time passing.
 - **Then**: the observable result. Use **And** for further checks on *the same outcome*. If an *And* checks a different behavior, split it into its own AC.
+- In a **data or document ticket** (no code), the *When* names how the AC is checked: an existing command (`sha256sum -c`, `git check-ignore`) or a review. Don't write ACs about tests failing: there are no tests.
 - Use concrete values (`"8921"`, `LIMIT 1000`, `HTTP 422`) instead of "a valid id" or "a big number". Concrete values become test data.
 - Names that are part of a public contract (an operation string, an HTTP status, a response field, a log event name) are fine to quote: they are observable. Internal names (functions, classes, modules) are not.
 
