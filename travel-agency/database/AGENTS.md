@@ -1,12 +1,12 @@
 # AGENTS.md — `database/`
 
 > Estado: **fase 2 terminada**: 2a (CSV a mano + capa semántica) y 2b (generador con semilla fija, ticket
-> `docs/tickets/TRAVEL-001`): `data_generated/` amplía a miles de filas **conservando las filas a mano** como casos ancla.
+> `docs/tickets/TRAVEL-001`): `data/` tiene miles de filas generadas a partir de las de `fixtures/`, que siguen dentro como casos ancla.
 
 ## Propósito
 
-Los datos de Viajes Nimbo: 8 CSV escritos por nosotros (`data/`), el conjunto grande generado a partir de ellos
-(`data_generated/`) y la **capa semántica** que el LLM text-to-SQL verá en lugar de las tablas (sección 3 de [`../PROYECTO.md`](../PROYECTO.md)). Son datos: no sabe nada de LLMs.
+Los datos de Viajes Nimbo: **`data/`, la fuente de verdad que abre la app** (8 CSV con miles de filas), las filas
+escritas a mano de las que sale (`fixtures/`, también los datos de los tests) y la **capa semántica** que el LLM text-to-SQL verá en lugar de las tablas (sección 3 de [`../PROYECTO.md`](../PROYECTO.md)). Son datos: no sabe nada de LLMs.
 
 **Se implementa igual que en clase**: `semantic_layer.py` ejecuta el mismo código que
 `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py` (nombres y archivos pueden
@@ -15,10 +15,10 @@ cambiar). Antes de cambiar algo, mira cómo está allí.
 ## Archivos clave
 
 ```
-data/*.csv                       # 8 tablas, ~80 filas a mano; cada fila rara está ahí por una trampa
-data_generated/*.csv             # las filas a mano + ~15.000 generadas con la semilla 42 (subido a git)
+data/*.csv                       # la fuente de verdad: fixtures + ~15.000 filas generadas (semilla 42, subido a git)
+fixtures/*.csv                   # 8 tablas, ~80 filas a mano; cada fila rara está ahí por una trampa. Datos de los tests
 src/database/semantic_layer.py   # VIEWS, COMMENTS, GUIDE, open_db(), schema(), CHECKS, run_checks()
-src/database/seed.py             # generate(source_dir, out_dir, seed) y el comando: escribe data_generated/
+src/database/seed.py             # generate(source_dir, out_dir, seed) y el comando: fixtures/ → data/
 tests/test_database_audit.py     # auditoría de integridad (como 02_auditoria_integridad.py de la clase 1); AUDIT_QUERIES
 tests/test_database_semantic_layer.py
 tests/test_database_seed.py      # un test por AC de TRAVEL-001 sobre el conjunto generado
@@ -42,13 +42,15 @@ Desde la raíz `travel-agency/`:
 
 ```bash
 uv run python -m database.semantic_layer           # lo que ve el modelo (y lo que no)
-uv run python -m database.semantic_layer --check   # las vistas dan las cifras calculadas a mano
-uv run python -m database.seed                     # regenera data_generated/ (--seed N, --source, --out)
+uv run python -m database.semantic_layer --check --data database/fixtures   # las cifras calculadas a mano
+uv run python -m database.seed                     # regenera data/ desde fixtures/ (--seed N, --source, --out)
 uv run pytest database/tests
 ```
 
 Sin variables de entorno: la base se construye en memoria desde `data/` cada vez (como `abrir()` en clase, aquí `open_db()`).
-Para abrir el conjunto grande: `open_db(GENERATED_DIR)` (de `database.seed`).
+Los tests abren las filas a mano: `open_db(FIXTURES_DIR)`, con `FIXTURES_DIR` de `database.seed` (también en
+`text2sql/tests`). `semantic_layer.py` no nombra `fixtures/` (es lo que usa la app): `--check` va con
+`--data database/fixtures` porque los `CHECKS` globales (7 reservas, 1.849 €) solo cuadran ahí; sobre `data/` fallan.
 
 ## Las trampas, fila a fila
 
@@ -88,10 +90,14 @@ Para abrir el conjunto grande: `open_db(GENERATED_DIR)` (de `database.seed`).
 
 - **Sin Faker**: nombres y apellidos en listas escritas a mano + `random.Random(semilla)`. Todos los repartos
   (10 % de reservas canceladas, 5 % de vuelos cancelados, 20 % retrasados…) son constantes al principio del archivo.
-- `data/` sigue siendo la base exacta de los tests: los `CHECKS` globales (7 reservas, neto 1.849 €) solo cuadran ahí.
-  Sobre `data_generated/` pasan la auditoría y los `CHECKS` que miran un id.
-- **Si cambias el generador, regenera y sube `data_generated/`**: `test_database_seed_same_seed_same_bytes` compara
-  byte a byte. Cualquier llamada nueva a `rng` (o en otro orden) cambia todos los datos que vienen después.
+- **`data/` se genera, no se edita a mano**: el comando la sobrescribe entera. Las filas a mano (trampas, R-1042,
+  IB3166…) se editan en `fixtures/` y luego se regenera. Normalmente se ejecuta una vez y se sube a git.
+- Los tests van sobre `fixtures/`: los `CHECKS` globales (7 reservas, neto 1.849 €) solo cuadran ahí. Sobre el conjunto
+  generado pasan la auditoría y los `CHECKS` que miran un id.
+- **Si cambias el generador o `fixtures/`, regenera y sube `data/`**: `test_database_seed_same_seed_same_bytes` la
+  compara byte a byte con lo que da el generador. Cualquier llamada nueva a `rng` (o en otro orden) cambia todos los
+  datos que vienen después.
+- `schema()` tarda ~4,8 s sobre `data/` (~4,2 s sobre `fixtures/`); `open_db()`, ~0,5 s.
 - Fecha de corte `CUTOFF = 2026-11-01` («hoy»): lo que sale desde ese día está `programado`, y nada (reservas,
   pagos, incidencias) tiene fecha de ese día o posterior.
 - Horas: la salida es una hora local del origen (06:00-22:55, así no cae en la hora que no existe al cambiar la hora);
@@ -102,5 +108,5 @@ Para abrir el conjunto grande: `open_db(GENERATED_DIR)` (de `database.seed`).
   viaje ≥ 180 min o cancelación → 250 / 400 / 600 € según la distancia del viaje; menos de 180 min → `rechazada`.
 - Sin telemetría (decidido el 2026-11-07): el generador es determinista y se ejecuta a mano; `database` no depende de
   `telemetry` ni de `contracts`.
-- 12 aeropuertos añadidos al final de `data/aeropuertos.csv` (coordenadas de OurAirports); las 8 primeras filas no se
+- 12 aeropuertos añadidos al final de `fixtures/aeropuertos.csv` (coordenadas de OurAirports); las 8 primeras filas no se
   tocan porque los `CHECKS` de distancia salen de ellas (MAD difiere ~2,5 km de OurAirports).

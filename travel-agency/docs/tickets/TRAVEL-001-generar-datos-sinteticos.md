@@ -19,8 +19,9 @@ volumen realista sin perder los casos ancla ni las trampas que ya conocemos.
 La fase 2a dejó 8 CSV con ~70 filas a mano en `database/data/` y la capa semántica (`semantic_layer.py`) con
 `CHECKS` calculados a mano sobre esas filas. `PROYECTO.md` §3 pide después un generador con **semilla fija** que
 amplíe a muchas filas conservando las filas a mano. Algunos `CHECKS` son cifras globales (7 reservas, neto
-1.849 €, dos «Ana López») que dejarían de cuadrar si se mezclan filas generadas: por eso el conjunto generado va
-en una carpeta aparte y `data/` sigue siendo la base exacta de los tests. `open_db(data_dir)` ya admite otra carpeta.
+1.849 €, dos «Ana López») que dejarían de cuadrar si se mezclan filas generadas. Decisión de Mario (cierre): `data/` es
+la fuente de verdad y lo que abre la app, así que el conjunto generado va en `data/`; las filas a mano pasan a
+`fixtures/` y son los datos de los tests (`open_db(FIXTURES_DIR)`), donde los `CHECKS` siguen cuadrando.
 
 **Referencias leídas:** `travel-agency/PROYECTO.md` §3 y §10, `travel-agency/AGENTS.md` (fila 2),
 `database/AGENTS.md`, `database/src/database/semantic_layer.py` (`open_db`, `CHECKS`),
@@ -34,7 +35,8 @@ reproducibles).
   (`tienda.py`); nadie escribe un generador. El enfoque lo decidió Mario el 2026-11-07.
 - **Sin Faker** (decisión de Mario): listas de nombres y apellidos escritas a mano + `random` de la biblioteca
   estándar con semilla. `PROYECTO.md` §3 decía Faker: se actualiza.
-- **Conjunto generado en carpeta aparte** (`database/data_generated/`, subido a git) en lugar de ampliar `data/`.
+- **Las filas a mano pasan a `database/fixtures/`** y el conjunto generado (fixtures + filas generadas) es `database/data/`,
+  subido a git. Primero fue a una carpeta aparte (`data_generated/`); Mario lo cambió al cerrar.
 - El generador va en `src/database/seed.py` (`uv run python -m database.seed`, como `python -m database.semantic_layer`) y no en `seed/generar.py`: así los tests lo importan. Código en inglés. Acordado con Mario.
 - CSV escritos con `csv.DictWriter` (como `Ejercicios/rag-tenerife/utilidades.py`), sin dependencias nuevas.
 - Aeropuertos nuevos con coordenadas de OurAirports (dominio público); zona IANA comprobada con `zoneinfo`.
@@ -43,7 +45,7 @@ reproducibles).
 ## Alcance
 
 **Dentro**
-- Un comando que, a partir de `data/` y una semilla, escribe los 8 CSV en `data_generated/`: filas a mano
+- Un comando que, a partir de `fixtures/` y una semilla, escribe los 8 CSV en `data/`: filas a mano
   intactas + filas generadas.
 - Unos 12 aeropuertos reales más, escritos a mano en `data/aeropuertos.csv` (coordenadas y zona IANA reales).
 - Coherencia del negocio en las filas generadas: horas y zonas, estados, itinerarios, fechas, pagos y
@@ -64,13 +66,13 @@ reproducibles).
 **AC-1 — Se genera el conjunto grande**
 - **Dado** `data/` con sus 8 CSV a mano
 - **Cuando** se ejecuta el generador con la semilla por defecto
-- **Entonces** `data_generated/` contiene los 8 CSV con las mismas columnas y en el mismo orden que en `data/`
+- **Entonces** `data/` contiene los 8 CSV con las mismas columnas y en el mismo orden que en `fixtures/`
 - **Y** hay al menos 1.000 clientes, 2.000 vuelos y 3.000 reservas
 
 **AC-2 — Las filas a mano siguen intactas**
 - **Dado** el conjunto generado
-- **Cuando** se compara cada CSV de `data/` con su CSV de `data_generated/`
-- **Entonces** cada fila de `data/` aparece idéntica, valor por valor, en `data_generated/`
+- **Cuando** se compara cada CSV de `fixtures/` con su CSV generado
+- **Entonces** cada fila de `fixtures/` aparece idéntica, valor por valor, en el generado
 
 **AC-3 — La auditoría de integridad pasa sobre el conjunto generado**
 - **Dado** el conjunto generado abierto con la capa semántica
@@ -167,10 +169,10 @@ reproducibles).
 ### Errores
 
 **AC-14 — Una semilla que no es un número entero da un error de uso**
-- **Dado** un `data_generated/` ya generado
+- **Dado** un conjunto ya generado
 - **Cuando** se ejecuta el generador con `--seed abc`
 - **Entonces** el comando termina con un error de uso que explica que la semilla debe ser un número entero
-- **Y** los archivos de `data_generated/` no cambian
+- **Y** sus archivos no cambian
 
 **AC-15 — Si falta un CSV a mano, el error lo nombra**
 - **Dado** una carpeta de origen sin `vuelos.csv`
@@ -181,7 +183,7 @@ reproducibles).
 ### No funcionales
 
 **AC-16 — Misma semilla, mismos bytes**
-- **Dado** el conjunto subido a git en `data_generated/`
+- **Dado** el conjunto subido a git en `data/`
 - **Cuando** se regenera dos veces con la semilla por defecto en una carpeta temporal
 - **Entonces** los dos resultados son idénticos byte a byte entre sí y con los CSV subidos
 
@@ -199,16 +201,16 @@ reproducibles).
 
 **AC-19 — Lo que ya existe no se rompe**
 - **Dado** el cambio terminado
-- **Cuando** se ejecutan los tests actuales de `database/` sobre `data/`
+- **Cuando** se ejecutan los tests actuales de `database/` (y de `text2sql/`) sobre `fixtures/`
 - **Entonces** pasan todos con sus cifras exactas (7 reservas, neto 1.849 €, join directo 3.543 €…)
-- **Y** de `data/` solo ha cambiado `aeropuertos.csv`, con filas nuevas al final y las 8 actuales sin tocar
+- **Y** de las filas a mano solo ha cambiado `aeropuertos.csv`, con filas nuevas al final y las 8 actuales sin tocar
 
 ## Definición de hecho
 
 - [x] Cada AC cubierto por un test automático que pasa (21 AC; el AC-18 se descartó)
 - [x] Toda la suite del proyecto en verde (`uv run pytest`: 212 passed)
 - [x] ruff y ty limpios (`ruff format` solo marca Markdown que ya estaba así: `database/AGENTS.md` y otros dos)
-- [x] `database/AGENTS.md` y `README.md` actualizados (comando, `data_generated/`, sin Faker); fila 2 de
+- [x] `database/AGENTS.md` y `README.md` actualizados (comando, `fixtures/` → `data/`, sin Faker); fila 2 de
       `travel-agency/AGENTS.md` con el estado, en qué se fijó y los desvíos; `PROYECTO.md` §3 sin Faker
 - [ ] Commits sin atribución a la IA (pendiente: el commit lo hace Mario)
 
@@ -226,6 +228,8 @@ reproducibles).
 - Los aeropuertos nuevos los elige quien desarrolle, con datos reales comprobados.
 
 **Preguntas abiertas**
-- `schema()` tarda hoy ~4 s sobre `data/`: medir cuánto tarda con el conjunto grande y decidir si hace falta un
-  límite antes de la fase 5.
-- ¿Qué conjunto abre `open_db()` por defecto cuando llegue text2sql (fase 5)? Hoy `data/`; no se cambia en este ticket.
+- ~~`schema()` tarda hoy ~4 s sobre `data/`: medir cuánto tarda con el conjunto grande y decidir si hace falta un
+  límite antes de la fase 5.~~ Resuelto: 4,8 s sobre el conjunto grande (4,2 s con las filas a mano) y `open_db()`
+  0,5 s. No hace falta límite.
+- ~~¿Qué conjunto abre `open_db()` por defecto cuando llegue text2sql (fase 5)?~~ Resuelto: `data/`, que es el
+  conjunto grande y lo que usa la app; los tests abren `fixtures/` con `open_db(FIXTURES_DIR)`.

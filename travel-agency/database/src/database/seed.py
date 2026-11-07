@@ -1,7 +1,9 @@
 """Generador de datos sintéticos con semilla fija (fase 2b, ticket TRAVEL-001).
 
-Lee los 8 CSV escritos a mano, los copia tal cual y añade filas generadas. Sin referencia en el repo: en clase
-los datos ya venían hechos. Sin Faker (decisión de Mario): listas escritas a mano y `random` con semilla.
+Lee los 8 CSV escritos a mano (`fixtures/`), los copia tal cual y añade filas generadas en `data/`, la fuente de
+verdad que abre la app. Se ejecuta una vez y se sube a git; solo se regenera si cambian `fixtures/` o el generador.
+Sin referencia en el repo: en clase los datos ya venían hechos. Sin Faker (decisión de Mario): listas escritas a mano
+y `random` con semilla.
 """
 
 import argparse
@@ -16,7 +18,9 @@ from zoneinfo import ZoneInfo
 
 from database.semantic_layer import DATA_DIR
 
-GENERATED_DIR = DATA_DIR.parent / "data_generated"
+# Las filas escritas a mano (casos ancla con las trampas): el origen del generador y los datos de los tests.
+# La app no las usa: abre data/, que las lleva dentro junto con las generadas.
+FIXTURES_DIR = DATA_DIR.parent / "fixtures"
 
 TABLES = [
     "aerolineas",
@@ -413,8 +417,10 @@ def _seed(text: str) -> int:
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Amplía los CSV a mano con filas generadas, con semilla fija.")
     parser.add_argument("--seed", type=_seed, default=42, help="Semilla de random (por defecto 42).")
-    parser.add_argument("--source", type=Path, default=DATA_DIR, help="Carpeta con los 8 CSV a mano.")
-    parser.add_argument("--out", type=Path, default=GENERATED_DIR, help="Carpeta donde se escriben los CSV.")
+    parser.add_argument("--source", type=Path, default=FIXTURES_DIR, help="Carpeta con los 8 CSV a mano.")
+    parser.add_argument(
+        "--out", type=Path, default=DATA_DIR, help="Carpeta donde se escriben los CSV (se sobrescriben)."
+    )
     args = parser.parse_args(argv)
     try:
         # Lee los 8 CSV antes de escribir: si falta uno, no deja nada a medias

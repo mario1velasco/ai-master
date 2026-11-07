@@ -14,8 +14,8 @@ con `CHECKS` (cifras calculadas a mano). Igual que en clase, `crudo` no se descr
 prohibido: la lista blanca de vistas es cosa del validador de text2sql (fase 5).
 
 Uso (desde travel-agency/):
-  uv run python -m database.semantic_layer           # lo que ve el modelo (y lo que no)
-  uv run python -m database.semantic_layer --check   # las vistas dan las cifras calculadas a mano
+  uv run python -m database.semantic_layer                                 # lo que ve el modelo (y lo que no)
+  uv run python -m database.semantic_layer --check --data database/fixtures  # las cifras calculadas a mano
 """
 
 import argparse
@@ -386,8 +386,9 @@ def run_checks(con: duckdb.DuckDBPyConnection) -> bool:
 def main() -> None:
     parser = argparse.ArgumentParser(description="La capa semántica: lo que ve el modelo en lugar de los CSV.")
     parser.add_argument("--check", action="store_true", help="Comprobar las vistas contra las cifras a mano.")
+    parser.add_argument("--data", type=Path, default=DATA_DIR, help="Carpeta con los 8 CSV (por defecto data/).")
     args = parser.parse_args()
-    con = open_db()
+    con = open_db(args.data)
     if args.check:
         raise SystemExit(0 if run_checks(con) else 1)
     hidden = [

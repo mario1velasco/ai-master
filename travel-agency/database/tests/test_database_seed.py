@@ -11,7 +11,7 @@ import duckdb
 import pytest
 from test_database_audit import AUDIT_QUERIES
 
-from database.seed import GENERATED_DIR, generate, main
+from database.seed import FIXTURES_DIR, generate, main
 from database.semantic_layer import CHECKS, DATA_DIR, Row, open_db, rounded_rows
 
 TABLES = [
@@ -38,9 +38,9 @@ def read_header(path: Path) -> list[str]:
 
 @pytest.fixture(scope="session")
 def generated_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    """El conjunto generado con la semilla por defecto, una sola vez para todos los tests."""
-    out_dir = tmp_path_factory.mktemp("data_generated")
-    generate(DATA_DIR, out_dir, seed=42)
+    """El conjunto generado desde fixtures/ con la semilla por defecto, una sola vez y en una carpeta temporal."""
+    out_dir = tmp_path_factory.mktemp("data")
+    generate(FIXTURES_DIR, out_dir, seed=42)
     return out_dir
 
 
@@ -54,7 +54,7 @@ def generated_con(generated_dir: Path) -> Generator[duckdb.DuckDBPyConnection]:
 
 def test_database_seed_writes_large_dataset_with_same_columns(generated_dir: Path) -> None:
     for table in TABLES:
-        assert read_header(generated_dir / f"{table}.csv") == read_header(DATA_DIR / f"{table}.csv"), table
+        assert read_header(generated_dir / f"{table}.csv") == read_header(FIXTURES_DIR / f"{table}.csv"), table
 
     assert len(read_rows(generated_dir / "clientes.csv")) >= 1_000
     assert len(read_rows(generated_dir / "vuelos.csv")) >= 2_000
@@ -65,7 +65,7 @@ def test_database_seed_writes_large_dataset_with_same_columns(generated_dir: Pat
 def test_database_seed_keeps_hand_written_rows(generated_dir: Path, table: str) -> None:
     generated = read_rows(generated_dir / f"{table}.csv")
 
-    missing = [row for row in read_rows(DATA_DIR / f"{table}.csv") if row not in generated]
+    missing = [row for row in read_rows(FIXTURES_DIR / f"{table}.csv") if row not in generated]
 
     assert missing == []
 
@@ -266,7 +266,7 @@ def test_database_seed_compensation_follows_regulation_261(generated_con: duckdb
 
     assert wrong[:5] == []
     # Que haya de todo entre las generadas: sin incidencias, las reglas de arriba no prueban nada
-    hand_written = {r["incidencia_id"] for r in read_rows(DATA_DIR / "incidencias.csv")}
+    hand_written = {r["incidencia_id"] for r in read_rows(FIXTURES_DIR / "incidencias.csv")}
     generated = [r for r in rows if r[0] not in hand_written]
     paid = {amount for _, _, state, amount, _, _ in generated if state == "resuelta" and amount is not None}
     assert paid == {250, 400, 600}
@@ -340,7 +340,7 @@ ID_COLUMN = {"clientes": "cliente_id", "reservas": "reserva_id", "vuelos": "vuel
 def test_database_seed_traps_are_in_generated_rows(generated_con: duckdb.DuckDBPyConnection) -> None:
     missing = []
     for trap, (table, sql) in TRAPS.items():
-        hand_ids = [r[ID_COLUMN[table]] for r in read_rows(DATA_DIR / f"{table}.csv")]
+        hand_ids = [r[ID_COLUMN[table]] for r in read_rows(FIXTURES_DIR / f"{table}.csv")]
         if not generated_con.execute(sql, [hand_ids]).fetchall():
             missing.append(trap)
 
@@ -364,10 +364,10 @@ def test_database_seed_id_checks_keep_their_figures(
 
 
 def test_database_seed_other_seed_gives_other_data(generated_dir: Path, tmp_path: Path) -> None:
-    generate(DATA_DIR, tmp_path, seed=7)
+    generate(FIXTURES_DIR, tmp_path, seed=7)
 
     for table in TABLES:
-        hand = read_rows(DATA_DIR / f"{table}.csv")
+        hand = read_rows(FIXTURES_DIR / f"{table}.csv")
         with_42, with_7 = read_rows(generated_dir / f"{table}.csv"), read_rows(tmp_path / f"{table}.csv")
         # Las filas a mano, las mismas y al principio con las dos semillas
         assert with_42[: len(hand)] == with_7[: len(hand)] == hand, table
@@ -380,7 +380,7 @@ def snapshot(folder: Path) -> dict[str, bytes]:
 
 
 def test_database_seed_rejects_non_integer_seed(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    generate(DATA_DIR, tmp_path, seed=42)
+    generate(FIXTURES_DIR, tmp_path, seed=42)
     before = snapshot(tmp_path)
 
     with pytest.raises(SystemExit) as exit_info:
@@ -393,7 +393,7 @@ def test_database_seed_rejects_non_integer_seed(tmp_path: Path, capsys: pytest.C
 
 def test_database_seed_missing_csv_is_named(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     source, out = tmp_path / "source", tmp_path / "out"
-    shutil.copytree(DATA_DIR, source)
+    shutil.copytree(FIXTURES_DIR, source)
     (source / "vuelos.csv").unlink()
 
     with pytest.raises(SystemExit) as exit_info:
@@ -405,17 +405,17 @@ def test_database_seed_missing_csv_is_named(tmp_path: Path, capsys: pytest.Captu
 
 
 def test_database_seed_same_seed_same_bytes(tmp_path: Path) -> None:
-    generate(DATA_DIR, tmp_path / "first", seed=42)
-    generate(DATA_DIR, tmp_path / "second", seed=42)
-    first, second, committed = (snapshot(tmp_path / "first"), snapshot(tmp_path / "second"), snapshot(GENERATED_DIR))
+    generate(FIXTURES_DIR, tmp_path / "first", seed=42)
+    generate(FIXTURES_DIR, tmp_path / "second", seed=42)
+    first, second, committed = (snapshot(tmp_path / "first"), snapshot(tmp_path / "second"), snapshot(DATA_DIR))
 
     assert sorted(first) == sorted(committed) == [f"{table}.csv" for table in TABLES]
     assert [name for name in first if first[name] != second[name]] == []
-    # Si falla tras cambiar el generador: regenerar con «uv run python -m database.seed» y subirlo
+    # Si falla tras cambiar el generador o fixtures/: regenerar data/ con «uv run python -m database.seed» y subirlo
     assert [name for name in first if first[name] != committed[name]] == []
 
 
-# Las 8 filas de aeropuertos.csv de la fase 2a, literales: los CHECKS de distancia salen de ellas
+# Las 8 filas de fixtures/aeropuertos.csv de la fase 2a, literales: los CHECKS de distancia salen de ellas
 ORIGINAL_AIRPORTS = """\
 aeropuerto_id,nombre,ciudad,pais,latitud,longitud,es_ue,zona_horaria
 MAD,Adolfo Suárez Madrid-Barajas,Madrid,España,40.4719,-3.5626,true,Europe/Madrid
@@ -430,7 +430,7 @@ JFK,John F. Kennedy,Nueva York,Estados Unidos,40.6413,-73.7781,false,America/New
 
 
 def test_database_seed_original_airports_untouched() -> None:
-    text = (DATA_DIR / "aeropuertos.csv").read_text(encoding="utf-8")
+    text = (FIXTURES_DIR / "aeropuertos.csv").read_text(encoding="utf-8")
 
     assert text.startswith(ORIGINAL_AIRPORTS)
-    assert len(read_rows(DATA_DIR / "aeropuertos.csv")) > 8  # las nuevas, al final
+    assert len(read_rows(FIXTURES_DIR / "aeropuertos.csv")) > 8  # las nuevas, al final

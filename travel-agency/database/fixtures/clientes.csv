@@ -1,0 +1,8 @@
+cliente_id,nombre,apellidos,email,pais,fecha_alta,nivel_fidelidad
+C-001,Ana,López García,ana.lopez.garcia@example.com,España,2023-02-14,oro
+C-002,Javier,Martín Ruiz,javier.martin@example.com,España,2024-06-03,basico
+C-003,Lucía,Fernández Soto,lucia.fernandez@example.com,España,2022-11-20,plata
+C-004,Ana,López Pérez,ana.lopez.perez@example.com,España,2025-01-09,basico
+C-005,Marc,Puig Serra,marc.puig@example.com,España,2024-09-17,plata
+C-006,Claire,Dubois,claire.dubois@example.com,Francia,2025-03-30,basico
+C-007,Pedro,Gómez Vidal,pedro.gomez@example.com,España,2026-09-02,basico

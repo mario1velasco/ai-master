@@ -124,8 +124,8 @@ travel-agency/
 ├── contracts/
 ├── telemetry/              ← logs, métricas y trazas compartidos
 ├── database/
-│   ├── data/               ← *.csv creados por nosotros
-│   ├── data_generated/     ← los CSV a mano + miles de filas generadas (semilla fija)
+│   ├── data/               ← la fuente de verdad: los CSV a mano + miles de filas generadas (semilla fija)
+│   ├── fixtures/           ← *.csv escritos a mano por nosotros (casos ancla y datos de los tests)
 │   └── src/database/       ← semantic_layer.py (vistas + comentarios + guía + comprobaciones, como en clase) · seed.py (generador)
 ├── rag/
 │   ├── corpus/             ← originales: leyes/ · seguridad/ · salud/ · empresa/ · general/ + SOURCES.md
@@ -173,14 +173,15 @@ Igual que en el resto del repo `ebis`, se usa `AGENTS.md` como fuente única de 
 
 ### Decisión: CSV creados por nosotros + DuckDB
 
-- Los datos son **CSV escritos por nosotros** en `database/data/`. Así conocemos cada columna, controlamos
+- Los datos son **CSV escritos por nosotros** en `database/fixtures/` y ampliados con un generador en `database/data/`. Así conocemos cada columna, controlamos
   los casos difíciles y la licencia es nuestra (Apache 2.0). Los clientes son **sintéticos**.
 - **DuckDB** lee los CSV directamente (sin servidor) y sobre ellos se definen **vistas**. Como en clase
   (`abrir()` de `02_capa_semantica.py`, aquí `open_db()`), la base se construye **en memoria** cada vez que se abre: no hay fichero
   `.duckdb` ni `DUCKDB_PATH`. El LLM text-to-SQL **solo ve las vistas** (las tablas quedan en el esquema `crudo`).
 - Proceso: primero unas pocas filas **a mano** para fijar el esquema → después `database.seed`
   (**semilla fija**, reproducible; sin Faker: listas escritas a mano y `random`) amplía a miles de filas en
-  `data_generated/`, conservando las filas a mano. `data/` sigue siendo la base exacta de los tests.
+  `data/`, la fuente de verdad que usa la app. Las filas a mano viven en `fixtures/` (dentro de `data/` también) y
+  son la base exacta de los tests.
 - Inspiración para el esquema (no se copian datos): [Postgres Pro demo "Airlines"](https://postgrespro.com/education/demodb) (MIT)
   y [stebenc/AirlineBooking](https://github.com/stebenc/AirlineBooking) (Apache 2.0).
 
@@ -957,7 +958,7 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 |---|---|---|---|
 | **0. Esqueleto** | Estructura del monorepo | uv workspace, carpetas, `AGENTS.md` raíz y por carpeta, `README.md`, `.gitignore`, `.env.example` | `uv sync` sin errores; cada paquete importa |
 | **1. Contratos y telemetría** | Base común | `contracts/` (incl. `metrics.py`) y `telemetry/` (logger, `span`, JSONL) | Tests: un `span` de prueba escribe un evento válido |
-| **2. Base de datos** | Datos consultables | CSV a mano → capa semántica (vistas + comentarios + `schema()` + guía) → `database.seed` (`data_generated/`) | Tests de integridad (claves, importes netos, retrasos); consultas de ejemplo |
+| **2. Base de datos** | Datos consultables | CSV a mano → capa semántica (vistas + comentarios + `schema()` + guía) → `database.seed` (`fixtures/` → `data/`) | Tests de integridad (claves, importes netos, retrasos); consultas de ejemplo |
 | **3. Corpus** | Material reunido | Descargas en `rag/corpus/` + `SOURCES.md`; documentos de `empresa/` redactados | Cada documento con fuente y licencia; ninguno de uso privado en git |
 | **4. Conversión a Markdown** | Corpus homogéneo | `rag/conversion/` con PaddleOCR → `rag/markdown/` | Revisión de una muestra; eventos `ConversionMetrics` |
 | **5. Text-to-SQL (línea base)** | SQL sin entrenar | Validador SQL + `text2sql.consultar()` con Qwen3-4B + prompt con diccionario (escalones 1–3 de la sección 6) | Eval sobre las ~50 preguntas a mano; validador bloquea todo lo prohibido |

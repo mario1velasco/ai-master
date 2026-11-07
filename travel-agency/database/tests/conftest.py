@@ -3,13 +3,14 @@ from collections.abc import Generator
 import duckdb
 import pytest
 
+from database.seed import FIXTURES_DIR
 from database.semantic_layer import open_db, schema
 
 
 @pytest.fixture(scope="session")
 def con() -> Generator[duckdb.DuckDBPyConnection]:
-    """Una sola base en memoria para todos los tests: se construye en milisegundos y nadie la modifica."""
-    connection = open_db()
+    """Una sola base en memoria para todos los tests, sobre las filas a mano (`fixtures/`): ahí cuadran los CHECKS."""
+    connection = open_db(FIXTURES_DIR)
     yield connection
     connection.close()
 
