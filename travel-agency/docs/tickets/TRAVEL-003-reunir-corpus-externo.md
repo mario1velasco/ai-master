@@ -4,7 +4,7 @@
 |---|---|
 | Tipo | Story |
 | Carpeta del proyecto | `travel-agency/` (`rag/corpus/`) |
-| Estado | Borrador, pendiente de revisión |
+| Estado | Hecho, pendiente de commit |
 | Creado | 2026-11-07 |
 | Etiquetas | rag, corpus, licencias, fase-3, datos |
 
@@ -23,6 +23,7 @@ Es un ticket **de datos, sin código**: el entregable son archivos, una tabla y 
 **Desvíos respecto al patrón de clase:**
 - No hay en el repo un modelo de `SOURCES.md` ni de cómo reunir un corpus de varias fuentes (en clase el corpus es un solo PDF o una carpeta ya dada). Formato acordado con Mario: tabla Markdown con columna `Archivo` para cruzar cada fichero con su fila.
 - Columna `SHA-256` y límite de 10 MB para git: acordados con Mario; no vienen de `PROYECTO.md`.
+- Fuentes distintas de las de `PROYECTO.md` §4 (ya actualizado): en `salud/`, la guía del Ministerio de Sanidad y Tu Europa en lugar del Yellow Book de CDC; BAAI fuera; tabiji en 5 tablas completas, sin filtrar por país.
 
 ## Alcance
 
@@ -36,7 +37,8 @@ Es un ticket **de datos, sin código**: el entregable son archivos, una tabla y 
 - Tests, scripts o módulos de Python: no hacen falta para un entregable de datos.
 - Documentos de `empresa/` (TRAVEL-004).
 - Conversión a Markdown y aviso de páginas sin texto (fase 4).
-- BAAI/IndustryCorpus_travel, Wikivoyage y normativa autonómica de agencias de viajes.
+- BAAI/IndustryCorpus_travel, Wikivoyage, «International travel and health» de la OMS (CC BY-NC-SA) y normativa autonómica de agencias de viajes.
+- El Yellow Book de CDC: no se puede descargar gratis (ver *Preguntas abiertas*).
 
 ## Criterios de aceptación
 
@@ -52,9 +54,9 @@ Es un ticket **de datos, sin código**: el entregable son archivos, una tabla y 
 - **Dado** `SOURCES.md`
 - **Cuando** Mario revisa sus filas
 - **Entonces** aparecen, en `leyes/`, el Reglamento (CE) 261/2004, la Directiva (UE) 2015/2302 y el Reglamento (CE) 2027/97 de EUR-Lex en español y el RDL 1/2007 consolidado del BOE
-- **Y** en `salud/`, una edición anterior a la vigente del Yellow Book (CDC)
-- **Y** en `seguridad/`, al menos 2 páginas de EASA, las páginas de AESA de derechos del pasajero, equipaje y líquidos, y las recomendaciones de viaje de Exteriores de Francia, Países Bajos, Italia, Reino Unido, Estados Unidos, Portugal y Alemania
-- **Y** en `general/`, un subconjunto de tabiji travel-safety-guides con esos 7 países
+- **Y** en `salud/`, la guía «Nuestra salud también viaja» (2025) del Ministerio de Sanidad y las dos páginas de Tu Europa sobre cobertura médica en estancias temporales (tarjeta sanitaria europea)
+- **Y** en `seguridad/`, las páginas de EASA «Dangerous Goods» y «Travelling with children», la de AESA de seguridad para pasajeros (equipaje y líquidos) y las recomendaciones de viaje de Exteriores de Francia, Países Bajos, Italia, Reino Unido, Estados Unidos, Portugal y Alemania
+- **Y** en `general/`, las tablas `alerts`, `countries`, `safety`, `scams` y `destinations` de tabiji travel-safety-guides, completas y sin filtrar
 
 **AC-3 — Los originales están sin alterar**
 - **Dado** los archivos del corpus presentes en disco
@@ -70,7 +72,7 @@ Es un ticket **de datos, sin código**: el entregable son archivos, una tabla y 
 - **Y** sus filas tienen `En git: no`
 
 **AC-5 — Los archivos de más de 10 MB quedan fuera de git**
-- **Dado** los archivos que devuelve `find rag/corpus -type f -size +10M` (p. ej. el Yellow Book)
+- **Dado** los archivos que devuelve `find rag/corpus -type f -size +10M` (p. ej. la guía de Sanidad, 22,6 MB)
 - **Cuando** se pasa cada uno por `git check-ignore`
 - **Entonces** todos están ignorados
 - **Y** sus filas tienen `En git: no`
@@ -83,7 +85,7 @@ Es un ticket **de datos, sin código**: el entregable son archivos, una tabla y 
 **AC-7 — Solo entran licencias claras**
 - **Dado** `SOURCES.md`
 - **Cuando** se revisa la columna `Licencia`
-- **Entonces** cada valor es uno de estos: `Reutilización libre UE (Decisión 2011/833/UE)` · `Reutilización libre (aviso legal del BOE)` · `Dominio público (EE. UU.)` · `Reproducción autorizada citando la fuente (EASA)` · `CC BY 4.0` · `Solo uso privado`
+- **Entonces** cada valor es uno de estos: `Reutilización libre UE (Decisión 2011/833/UE)` · `Reutilización libre (aviso legal del BOE)` · `Reutilización libre (aviso legal del Ministerio de Sanidad)` · `Reproducción autorizada citando la fuente (EASA)` · `CC BY 4.0` · `Solo uso privado`
 
 ### Errores
 
@@ -95,19 +97,19 @@ Ninguno para este ticket.
 
 ## Definición de hecho
 
-- [ ] Cada AC comprobado con la revisión o el comando que nombra
-- [ ] La suite del proyecto sigue en verde (`uv run pytest`): el ticket no toca código
-- [ ] `rag/AGENTS.md` (deja la fase 0: `SOURCES.md`, carpetas fuera de git y comandos de comprobación) y la fila 3 de `travel-agency/AGENTS.md` actualizados con lo que se siguió de clase y los desvíos
-- [ ] Commits sin atribución a la IA
+- [x] Cada AC comprobado con la revisión o el comando que nombra (2026-11-07: 22 filas y 22 archivos; `sha256sum -c` todo OK; `aesa/` y `exteriores/` ignoradas y fuera de `git ls-files`; la guía de Sanidad, único archivo de más de 10 MB, ignorada; lo que git subiría = filas con `En git: sí`; 7 licencias de la lista). AC-2, revisado por Mario
+- [x] La suite del proyecto sigue en verde (`uv run pytest`: 212 passed): el ticket no toca código
+- [x] `rag/AGENTS.md` (estado, corpus y licencias, comandos de comprobación) y la fila 3 de `travel-agency/AGENTS.md` actualizados con lo que se siguió de clase y los desvíos; `PROYECTO.md` §4 (fuentes de `salud/`, descartadas) y `docs/guia-indices-vectoriales.md` (tamaño del corpus) al día
+- [ ] Commits sin atribución a la IA (pendiente: el commit lo hace Mario)
 
 ## Supuestos y preguntas abiertas
 
 **Supuestos**
 - Lista cerrada de licencias de AC-7 sacada de la tabla de `PROYECTO.md` §4; AESA (prohibida la reproducción salvo citando) se trata como `Solo uso privado`, igual que Exteriores. TRAVEL-004 añade `Apache 2.0 (nuestros)`.
 - `Descarga` en formato `AAAA-MM-DD`; `En git` con valores `sí` / `no`; las rutas de `Archivo` son relativas a `rag/corpus/`.
-- 10 MB como límite para git (acordado con Mario), medido como lo mide `find -size +10M`.
-- Del Yellow Book vale cualquier edición anterior a la vigente; se elige la que tenga PDF con texto.
+- 10 MB como límite para git (acordado con Mario), medido como lo mide `find -size +10M`. El primer archivo que lo pasa es la guía de Sanidad (22,6 MB), ignorada por su nombre en `.gitignore`.
 
 **Preguntas abiertas**
-- Qué 2-3 páginas concretas de EASA entran (equipaje, objetos peligrosos, derechos del pasajero…): se proponen al descargar y Mario las aprueba.
-- Formato del subconjunto de tabiji: Parquet original filtrado o el Parquet completo fuera de git. Se decide al ver su tamaño real.
+- ~~Qué páginas de EASA entran~~ Resuelto: «Dangerous Goods» y «Travelling with children». La FAQ de pasajeros se descartó (solo trata medidas COVID), y también la página de derechos de AESA (es un índice de enlaces de 60 palabras; lo cubre el Reglamento 261/2004). Mario, 2026-11-07.
+- ~~Subconjunto de tabiji~~ Resuelto: las 5 tablas relacionadas con seguridad, completas (6,8 MB, en git). Filtrar por país exigiría código; si hace falta, se filtra en la fase 8 con los metadatos.
+- ~~Yellow Book~~ Resuelto: se descarta. La URL de `PROYECTO.md` §4 (`stacks.cdc.gov/view/cdc/116395`) no era el libro, sino un formulario COVID de entrada a EE. UU. de 2022; el libro solo se lee en la web de CDC o se compra a Oxford University Press, y CDC bloquea `curl` (403). En su lugar, la guía del Ministerio de Sanidad y Tu Europa: en español, vigentes y con licencia de reutilización. Mario, 2026-11-07.

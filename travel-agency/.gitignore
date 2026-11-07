@@ -13,3 +13,10 @@ rag/index/
 text2sql/finetune/outputs/
 *.gguf
 *.safetensors
+
+# Corpus de uso privado (PROYECTO.md §4): se descarga en local, no se sube; la URL está en rag/corpus/SOURCES.md
+rag/corpus/seguridad/aesa/
+rag/corpus/seguridad/exteriores/
+
+# Corpus de más de 10 MB (TRAVEL-003): se vuelve a descargar desde la URL de su fila en SOURCES.md
+rag/corpus/salud/sanidad_la_salud_tambien_viaja_2025.pdf

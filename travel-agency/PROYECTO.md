@@ -259,15 +259,20 @@ Si la licencia no está clara, el documento no entra.
 |---|---|---|---|
 | `leyes/` | [EUR-Lex](https://eur-lex.europa.eu) | Reglamento (CE) 261/2004 (derechos de pasajeros aéreos), Directiva (UE) 2015/2302 (viajes combinados), Reglamento (CE) 2027/97 (responsabilidad y equipaje) | Reutilización libre UE (Decisión 2011/833/UE) |
 | `leyes/` | [BOE](https://www.boe.es) | RDL 1/2007, libro IV (viajes combinados), normativa de agencias de viajes | Reutilización libre (aviso legal del BOE) |
-| `salud/` | [CDC STACKS](https://stacks.cdc.gov/view/cdc/116395) | Yellow Book (ediciones antiguas), guías de viaje internacional | Dominio público (EE. UU.); contenido **desfasado**, vale como corpus |
+| `salud/` | [Ministerio de Sanidad](https://www.sanidad.gob.es/areas/sanidadExterior/laSaludTambienViaja/home.htm) | «Nuestra salud también viaja» (2025): consejos sanitarios y vacunación del viajero internacional | ✅ Reutilización libre, también comercial, citando la fuente y la fecha de actualización (aviso legal del Ministerio) |
+| `salud/` | [Tu Europa](https://europa.eu/youreurope/citizens/health/unplanned-healthcare/temporary-stays/index_es.htm) | Tarjeta sanitaria europea: cobertura médica en estancias temporales en la UE | Reutilización libre UE (Decisión 2011/833/UE) |
 | `seguridad/` | [EASA](https://www.easa.europa.eu/en/copyright-disclaimer) | Seguridad aérea, equipaje, objetos peligrosos, drones | ✅ Reproducción autorizada **citando la fuente** (salvo que una página diga lo contrario) |
 | `seguridad/` | [AESA](https://www.seguridadaerea.gob.es/es/node/121) | Derechos del pasajero, equipaje, líquidos | ⚠️ Prohibida la reproducción salvo citando la fuente; solo los **datos abiertos** se reutilizan libremente (RD 1495/2011) |
 | `seguridad/` | [Exteriores](https://www.exteriores.gob.es/es/Paginas/AvisoLegal.aspx) | Recomendaciones de viaje por país | ⚠️ Solo **descarga y uso privado**, íntegro y citando la fuente; redistribuir o transformar requiere autorización |
-| `general/` | [BAAI/IndustryCorpus_travel](https://huggingface.co/datasets/BAAI/IndustryCorpus_travel) | Texto web sobre viajes (inglés/chino) | Apache 2.0; calidad irregular, usar solo un subconjunto |
 | `general/` | [tabiji travel-safety-guides](https://huggingface.co/datasets/tabiji/tabiji-travel-safety-guides) | 8.799 registros en inglés (Parquet): destinos, estafas, alertas, seguridad por país | ✅ **CC BY 4.0**, uso comercial y entrenamiento permitidos citando a tabiji.ai; mezcla citas de Reddit y avisos de EE. UU./Reino Unido |
 | `empresa/` | Redactados por nosotros | Toda la documentación de la agencia (ver lista abajo) | Apache 2.0 (nuestros) |
 
-Opcional: Wikivoyage (muy completo, pero **CC BY-SA**, obliga a compartir igual).
+Lo que se reunió de cada fuente (archivos, URL, licencia y huella) está en `rag/corpus/SOURCES.md` (TRAVEL-003).
+
+Descartadas: el Yellow Book de CDC (no se puede descargar gratis: solo se lee en la web o se compra a Oxford University
+Press, y CDC bloquea las descargas automáticas; el enlace que había aquí era un formulario COVID de 2022),
+BAAI/IndustryCorpus_travel (texto web de calidad irregular, en inglés y chino), «International travel and health» de
+la OMS (CC BY-NC-SA, no comercial) y Wikivoyage (CC BY-SA, obliga a compartir igual).
 
 **Consecuencia para AESA y Exteriores:** se pueden descargar y usar en local para el proyecto, citando la
 fuente y sin alterar el original, pero **no se suben al repositorio** (`corpus/seguridad/aesa/` y

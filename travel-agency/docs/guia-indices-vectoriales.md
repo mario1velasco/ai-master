@@ -600,11 +600,14 @@ pregunta ─┬─► BM25 (top-50) ──────────┐
 | Fuente | Chunks aprox. (~500 tokens) |
 |---|---|
 | Leyes UE y BOE | 1.000 – 2.000 |
-| Yellow Book (CDC) | 4.000 – 6.000 |
-| tabiji (8.799 registros) | 10.000 – 25.000 |
-| BAAI IndustryCorpus (subconjunto) | lo que se decida (p. ej. 10.000) |
+| Salud: Ministerio de Sanidad y Tu Europa (~9.000 palabras) | ~50 |
+| Seguridad: EASA, AESA y Exteriores (páginas HTML) | ~100 |
+| tabiji (5 tablas: alerts, countries, safety, scams, destinations) | 10.000 – 25.000 |
 | Documentos de Viajes Nimbo | ~500 |
-| **Total** | **~30.000 – 50.000** |
+| **Total** | **~12.000 – 28.000** |
+
+*Corpus reunido en TRAVEL-003 (`rag/corpus/SOURCES.md`). Se quitaron el Yellow Book de CDC (no se puede descargar
+gratis) y BAAI IndustryCorpus; con menos chunks, `IndexFlatIP` encaja todavía mejor.*
 
 ### Decisión propuesta
 

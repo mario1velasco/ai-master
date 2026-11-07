@@ -13,8 +13,9 @@ sobre DuckDB) o la documentación (RAG con búsqueda híbrida), con modelos open
 |---|---|
 | 0–1. Esqueleto, contratos y telemetría | ✅ uv workspace, esquemas Pydantic con sus métricas, logs y trazas en JSONL |
 | 2. Base de datos | ✅ Filas escritas a mano con trampas a propósito, conjunto grande generado con semilla fija (~15.000 filas) y capa semántica de vistas DuckDB con comentarios |
+| 3. Corpus | 🚧 Corpus externo reunido en `rag/corpus/` (leyes, salud, seguridad y general), con fuente, licencia y huella de cada archivo en [`SOURCES.md`](rag/corpus/SOURCES.md); lo de uso privado, fuera de git. Faltan los documentos propios de la agencia |
 | 5. Text-to-SQL | 🚧 Validador de SQL hecho (una sentencia, solo `SELECT`, solo vistas permitidas, 50 filas como mucho); falta la parte del modelo |
-| 3, 4 y 6–13 | Pendientes: hoja de ruta en [`PROYECTO.md`](PROYECTO.md) §10 |
+| 4 y 6–13 | Pendientes: hoja de ruta en [`PROYECTO.md`](PROYECTO.md) §10 |
 
 ## Paquetes
 
