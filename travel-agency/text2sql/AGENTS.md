@@ -15,7 +15,7 @@ Depende de: `contracts`, `telemetry`, `database`, `pandas`. Detalle de diseño e
 - `src/text2sql/guard.py`: `run_safe_sql(con, query) -> (ok, texto)`, la barrera del SQL del modelo.
 - `tests/conftest.py`: fixture `con` de sesión con `open_db()` (la de `database/tests` no llega aquí).
 - `tests/test_text2sql_guard.py`: un test por criterio del ticket TRAVEL-002.
-- `dataset/`, `finetune/`, `eval/`: vacíos.
+- `dataset/`, `finetune/`, `eval/`: vacíos. `finetune/` es de la fase 9, opcional y aplazada (2026-11-08).
 
 ## Función pública
 

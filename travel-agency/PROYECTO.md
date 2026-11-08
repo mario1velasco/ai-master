@@ -502,6 +502,9 @@ aprendizaje legítimo del proyecto, pero se documenta como tal, no como necesida
 El **dataset se construye igualmente**: es el conjunto de **evaluación** de todos los escalones (y el de
 entrenamiento si se llega al 4).
 
+**Decidido el 2026-11-08:** la fase 5 se hace **sin fine-tuning** (escalones 1–3). El escalón 4 queda como
+**fase 9 opcional**, para hacerla en el futuro si la evaluación lo pide o como aprendizaje.
+
 ### Dataset (`text2sql/dataset/`)
 
 Cada ejemplo es un par **pregunta → SQL** con metadatos:
@@ -512,11 +515,12 @@ Cada ejemplo es un par **pregunta → SQL** con metadatos:
  "vistas": ["v_reservas_cliente"], "dificultad": "facil", "plantilla": "T07", "trampa": null}
 ```
 
-Se construye en tres capas:
+Se construye en tres capas. **En la fase 5 solo se hace la 1** (basta para medir); la 2 y la 3 sirven para
+entrenar y se hacen en la fase 9 (opcional):
 
 1. **A mano (~50)**: preguntas representativas, una por cada trampa de la sección 3. Son el núcleo del conjunto de test.
-2. **Plantillas (~500–1.500)**: preguntas con huecos (`{cliente}`, `{ciudad}`, `{mes}`) rellenados con valores reales de los CSV.
-3. **Paráfrasis**: el LLM local reformula cada pregunta (registro coloquial, errores tipográficos, "este año" vs "en 2026"), sin tocar el SQL.
+2. **Plantillas (~500–1.500)** *(fase 9)*: preguntas con huecos (`{cliente}`, `{ciudad}`, `{mes}`) rellenados con valores reales de los CSV.
+3. **Paráfrasis** *(fase 9)*: el LLM local reformula cada pregunta (registro coloquial, errores tipográficos, "este año" vs "en 2026"), sin tocar el SQL.
 
 **Validación automática obligatoria** de cada ejemplo:
 
@@ -524,7 +528,7 @@ Se construye en tres capas:
 - Solo usa **vistas permitidas** y solo `SELECT` (mismo validador que en producción).
 - Ejemplos con resultado vacío o duplicados se revisan o descartan.
 
-**Reparto train / dev / test por plantilla**, no por ejemplo: si una plantilla está en test, ninguna de sus variantes
+**Reparto train / dev / test por plantilla** (fase 9), no por ejemplo: si una plantilla está en test, ninguna de sus variantes
 está en train. Así se mide si el modelo **generaliza**, no si memoriza. El test incluye las ~50 preguntas a mano.
 
 ### Formato de entrenamiento
@@ -748,9 +752,9 @@ chat funciona igual, solo con el hilo.
 `LLM_EMBED_MODEL` en clase). Si aún no está (el RAG llega en la fase 8), `memoria.py` ya trae la alternativa local
 de clase (bolsa de palabras): peor, pero funciona.
 
-**Pendiente de decidir** (decisión 5, sección 10): si el agente de la fase 6 se hace con LangGraph
-(`construir_agente` del tema 8, sesión 3), el checkpoint es el `SqliteSaver` de clase tal cual; si se mantiene el
-bucle sin frameworks, el hilo se guarda en SQLite a mano y se apunta como **desvío**.
+**Decidido el 2026-11-08** (decisión 5, sección 10): el agente de la fase 6 se hace con LangGraph
+(`construir_agente` del tema 8, sesión 3), así que el checkpoint de la fase 7b es el `SqliteSaver` de clase tal cual
+(`sesion4/checkpointing.py`): mismo `thread_id` = misma sesión, también tras reiniciar la API.
 
 ### Cómo se ejecuta
 
@@ -994,8 +998,13 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 3. Modo cliente / empleado: si se implementan los dos o solo empleado al principio.
 4. ~~Almacén de sesiones: memoria o SQLite.~~ **Decidido el 2026-11-03: SQLite**, con checkpoint por sesión como en
    el tema 8, sesión 4 (sección 7). Falta registrarlo como ADR.
-5. Agente de la fase 6 con LangGraph (`construir_agente` del tema 8) o bucle sin frameworks. Afecta al checkpoint de
-   la fase 7b: con LangGraph es el `SqliteSaver` de clase; sin él, guardado a mano y desvío.
+5. ~~Agente de la fase 6 con LangGraph (`construir_agente` del tema 8) o bucle sin frameworks.~~ **Decidido el
+   2026-11-08: LangGraph**, sobre todo por el checkpoint de la fase 7b (`SqliteSaver` de clase, sin desvío). El grafo
+   es el de `tema8-agentes/comun/grafo.py`: `agente` → (pide herramienta) → `herramientas` → `agente` → fin. La tool
+   `consultar_bbdd(pregunta)` llama a `text2sql.consultar()`: text2sql sigue siendo una función normal, sin LangGraph.
+   Desvío previsto: `ChatOllama` (`langchain-ollama`, API nativa `/api/chat`) en lugar del `ChatOpenAI` sobre `/v1`
+   de `comun/modelo_lc.py`, para no perder los tiempos de `OllamaTimings`; con el `num_ctx` común. Las dependencias
+   de LangGraph solo van en `agent/` y `api/`. Falta registrarlo como ADR.
 
 ### Fases extra (una vez acabado el proyecto)
 
