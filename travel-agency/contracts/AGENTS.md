@@ -1,7 +1,8 @@
 # AGENTS.md — `contracts/`
 
-> Estado: **fase 1c**. Hechas las métricas `BaseMetrics`, `LlmCallMetrics`, `SqlMetrics`, `RagMetrics`,
-> `AgentMetrics` y `ApiMetrics`. Lo que falta se crea en la fase de su paquete: ver **Pendiente** al final.
+> Estado: **fase 1c + `SqlResult` (fase 5)**. Hechas las métricas `BaseMetrics`, `LlmCallMetrics`, `SqlMetrics`,
+> `RagMetrics`, `AgentMetrics` y `ApiMetrics`, y el resultado de text2sql `SqlResult`. Lo que falta se crea en la
+> fase de su paquete: ver **Pendiente** al final.
 
 ## Propósito
 
@@ -11,11 +12,12 @@ Esquemas Pydantic compartidos por todos los paquetes. Cada resultado de cada paq
 ## Archivos clave
 
 ```
+src/contracts/sql.py # SqlResult, SqlQuery, SqlStatus: lo que devuelve text2sql.ask() (TRAVEL-005)
 src/contracts/metrics/
 ├── __init__.py      # reexporta todo lo público
 ├── enums.py         # Status, Component
 ├── base.py          # BaseMetrics, Versions, METRICS_SCHEMA_VERSION, short_hash, check_or_fill
-├── sql.py           # SqlMetrics (span text2sql.consultar)
+├── sql.py           # SqlMetrics (span sql.run, uno por cada SQL)
 ├── rag.py           # RagMetrics, ScoreStats (span rag.search)
 ├── agent.py         # AgentMetrics (span agent.responder; solo totales)
 ├── api.py           # ApiMetrics (span raíz de cada petición)
@@ -40,6 +42,9 @@ from contracts.metrics import (
 - `CostEstimate.from_tokens(input_tokens, output_tokens, rate)`: coste equivalente frente a una tarifa de referencia.
 - `short_hash(text)`: sha256 de 16 caracteres para `input_hash`.
 - `ScoreStats.from_scores(scores)`: máximo, mínimo y media de los scores; `None` si no hay pasajes.
+- `from contracts.sql import SqlResult, SqlQuery, SqlStatus`: `status` (`ok` / `no_sql` / `sql_error`), `queries`
+  (SQL, columnas, filas, `truncated` y su `metrics: SqlMetrics`), `model_text`, `error` y `llm_calls`. Las métricas
+  van **en cada consulta**, no en el resultado: una respuesta puede traer varios SQL.
 
 ## Ejecutar y testear
 
@@ -79,8 +84,11 @@ Sin variables de entorno.
 - Las métricas de un paso padre llevan **solo totales**: el detalle de cada paso hijo está en su propio span
   (`parent_span_id`). Por eso `AgentMetrics` no tiene lista de pasos y `ApiMetrics` no repite `latency_ms`
   (duración total) ni un `request_id` (es el `trace_id`).
+- `SqlMetrics` sin `generation_ms`, `validation_ms` ni `execution_ms` (quitados en TRAVEL-005): el validador
+  valida y ejecuta a la vez y el LLM tiene su propio span, así que la duración es la `latency_ms` de cada span.
+- `structured_output` es solo para esquemas JSON (`format`): ofrecer tools no cuenta (`tools_offered`/`tool_calls`).
 - `ApiMetrics.http_method` usa `http.HTTPMethod` de la librería estándar, no un enum propio.
-- Reglas entre campos: SQL rechazado ⇒ `rejection_reason` y nunca `execution_ms` ni `rows_returned`;
+- Reglas entre campos: SQL rechazado ⇒ `rejection_reason` y nunca `rows_returned`;
   RAG con pasajes ⇔ `scores`; `tools_used` sin repetidos y `tool_call_count` ≥ su longitud.
 - `ruff format` también formatea los bloques de código de los `.md`: pásalo solo a `src/` y `tests/`.
 
@@ -93,7 +101,7 @@ del `AGENTS.md` raíz).
 | Qué | Fase | Depende de |
 |---|---|---|
 | `ConversionMetrics` (archivo, formato, método, páginas, ms/página, tablas, páginas vacías) | 4 | Herramienta de conversión: referencia en el tema 7, sesión 3 (fila 4 del `AGENTS.md` raíz); decidir con Mario |
-| `SqlResult` (SQL, columnas, filas + `metrics: SqlMetrics`) | 5 | Qué devuelve el validador y cómo viajan las filas |
+| ~~`SqlResult`~~ hecho en TRAVEL-005 (`contracts/sql.py`; `metrics` en cada `SqlQuery`) | 5 | — |
 | `AgentAnswer` (respuesta, fuentes, herramientas, abstención + `metrics: AgentMetrics`) | 6 | Forma de las fuentes (sección 7 de `PROYECTO.md`) |
 | `SystemMetrics` (CPU, RAM, VRAM, GPU, modelos cargados), opcional | 7 | Si compensa medirlo por petición |
 | `RagHit` / `RagResult` (pasaje, documento, página, score + `metrics: RagMetrics`) | 8 | Chunking (decisión pendiente 1) |

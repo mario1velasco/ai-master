@@ -33,7 +33,9 @@ class LlmCallMetrics(BaseMetrics):
     message_count: int = Field(default=1, ge=1, description="Mensajes enviados (system + historial + usuario).")
     system_prompt_chars: int | None = Field(default=None, ge=0, description="Caracteres del prompt de sistema.")
 
-    structured_output: bool = Field(default=False, description="True si se pidió salida con esquema (tool o JSON).")
+    structured_output: bool = Field(
+        default=False, description="True si se pidió un esquema JSON (`format` de Ollama); ofrecer tools no cuenta."
+    )
     output_schema: str | None = Field(default=None, description="Nombre del esquema pedido, p. ej. 'SqlProposal'.")
     output_valid: bool | None = Field(default=None, description="True si la salida pasó la validación Pydantic.")
     validation_errors: int = Field(default=0, ge=0, description="Errores de validación de la salida estructurada.")

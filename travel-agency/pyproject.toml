@@ -1,4 +1,5 @@
 # Raíz del uv workspace: no es un paquete, solo lista los miembros y la configuración común.
+# /home/mario/ebis/travel-agency/.venv/bin/python
 [project]
 name = "travel-agency"
 version = "0.1.0"

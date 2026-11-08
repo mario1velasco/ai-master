@@ -10,10 +10,7 @@ from contracts.metrics import SqlMetrics
 def sql_fields(base_fields: dict[str, Any]) -> dict[str, Any]:
     """Campos de un SqlMetrics válido: SQL generado, validado y ejecutado."""
     return base_fields | {
-        "name": "text2sql.consultar",
-        "generation_ms": 2100.0,
-        "validation_ms": 3.0,
-        "execution_ms": 12.0,
+        "name": "sql.run",
         "sql_valid": True,
         "views_used": ["v_vuelos_detalle"],
         "sql_chars": 84,
@@ -36,7 +33,6 @@ def test_sql_metrics_rejected_without_execution(sql_fields: dict[str, Any]) -> N
         "status": "rejected",
         "sql_valid": False,
         "rejection_reason": "ddl_prohibido",
-        "execution_ms": None,
         "rows_returned": None,
         "column_count": None,
     }
@@ -49,7 +45,7 @@ def test_sql_metrics_rejected_without_execution(sql_fields: dict[str, Any]) -> N
 @pytest.mark.parametrize(
     ("changes", "message"),
     [
-        ({"sql_valid": False, "execution_ms": None, "rows_returned": None}, "necesita rejection_reason"),
+        ({"sql_valid": False, "rows_returned": None}, "necesita rejection_reason"),
         ({"rejection_reason": "ddl_prohibido"}, "no puede llevar rejection_reason"),
         ({"sql_valid": False, "rejection_reason": "ddl_prohibido"}, "nunca se ejecuta"),
     ],

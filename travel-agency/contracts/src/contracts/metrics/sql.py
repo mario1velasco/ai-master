@@ -1,4 +1,4 @@
-"""Métricas de una consulta text-to-SQL completa: generar, validar y ejecutar."""
+"""Métricas de cada SQL que escribe el modelo: si pasó el validador y qué devolvió DuckDB."""
 
 from typing import Self
 
@@ -8,13 +8,11 @@ from contracts.metrics.base import BaseMetrics
 
 
 class SqlMetrics(BaseMetrics):
-    """Métricas del span `text2sql.consultar`. El detalle de la llamada al LLM va en su propio span."""
+    """Métricas del span `sql.run`, uno por cada SQL que pide el modelo (una respuesta puede traer varios).
 
-    generation_ms: float | None = Field(default=None, ge=0, description="Tiempo del LLM generando el SQL.")
-    validation_ms: float | None = Field(default=None, ge=0, description="Tiempo del validador.")
-    execution_ms: float | None = Field(
-        default=None, ge=0, description="Tiempo de DuckDB ejecutando; null si el SQL no se ejecutó."
-    )
+    La llamada al LLM va en su propio span. El validador valida y ejecuta a la vez, así que su duración es la
+    `latency_ms` del span.
+    """
 
     sql_valid: bool = Field(description="True si el SQL pasó el validador (solo SELECT, solo vistas permitidas…).")
     rejection_reason: str | None = Field(
@@ -36,6 +34,6 @@ class SqlMetrics(BaseMetrics):
             raise ValueError("sql_valid false necesita rejection_reason")
         if self.sql_valid and self.rejection_reason is not None:
             raise ValueError("sql_valid true no puede llevar rejection_reason")
-        if not self.sql_valid and (self.execution_ms is not None or self.rows_returned is not None):
-            raise ValueError("un SQL rechazado nunca se ejecuta: execution_ms y rows_returned deben ser null")
+        if not self.sql_valid and self.rows_returned is not None:
+            raise ValueError("un SQL rechazado nunca se ejecuta: rows_returned debe ser null")
         return self

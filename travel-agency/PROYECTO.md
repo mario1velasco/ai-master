@@ -146,7 +146,7 @@ travel-agency/
 - Las flechas van **en un solo sentido**: `api → agent → (text2sql, rag) → contracts`. Nada importa `api`.
 - `telemetry/` lo usan los paquetes que hablan con un modelo o atienden peticiones (`rag`, `text2sql`, `agent`, `api`) para medir y registrar. `database` no: son datos y su generador es determinista (decidido el 2026-11-07).
 - Cada paquete expone **una función pública** con tipos de `contracts/`
-  (p. ej. `text2sql.consultar(Pregunta) -> SqlResult`); el resto no importa sus módulos internos.
+  (p. ej. `text2sql.ask(question, con=…) -> SqlResult`); el resto no importa sus módulos internos.
 - `database/` y el corpus de `rag/` no saben nada de LLMs: son datos.
 - Cambiar de modelo (u Ollama por otro servidor) solo toca el cliente de ese paquete, como en triage
   con `api_clients/`.
@@ -803,7 +803,7 @@ para medir más.
 |---|---|
 | `BaseMetrics` (todas) | `metrics_schema_version` ✚, `trace_id`, `span_id`, `parent_span_id`, `component`, `name` ✚ (nombre del span), `started_at`, `ended_at`, `latency_ms`, `status` (ok / error / rejected), `error_type`, `error_message`, `input_chars`, `output_chars`, `input_hash` ✚, `versions` (prompt, schema, rules, dataset ✚, corpus ✚, index ✚, adapter_hash ✚, package ✚), `attributes` ✚ (métricas libres, como los span attributes de MLflow) |
 | `LlmCallMetrics` (cada llamada a un LLM) | `provider` (ollama / mock), `model`, `model_digest` ✚, `parameter_size` ✚, `quantization`, `purpose` ✚ (route_tool / generate_sql / answer / summarize / judge / extract_memory, este último en la fase 7b), `temperature`, `max_tokens`, `top_p` ✚, `seed` ✚, `num_ctx` ✚, `message_count` ✚, `system_prompt_chars` ✚, salida estructurada ✚ (`structured_output`, `output_schema`, `output_valid`, `validation_errors`), `tools_offered` ✚, `tool_calls` ✚, `thinking_enabled` ✚, `thinking_tokens` ✚, `input_tokens`, `output_tokens`, `total_tokens`, `context_usage_pct` ✚, `time_to_first_token_ms`, `tokens_per_second`, `finish_reason` (stop / length / tool_call), `truncated` ✚, `retries`, `cost` (`CostEstimate`) y `ollama` (`OllamaTimings`: `load_duration`, `prompt_eval_count`, `prompt_eval_duration`, `eval_count`, `eval_duration`, `total_duration` en ns, más sus derivados en ms, tokens/s y `cold_start` ✚) |
-| `SqlMetrics` (text2sql) | `generation_ms`, `validation_ms`, `execution_ms`, `sql_valid`, `rejection_reason`, `views_used`, `sql_chars`, `rows_returned`, `column_count`, `limit_applied`, `timed_out` |
+| `SqlMetrics` (text2sql, uno por cada SQL) | `sql_valid`, `rejection_reason`, `views_used`, `sql_chars`, `rows_returned`, `column_count`, `limit_applied`, `timed_out` |
 | `RagMetrics` (rag) | `search_ms`, `rerank_ms`, `candidate_count`, `passages_returned`, `scores` (`ScoreStats`: max / min / mean), `distinct_docs`, `context_chars`, `context_tokens`, `abstained` |
 | `ConversionMetrics` (rag/conversion) | `archivo`, `formato`, `metodo` (copia / texto / PaddleOCR), `paginas`, `duracion_ms`, `ms_por_pagina`, `chars_salida`, `tablas_detectadas`, `paginas_vacias` |
 | `AgentMetrics` (agent) | `iterations`, `llm_call_count`, `tool_call_count`, `tools_used`, `input_tokens`, `output_tokens`, `total_tokens`, `llm_ms` vs `tools_ms`, `abstained`. Sin lista de pasos: cada paso es su propio span hijo |
@@ -972,7 +972,7 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 | **2. Base de datos** | Datos consultables | CSV a mano → capa semántica (vistas + comentarios + `schema()` + guía) → `database.seed` (`fixtures/` → `data/`) | Tests de integridad (claves, importes netos, retrasos); consultas de ejemplo |
 | **3. Corpus** | Material reunido | Descargas en `rag/corpus/` + `SOURCES.md`; documentos de `empresa/` redactados | Cada documento con fuente y licencia; ninguno de uso privado en git |
 | **4. Conversión a Markdown** | Corpus homogéneo | `rag/conversion/` con PaddleOCR → `rag/markdown/` | Revisión de una muestra; eventos `ConversionMetrics` |
-| **5. Text-to-SQL (línea base)** | SQL sin entrenar | Validador SQL + `text2sql.consultar()` con Qwen3-4B + prompt con diccionario (escalones 1–3 de la sección 6) | Eval sobre las ~50 preguntas a mano; validador bloquea todo lo prohibido |
+| **5. Text-to-SQL (línea base)** | SQL sin entrenar | Validador SQL + `text2sql.ask()` con Qwen3-4B + prompt con diccionario (escalones 1–3 de la sección 6) | Eval sobre las ~50 preguntas a mano; validador bloquea todo lo prohibido |
 | **6. Agente mínimo** | Decidir y responder con BBDD | `agent/` con Qwen3-4B y la herramienta `consultar_bbdd` | Casos dorados "solo BBDD", "trampa de datos" y "ataque" |
 | **7. API** | Hablar con el agente por HTTP | `api/` estilo triage, mock incluido, `/trace` | `make test` (mock) y prueba manual con `curl` |
 | **7b. Chat con estado y memoria** | Que el chat recuerde la conversación y al cliente | `api/app/session/` (checkpoint SQLite, compresión por tokens, memoria por cliente) + endpoints de memoria (sección 7) | Casos dorados de multi-turno (tras reinicio y tras resumir), memoria entre sesiones, memoria hasta el SQL y olvidar |
@@ -1001,7 +1001,7 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 5. ~~Agente de la fase 6 con LangGraph (`construir_agente` del tema 8) o bucle sin frameworks.~~ **Decidido el
    2026-11-08: LangGraph**, sobre todo por el checkpoint de la fase 7b (`SqliteSaver` de clase, sin desvío). El grafo
    es el de `tema8-agentes/comun/grafo.py`: `agente` → (pide herramienta) → `herramientas` → `agente` → fin. La tool
-   `consultar_bbdd(pregunta)` llama a `text2sql.consultar()`: text2sql sigue siendo una función normal, sin LangGraph.
+   `consultar_bbdd(pregunta)` llama a `text2sql.ask()`: text2sql sigue siendo una función normal, sin LangGraph.
    Desvío previsto: `ChatOllama` (`langchain-ollama`, API nativa `/api/chat`) en lugar del `ChatOpenAI` sobre `/v1`
    de `comun/modelo_lc.py`, para no perder los tiempos de `OllamaTimings`; con el `num_ctx` común. Las dependencias
    de LangGraph solo van en `agent/` y `api/`. Falta registrarlo como ADR.

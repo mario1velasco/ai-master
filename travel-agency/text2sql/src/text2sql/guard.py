@@ -11,6 +11,7 @@ from typing import cast
 import duckdb
 
 MAX_ROWS = 50
+TRUNCATION_NOTE = f"  (resultado recortado a {MAX_ROWS} filas)"  # va detrás del JSON, como en clase
 
 
 def _allowed_views(con: duckdb.DuckDBPyConnection) -> list[str]:
@@ -37,7 +38,7 @@ def _source_name(ref: dict) -> str | None:
             return other
 
 
-def _referenced_tables(con: duckdb.DuckDBPyConnection, query: str) -> list[str]:
+def referenced_tables(con: duckdb.DuckDBPyConnection, query: str) -> list[str]:
     """Las tablas que lee el SQL, con su esquema si lo lleva (p. ej. «crudo.clientes»). Los CTE no cuentan."""
     [(tree_json,)] = con.execute("SELECT json_serialize_sql(?)", [query]).fetchall()
     tables: list[str] = []
@@ -79,7 +80,7 @@ def run_safe_sql(con: duckdb.DuckDBPyConnection, query: str) -> tuple[bool, str]
         return False, f"ERROR: solo se permiten consultas SELECT (recibido: {statements[0].type.name})."
     views = _allowed_views(con)
     allowed = {view.lower() for view in views}  # DuckDB no distingue mayúsculas en los nombres
-    for table in _referenced_tables(con, query):
+    for table in referenced_tables(con, query):
         if table.lower() not in allowed:
             return False, f"ERROR: la vista {table} no está permitida. Vistas permitidas: {', '.join(views)}."
     try:
@@ -93,5 +94,5 @@ def run_safe_sql(con: duckdb.DuckDBPyConnection, query: str) -> tuple[bool, str]
     # Sin archivo de destino, pandas siempre devuelve el texto (su tipo dice str | None)
     text = cast(str, df.to_json(orient="records", force_ascii=False, date_format="iso"))
     if truncated:
-        text += f"  (resultado recortado a {MAX_ROWS} filas)"
+        text += TRUNCATION_NOTE
     return True, text
