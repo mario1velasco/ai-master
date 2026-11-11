@@ -63,7 +63,7 @@ Se usa desde un **backend FastAPI** con el mismo esqueleto que `llm-customer-sup
 
 ### Qué NO hace (alcance)
 
-- No crea, modifica ni cancela reservas (solo lectura).
+- No crea, modifica ni cancela reservas (solo lectura; salvo la fase 14, con aprobación humana).
 - No da información en tiempo real (precios vigentes, estado de vuelos actuales).
 - No sustituye asesoramiento legal: resume y cita la normativa del corpus.
 - Los datos de clientes son **sintéticos**; no se usa ningún dato personal real.
@@ -982,6 +982,7 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 | **11. MLflow (si hay tiempo)** | Seguimiento visual | `export_mlflow.py`, servidor MLflow local | Trazas y runs de eval visibles en MLflow |
 | **12. Modelos de decisión (extra)** | Decisiones rápidas con probabilidad | `decider/` con un modelo tipo Jev open source; usarlo en una decisión y compararlo con el LLM | Mismos casos dorados: acierto, latencia y tokens frente al LLM del agente |
 | **13. Docker (extra)** | Arrancar y entregar el proyecto con un comando | `Dockerfile` de `api/` + `docker-compose.yml` en la raíz (API, Ollama y MLflow) | `docker compose up` en una máquina limpia y la API responde |
+| **14. Cancelaciones con aprobación humana (extra)** | Que una persona apruebe cada cancelación | Subagente de cancelaciones como herramienta del agente, ticket pendiente, `/aprobaciones` y aviso en Slack | Pedir una cancelación en el chat: no se cancela nada hasta que alguien aprueba, y el chat responde «pendiente», nunca «cancelado» |
 
 **Por qué este orden:**
 
@@ -1008,7 +1009,7 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 
 ### Fases extra (una vez acabado el proyecto)
 
-Las fases 11, 12 y 13 son **opcionales** y no cambian lo construido: se añaden por encima gracias a la telemetría y a que
+Las fases 11, 12, 13 y 14 son **opcionales** y no cambian lo construido: se añaden por encima gracias a la telemetría y a que
 cada paquete habla con su modelo por un único cliente.
 
 **Fase 12 — Modelos de decisión tipo Jev.** [Jev](https://www.jev-llm.com/what-is-jev/) (TypeSafe AI) es un modelo
@@ -1047,3 +1048,31 @@ librerías y su configuración, que funciona igual en cualquier ordenador. **No 
 Punto de partida: el `Dockerfile` y los objetivos `docker-build` / `docker-run` del `Makefile` de
 `llm-customer-support-triage/`. A vigilar: usar la GPU desde el contenedor de Ollama necesita configuración extra
 (NVIDIA Container Toolkit); los modelos y los datos van en **volúmenes**, no dentro de la imagen.
+
+**Fase 14 — Cancelaciones con aprobación humana.** Si un cliente pide cancelar un vuelo, el agente principal no lo
+hace: llama a la herramienta `gestionar_cancelacion`, que ejecuta un **subagente especializado**, el único con permiso
+para cancelar. El subagente comprueba la reserva, aplica la política y deja un **ticket pendiente de aprobación**. El
+aprobador lo decide desde un aviso en Slack o desde `/aprobaciones`. El código pone los límites: solo reservas del
+cliente, no ya canceladas y nunca más de lo pagado.
+
+```
+agente principal (solo lectura)
+ ├─ tool consultar_bbdd ──────── text2sql.ask()  (workflow con LLM)
+ ├─ tool buscar_documentos ───── rag.search()    (búsqueda)
+ └─ tool gestionar_cancelacion ─ subagente de cancelaciones
+                                  ├─ consultar_reserva      [lectura]
+                                  ├─ calcular_penalizacion  [código]
+                                  └─ cancelar_reserva       [irreversible] ─► pausa ─► ticket ─► Slack / /aprobaciones
+```
+
+Referencias de clase (tema 8):
+
+- **Sesión 5**: `tema8-agentes/sesion5/equipo_supervisor.py` (`crear_logistica`, un agente dentro de una función que
+  solo devuelve su conclusión) y `Solución deberes sesión 5/soluciones/sesion5/deber_base.py` (un agente especializado
+  que propone sin ejecutar).
+- **Sesión 6**: `tema8-agentes/sesion6/agente_tickets.py` (herramienta con límites y aprobación),
+  `servidor_webhook.py` (`/aprobaciones` y estados del ticket) y
+  `Solución deberes sesión 6/soluciones/sesion6/informe_con_canal.py` (aviso a Slack con la URL en el `.env`).
+
+**Provisional:** el tema siguiente del máster (guardarraíles, evaluación y seguridad) puede traer mejores soluciones;
+esta fase se revisará entonces.
