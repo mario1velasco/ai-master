@@ -9,6 +9,9 @@ API **FastAPI + Pydantic + uvicorn**.
 > un solo LLM (Qwen3-4B) para agente y text-to-SQL por el hardware disponible, y fine-tuning opcional.
 > Actualizado el 2026-11-03: chat con estado (checkpoint en SQLite) y memoria por cliente, como en el tema 8,
 > sesión 4 (sección 7, «Memoria y estado del chat»; fase 7b).
+> Actualizado el 2026-11-08: agente con LangGraph (decisión 5, sección 10) y fase 5 sin fine-tuning (sección 6).
+> Actualizado el 2026-11-12: fases extra 12–15 (cancelaciones con aprobación humana, servidor MCP del chat, modelos de
+> decisión y Docker; sección 10).
 
 ## Índice
 
@@ -56,14 +59,15 @@ Se usa desde un **backend FastAPI** con el mismo esqueleto que `llm-customer-sup
 - **El LLM propone, el código decide** (triage): validación de SQL, whitelist de vistas y reglas en código.
 - **Sin evidencia, abstención** (tema 5): toda afirmación normativa va citada.
 - **Los datos son datos, no instrucciones**: protección frente a inyección de prompt en documentos y mensajes.
-- **Todo local y open source**: sin APIs de pago; modelos con licencias abiertas.
+- **Todo local y open source**: sin APIs de pago; modelos con licencias abiertas. Única excepción, opcional: el aviso
+  a Slack de la fase 12.
 - **Se implementa igual que en clase**: cada pieza ejecuta el mismo código que el del máster que la cubre; nombres,
   archivos y organización pueden cambiar. Código en inglés (archivos, funciones, variables); comentarios y
   documentación en castellano. No se inventan implementaciones; los desvíos obligados se apuntan en `AGENTS.md`.
 
 ### Qué NO hace (alcance)
 
-- No crea, modifica ni cancela reservas (solo lectura; salvo la fase 14, con aprobación humana).
+- No crea, modifica ni cancela reservas (solo lectura; salvo la fase 12, con aprobación humana).
 - No da información en tiempo real (precios vigentes, estado de vuelos actuales).
 - No sustituye asesoramiento legal: resume y cita la normativa del corpus.
 - Los datos de clientes son **sintéticos**; no se usa ningún dato personal real.
@@ -76,7 +80,7 @@ Se usa desde un **backend FastAPI** con el mismo esqueleto que `llm-customer-sup
 
 ```
  Cliente (curl / front)
-        │  POST /chat  {session_id, cliente_id?, mensaje}
+        │  POST /sessions/{session_id}/messages  {cliente_id?, mensaje}
         ▼
 ┌──────────────────────── api/ (FastAPI + Pydantic) ────────────────────────┐
 │  valida DTO → carga el hilo (checkpoint) + recuerdos del cliente           │
@@ -119,7 +123,7 @@ y `tests/`. Se ejecuta, se prueba y se evalúa por separado.
 ```
 travel-agency/
 ├── README.md · PROYECTO.md · AGENTS.md
-├── docker-compose.yml      ← fase 13 (extra): API + Ollama + MLflow
+├── docker-compose.yml      ← fase 15 (extra): API + Ollama + MLflow (+ servidor MCP)
 ├── pyproject.toml          ← uv workspace: solo lista los miembros
 ├── contracts/
 ├── telemetry/              ← logs, métricas y trazas compartidos
@@ -137,7 +141,7 @@ travel-agency/
 │   ├── src/agent/ · eval/
 ├── api/
 │   ├── app/                ← mismo esqueleto que llm-customer-support-triage
-│   └── Dockerfile (fase 13) · Makefile · config.yml
+│   └── Dockerfile (fase 15) · Makefile · config.yml
 └── docs/
 ```
 
@@ -446,14 +450,12 @@ Rendimiento esperado (a medir con `SystemMetrics`, sección 8): ~8–15 tokens/s
 
 ### Configuración
 
-Igual que en el tema 8, los modelos se consumen con la **API compatible con OpenAI** de Ollama:
-cambiar de modelo o de servidor es editar el `.env` de cada carpeta (`AGENT_MODEL`, `TEXT2SQL_MODEL`,
-`OLLAMA_BASE_URL`), sin tocar código. Hoy `AGENT_MODEL=qwen3:4b-instruct` y `TEXT2SQL_MODEL=qwen3:4b-instruct`.
-En los tests se usa un **mock determinista** como en triage.
-
-⚠️ **Para la fase 5:** la API compatible con OpenAI (`/v1`) solo devuelve el uso de tokens. Los tiempos internos
-de Ollama que guarda `OllamaTimings` (`load_duration`, `prompt_eval_duration`, `eval_duration`…) **solo los da la
-API nativa** (`/api/chat`). El cliente LLM tendrá que usar la nativa, o perderemos esas métricas.
+Los modelos se consumen con la **API nativa de Ollama** (`/api/chat`), no con la compatible con OpenAI (`/v1`) del
+tema 8: la `/v1` solo devuelve el uso de tokens, y los tiempos internos que guarda `OllamaTimings` (`load_duration`,
+`prompt_eval_duration`, `eval_duration`…) **solo los da la nativa**. `text2sql/` ya la usa (fase 5) y el agente lo
+hará con `ChatOllama` (decisión 5, sección 10). Cambiar de modelo o de servidor es editar el `.env` de cada carpeta
+(`AGENT_MODEL`, `TEXT2SQL_MODEL`, `OLLAMA_BASE_URL`), sin tocar código. Hoy `AGENT_MODEL=qwen3:4b-instruct` y
+`TEXT2SQL_MODEL=qwen3:4b-instruct`. En los tests se usa un **mock determinista** como en triage.
 
 ⚠️ **Un único `num_ctx` (y `keep_alive`) para Qwen3-4B en todo el proyecto.** `agent/` y `text2sql/` usan el mismo
 modelo: si piden ventanas de contexto distintas, Ollama **recarga el modelo** en cada pregunta mixta (~25 s por
@@ -682,7 +684,8 @@ observability:
   request_log_path: "logs/requests.jsonl"
 ```
 
-`.env.example`: `OLLAMA_BASE_URL`, `AGENT_MODEL`, `TEXT2SQL_MODEL`, ruta de la base DuckDB. **Sin claves de API de pago.**
+`.env.example`: `OLLAMA_BASE_URL`, `AGENT_MODEL`, `TEXT2SQL_MODEL`. Sin ruta de la base: DuckDB se construye en memoria
+(sin `DUCKDB_PATH`, sección 3). **Sin claves de API de pago.**
 
 ### Qué se reutiliza de triage y qué cambia
 
@@ -937,7 +940,8 @@ Cada caso indica la pregunta, **qué herramienta(s) debe usar**, el dato o la re
 - Lo **subjetivo** (¿la respuesta es fiel a la fuente?, ¿es clara?) lo valora un **LLM juez local** con una rúbrica fija,
   y se **revisa a mano una muestra** (tema 5: una cita válida no prueba fidelidad).
 - Se guarda una **línea base** y cada cambio (prompt, modelo, corpus) se compara contra ella antes de aceptarlo.
-- **Estrategias del agente** Mirar tema 8 una vez que acabemos. Por ejemplo [`docs/guia-evaluacion-estrategias-agente.md`](docs/guia-evaluacion-estrategias-agente.md)(nace de la sesión 2 del tema 8).
+- **Estrategias del agente**: se comparan con [`docs/guia-evaluacion-estrategias-agente.md`](docs/guia-evaluacion-estrategias-agente.md)
+  (nace de la sesión 2 del tema 8): tool calling, plan-and-execute, verificador y modo razonamiento.
 
 ### Seguridad
 
@@ -980,10 +984,10 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 | **9. Fine-tuning (opcional)** | Mejorar el SQL si la línea base falla | Dataset completo, QLoRA del 4B en Colab, GGUF, `ollama create travel-sql` | Execution accuracy afinado > escalón 3 en el mismo test |
 | **10. Evaluación completa** | Sistema medido | `api/eval/` extremo a extremo + LLM juez + revisión manual | Informe comparado con la línea base |
 | **11. MLflow (si hay tiempo)** | Seguimiento visual | `export_mlflow.py`, servidor MLflow local | Trazas y runs de eval visibles en MLflow |
-| **12. Modelos de decisión (extra)** | Decisiones rápidas con probabilidad | `decider/` con un modelo tipo Jev open source; usarlo en una decisión y compararlo con el LLM | Mismos casos dorados: acierto, latencia y tokens frente al LLM del agente |
-| **13. Docker (extra)** | Arrancar y entregar el proyecto con un comando | `Dockerfile` de `api/` + `docker-compose.yml` en la raíz (API, Ollama y MLflow) | `docker compose up` en una máquina limpia y la API responde |
-| **14. Cancelaciones con aprobación humana (extra)** | Que una persona apruebe cada cancelación | Subagente de cancelaciones como herramienta del agente, ticket pendiente, `/aprobaciones` y aviso en Slack | Pedir una cancelación en el chat: no se cancela nada hasta que alguien aprueba, y el chat responde «pendiente», nunca «cancelado» |
-| **15. Servidor MCP de `/chat` (extra)** | Que otros agentes puedan preguntar a nuestro asistente | Servidor MCP pequeño con una sola tool que llama a `POST /chat` | MCP Inspector lista la tool y una llamada devuelve la respuesta con sus fuentes |
+| **12. Cancelaciones con aprobación humana (extra)** | Que una persona apruebe cada cancelación | Subagente de cancelaciones como herramienta del agente, ticket pendiente, `/aprobaciones` y aviso opcional en Slack | Pedir una cancelación en el chat: no se cancela nada hasta que alguien aprueba, y el chat responde «pendiente», nunca «cancelado» |
+| **13. Servidor MCP del chat (extra)** | Que otros agentes puedan preguntar a nuestro asistente | Servidor MCP pequeño con una sola tool que llama a `POST /sessions/{session_id}/messages` | MCP Inspector lista la tool y una llamada devuelve la respuesta con sus fuentes |
+| **14. Modelos de decisión (extra)** | Decisiones rápidas con probabilidad | `decider/` con un modelo tipo Jev open source; usarlo en una decisión y compararlo con el LLM | Mismos casos dorados: acierto, latencia y tokens frente al LLM del agente |
+| **15. Docker (extra)** | Arrancar y entregar el proyecto con un comando | `Dockerfile` de `api/` + `docker-compose.yml` en la raíz (API, Ollama, MLflow y el servidor MCP si existe) | `docker compose up` en una máquina limpia y la API responde |
 
 **Por qué este orden:**
 
@@ -991,6 +995,8 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 - **BBDD antes que RAG**: el corpus aún necesita reunirse y convertirse; mientras, el agente ya funciona con datos.
 - **Línea base antes que fine-tuning**: si el modelo sin entrenar ya basta, la fase 9 se salta.
 - **La API pronto** (fase 7): permite probar el sistema de punta a punta desde que hay una sola herramienta.
+- **Fases extra: primero funcionalidad, después optimización** (12 y 13 antes que 14) y **Docker al final** (15), para
+  empaquetar el proyecto completo.
 
 **Decisiones pendientes** (se registran como ADR en `docs/` cuando se tomen):
 
@@ -1013,48 +1019,13 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 Las fases 11, 12, 13, 14 y 15 son **opcionales** y no cambian lo construido: se añaden por encima gracias a la telemetría y a que
 cada paquete habla con su modelo por un único cliente.
 
-**Fase 12 — Modelos de decisión tipo Jev.** [Jev](https://www.jev-llm.com/what-is-jev/) (TypeSafe AI) es un modelo
-**propietario** que no genera texto: recibe un estado y preguntas tipadas (elegir opción, sí/no, puntuar) y devuelve
-una probabilidad por opción en milisegundos. Han salido muchas réplicas **open source** que copian su interfaz
-([Jev Decision Index](https://huggingface.co/spaces/multimodalart/jev-decision-index)). Candidatos revisados:
-
-| Modelo | Tamaño | Licencia | Notas |
-|---|---|---|---|
-| [Mapika/decider-2b](https://huggingface.co/Mapika/decider-2b) | 1,9B | Apache 2.0 | GGUF y servidor propio; familia 4B/12B/31B |
-| [vllm-sr/d3-mini](https://huggingface.co/vllm-sr/d3-mini) | 4,5B | Apache 2.0 | vLLM Semantic Router; el mejor de su tamaño en el índice |
-| [autotrust/JEV-9B](https://huggingface.co/autotrust/JEV-9B) | 9B | Apache 2.0 | Decide y además genera texto con los mismos pesos |
-| [fastino/GLiNER2.5-multi-Decide](https://huggingface.co/fastino/GLiNER2.5-multi-Decide) | 0,3B | Apache 2.0 | Clasificador multilingüe, funciona en CPU |
-
-Varios modelos del índice son **CC BY-NC** (no comercial): descartarlos.
-
-Decisiones donde probarlo (el código actúa por **umbral**; si la confianza es baja, decide el LLM):
-
-- Qué herramienta necesita la pregunta (BBDD / documentos / ambas / ninguna).
-- Si la pregunta está dentro del alcance, si hay que escalar a humano o si es un ataque.
-- Si los pasajes recuperados responden a la pregunta (abstenerse o no).
-- Puntuar la fidelidad en la evaluación, frente al LLM juez.
-
-El LLM del agente sigue haciendo el bucle de varios pasos y redactando. **Pendiente de comprobar:** rendimiento en
-español (ninguna ficha lo mide) y que las cifras de los autores se mantienen con nuestros casos.
-
-**Fase 13 — Docker.** Docker mete cada pieza en un **contenedor**: una "caja" con su versión de Python, sus
-librerías y su configuración, que funciona igual en cualquier ordenador. **No hace falta para desarrollar**
-(todo funciona con `uv` y Ollama instalados en local); se añade al final para:
-
-- **Arrancar todo con un comando**: `docker compose up` levanta la API, Ollama y MLflow a la vez.
-- **Enseñarlo o entregarlo** sin que nadie tenga que instalar Python ni dependencias.
-- **Desplegarlo** en un servidor o en la nube, que aceptan contenedores directamente.
-- **Aprender Docker** con un proyecto que ya se conoce bien.
-
-Punto de partida: el `Dockerfile` y los objetivos `docker-build` / `docker-run` del `Makefile` de
-`llm-customer-support-triage/`. A vigilar: usar la GPU desde el contenedor de Ollama necesita configuración extra
-(NVIDIA Container Toolkit); los modelos y los datos van en **volúmenes**, no dentro de la imagen.
-
-**Fase 14 — Cancelaciones con aprobación humana.** Si un cliente pide cancelar un vuelo, el agente principal no lo
+**Fase 12 — Cancelaciones con aprobación humana.** Si un cliente pide cancelar un vuelo, el agente principal no lo
 hace: llama a la herramienta `gestionar_cancelacion`, que ejecuta un **subagente especializado**, el único con permiso
 para cancelar. El subagente comprueba la reserva, aplica la política y deja un **ticket pendiente de aprobación**. El
-aprobador lo decide desde un aviso en Slack o desde `/aprobaciones`. El código pone los límites: solo reservas del
-cliente, no ya canceladas y nunca más de lo pagado.
+aprobador lo decide desde `/aprobaciones` o, opcionalmente, desde un aviso en Slack (servicio externo: la única
+excepción al principio «todo local»). El código pone los límites: solo reservas del cliente, no ya canceladas y nunca
+más de lo pagado. Por decidir: dónde se guarda la cancelación, porque DuckDB se construye en memoria desde los CSV y se
+abre en solo lectura (secciones 3 y 9); por ejemplo, una tabla aparte en SQLite junto a los tickets.
 
 ```
 agente principal (solo lectura)
@@ -1078,7 +1049,45 @@ Referencias de clase (tema 8):
 **Provisional:** el tema siguiente del máster (guardarraíles, evaluación y seguridad) puede traer mejores soluciones;
 esta fase se revisará entonces.
 
-**Fase 15 — Servidor MCP de `/chat`.** Un servidor MCP pequeño que publica **una sola tool** y la traduce a una llamada a
-`POST /chat`, para que otros agentes (Claude Code, Codex…) puedan preguntar al asistente de Viajes Nimbo. Es un
-adaptador: la API no cambia y conserva la lógica. Solo `/chat`: ni `/trace`, ni métricas, ni las aprobaciones de la
-fase 14. Referencia de clase: `06_mcp/02-mcp/Recursos/ebis-calendar-api-mcp/` (servidor MCP sobre una API REST).
+**Fase 13 — Servidor MCP del chat.** Un servidor MCP pequeño que publica **una sola tool** y la traduce a una llamada al
+endpoint del chat (`POST /sessions/{session_id}/messages`), para que otros agentes (Claude Code, Codex…) puedan
+preguntar al asistente de Viajes Nimbo. Es un adaptador: la API no cambia y conserva la lógica. La tool recibe el
+`session_id` o crea uno por conversación. Solo ese endpoint: ni la traza (`/sessions/{id}/trace`), ni la memoria de
+clientes, ni las aprobaciones de la fase 12. Referencia de clase: `06_mcp/02-mcp/Recursos/ebis-calendar-api-mcp/` (servidor MCP sobre una API REST).
+
+**Fase 14 — Modelos de decisión tipo Jev.** [Jev](https://www.jev-llm.com/what-is-jev/) (TypeSafe AI) es un modelo
+**propietario** que no genera texto: recibe un estado y preguntas tipadas (elegir opción, sí/no, puntuar) y devuelve
+una probabilidad por opción en milisegundos. Han salido muchas réplicas **open source** que copian su interfaz
+([Jev Decision Index](https://huggingface.co/spaces/multimodalart/jev-decision-index)). Candidatos revisados:
+
+| Modelo | Tamaño | Licencia | Notas |
+|---|---|---|---|
+| [Mapika/decider-2b](https://huggingface.co/Mapika/decider-2b) | 1,9B | Apache 2.0 | GGUF y servidor propio; familia 4B/12B/31B |
+| [vllm-sr/d3-mini](https://huggingface.co/vllm-sr/d3-mini) | 4,5B | Apache 2.0 | vLLM Semantic Router; el mejor de su tamaño en el índice |
+| [autotrust/JEV-9B](https://huggingface.co/autotrust/JEV-9B) | 9B | Apache 2.0 | Decide y además genera texto con los mismos pesos |
+| [fastino/GLiNER2.5-multi-Decide](https://huggingface.co/fastino/GLiNER2.5-multi-Decide) | 0,3B | Apache 2.0 | Clasificador multilingüe, funciona en CPU |
+
+Varios modelos del índice son **CC BY-NC** (no comercial): descartarlos.
+
+Decisiones donde probarlo (el código actúa por **umbral**; si la confianza es baja, decide el LLM):
+
+- Qué herramienta necesita la pregunta (BBDD / documentos / ambas / ninguna).
+- Si la pregunta está dentro del alcance, si hay que escalar a humano o si es un ataque.
+- Si los pasajes recuperados responden a la pregunta (abstenerse o no).
+- Puntuar la fidelidad en la evaluación, frente al LLM juez.
+
+El LLM del agente sigue haciendo el bucle de varios pasos y redactando. **Pendiente de comprobar:** rendimiento en
+español (ninguna ficha lo mide) y que las cifras de los autores se mantienen con nuestros casos.
+
+**Fase 15 — Docker.** Docker mete cada pieza en un **contenedor**: una "caja" con su versión de Python, sus
+librerías y su configuración, que funciona igual en cualquier ordenador. **No hace falta para desarrollar**
+(todo funciona con `uv` y Ollama instalados en local); se añade al final para:
+
+- **Arrancar todo con un comando**: `docker compose up` levanta la API, Ollama y MLflow a la vez (y el servidor MCP de la fase 13, si existe).
+- **Enseñarlo o entregarlo** sin que nadie tenga que instalar Python ni dependencias.
+- **Desplegarlo** en un servidor o en la nube, que aceptan contenedores directamente.
+- **Aprender Docker** con un proyecto que ya se conoce bien.
+
+Punto de partida: el `Dockerfile` y los objetivos `docker-build` / `docker-run` del `Makefile` de
+`llm-customer-support-triage/`. A vigilar: usar la GPU desde el contenedor de Ollama necesita configuración extra
+(NVIDIA Container Toolkit); los modelos y los datos van en **volúmenes**, no dentro de la imagen.
