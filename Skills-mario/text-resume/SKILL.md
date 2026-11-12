@@ -13,7 +13,7 @@ description: >
 
 Entrada: **un fichero de texto o un directorio de ficheros de texto ordenados**. Salida, en este orden: (1) `descripcion.md` — de qué trata el texto; (2) `resumen.md` — resumen extenso; (3) `resumen.pdf` — con exactamente la misma información que `resumen.md`.
 
-La inteligencia del trabajo (leer, entender, redactar) la pones tú; los scripts de esta carpeta preparan la lectura, comprueban la fidelidad y generan el PDF. Ejecuta los scripts desde esta carpeta. `collect_texts.py` solo usa la biblioteca estándar; `md_to_pdf.py` y `check_summary.py` necesitan el entorno compartido de la raíz del repo (si no existe: `python3 ../scripts/setup_env.py`; define `PY="$(git rev-parse --show-toplevel)/.venv/bin/python"` y úsalo como `$PY`, no con `../` en la ruta, que provoca avisos; propónselo al usuario, no lo instales sin avisar).
+La inteligencia del trabajo (leer, entender, redactar) la pones tú; los scripts de esta carpeta preparan la lectura, comprueban la fidelidad y generan el PDF. Ejecuta los scripts desde esta carpeta. `collect_texts.py` solo usa la biblioteca estándar; `md_to_pdf.py` y `check_summary.py` necesitan el entorno compartido de la raíz del repo (si no existe: `python3 ../scripts/setup_env.py`; define `PY="$(cd .. && pwd)/.venv/bin/python"` y úsalo como `$PY`, no con `../` en la ruta, que provoca avisos; propónselo al usuario, no lo instales sin avisar).
 
 ## Reglas que mandan sobre todo lo demás
 

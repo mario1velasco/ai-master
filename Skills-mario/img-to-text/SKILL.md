@@ -10,7 +10,7 @@ description: >
 
 # Img to Text
 
-Entrada: **una o varias imágenes** (o una carpeta). Salida: **un `.md` con exactamente el texto de las imágenes**, en orden. Tú lees las imágenes (visión) y transcribes; un OCR local independiente (RapidOCR) actúa de segundo lector para detectar palabras mal leídas, inventadas u omitidas. Ejecuta los scripts desde esta carpeta, con el entorno compartido de la raíz del repo (si no existe: `python3 ../scripts/setup_env.py`; define `PY="$(git rev-parse --show-toplevel)/.venv/bin/python"` y úsalo como `$PY`, no con `../` en la ruta, que provoca avisos; propónselo al usuario, no lo instales sin avisar). La primera ejecución del OCR descarga sus modelos (unas decenas de MB); después funciona sin red.
+Entrada: **una o varias imágenes** (o una carpeta). Salida: **un `.md` con exactamente el texto de las imágenes**, en orden. Tú lees las imágenes (visión) y transcribes; un OCR local independiente (RapidOCR) actúa de segundo lector para detectar palabras mal leídas, inventadas u omitidas. Ejecuta los scripts desde esta carpeta, con el entorno compartido de la raíz del repo (si no existe: `python3 ../scripts/setup_env.py`; define `PY="$(cd .. && pwd)/.venv/bin/python"` y úsalo como `$PY`, no con `../` en la ruta, que provoca avisos; propónselo al usuario, no lo instales sin avisar). La primera ejecución del OCR descarga sus modelos (unas decenas de MB); después funciona sin red.
 
 ## Reglas que mandan sobre todo lo demás
 

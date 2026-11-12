@@ -8,21 +8,23 @@ Este módulo enseña a integrar modelos generativos (LLMs) vía API dentro de si
 automatizados, tratando el modelo como un **componente software** más —configurable,
 observable, repetible y mantenible— en lugar de un chatbot manual.
 
-**Clase 1 — Integración de modelos generativos vía API desde Python**
+Cinco clases que construyen, paso a paso, el mismo caso: **AI Request Triage**
+(clasificar y procesar peticiones de clientes: reembolsos, cambios de entrega,
+facturación, soporte técnico).
 
-| Bloque | Contenido |
-|---|---|
-| 1 | APIs LLM en Python: proveedor, modelo y aplicación como capas separadas |
-| 2 | Salida estructurada |
-| 3 | Contexto y sesiones (historial de mensajes, roles `system`/`user`/`assistant`/`tool`) |
-| 4 | FastAPI + streaming |
-| 5 | LLMOps + despliegue |
+| Clase | Tema | Idea central | Código |
+|---|---|---|---|
+| 1 | Integración de modelos vía API desde Python | LLM-as-a-Service: proveedor, modelo y aplicación son capas distintas. Anatomía de una request (API key, modelo, mensajes, parámetros), `temperature`, coste por tokens, latencia, errores (401, 429, timeout) y resiliencia (timeout, retry + backoff, fallback, log, validación) | `Clases/01/` (`llm_client.py`, `benchmark.py`) |
+| 2 | Prompt engineering y salidas estructuradas | El prompt es un contrato. Tres niveles: JSON por prompt, Structured Outputs nativos (`messages.parse`) y tool call como schema (`tool_choice`, bloque `tool_use`). Pydantic valida la estructura, no que la decisión sea correcta | `Clases/02/` |
+| 3 | Contexto, sesiones y flujos operativos | El LLM es stateless: la aplicación reconstruye el contexto en cada llamada. Historial ≠ estado ≠ resumen ≠ memoria; el estado estructurado es la fuente de verdad. Estrategias: últimos N mensajes, resumen, estado. Las reglas de negocio van en código | `Clases/03/` (`session_manager.py`, `business_rules.py`) |
+| 4 | APIs propias con FastAPI | HTTP y LLM son stateless; la app conserva el estado por `case_id`. `POST /cases/{case_id}/events` devuelve `operation` + `state` + `metrics`; el routing es un resultado, no un endpoint. Errores HTTP controlados; streaming solo para UX | `Clases/04/` (`app.py`, `session_store.py`) |
+| 5 | LLMOps, observabilidad y despliegue | Una app LLM está lista cuando se puede evaluar, observar, versionar y desplegar. Trazas con versiones, golden dataset y release gates, tests sin LLM (mock), retry / repair / fallback / safe stop, canary y blue-green, Docker y CI/CD | `Clases/05/` (`observability.py`, `run_eval.py`, `tests/`) |
 
-Objetivos de aprendizaje: entender el patrón LLM-as-a-Service, construir una request
-(API key, modelo, mensajes, parámetros), medir una llamada (latencia, tokens, coste
-estimado) y diseñar una primera automatización (resumir, clasificar, extraer
-información) antes de añadir complejidad (RAG, agentes, herramientas, bases
-vectoriales, MCP, que se ven más adelante).
+`Clases/06/` es una reconstrucción propia de la clase 5 con la arquitectura en capas de
+`app/` (`main` → `services` → `api_clients`), independiente del resto del repo y lista
+para desplegar (ver su `README.md`).
+
+Quedan fuera del tema (se ven más adelante): RAG, agentes, bases vectoriales y MCP.
 
 ## Estructura del proyecto
 
@@ -41,7 +43,10 @@ vectoriales, MCP, que se ven más adelante).
 ├── .env                    # Claves reales (NO se sube a git, ver .gitignore)
 ├── .env.example            # Plantilla sin valores, para saber qué variables hacen falta
 ├── .vscode/                # Configuración de debug de VSCode
-└── pdfs/                   # Material de la sesión
+├── Clases/                 # Código de cada clase: 01 a 05 (temario) y 06 (versión en capas, desplegable)
+├── examples/               # Ejemplos sueltos: chat por terminal con Anthropic, OpenAI y Ollama;
+│                           #   entrada multimodal con OpenAI (imagen, PDF, mp3); una API FastAPI de prueba
+└── pdfs/                   # Diapositivas de las 5 sesiones en PDF y en .md (no tienen exactamente la misma información)
 ```
 
 ### Arquitectura: `main` → `services` → `api_clients`

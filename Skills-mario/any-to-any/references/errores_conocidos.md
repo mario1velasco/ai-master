@@ -25,3 +25,9 @@ Fallos que ya han ocurrido al usar esta skill, su causa y cómo se evitan. Añad
 - **Causa:** `av 19` incompatible con `faster-whisper 1.2.1` (skill hermana audio-decoder): ver `../../audio-decoder/references/errores_conocidos.md`.
 - **Solución:** `av==18.1.0` fijado en los requirements; `setup_env.py` ahora reinstala si las versiones no coinciden con las fijadas.
 - **Prevención:** ejecuta `python3 ../scripts/setup_env.py` tras actualizar el repo.
+
+## `$PY` apuntaba a un .venv que no existe (2026-11-11)
+- **Síntoma:** `ls: cannot access '/home/mario/ebis/.venv/bin/python': No such file or directory` al definir `PY` como decía `SKILL.md`.
+- **Causa:** `PY="$(git rev-parse --show-toplevel)/.venv/bin/python"` da la raíz del repo git que contiene a Skills-mario (p. ej. `ebis/`), no la carpeta Skills-mario, cuando Skills-mario no es un repo propio. El `.venv` está en la raíz de Skills-mario (`scripts/_env.py` ya lo buscaba así, por ruta relativa).
+- **Solución:** `PY="$(cd .. && pwd)/.venv/bin/python"` (ruta absoluta, sin `../`) en el `CLAUDE.md` de la raíz y en los `SKILL.md` de any-to-any, img-to-text, text-resume, audio-decoder, presentacion-open y campus-video-download.
+- **Prevención:** no uses `git rev-parse` para localizar el `.venv`; define `PY` siempre desde la carpeta de la skill.

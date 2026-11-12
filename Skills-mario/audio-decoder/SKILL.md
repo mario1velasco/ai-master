@@ -12,7 +12,7 @@ description: >
 
 Recibe la **ruta de un directorio** con audios, los ordena y los transcribe en local con `faster-whisper` (modelos Whisper de Hugging Face, sin API ni enviar el audio fuera). El resultado es un solo `.txt` con los textos concatenados desde el primer audio hasta el último. Ejecuta los scripts desde esta carpeta.
 
-Instalación (no la hagas automáticamente; propónsela al usuario): usa el venv compartido de la raíz del repo, que se crea con `python3 ../scripts/setup_env.py` y se usa con `PY="$(git rev-parse --show-toplevel)/.venv/bin/python"` (`$PY scripts/...`; evita `../` en la ruta, da avisos). El primer uso descarga el modelo de Hugging Face a `~/.cache/huggingface` (turbo ≈ 1,6 GB, small ≈ 0,5 GB); después funciona sin red. Si la transcripción falla, mira antes `references/errores_conocidos.md` (p. ej. `av` incompatible: `setup_env.py` lo corrige).
+Instalación (no la hagas automáticamente; propónsela al usuario): usa el venv compartido de la raíz del repo, que se crea con `python3 ../scripts/setup_env.py` y se usa con `PY="$(cd .. && pwd)/.venv/bin/python"` (`$PY scripts/...`; evita `../` en la ruta, da avisos). El primer uso descarga el modelo de Hugging Face a `~/.cache/huggingface` (turbo ≈ 1,6 GB, small ≈ 0,5 GB); después funciona sin red. Si la transcripción falla, mira antes `references/errores_conocidos.md` (p. ej. `av` incompatible: `setup_env.py` lo corrige).
 
 ## Flujo de trabajo
 

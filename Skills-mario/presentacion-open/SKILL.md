@@ -8,7 +8,7 @@ description: >
 
 # Presentations Open
 
-Usa el compilador y las herramientas de esta carpeta para crear y revisar PPTX con Python 3 y la API pública de `python-pptx`. Usa el venv compartido de la raíz del repo (`PY="$(git rev-parse --show-toplevel)/.venv/bin/python"`, se crea con `python3 ../scripts/setup_env.py`; ejecuta los scripts con `$PY`); no instales nada automáticamente. El runtime usa `python-pptx` y la biblioteca estándar. No compruebes variables `CODEX_PRIMARY_RUNTIME_*`, no uses `dependencies/bin/override` ni `@oai/artifact-tool`.
+Usa el compilador y las herramientas de esta carpeta para crear y revisar PPTX con Python 3 y la API pública de `python-pptx`. Usa el venv compartido de la raíz del repo (`PY="$(cd .. && pwd)/.venv/bin/python"`, se crea con `python3 ../scripts/setup_env.py`; ejecuta los scripts con `$PY`); no instales nada automáticamente. El runtime usa `python-pptx` y la biblioteca estándar. No compruebes variables `CODEX_PRIMARY_RUNTIME_*`, no uses `dependencies/bin/override` ni `@oai/artifact-tool`.
 
 ## Flujo de trabajo
 

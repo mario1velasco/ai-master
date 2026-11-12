@@ -15,8 +15,8 @@ description: >
 Descarga un vídeo protegido por login **con la sesión del Chrome normal del usuario**, sin pedirle la contraseña ni abrir otro navegador: `yt-dlp --cookies-from-browser chrome` lee y descifra las cookies del perfil de Chrome (llavero de GNOME vía `secretstorage`), abre la página del campus, encuentra el `<video>` incrustado y lo descarga. Ejecuta desde esta carpeta con el `.venv` compartido:
 
 ```bash
-PY="$(git rev-parse --show-toplevel)/.venv/bin/python"
-YTDLP="$(git rev-parse --show-toplevel)/.venv/bin/yt-dlp"
+PY="$(cd .. && pwd)/.venv/bin/python"
+YTDLP="$(cd .. && pwd)/.venv/bin/yt-dlp"
 ```
 
 Requisitos: `yt-dlp` y `secretstorage` en el `.venv` (`python3 ../scripts/setup_env.py`), Google Chrome con la sesión del campus iniciada y `ffprobe` para verificar.

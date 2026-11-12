@@ -20,7 +20,7 @@ Colección de **skills** para Claude Code: cada carpeta de primer nivel es una s
 - **Ejecuta los scripts desde la carpeta de la skill**: `python3 scripts/<script>.py ...`.
 - **Un único entorno virtual compartido**: `.venv/` en la **raíz del repo**, con las dependencias de todas las skills (`requirements.txt` de la raíz). **No crees `.venv` dentro de cada skill.** Se crea una vez con `python3 scripts/setup_env.py` (también comprueba `ffmpeg` y que las versiones instaladas sean las fijadas; vuelve a ejecutarlo tras actualizar el repo) y se usa así, desde la carpeta de la skill:
   ```bash
-  PY="$(git rev-parse --show-toplevel)/.venv/bin/python"   # no uses ../.venv: Python avisa de sys.prefix inesperado
+  PY="$(cd .. && pwd)/.venv/bin/python"   # ruta absoluta a la raíz de Skills-mario (no uses ../.venv: Python avisa de sys.prefix inesperado; tampoco git rev-parse: Skills-mario puede estar dentro de otro repo)
   $PY scripts/<script>.py ...
   ```
 - **No instales dependencias sin avisar**: propón al usuario ejecutar `scripts/setup_env.py`. Si añades una dependencia a una skill, añádela también al `requirements.txt` de la raíz.

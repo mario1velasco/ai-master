@@ -983,6 +983,7 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 | **12. Modelos de decisión (extra)** | Decisiones rápidas con probabilidad | `decider/` con un modelo tipo Jev open source; usarlo en una decisión y compararlo con el LLM | Mismos casos dorados: acierto, latencia y tokens frente al LLM del agente |
 | **13. Docker (extra)** | Arrancar y entregar el proyecto con un comando | `Dockerfile` de `api/` + `docker-compose.yml` en la raíz (API, Ollama y MLflow) | `docker compose up` en una máquina limpia y la API responde |
 | **14. Cancelaciones con aprobación humana (extra)** | Que una persona apruebe cada cancelación | Subagente de cancelaciones como herramienta del agente, ticket pendiente, `/aprobaciones` y aviso en Slack | Pedir una cancelación en el chat: no se cancela nada hasta que alguien aprueba, y el chat responde «pendiente», nunca «cancelado» |
+| **15. Servidor MCP de `/chat` (extra)** | Que otros agentes puedan preguntar a nuestro asistente | Servidor MCP pequeño con una sola tool que llama a `POST /chat` | MCP Inspector lista la tool y una llamada devuelve la respuesta con sus fuentes |
 
 **Por qué este orden:**
 
@@ -1009,7 +1010,7 @@ Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empie
 
 ### Fases extra (una vez acabado el proyecto)
 
-Las fases 11, 12, 13 y 14 son **opcionales** y no cambian lo construido: se añaden por encima gracias a la telemetría y a que
+Las fases 11, 12, 13, 14 y 15 son **opcionales** y no cambian lo construido: se añaden por encima gracias a la telemetría y a que
 cada paquete habla con su modelo por un único cliente.
 
 **Fase 12 — Modelos de decisión tipo Jev.** [Jev](https://www.jev-llm.com/what-is-jev/) (TypeSafe AI) es un modelo
@@ -1076,3 +1077,8 @@ Referencias de clase (tema 8):
 
 **Provisional:** el tema siguiente del máster (guardarraíles, evaluación y seguridad) puede traer mejores soluciones;
 esta fase se revisará entonces.
+
+**Fase 15 — Servidor MCP de `/chat`.** Un servidor MCP pequeño que publica **una sola tool** y la traduce a una llamada a
+`POST /chat`, para que otros agentes (Claude Code, Codex…) puedan preguntar al asistente de Viajes Nimbo. Es un
+adaptador: la API no cambia y conserva la lógica. Solo `/chat`: ni `/trace`, ni métricas, ni las aprobaciones de la
+fase 14. Referencia de clase: `06_mcp/02-mcp/Recursos/ebis-calendar-api-mcp/` (servidor MCP sobre una API REST).

@@ -19,7 +19,7 @@ entrada ─► extracción automática ─► bruto.md ─► (tú: solo formato
            markitdown · hojas propias · img-to-text · audio-split+audio-decoder            (por script, verificados)
 ```
 
-Delega en las skills hermanas (deben estar como carpetas hermanas): imágenes y PDF escaneados → `img-to-text`; audios → `audio-split` + `audio-decoder`. Ejecuta los scripts desde esta carpeta con el entorno compartido de la raíz del repo (si no existe: `python3 ../scripts/setup_env.py`; propónselo al usuario, no lo instales sin avisar; después `PY="$(git rev-parse --show-toplevel)/.venv/bin/python"` y `$PY scripts/…`, sin `../` en la ruta).
+Delega en las skills hermanas (deben estar como carpetas hermanas): imágenes y PDF escaneados → `img-to-text`; audios → `audio-split` + `audio-decoder`. Ejecuta los scripts desde esta carpeta con el entorno compartido de la raíz del repo (si no existe: `python3 ../scripts/setup_env.py`; propónselo al usuario, no lo instales sin avisar; después `PY="$(cd .. && pwd)/.venv/bin/python"` y `$PY scripts/…`, sin `../` en la ruta).
 
 ## Reglas que mandan sobre todo lo demás
 
