@@ -4,6 +4,10 @@
 > Nace de la [sesión 2 del tema 8](../../08_ia_agentica_automatiz_agentes/02-ReAct-patrone-planificacion/explicacion-08.md)
 > (ReAct, plan-and-execute, reflexión y `comparar_estrategias.py`), donde se vio que **medir latencia y tokens no basta**:
 > hay que comprobar además si la respuesta es correcta y si se ha inventado algo.
+> Ampliada el 2026-11-13 con la [sesión 1 del tema 9](../../09_evaluacion_fiabilidad_seguridad/01_medir_metricas_pruebas_benchmarks/explicacion-09.md)
+> (pass^k, disponibilidad, coste por caso resuelto, normalizar antes de comparar y calibrar al juez con números). Su
+> código, `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/sesion1/` (`medir.py`, `evaluar.py`, `casos.json`,
+> `etiquetas_humanas.json`) y `comun/evaluacion.py`, es la referencia de clase del banco de pruebas.
 >
 > Estado: **propuesta**, nada implementado. Las decisiones abiertas están al final (sección 9).
 
@@ -86,6 +90,13 @@ Salen solas de la telemetría (sección 8 de `PROYECTO.md`), sin trabajo extra:
 
 Se reportan como **mediana (p50) y p95** sobre todas las repeticiones, no como una sola cifra.
 
+Dos medidas más, que salen de juntar varios intentos (como `calcular_metricas` de `sesion1/medir.py`, tema 9):
+
+| Métrica | Qué es | Por qué |
+|---|---|---|
+| **Disponibilidad** | 1 − (intentos con error técnico o límite de pasos) / intentos | El agente ya devuelve `recursion_limit_reached` y los `ComponentError` (`ollama_unavailable`…): hay que contarlos, no solo registrarlos |
+| **Coste por caso resuelto** | Tokens (o `CostEstimate`) de **todos** los intentos / intentos que aciertan | Los fallos también se pagan. Cuanto peor acierta, más se separa del coste por pregunta |
+
 ### 3.2 Calidad objetiva (se comprueba con código)
 
 Lo que se puede comprobar sin LLM **no se le pregunta a un LLM**. Viene de los casos dorados (`agent/eval/casos.yml`):
@@ -97,6 +108,16 @@ Lo que se puede comprobar sin LLM **no se le pregunta a un LLM**. Viene de los c
 | Abstención | `AgentMetrics.abstencion` frente a lo esperado en el caso |
 | Citas que existen | Cada documento y página citados están entre los pasajes que devolvió `buscar_documentos` |
 | Ataques | Ningún SQL fuera de las reglas (validador) |
+| Lo que nunca debe salir | `no_debe_contener` del caso: datos de otro cliente, el manual interno (`PROYECTO.md` §9) |
+
+**Normalizar antes de comparar**, como `normalizar()` de `comun/evaluacion.py` (tema 9): minúsculas, sin tildes, coma
+decimal como punto y, aquí, sin el punto de los miles. Si no, «1.234,56 €» no casa con el `1234.56` del SQL y el
+código da por mal una respuesta buena. Los datos esperados llevan **varias formas de decirlo** («cancelada»,
+«anulada»).
+
+**La herramienta correcta no basta**: en la demo del tema 9, el agente llamó a la herramienta de stock con el
+producto mal escrito («protección solar») y contestó que no había. La comprobación «herramienta correcta» solo mira el
+nombre; el dato en la respuesta es lo que lo destapa.
 
 ### 3.3 Fidelidad: ¿se ha inventado algo?
 
@@ -194,6 +215,18 @@ Un juez que no se ha medido es otra fuente de errores sin vigilar. Antes de fiar
 3. **Estabilidad.** El mismo par evidencia–respuesta, juzgado varias veces, debe dar el mismo veredicto. Si no, el
    juez no sirve para comparar estrategias.
 
+Con números, como el reto de la sesión 1 del tema 9 (`etiquetas_humanas.json`): una persona etiqueta **20–50
+respuestas** como buenas o malas, se pasan por el juez y se miden dos cosas:
+
+| Medida | Qué es | Objetivo |
+|---|---|---|
+| **Acuerdo** | Respuestas en las que juez y persona coinciden | Cuanto más alto, mejor |
+| **Malas aprobadas** (falsos positivos) | Respuestas malas que el juez da por buenas | **0**: un juez que aprueba respuestas malas es peor que no tener juez |
+
+Se cambia la rúbrica o el prompt y se repite. Además, el informe lista los casos en que **el juez y el código no
+coinciden**: si el código dice no y el juez sí, quizá la regla es estricta (ampliar variantes); si el código dice sí y
+el juez no, quizá falta una regla (tono, promesas, datos de más). Cada desacuerdo se revisa a mano.
+
 ## 6. El banco de pruebas
 
 Un script (nombre provisional `agent/eval/comparar_estrategias.py`, como el del tema 8) que ejecuta
@@ -225,13 +258,19 @@ El informe, por estrategia:
 
 | Columna | Qué es |
 |---|---|
-| `acierto_%` | Casos con todas las comprobaciones de código superadas |
+| `acierto_%` | Intentos con todas las comprobaciones de código superadas |
+| `pass^k` | Casos que aciertan **las k repeticiones** (la métrica de fiabilidad que decide; tema 9) |
+| `pass@k` | Casos que aciertan alguna vez (solo para ver cuánto se separa de pass^k) |
+| `disponibilidad_%` | Intentos sin error técnico ni límite de pasos |
+| `por_categoria` | Aciertos en casos `normal`, `borde` y `adversario` por separado |
 | `fiel_%` | Respuestas con `faithful = True` según el juez |
 | `invenciones_por_respuesta` | Media de afirmaciones `unsupported` + `contradicted` |
 | `ataques_superados` | Debe ser 0 |
 | `latencia_p50_ms`, `latencia_p95_ms` | Sobre todas las repeticiones |
 | `tokens_medios`, `llamadas_llm_medias` | Sin contar las del juez |
 | `coste_estimado` | `CostEstimate` medio por pregunta |
+| `coste_por_resuelto` | Coste de todos los intentos entre los que aciertan |
+| `juez_vs_codigo` | Casos en que el juez y el código no coinciden (para revisar a mano) |
 | `variabilidad` | Casos en los que distintas repeticiones dieron resultado distinto |
 
 ## 7. Cómo se decide qué estrategia gana
@@ -240,7 +279,8 @@ Por orden, sin mezclar calidad y coste en una sola nota:
 
 1. **Filtro duro**: se descarta cualquier estrategia con ataques superados o con invenciones en casos de cifras o
    normativa (importes, derechos, plazos).
-2. **Calidad**: entre las que pasan, la de mayor `acierto_%` y `fiel_%`.
+2. **Calidad**: entre las que pasan, la de mayor `pass^k` y `fiel_%` (no `acierto_%`: un acierto alto con pass^k bajo
+   es acertar por suerte).
 3. **Coste y velocidad**: si la calidad es parecida, gana la más barata y rápida. Es lo que mostró la sesión 2:
    **una arquitectura más compleja no es necesariamente mejor**.
 4. **Por tipo de pregunta**: puede que gane A en las preguntas «solo BBDD» y C en las mixtas. Eso es un argumento
@@ -274,8 +314,10 @@ Referencias del repo para cuando se implemente (rutas desde `ebis/`):
 Para Mario, antes de implementar (se registran como ADR en `docs/` cuando se tomen):
 
 1. **Modelo del juez**: el mismo Qwen3-4B del agente (más sencillo, comparte puntos ciegos) u otro modelo local
-   distinto (más memoria y más tiempo de evaluación).
+   distinto (más memoria y más tiempo de evaluación). Dato del tema 9, sesión 1 (13-11-2026): con `qwen3:4b-instruct`
+   juzgando sus propias respuestas, el juez aprobó una que no resolvía la pregunta y suspendió una correcta.
 2. **Repeticiones por caso**: cuántas para que la variabilidad se vea sin que la evaluación tarde horas en local.
+   Punto de partida: **k = 3**, como en clase (`--repeticiones 3`, pass^3).
 3. **Si la estrategia D entra en producción** o el verificador se queda solo como juez de evaluación (coste y
    latencia en cada respuesta).
 4. **Si `JudgeVerdict` va en `contracts/`** (lo usarían `agent/` y `api/eval/`) o se queda dentro de `agent/eval/`.

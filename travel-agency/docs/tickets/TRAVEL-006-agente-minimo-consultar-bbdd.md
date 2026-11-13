@@ -78,9 +78,11 @@ LangGraph (decisión 5 de `PROYECTO.md`, 2026-11-08), con una sola herramienta, 
 - El grafo de `construir_agente` con `ChatOllama` y la tool `consultar_bbdd(pregunta)` → `text2sql.ask()`.
 - La descripción de la tool, que reparte el trabajo: el agente decide **qué datos** necesita y `text2sql` decide
   **cómo** sacarlos (vistas, `JOIN`, cuántos SQL), porque solo él ve el esquema. Texto: «Consulta la base de datos
-  de Viajes Nimbo. Pasa una pregunta en lenguaje natural que se entienda sola (con los identificadores: cliente,
-  reserva, vuelo). Puede pedir varios datos a la vez. Si un dato depende de otro, llámala primero para obtener el
-  primero.» Por defecto todo junto; dividir solo para encadenar.
+  de Viajes Nimbo. Pasa una pregunta en lenguaje natural que se entienda sola: no conoce la conversación, así que
+  incluye los identificadores (cliente, reserva, vuelo). Puedes pedir varios datos en la misma pregunta. Si un dato
+  depende de otro (por ejemplo, el vuelo de la última reserva de un cliente), pide primero el que falta y usa su
+  resultado en la siguiente pregunta.» Por defecto todo junto; dividir solo para encadenar. Es una hipótesis, no
+  un patrón de clase: se mide en el ticket de casos dorados.
 - Las instrucciones del agente: las de `sesion3/agente_langgraph.py` adaptadas a Viajes Nimbo, más la regla «si el
   dato no existe, dilo». Sin esquema de la base (lo tiene `text2sql`).
 - `recursion_limit = 20` desde la configuración, con el mensaje fijo al llegar.
@@ -130,6 +132,8 @@ En todos, «el modelo» es un Ollama falso que responde lo que dice el *Dado*, t
   vistas
 - **Y** el mensaje de usuario es solo la pregunta, y se ofrece una única tool, `consultar_bbdd`, con un parámetro de
   texto `pregunta`
+- **Y** la descripción de la tool dice que la pregunta tiene que entenderse sola, con sus identificadores, y que
+  puede pedir varios datos a la vez (se comprueban las ideas, no el texto exacto)
 
 **AC-4 — El comando enseña la respuesta y las métricas de cada paso**
 - **Dado** el caso del AC-1
@@ -283,7 +287,8 @@ datos" y "ataque"»):
 1. **Citas `[S#]` y verificador sin IA.** El código numera cada consulta (`[S1]`, `[S2]`…, como `15_analista.py`) y
    comprueba que cada cifra de la respuesta está en la fuente **citada**, no en cualquiera (fallo de clase: 60 en vez
    de 40). Referencias: `cifras_sin_respaldo()` de `S2/01_preguntar_datos.py`, `verificar()` y `tras_verificar()` de
-   `S3/asistente/flujo.py` (un reintento si falla). Decidir si solo avisa o reintenta.
+   `S3/asistente/flujo.py` (un reintento si falla). Decidir si solo avisa o reintenta. Las cifras se comparan
+   normalizadas (miles y coma decimal en español, como `normalizar()` de `comun/evaluacion.py` del tema 9).
 2. **Estrategia «plan cerrado».** `Plan` con opciones `Literal` por `format` + enrutado por código, como
    `S3/asistente/flujo.py`, con la misma firma que la línea base para compararlas
    (`docs/guia-evaluacion-estrategias-agente.md`, `sesion2/comparar_estrategias.py`).
@@ -292,3 +297,8 @@ datos" y "ataque"»):
    estado limpio en cada una. Incluir **preguntas compuestas** («reservas y gasto de C-001») para medir si acierta
    más pasando todo junto a `consultar_bbdd` o dividido en varias llamadas; si gana dividido, se cambia la
    descripción de la tool (TRAVEL-006).
+   Con lo del tema 9, sesión 1 (`PROYECTO.md` §9; referencia `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/
+   sesion1/medir.py`): cada caso con `categoria` (normal / borde / adversario) y las claves de `casos.json`
+   (`herramientas_esperadas`, `debe_contener` con variantes, `no_debe_contener`, `max_pasos`); k = 3 repeticiones; el
+   informe con pass^3 y pass@3, latencia p50 y p95, disponibilidad (errores y `recursion_limit_reached`), coste por
+   pregunta y por caso resuelto, y aciertos por categoría.
