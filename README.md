@@ -17,6 +17,7 @@ El recorrido va de los fundamentos de machine learning y LLMs hasta agentes de I
 | [`06_mcp`](06_mcp) | Agentes, tool calling, Model Context Protocol (MCP) y Agent Skills |
 | [`07_llm_open_source`](07_llm_open_source) | LLMs de código abierto en local con Ollama |
 | [`08_ia_agentica_automatiz_agentes`](08_ia_agentica_automatiz_agentes) | IA agéntica: del bucle agéntico a sistemas multiagente |
+| [`09_evaluacion_fiabilidad_seguridad`](09_evaluacion_fiabilidad_seguridad) | Evaluación, fiabilidad y seguridad de agentes: métricas, guardarraíles y observabilidad |
 
 ### Otros proyectos
 

@@ -1,0 +1,6 @@
+# Tema 9 · Evaluación, fiabilidad y seguridad de agentes — dependencias
+openai>=1.40              # cliente compatible con Ollama y con proveedores en la nube
+python-dotenv>=1.0
+pytest>=8                 # pruebas con modelo simulado (opcional)
+# Opcional, sesión 3: trazas en MLflow (python -m sesion3.observabilidad --mlflow)
+# mlflow>=3.8

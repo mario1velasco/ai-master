@@ -19,6 +19,7 @@ Cada carpeta es **independiente**: su propio entorno (`.venv`), sus dependencias
 | `06_mcp/` | Agentes, harness, tools, MCP y Agent Skills |
 | `07_llm_open_source/` | LLMs open source en local (Ollama) |
 | `08_ia_agentica_automatiz_agentes/` | IA agéntica: del bucle agéntico a sistemas multiagente (caso Lumen Shop) |
+| `09_evaluacion_fiabilidad_seguridad/` | Evaluación, fiabilidad y seguridad de agentes: métricas, guardarraíles y observabilidad (mismo caso Lumen Shop) |
 
 (No hay tema 02 en el repo.)
 
