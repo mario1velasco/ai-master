@@ -27,7 +27,7 @@ def test_db_question_answered_with_query_source(con: duckdb.DuckDBPyConnection, 
     assert answer.status == AgentStatus.ok
     assert answer.answered_without_data is False
     assert [(s.type, s.views, s.rows) for s in answer.sources] == [(SourceType.db, ["v_reservas_cliente"], 1)]
-    assert answer.tools_used == ["consultar_bbdd"]
+    assert answer.tools_used == ["query_db"]
 
 
 def tool_contents(request: dict[str, Any]) -> list[str]:
@@ -64,9 +64,9 @@ def test_model_sees_rules_and_one_tool_never_schema(con: duckdb.DuckDBPyConnecti
 
     [tool] = request["tools"]
     function = tool["function"]
-    assert function["name"] == "consultar_bbdd"
-    assert function["parameters"]["properties"] == {"pregunta": {"type": "string"}}
-    assert function["parameters"]["required"] == ["pregunta"]
+    assert function["name"] == "query_db"
+    assert function["parameters"]["properties"] == {"question": {"type": "string"}}
+    assert function["parameters"]["required"] == ["question"]
     description = function["description"].lower()
     assert "se entienda sola" in description  # sin la conversación…
     assert "identificadores" in description  # …así que con sus identificadores
@@ -84,3 +84,18 @@ def test_answer_without_tool_is_without_data(con: duckdb.DuckDBPyConnection, oll
     assert answer.tools_used == []
     assert len(ollama.agent_requests) == 1
     assert ollama.text2sql_requests == []
+
+
+def test_no_sql_text_reaches_model_and_answer_has_no_data(
+    con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer
+) -> None:
+    missing = "Ese dato no existe: la reserva no dice cuántas personas viajan"
+    question = "¿Cuántas personas viajan en la reserva R-1042?"
+    ollama.agent_answers = [query_db_answer(question), text_answer("Ese dato no está en la base.")]
+    ollama.text2sql_answers = [text_answer(missing)]
+
+    answer = respond(question, con=con)
+
+    assert tool_contents(ollama.agent_requests[1]) == [missing]
+    assert answer.answered_without_data is True
+    assert answer.sources == []

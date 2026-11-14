@@ -1,8 +1,8 @@
 """Ollama falso para los tests del agente: responde como /api/chat y guarda cada petición.
 
-Hablan con él dos clientes: el agente (`ChatOllama` → `httpx`) y `text2sql` (`requests.post`). Cada uno tiene su
-guion de respuestas, y se elige por la tool que se ofrece en la petición: `consultar_bbdd` es el agente y `run_sql`
-es `text2sql`. Así cada test dice qué responde «el modelo» en cada papel, sin tocar nada interno de los paquetes.
+Hablan con él dos clientes, cada uno con su guion de respuestas: el agente llega por `httpx` (`ChatOllama`) y
+`text2sql` por `requests.post`. Así cada test dice qué responde «el modelo» en cada papel, sin tocar nada interno de
+los paquetes.
 """
 
 import copy
@@ -12,12 +12,12 @@ from typing import Any
 
 import httpx
 
-AGENT_TOOL = "consultar_bbdd"
+AGENT_TOOL = "query_db"
 
 
 def query_db_answer(*questions: str) -> dict[str, Any]:
-    """Respuesta en la que el modelo del agente pide `consultar_bbdd`, una vez por pregunta."""
-    calls = [{"function": {"name": AGENT_TOOL, "arguments": {"pregunta": q}}} for q in questions]
+    """Respuesta en la que el modelo del agente pide `query_db`, una vez por pregunta."""
+    calls = [{"function": {"name": AGENT_TOOL, "arguments": {"question": q}}} for q in questions]
     return {"role": "assistant", "content": "", "tool_calls": calls}
 
 

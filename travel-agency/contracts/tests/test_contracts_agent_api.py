@@ -16,7 +16,7 @@ def agent_fields(base_fields: dict[str, Any]) -> dict[str, Any]:
         "iterations": 2,
         "llm_call_count": 3,
         "tool_call_count": 2,
-        "tools_used": ["consultar_bbdd", "buscar_documentos"],
+        "tools_used": ["query_db", "search_documents"],
         "input_tokens": 3120,
         "output_tokens": 412,
         "llm_ms": 7300.0,
@@ -56,7 +56,7 @@ def test_agent_metrics_rejects_wrong_total(agent_fields: dict[str, Any]) -> None
 @pytest.mark.parametrize(
     ("changes", "message"),
     [
-        ({"tools_used": ["consultar_bbdd", "consultar_bbdd"]}, "repetir"),
+        ({"tools_used": ["query_db", "query_db"]}, "repetir"),
         ({"tool_call_count": 1}, "menor"),
     ],
 )

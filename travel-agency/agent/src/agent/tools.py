@@ -1,4 +1,4 @@
-"""La tool `consultar_bbdd`: el agente pide datos en lenguaje natural y `text2sql.ask()` los saca de la base.
+"""La tool `query_db`: el agente pide datos en lenguaje natural y `text2sql.ask()` los saca de la base.
 
 Como las tools de `08_ia_agentica_automatiz_agentes/tema8-agentes/comun/herramientas_lc.py` (`@tool`, el docstring es
 la descripción que lee el modelo). Desvío: `response_format="content_and_artifact"`, para que el modelo reciba el
@@ -10,7 +10,7 @@ import json
 import duckdb
 from langchain_core.tools import BaseTool, tool
 
-from contracts.sql import SqlResult
+from contracts.sql import SqlResult, SqlStatus
 from text2sql import ask
 
 # Lo que lee el modelo para decidir. Reparte el trabajo: el agente decide qué datos necesita y text2sql cómo sacarlos
@@ -28,7 +28,10 @@ def _for_model(result: SqlResult) -> str:
 
     Como la tool de datos de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/15_analista.py`, que
     solo devuelve el resultado; aquí, además, el SQL. Las métricas ya están en los logs de la traza.
+    Si text2sql respondió con texto sin SQL (`no_sql`, p. ej. «ese dato no existe»), el modelo recibe ese texto.
     """
+    if result.status is SqlStatus.no_sql:
+        return result.model_text or ""
     queries = [{"sql": q.sql, "rows": q.rows, "truncated": q.truncated} for q in result.queries]
     return json.dumps(queries, ensure_ascii=False)
 
@@ -37,8 +40,8 @@ def build_query_db_tool(con: duckdb.DuckDBPyConnection) -> BaseTool:
     """La tool sobre la conexión `con`."""
 
     @tool(description=QUERY_DB_DESCRIPTION, response_format="content_and_artifact")
-    def consultar_bbdd(pregunta: str) -> tuple[str, SqlResult]:
-        result = ask(pregunta, con=con)
+    def query_db(question: str) -> tuple[str, SqlResult]:
+        result = ask(question, con=con)
         return _for_model(result), result
 
-    return consultar_bbdd
+    return query_db
