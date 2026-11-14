@@ -8,6 +8,7 @@ import os
 
 import httpx
 from langchain_ollama import ChatOllama
+from ollama import ResponseError
 
 from text2sql import ComponentError
 
@@ -31,14 +32,24 @@ def as_component_error(exc: Exception) -> ComponentError | None:
             "ollama",
             f"No hay respuesta de Ollama en {url}. ¿Está en marcha? (systemctl status ollama)",
         )
+    if isinstance(exc, ResponseError) and exc.status_code == 404:
+        model = model_name()
+        return ComponentError(
+            "model_not_installed", "ollama", f"Ollama no tiene el modelo {model}: ollama pull {model}"
+        )
     return None
+
+
+def model_name() -> str:
+    """El modelo del agente, `AGENT_MODEL`."""
+    return os.environ.get("AGENT_MODEL", "qwen3:4b-instruct")
 
 
 def build_model() -> ChatOllama:
     """El modelo de `AGENT_MODEL` en el Ollama de `OLLAMA_BASE_URL` (sin `/v1`)."""
     return ChatOllama(
         base_url=base_url(),
-        model=os.environ.get("AGENT_MODEL", "qwen3:4b-instruct"),
+        model=model_name(),
         temperature=0,
         # Un único num_ctx y keep_alive para Qwen3-4B en todo el proyecto, los mismos que lee text2sql
         # (PROYECTO.md §5): si el agente pidiera otros, Ollama recargaría el modelo en cada pregunta.

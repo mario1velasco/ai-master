@@ -7,6 +7,7 @@ puerto donde no escucha nadie.
 from datetime import UTC, datetime
 
 import duckdb
+import httpx
 import pytest
 from fake_ollama_server import FakeOllamaServer, text_answer
 
@@ -52,3 +53,17 @@ def test_ollama_down_raises_coded_error(con: duckdb.DuckDBPyConnection, monkeypa
     assert error.value.code == "ollama_unavailable"
     assert "No hay respuesta de Ollama en http://127.0.0.1:1" in error.value.message
     assert [m.status for m in agent_events()] == [Status.error]
+
+
+def test_missing_model_raises_coded_error(
+    con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("AGENT_MODEL", "qwen3:1.7b")
+    # Lo que responde Ollama cuando no tiene el modelo
+    ollama.agent_answers = [httpx.Response(404, json={"error": 'model "qwen3:1.7b" not found, try pulling it first'})]
+
+    with pytest.raises(ComponentError) as error:
+        respond(QUESTION, con=con)
+
+    assert error.value.code == "model_not_installed"
+    assert "ollama pull qwen3:1.7b" in error.value.message
