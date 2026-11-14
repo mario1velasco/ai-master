@@ -215,6 +215,15 @@ En todos, «el modelo» es un Ollama falso que responde lo que dice el *Dado*, t
   respuesta tiene `answered_without_data = true`
 - **Y** las tablas tienen las mismas filas que antes
 
+**AC-11b — Un error parcial de `text2sql` llega al modelo con lo que sí salió bien** *(añadido el 2026-11-14
+durante el desarrollo, decidido con Mario)*
+- **Dado** un `text2sql` que termina en `sql_error` con una consulta buena (las reservas de C-001) y otra que el
+  validador no dejó pasar
+- **Cuando** el agente llama a `query_db`
+- **Entonces** el mensaje de la tool que recibe el modelo trae el SQL y las filas de la consulta buena y, además, el
+  error del validador
+- **Y** la respuesta trae la fuente de la consulta buena y `answered_without_data = false`
+
 **AC-12 — Ollama sin responder da un error con código**
 - **Dado** `OLLAMA_BASE_URL` apuntando a un puerto donde no escucha nadie
 - **Cuando** se le hace una pregunta al agente
@@ -313,6 +322,12 @@ después de este ticket. Así, al llegar a los puntos 3 y 4, `text2sql` ya tiene
    del SQL de referencia o salidas reales revisadas, como `S3/guardar_salidas.py` del tema 7), para que todo fallo sea
    del agente (evaluar por piezas, `S3/06_evaluar.py`). Mide si llama a la tool cuando toca, si le pasa una pregunta
    que se entiende sola, si redacta sin cambiar cifras ni inventar y si se abstiene sin datos.
+   Incluye un caso de **error parcial** (añadido el 2026-11-14, con el AC-11b): la tool devuelve una consulta buena y
+   el error técnico del validador de otra (p. ej. «¿Cuántas reservas tiene C-001 y cuánto ha facturado?»). Debe
+   responder la parte con datos, no inventar la otra (decir que no la tiene o volver a preguntarla, como mucho una
+   vez). Si falla a menudo, dos arreglos de texto, no de código: una frase en la descripción de la tool («si llega un
+   ERROR, esa parte no tiene dato: dilo o pregúntala de otra forma») o una línea legible delante del error («Esta
+   parte no se pudo consultar:»).
    Con lo del tema 9, sesión 1 (`PROYECTO.md` §9; referencia `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/
    sesion1/{medir.py, evaluar.py}`): cada caso con `categoria` (normal / borde / adversario) y las claves de
    `casos.json` (`herramientas_esperadas`, `debe_contener` con variantes, `no_debe_contener`, `max_pasos`); k = 3

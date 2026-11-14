@@ -179,3 +179,22 @@ def test_attack_gets_validator_error_and_changes_nothing(
     assert "solo se permiten consultas SELECT" in content
     assert answer.answered_without_data is True
     assert raw_row_counts(con) == before
+
+
+def test_partial_sql_error_reaches_model_with_good_rows(
+    con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer
+) -> None:
+    question = "¿Cuántas reservas tiene C-001 y cuánto ha facturado?"
+    bad = "SELECT SUM(importe) AS total FROM v_reservas_cliente"  # la columna importe no existe
+    ollama.agent_answers = [query_db_answer(question), text_answer("C-001 tiene 2 reservas; la facturación no la sé.")]
+    # text2sql: la primera consulta pasa, la segunda falla y el modelo no la corrige en los dos reintentos
+    ollama.text2sql_answers = [sql_answer(COUNT_C001, bad), sql_answer(bad), sql_answer(bad)]
+
+    answer = respond(question, con=con)
+
+    [content] = tool_contents(ollama.agent_requests[1])
+    assert COUNT_C001 in content
+    assert '"n": 2' in content  # la fila de la consulta buena
+    assert "ERROR" in content  # y el error del validador de la que no pasó
+    assert [(s.views, s.rows) for s in answer.sources] == [(["v_reservas_cliente"], 1)]
+    assert answer.answered_without_data is False
