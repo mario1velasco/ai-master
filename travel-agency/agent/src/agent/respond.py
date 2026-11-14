@@ -17,6 +17,7 @@ from agent.model import build_model
 from agent.tools import build_query_db_tool
 from contracts.agent import AgentAnswer, AgentStatus, Source, SourceType
 from contracts.sql import SqlResult
+from text2sql import ComponentError
 
 # Las de `sesion3/agente_langgraph.py` adaptadas a Viajes Nimbo, más la regla de `construir_system_prompt()` de
 # `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py`. Sin el esquema: lo ve text2sql.
@@ -34,6 +35,10 @@ LIMIT_MESSAGE = "No he podido completar la consulta. Te paso con un compañero d
 
 def respond(question: str, *, con: duckdb.DuckDBPyConnection) -> AgentAnswer:
     """Responde la pregunta con el agente: decide si consulta la base y redacta con los datos."""
+    # Como `estado_inicial()` de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_3/asistente/flujo.py`
+    if not (question or "").strip():
+        raise ComponentError("empty_question", "agent", "La pregunta está vacía.")
+    question = question.strip()
     agent = build_agent(build_model(), [build_query_db_tool(con)], INSTRUCTIONS)
     # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
     config: RunnableConfig = {"recursion_limit": int(os.environ.get("AGENT_RECURSION_LIMIT", "20"))}

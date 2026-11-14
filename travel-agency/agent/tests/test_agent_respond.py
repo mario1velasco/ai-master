@@ -8,10 +8,12 @@ import json
 from typing import Any
 
 import duckdb
+import pytest
 from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, text_answer
 
 from agent import respond
 from contracts.agent import AgentStatus, SourceType
+from text2sql import ComponentError
 
 QUESTION = "¿Cuántas reservas tiene C-001?"
 COUNT_C001 = "SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-001'"
@@ -209,3 +211,11 @@ def test_recursion_limit_returns_fixed_message(con: duckdb.DuckDBPyConnection, o
     assert answer.answer == "No he podido completar la consulta. Te paso con un compañero del equipo."
     assert answer.status == AgentStatus.recursion_limit_reached
     assert len(ollama.agent_requests) <= 10  # 20 pasos = como mucho 10 vueltas agente → herramientas
+
+
+def test_empty_question_rejected_without_model(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    with pytest.raises(ComponentError) as error:
+        respond("   ", con=con)
+
+    assert error.value.code == "empty_question"
+    assert ollama.agent_requests == []
