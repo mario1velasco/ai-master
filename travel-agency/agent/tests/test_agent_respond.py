@@ -48,3 +48,26 @@ def test_tool_message_has_sql_and_rows_without_metrics(
     assert json.loads(content) == [{"sql": COUNT_C001, "rows": [{"n": 2}], "truncated": False}]
     for metric in ("latency_ms", "trace_id", "rows_returned", "metrics"):
         assert metric not in content
+
+
+def test_model_sees_rules_and_one_tool_never_schema(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [text_answer("No tengo ese dato.")]
+
+    respond(QUESTION, con=con)
+
+    request = ollama.agent_requests[0]
+    system, user = request["messages"]
+    assert system["role"] == "system"
+    assert "no existe" in system["content"].lower()  # la regla «si el dato no existe, dilo»
+    assert "v_reservas_cliente" not in system["content"]  # ni el esquema ni la guía: los tiene text2sql
+    assert user == {"role": "user", "content": QUESTION}
+
+    [tool] = request["tools"]
+    function = tool["function"]
+    assert function["name"] == "consultar_bbdd"
+    assert function["parameters"]["properties"] == {"pregunta": {"type": "string"}}
+    assert function["parameters"]["required"] == ["pregunta"]
+    description = function["description"].lower()
+    assert "se entienda sola" in description  # sin la conversación…
+    assert "identificadores" in description  # …así que con sus identificadores
+    assert "varios datos" in description  # y puede pedir varios a la vez

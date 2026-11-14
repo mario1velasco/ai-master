@@ -14,9 +14,13 @@ from agent.tools import build_query_db_tool
 from contracts.agent import AgentAnswer, AgentStatus, Source, SourceType
 from contracts.sql import SqlResult
 
+# Las de `sesion3/agente_langgraph.py` adaptadas a Viajes Nimbo, más la regla de `construir_system_prompt()` de
+# `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py`. Sin el esquema: lo ve text2sql.
 INSTRUCTIONS = (
     "Eres el asistente de los empleados de Viajes Nimbo, una agencia de viajes. "
-    "Consulta los datos con las herramientas y nunca los inventes. Responde en español, breve y claro."
+    "Consulta los datos con las herramientas y nunca los inventes. "
+    "Si el dato que se pide no existe, dilo claramente en lugar de aproximarlo. "
+    "Responde en español, breve y claro."
 )
 
 

@@ -13,6 +13,15 @@ from langchain_core.tools import BaseTool, tool
 from contracts.sql import SqlResult
 from text2sql import ask
 
+# Lo que lee el modelo para decidir. Reparte el trabajo: el agente decide qué datos necesita y text2sql cómo sacarlos
+# (solo él ve el esquema). En una constante y no en el docstring, para que no le lleguen saltos de línea ni sangría.
+QUERY_DB_DESCRIPTION = (
+    "Consulta la base de datos de Viajes Nimbo. Pasa una pregunta en lenguaje natural que se entienda sola: no "
+    "conoce la conversación, así que incluye los identificadores (cliente, reserva, vuelo). Puedes pedir varios "
+    "datos en la misma pregunta. Si un dato depende de otro (por ejemplo, el vuelo de la última reserva de un "
+    "cliente), pide primero el que falta y usa su resultado en la siguiente pregunta."
+)
+
 
 def _for_model(result: SqlResult) -> str:
     """Lo que lee el modelo: por cada consulta, su SQL, sus filas y si se recortó. Sin métricas.
@@ -27,9 +36,8 @@ def _for_model(result: SqlResult) -> str:
 def build_query_db_tool(con: duckdb.DuckDBPyConnection) -> BaseTool:
     """La tool sobre la conexión `con`."""
 
-    @tool(response_format="content_and_artifact")
+    @tool(description=QUERY_DB_DESCRIPTION, response_format="content_and_artifact")
     def consultar_bbdd(pregunta: str) -> tuple[str, SqlResult]:
-        """Consulta la base de datos de Viajes Nimbo con una pregunta en lenguaje natural."""
         result = ask(pregunta, con=con)
         return _for_model(result), result
 
