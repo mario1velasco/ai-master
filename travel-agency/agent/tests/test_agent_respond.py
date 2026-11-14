@@ -71,3 +71,16 @@ def test_model_sees_rules_and_one_tool_never_schema(con: duckdb.DuckDBPyConnecti
     assert "se entienda sola" in description  # sin la conversación…
     assert "identificadores" in description  # …así que con sus identificadores
     assert "varios datos" in description  # y puede pedir varios a la vez
+
+
+def test_answer_without_tool_is_without_data(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [text_answer("No tengo ese dato.")]
+
+    answer = respond("¿Qué tiempo hará en Roma el viernes?", con=con)
+
+    assert answer.answer == "No tengo ese dato."
+    assert answer.answered_without_data is True
+    assert answer.sources == []
+    assert answer.tools_used == []
+    assert len(ollama.agent_requests) == 1
+    assert ollama.text2sql_requests == []
