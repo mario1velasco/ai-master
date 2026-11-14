@@ -1,9 +1,13 @@
 # Ticket template
 
-Copy this structure exactly. Translate headings and the Given/When/Then keywords when the ticket is not in English. Replace every `<…>`.
+Copy this structure exactly. Translate headings, the Given/When/Then keywords and the *Names in code* note when the ticket is not in English (in Spanish: «**Nombres en el código, en inglés:** …»), but keep the rule itself. Replace every `<…>`.
 
 ````markdown
 # <KEY>-<NNN> · <Summary: short imperative title, as in the Jira "Summary" field>
+
+> **Names in code, in English:** functions, classes, variables, constants, parameters, files, and also the tools the
+> model sees and their parameters (e.g. `query_db(question)`, like `run_sql(query)`). Only comments, docs and the
+> text the model reads (prompts and tool descriptions) follow the ticket's language.
 
 | Field | Value |
 |---|---|

@@ -63,7 +63,7 @@ Las mismas cuatro de la sesión 2, más una que aquí importa porque Qwen3 la ti
 
 | Estrategia | Qué es en Travel Agency | Por qué probarla |
 |---|---|---|
-| **A. Tool calling nativo** | Bucle de `sesion1/agente_minimo.py` con `consultar_bbdd` y `buscar_documentos` | **Línea base** de la fase 6. La más barata en la sesión 2 |
+| **A. Tool calling nativo** | Bucle de `sesion1/agente_minimo.py` con `query_db` y `search_documents` | **Línea base** de la fase 6. La más barata en la sesión 2 |
 | **B. ReAct a mano** | Formato Pensamiento / Acción / Entrada con parser | Solo como referencia: Qwen3 soporta tool calling. Muestra cuánto cuesta el parser frágil |
 | **C. Plan-and-execute** | Planificador → un paso por herramienta → sintetizador | Las preguntas **mixtas** (la reserva R-1042: datos de la BBDD + la regla del documento) piden varios pasos ordenados. El plan se puede auditar |
 | **D. Con verificador** | A o C + un verificador que comprueba la respuesta **contra los resultados de las herramientas** (no un crítico «a ciegas») | Es la lección 2: la reflexión solo sirve si ve las señales objetivas |
@@ -105,9 +105,9 @@ Lo que se puede comprobar sin LLM **no se le pregunta a un LLM**. Viene de los c
 | Comprobación | Cómo |
 |---|---|
 | Herramienta correcta | `LlmCallMetrics.tool_calls` frente a la herramienta esperada del caso |
-| Cifras exactas | Los números de la respuesta deben aparecer en las filas que devolvió `consultar_bbdd` |
+| Cifras exactas | Los números de la respuesta deben aparecer en las filas que devolvió `query_db` |
 | Abstención | `AgentMetrics.abstencion` frente a lo esperado en el caso |
-| Citas que existen | Cada documento y página citados están entre los pasajes que devolvió `buscar_documentos` |
+| Citas que existen | Cada documento y página citados están entre los pasajes que devolvió `search_documents` |
 | Ataques | Ningún SQL fuera de las reglas (validador) |
 | Lo que nunca debe salir | `no_debe_contener` del caso: datos de otro cliente, el manual interno (`PROYECTO.md` §9) |
 

@@ -33,7 +33,7 @@ result = ask("¿Cuántas reservas tiene C-001?", con=open_db())   # -> contracts
 ```
 
 - Devuelve las consultas con su SQL, columnas, filas (recortadas a 50, con `truncated`) y sus `SqlMetrics`.
-  **No redacta**: eso lo hace el agente (fase 6), que la llamará desde la tool `consultar_bbdd(pregunta)`.
+  **No redacta**: eso lo hace el agente (fase 6), que la llamará desde la tool `query_db(question)`.
 - `status`: `ok`; `no_sql` (el modelo respondió con texto, en `model_text`, p. ej. «ese dato no existe»);
   `sql_error` (tras los reintentos quedó un SQL sin corregir; el último mensaje del validador en `error`).
 - Como mucho **3 llamadas** al modelo (1 + 2 reintentos). El error del validador vuelve al modelo para que corrija.

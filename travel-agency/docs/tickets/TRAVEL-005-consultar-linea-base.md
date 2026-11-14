@@ -1,5 +1,9 @@
 # TRAVEL-005 · Pregunta → SQL con Qwen3-4B: `text2sql.ask()` línea base
 
+> **Nombres en el código, en inglés:** funciones, clases, variables, constantes, parámetros, archivos y también las
+> tools que ve el modelo y sus parámetros (p. ej. `query_db(question)`, como `run_sql(query)`). En castellano solo
+> los comentarios, la documentación y los textos que lee el modelo (prompts y descripciones de tools).
+
 | Campo | Valor |
 |---|---|
 | Tipo | Story |
@@ -243,3 +247,6 @@ En todos, «el modelo» es un modelo falso que responde lo que dice el *Dado*, y
 
 **Preguntas abiertas**
 - Ninguna.
+
+**Nota (2026-11-14):** la tool del agente que llama a `ask()` se llama `query_db(question)`, no
+`consultar_bbdd(pregunta)` como dice este ticket: se cambió al inglés en TRAVEL-006.

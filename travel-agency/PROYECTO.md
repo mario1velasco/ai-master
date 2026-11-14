@@ -92,7 +92,7 @@ Se usa desde un **backend FastAPI** con el mismo esqueleto que `llm-customer-sup
 └───────────────────────────────────┬────────────────────────────────────────┘
                                     ▼
 ┌──────────────────────── agent/ (LLM del agente, Ollama) ──────────────────┐
-│  decide herramienta(s):  consultar_bbdd │ buscar_documentos │ ambas        │
+│  decide herramienta(s):  query_db │ search_documents │ ambas               │
 │  combina resultados y redacta la respuesta citando fuentes                 │
 └───────────────┬───────────────────────────────────────┬────────────────────┘
                 ▼                                       ▼
@@ -646,7 +646,7 @@ api/
     {"tipo": "bbdd", "vista": "v_vuelos_detalle", "filas": 1},
     {"tipo": "documento", "doc": "leyes/reglamento_261_2004.md", "pagina": 5}
   ],
-  "herramientas": ["consultar_bbdd", "buscar_documentos"],
+  "herramientas": ["query_db", "search_documents"],
   "abstencion": false,
   "escalar_a_humano": false,
   "versiones": {"prompt": "agent_prompt_v1", "text2sql_model": "qwen3:4b-instruct", "corpus": "corpus_v1"},
@@ -729,7 +729,7 @@ Y al **cerrar la sesión** (`DELETE /sessions/{id}`): extraer en segundo plano q
 conversación. Es el patrón de clase (una conversación, una extracción) y evita guardar lo mismo en cada turno.
 
 **Compresión** (solución del deber base de la sesión 4): se mide en tokens (caracteres / 4), no en número de
-mensajes, porque un solo resultado de `consultar_bbdd` o unos pasajes del RAG pueden ocupar más que varios mensajes.
+mensajes, porque un solo resultado de `query_db` o unos pasajes del RAG pueden ocupar más que varios mensajes.
 Dos reglas: **nunca separar una llamada a herramienta de su resultado** al elegir el corte, y el resumen **conserva
 los identificadores** (cliente, reserva, vuelo, importes), o el caso multiturno falla en cuanto se resume.
 
@@ -829,11 +829,11 @@ Cada petición recibe un `trace_id` en la API que **viaja por todos los paquetes
 trace t-7f3a  POST /sessions/s-001/messages                        8.421 ms
 ├── span agent.responder                                           8.300 ms
 │   ├── span llm.agente  (decide herramientas)       1.210 tok     1.900 ms
-│   ├── span tool.consultar_bbdd                                   2.600 ms
+│   ├── span tool.query_db                                         2.600 ms
 │   │   ├── span llm.text2sql  (genera SQL)            640 tok     2.100 ms
 │   │   ├── span sql.validar                                           3 ms
 │   │   └── span sql.ejecutar  (DuckDB, 1 fila)                       12 ms
-│   ├── span tool.buscar_documentos  (4 pasajes)                     480 ms
+│   ├── span tool.search_documents  (4 pasajes)                      480 ms
 │   └── span llm.agente  (redacta respuesta)         1.682 tok     3.300 ms
 └── span api.guardar_sesion                                            4 ms
 ```
@@ -943,8 +943,8 @@ Cada caso indica la pregunta, **qué herramienta(s) debe usar**, el dato o la re
 
 | Tipo de caso | Ejemplo | Se espera |
 |---|---|---|
-| Solo BBDD | "¿Cuántas reservas tiene el cliente C-0042?" | `consultar_bbdd`, número exacto |
-| Solo documentos | "¿Qué compensación hay por cancelación con menos de 7 días de aviso?" | `buscar_documentos`, cita al Reglamento 261/2004 |
+| Solo BBDD | "¿Cuántas reservas tiene el cliente C-0042?" | `query_db`, número exacto |
+| Solo documentos | "¿Qué compensación hay por cancelación con menos de 7 días de aviso?" | `search_documents`, cita al Reglamento 261/2004 |
 | Mixta | "¿A qué tiene derecho el cliente de la reserva R-1042?" | Ambas herramientas, importe y cita |
 | Política vs ley | "¿En cuántos días me devolvéis el dinero?" | Política propia vigente (no la ley ni la versión derogada) |
 | Sin respuesta | "¿Qué tiempo hará en Roma el viernes?" | Abstención, sin herramientas o sin evidencia |
@@ -1047,10 +1047,10 @@ examen del tema 9»), como la fase 5 con TRAVEL-007 y TRAVEL-008.
 | **3. Corpus** | Material reunido | Descargas en `rag/corpus/` + `SOURCES.md`; documentos de `empresa/` redactados | Cada documento con fuente y licencia; ninguno de uso privado en git |
 | **4. Conversión a Markdown** | Corpus homogéneo | `rag/conversion/` con PaddleOCR → `rag/markdown/` | Revisión de una muestra; eventos `ConversionMetrics` |
 | **5. Text-to-SQL (línea base)** | SQL sin entrenar | Validador SQL + `text2sql.ask()` con Qwen3-4B + prompt con diccionario (escalones 1–3 de la sección 6) | Eval sobre las ~50 preguntas a mano; validador bloquea todo lo prohibido |
-| **6. Agente mínimo** | Decidir y responder con BBDD | `agent/` con Qwen3-4B y la herramienta `consultar_bbdd` | Casos dorados "solo BBDD", "trampa de datos" y "ataque" |
+| **6. Agente mínimo** | Decidir y responder con BBDD | `agent/` con Qwen3-4B y la herramienta `query_db` | Casos dorados "solo BBDD", "trampa de datos" y "ataque" |
 | **7. API** | Hablar con el agente por HTTP | `api/` estilo triage, mock incluido, `/trace` | `make test` (mock) y prueba manual con `curl` |
 | **7b. Chat con estado y memoria** | Que el chat recuerde la conversación y al cliente | `api/app/session/` (checkpoint SQLite, compresión por tokens, memoria por cliente) + endpoints de memoria (sección 7) | Casos dorados de multi-turno (tras reinicio y tras resumir), memoria entre sesiones, memoria hasta el SQL y olvidar |
-| **8. RAG** | Responder con documentos | Chunking + índice híbrido (bge-m3 + FAISS Flat, BM25, RRF, reranker; sección 4) → `rag.search()` → herramienta `buscar_documentos` | Hit@k por etapa; casos "solo documentos", "mixta", "política vs ley" |
+| **8. RAG** | Responder con documentos | Chunking + índice híbrido (bge-m3 + FAISS Flat, BM25, RRF, reranker; sección 4) → `rag.search()` → herramienta `search_documents` | Hit@k por etapa; casos "solo documentos", "mixta", "política vs ley" |
 | **9. Fine-tuning (opcional)** | Mejorar el SQL si la línea base falla | Dataset completo, QLoRA del 4B en Colab, GGUF, `ollama create travel-sql` | Execution accuracy afinado > escalón 3 en el mismo test |
 | **10. Evaluación completa** | Sistema medido | `api/eval/` extremo a extremo + LLM juez + revisión manual | Informe comparado con la línea base |
 | **11. MLflow (si hay tiempo)** | Seguimiento visual | `export_mlflow.py`, servidor MLflow local | Trazas y runs de eval visibles en MLflow |
@@ -1079,7 +1079,7 @@ examen del tema 9»), como la fase 5 con TRAVEL-007 y TRAVEL-008.
 5. ~~Agente de la fase 6 con LangGraph (`construir_agente` del tema 8) o bucle sin frameworks.~~ **Decidido el
    2026-11-08: LangGraph**, sobre todo por el checkpoint de la fase 7b (`SqliteSaver` de clase, sin desvío). El grafo
    es el de `tema8-agentes/comun/grafo.py`: `agente` → (pide herramienta) → `herramientas` → `agente` → fin. La tool
-   `consultar_bbdd(pregunta)` llama a `text2sql.ask()`: text2sql sigue siendo una función normal, sin LangGraph.
+   `query_db(question)` llama a `text2sql.ask()`: text2sql sigue siendo una función normal, sin LangGraph.
    Desvío previsto: `ChatOllama` (`langchain-ollama`, API nativa `/api/chat`) en lugar del `ChatOpenAI` sobre `/v1`
    de `comun/modelo_lc.py`, para no perder los tiempos de `OllamaTimings`; con el `num_ctx` común. Las dependencias
    de LangGraph solo van en `agent/` y `api/`. Falta registrarlo como ADR.
@@ -1090,7 +1090,7 @@ Las fases 11, 12, 13, 14 y 15 son **opcionales** y no cambian lo construido: se 
 cada paquete habla con su modelo por un único cliente.
 
 **Fase 12 — Cancelaciones con aprobación humana.** Si un cliente pide cancelar un vuelo, el agente principal no lo
-hace: llama a la herramienta `gestionar_cancelacion`, que ejecuta un **subagente especializado**, el único con permiso
+hace: llama a la herramienta `manage_cancellation`, que ejecuta un **subagente especializado**, el único con permiso
 para cancelar. El subagente comprueba la reserva, aplica la política y deja un **ticket pendiente de aprobación**. El
 aprobador lo decide desde `/aprobaciones` o, opcionalmente, desde un aviso en Slack (servicio externo: la única
 excepción al principio «todo local»). El código pone los límites: solo reservas del cliente, no ya canceladas y nunca
@@ -1099,12 +1099,12 @@ abre en solo lectura (secciones 3 y 9); por ejemplo, una tabla aparte en SQLite 
 
 ```
 agente principal (solo lectura)
- ├─ tool consultar_bbdd ──────── text2sql.ask()  (workflow con LLM)
- ├─ tool buscar_documentos ───── rag.search()    (búsqueda)
- └─ tool gestionar_cancelacion ─ subagente de cancelaciones
-                                  ├─ consultar_reserva      [lectura]
-                                  ├─ calcular_penalizacion  [código]
-                                  └─ cancelar_reserva       [irreversible] ─► pausa ─► ticket ─► Slack / /aprobaciones
+ ├─ tool query_db ────────────── text2sql.ask()  (workflow con LLM)
+ ├─ tool search_documents ────── rag.search()    (búsqueda)
+ └─ tool manage_cancellation ─── subagente de cancelaciones
+                                  ├─ get_booking            [lectura]
+                                  ├─ compute_penalty        [código]
+                                  └─ cancel_booking         [irreversible] ─► pausa ─► ticket ─► Slack / /aprobaciones
 ```
 
 Referencias de clase (tema 8):

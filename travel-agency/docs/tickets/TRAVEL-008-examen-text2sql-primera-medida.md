@@ -1,5 +1,9 @@
 # TRAVEL-008 · Examen de text2sql y primera medida con el Qwen real
 
+> **Nombres en el código, en inglés:** funciones, clases, variables, constantes, parámetros, archivos y también las
+> tools que ve el modelo y sus parámetros (p. ej. `query_db(question)`, como `run_sql(query)`). En castellano solo
+> los comentarios, la documentación y los textos que lee el modelo (prompts y descripciones de tools).
+
 | Campo | Valor |
 |---|---|
 | Tipo | Task |
