@@ -116,9 +116,7 @@ def test_two_tool_calls_give_two_sources(con: duckdb.DuckDBPyConnection, ollama:
     assert answer.tools_used == ["query_db"]
 
 
-def test_one_call_with_two_queries_gives_two_sources(
-    con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer
-) -> None:
+def test_one_call_with_two_queries_gives_two_sources(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
     question = "¿Cuántas reservas tiene C-001 y cuánto ha gastado?"
     spend = "SELECT gasto_neto FROM v_resumen_clientes WHERE cliente_id = 'C-001'"
     ollama.agent_answers = [query_db_answer(question), text_answer("C-001 tiene 2 reservas y ha gastado 1195 €.")]
@@ -132,3 +130,17 @@ def test_one_call_with_two_queries_gives_two_sources(
         {"sql": spend, "rows": [{"gasto_neto": 1195.0}], "truncated": False},  # CHECKS de database: 1195 netos
     ]
     assert [(s.views, s.rows) for s in answer.sources] == [(["v_reservas_cliente"], 1), (["v_resumen_clientes"], 1)]
+
+
+def test_truncated_query_reaches_model_marked(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    question = "Dame todos los vuelos con sus itinerarios"
+    many = "SELECT v.* FROM v_vuelos_detalle v CROSS JOIN v_itinerarios"  # 121 filas en fixtures/, como en text2sql
+    ollama.agent_answers = [query_db_answer(question), text_answer("Hay más de 50 combinaciones.")]
+    ollama.text2sql_answers = [sql_answer(many)]
+
+    respond(question, con=con)
+
+    [content] = tool_contents(ollama.agent_requests[1])
+    [query] = json.loads(content)
+    assert len(query["rows"]) == 50
+    assert query["truncated"] is True
