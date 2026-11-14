@@ -13,7 +13,8 @@ API **FastAPI + Pydantic + uvicorn**.
 > Actualizado el 2026-11-12: fases extra 12–15 (cancelaciones con aprobación humana, servidor MCP del chat, modelos de
 > decisión y Docker; sección 10).
 > Actualizado el 2026-11-13: evaluación con lo del tema 9, sesión 1 (sección 9: pass^k, categorías normal / borde /
-> adversario, formato de los casos, regresiones y umbrales de despliegue; fase 12: se comprueba el estado final).
+> adversario, formato de los casos, regresiones, umbrales de despliegue y examen por cada pieza con LLM;
+> sección 10: una fase con LLM no se cierra sin su medida; fase 12: se comprueba el estado final).
 
 ## Índice
 
@@ -915,6 +916,27 @@ dice dónde. Todas las evaluaciones escriben un informe CSV/JSON y sus eventos (
 | Agente | `agent/eval/` | Herramienta elegida correcta, nº de pasos, respuesta correcta, citas válidas |
 | Extremo a extremo | `api/eval/` | Casos dorados multi-turno contra la API, en modo mock y en modo real |
 
+### Toda pieza con un LLM se cierra con su examen del tema 9
+
+Nada que use un modelo se da por bueno sin medirlo (tema 9, sesión 1: «que funcione en la demo no significa que sea
+fiable»). Cada pieza con LLM tiene su examen con casos `normal`, `borde` y `adversario`, se repite k = 3 veces y da
+pass^3, trayectoria, disponibilidad y coste por caso resuelto. Referencia principal: el tema 9
+(`09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/sesion1/{medir.py, evaluar.py}`).
+
+| Pieza (fase) | Cómo se corrige | Qué mide, además de lo común |
+|---|---|---|
+| `text2sql` (5) | Código: filas frente al resultado del SQL de referencia | TRAVEL-007 y TRAVEL-008 |
+| Agente (6; juez en la 10) | Código + juez que ve la evidencia | Casos dorados por categoría, trayectoria (herramienta, pasos), juez calibrado |
+| Resumen del hilo (7b) | Código | `debe_contener`: el resumen conserva reserva, cliente e importes |
+| Extractor de memoria (7b) | Código | Adversarios («mi tarjeta es…», «mi DNI es…») con `no_debe_contener`; guarda las preferencias que sí debe |
+| RAG redactado (8) | Código + juez | Citas que existen, abstención sin evidencia, documento con inyección (adversario). La búsqueda (Hit@k) no lleva LLM: sin pass^k |
+| Subagente de cancelaciones (12) | Código sobre el estado final | No se cancela nada sin aprobar y la respuesta nunca dice «cancelado» |
+| Modelo de decisión (14) | Código | El mismo examen que el LLM al que sustituye: acierto, pass^3, latencia y coste |
+| El juez (10) | Etiquetas humanas | Acuerdo con la persona y malas respuestas aprobadas = 0 |
+
+Las sesiones 2 y 3 del tema 9 (guardarraíles, inyección, observabilidad, *red teaming*) ampliarán esta tabla cuando se
+vean.
+
 ### Casos dorados del agente (`agent/eval/casos.yml`)
 
 Cada caso indica la pregunta, **qué herramienta(s) debe usar**, el dato o la regla esperados y si debe abstenerse:
@@ -964,7 +986,9 @@ llamar a la herramienta (tema 8, sesión 6).
 **Cómo se puntúa:**
 
 - Lo **objetivo se comprueba con código**: herramienta usada, cifras, `abstencion`, citas que existen en el corpus.
-- Lo **subjetivo** (¿la respuesta es fiel a la fuente?, ¿es clara?) lo valora un **LLM juez local** con una rúbrica fija,
+- Lo **subjetivo** (¿la respuesta es fiel a la fuente?, ¿es clara?) lo valora un **LLM juez local** con una rúbrica fija
+  de **sí o no por criterio** (`resuelve`, `sin_inventar`, `seguro`, `tono`, con un motivo cada uno, como `evaluar.py`
+  del tema 9; detalle en la guía de estrategias, §4) que **ve la evidencia** de las herramientas,
   y se **revisa a mano una muestra** (tema 5: una cita válida no prueba fidelidad).
 - Cada caso se repite **k = 3 veces** y la métrica principal es **pass^3**: el caso cuenta como bien solo si acierta
   las tres (tema 9, sesión 1: «cada cliente es un intento»). pass@k (alguna vez) no sirve para decidir.
@@ -1011,7 +1035,9 @@ Los casos de **ataque** de la tabla de evaluación son tests de seguridad: si al
 ## 10. Hoja de ruta por fases
 
 Cada fase deja **algo que funciona y se puede probar** por sí solo. No se empieza una fase sin cerrar la anterior
-(tests en verde y `AGENTS.md` de la carpeta actualizado).
+(tests en verde y `AGENTS.md` de la carpeta actualizado). **Una fase con LLM no se cierra sin su medida** con el
+modelo real (pass^3, disponibilidad y coste por caso resuelto; sección 9, «Toda pieza con un LLM se cierra con su
+examen del tema 9»), como la fase 5 con TRAVEL-007 y TRAVEL-008.
 
 | Fase | Objetivo | Entregable | Cómo se comprueba |
 |---|---|---|---|

@@ -44,8 +44,8 @@ pregunta).
 
 **Dentro**
 - Batería (~35 preguntas, con ella se puede ajustar el prompt) y examen final (~15, reservado).
-- Cada pregunta con categoría, trampa (o ninguna), pregunta en castellano como la haría un empleado, y SQL de
-  referencia o marca de imposible.
+- Cada pregunta con categoría, trampa (o ninguna), pregunta en castellano como la haría un empleado, vistas
+  esperadas, y SQL de referencia o marca de imposible.
 - Primera medida con el Qwen real de los dos exámenes, con `--repeticiones 3`, y su resumen como línea base.
 
 **Fuera**
@@ -86,12 +86,17 @@ pregunta).
 
 ### Casos límite
 
-**AC-5 — Las referencias sin filas son intencionadas**
+**AC-5 — Las vistas esperadas cuadran con la referencia**
+- **Dado** las preguntas con SQL de referencia
+- **Cuando** se revisan en la salida de `--ver`
+- **Entonces** las vistas esperadas de cada una son las que usa su SQL de referencia
+
+**AC-6 — Las referencias sin filas son intencionadas**
 - **Dado** las preguntas cuyo SQL de referencia devuelve 0 filas
 - **Cuando** se revisan en la salida de `--ver`
 - **Entonces** todas son de la categoría `borde` (p. ej. cliente o reserva que no existen)
 
-**AC-6 — El examen final no repite la batería**
+**AC-7 — El examen final no repite la batería**
 - **Dado** los dos exámenes
 - **Cuando** se revisan
 - **Entonces** ninguna pregunta del final es la misma, ni una paráfrasis, de una de la batería
@@ -99,15 +104,15 @@ pregunta).
 
 ### Errores
 
-**AC-7 — Todas las referencias pasan el validador**
+**AC-8 — Todas las referencias pasan el validador**
 - **Dado** los dos exámenes
-- **Cuando** se ejecuta `--ver` (que se para ante una referencia que no pasa el validador o un id repetido, AC-14 de
+- **Cuando** se ejecuta `--ver` (que se para ante una referencia que no pasa el validador o un id repetido, AC-16 de
   TRAVEL-007)
 - **Entonces** termina con código 0 en los dos
 
 ### No funcionales
 
-**AC-8 — La regla del examen reservado queda escrita**
+**AC-9 — La regla del examen reservado queda escrita**
 - **Dado** `text2sql/AGENTS.md`
 - **Cuando** se lee la sección de evaluación
 - **Entonces** dice que el examen final no se usa para ajustar el prompt ni los ejemplos, solo para medir

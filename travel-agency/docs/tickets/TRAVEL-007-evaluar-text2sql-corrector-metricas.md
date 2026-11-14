@@ -34,6 +34,10 @@ tema 9 no cubre (`--ver`, examen reservado, guardar resultados).
   (`--repeticiones`, por defecto 1), `calcular_metricas` (tasa de éxito, pass^k, pass@k, latencia p50 y p95 con
   `percentil`, disponibilidad, tokens y coste por caso), informe por categoría, detalle guardado en JSON. Y
   `comun/evaluacion.py` (`normalizar`: minúsculas, sin tildes, coma decimal).
+- `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/sesion1/evaluar.py` (tema 9, sesión 1): las tres formas de
+  corregir. Se usan dos: el **resultado** (`evaluar_caso`, aquí adaptado a filas) y la **trayectoria**
+  (`evaluar_trayectoria`: pasos y acciones que no debía hacer; aquí, llamadas al modelo y SQL rechazados por el
+  validador). El **juez LLM** no aplica: `text2sql` no redacta (el juez es para el agente, fases 6 y 10).
 - `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/04_examen.py` y `examen/{bateria,validacion,prueba_final}.json`
   (tema 7): examen con respuestas calculadas con un SQL revisado, `--examen`, `--preguntas`, `--ver` (preguntas y
   respuestas sin modelo), `debe_negar` en las imposibles, tolerancia ±0,011, varios exámenes para no hacerse trampas,
@@ -67,8 +71,11 @@ tema 9 no cubre (`--ver`, examen reservado, guardar resultados).
 
 **Dentro**
 - Formato de una pregunta del examen: id, categoría (`normal` / `borde` / `adversario`), trampa (de `PROYECTO.md` §3
-  o ninguna), pregunta y, o bien el SQL de referencia, o bien la marca de imposible. Dos exámenes: batería y final.
+  o ninguna), pregunta, vistas esperadas (como `vistas` en `PROYECTO.md` §6) y, o bien el SQL de referencia, o bien
+  la marca de imposible. Dos exámenes: batería y final.
 - El corrector de un intento con las reglas del desvío (filas, valores, imposibles, adversarios).
+- La trayectoria de cada intento (llamadas al modelo, SQL rechazados y vistas usadas), como `evaluar_trayectoria` del
+  tema 9. Las vistas son **diagnóstico**: no aprueban ni suspenden.
 - El comando de evaluación: opciones `--examen` (por defecto la batería), `--repeticiones` (por defecto 1),
   `--preguntas` (ids) y `--ver`.
 - Métricas e informe: tasa de éxito, pass^k, pass@k, latencia p50 y p95, disponibilidad, tokens por pregunta, coste por
@@ -168,16 +175,33 @@ es la de `open_db()` sobre `data/`.
   pregunta
 - **Y** el comando `python -m text2sql -q "…"` sigue enseñando las métricas de esa traza (sus tests siguen en verde)
 
+**AC-14 — La trayectoria separa los aciertos a la primera de los que necesitaron corregirse**
+- **Dado** tres preguntas aprobadas: una con 1 llamada al modelo y ningún SQL rechazado, otra con 2 llamadas y 1 SQL
+  rechazado por el validador antes del bueno, y otra con 3 llamadas y 2 rechazados
+- **Cuando** se ejecuta la evaluación
+- **Entonces** cada intento guarda sus llamadas al modelo y sus SQL rechazados
+- **Y** el informe dice: aprobados a la primera 33 %, aprobados tras corregirse 67 %, y la media de llamadas al modelo
+  por intento (2)
+
+**AC-15 — Las vistas esperadas se informan como diagnóstico, sin cambiar el aprobado**
+- **Dado** una pregunta con la vista esperada `v_reservas_cliente`, y cuatro intentos: uno que la usa y acierta las
+  filas, uno que la usa y falla las filas, uno que usa `v_resumen_clientes` y acierta las filas, y uno que usa otra
+  vista y las falla
+- **Cuando** se ejecuta la evaluación
+- **Entonces** cada intento guarda las vistas que usó y si incluyen las esperadas
+- **Y** el aprobado sale solo de las filas (aprobados el primero y el tercero), y el informe separa los suspensos en
+  «vista equivocada» (el cuarto) y «vista correcta, filas malas» (el segundo)
+
 ### Errores
 
-**AC-14 — Un examen mal escrito se para antes de llamar al modelo**
+**AC-16 — Un examen mal escrito se para antes de llamar al modelo**
 - **Dado** un examen con una pregunta cuyo SQL de referencia no pasa el validador (`SELECT * FROM crudo.clientes`), u
   otro con dos preguntas con el mismo id
 - **Cuando** se ejecuta la evaluación (o `--ver`)
 - **Entonces** el comando termina con un código distinto de 0 y un mensaje que dice el id de la pregunta y el motivo
 - **Y** el modelo no se llama ninguna vez
 
-**AC-15 — Si Ollama falla en un intento, cuenta como no disponible y la evaluación sigue**
+**AC-17 — Si Ollama falla en un intento, cuenta como no disponible y la evaluación sigue**
 - **Dado** tres preguntas y un Ollama que da `ollama_timeout` solo en la segunda
 - **Cuando** se ejecuta la evaluación
 - **Entonces** la segunda sale suspendida con el código `ollama_timeout` como motivo y la disponibilidad es 67 %
@@ -212,6 +236,9 @@ Ninguno aparte de los anteriores: los tests usan el Ollama falso (Definición de
 - `percentil` y la latencia por intento salen como en `medir.py` del tema 9; la latencia es la del span
   `text2sql.ask` de la traza.
 - Cualquier `ComponentError` (no solo el *timeout*) cuenta como no disponible y la evaluación sigue.
+- Las vistas esperadas no suspenden porque a veces hay dos caminos buenos (el número de reservas sale de
+  `v_reservas_cliente` y de `v_resumen_clientes`); se usan para saber **por qué** falla un intento (decidido con Mario
+  el 2026-11-14). Un intento con varias consultas cuenta las vistas de todas.
 
 **Preguntas abiertas**
 - Ninguna.

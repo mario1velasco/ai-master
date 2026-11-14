@@ -284,6 +284,9 @@ En todos, «el modelo» es un Ollama falso que responde lo que dice el *Dado*, t
 Tickets siguientes, en este orden, para cerrar la fase 6 (`PROYECTO.md` §10: «casos dorados "solo BBDD", "trampa de
 datos" y "ataque"»):
 
+Antes de todos ellos van **TRAVEL-007 y TRAVEL-008** (medir `text2sql` con el Qwen real y cerrar la fase 5): justo
+después de este ticket. Así, al llegar a los puntos 3 y 4, `text2sql` ya tiene su cifra por separado.
+
 1. **Citas `[S#]` y verificador sin IA.** El código numera cada consulta (`[S1]`, `[S2]`…, como `15_analista.py`) y
    comprueba que cada cifra de la respuesta está en la fuente **citada**, no en cualquiera (fallo de clase: 60 en vez
    de 40). Referencias: `cifras_sin_respaldo()` de `S2/01_preguntar_datos.py`, `verificar()` y `tras_verificar()` de
@@ -292,13 +295,23 @@ datos" y "ataque"»):
 2. **Estrategia «plan cerrado».** `Plan` con opciones `Literal` por `format` + enrutado por código, como
    `S3/asistente/flujo.py`, con la misma firma que la línea base para compararlas
    (`docs/guia-evaluacion-estrategias-agente.md`, `sesion2/comparar_estrategias.py`).
-3. **Casos dorados con el Qwen real.** `agent/eval/casos.yml` con «solo BBDD», «trampa de datos» (importe neto) y
-   «ataque», y un script que los pasa contra Ollama, como `llm-customer-support-triage/eval/`. Varias repeticiones y
-   estado limpio en cada una. Incluir **preguntas compuestas** («reservas y gasto de C-001») para medir si acierta
-   más pasando todo junto a `consultar_bbdd` o dividido en varias llamadas; si gana dividido, se cambia la
-   descripción de la tool (TRAVEL-006).
+3. **Examen del agente solo, con la tool fija.** `agent/eval/casos.yml` con «solo BBDD», «trampa de datos»
+   (importe neto) y «ataque», y un script que los pasa contra Ollama, como `llm-customer-support-triage/eval/`.
+   `consultar_bbdd` **no llama al `text2sql` real**: devuelve las filas correctas guardadas de cada pregunta (resultado
+   del SQL de referencia o salidas reales revisadas, como `S3/guardar_salidas.py` del tema 7), para que todo fallo sea
+   del agente (evaluar por piezas, `S3/06_evaluar.py`). Mide si llama a la tool cuando toca, si le pasa una pregunta
+   que se entiende sola, si redacta sin cambiar cifras ni inventar y si se abstiene sin datos.
    Con lo del tema 9, sesión 1 (`PROYECTO.md` §9; referencia `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/
-   sesion1/medir.py`): cada caso con `categoria` (normal / borde / adversario) y las claves de `casos.json`
-   (`herramientas_esperadas`, `debe_contener` con variantes, `no_debe_contener`, `max_pasos`); k = 3 repeticiones; el
-   informe con pass^3 y pass@3, latencia p50 y p95, disponibilidad (errores y `recursion_limit_reached`), coste por
-   pregunta y por caso resuelto, y aciertos por categoría.
+   sesion1/{medir.py, evaluar.py}`): cada caso con `categoria` (normal / borde / adversario) y las claves de
+   `casos.json` (`herramientas_esperadas`, `debe_contener` con variantes, `no_debe_contener`, `max_pasos`); k = 3
+   repeticiones y estado limpio en cada una; el informe con pass^3 y pass@3, trayectoria, latencia p50 y p95,
+   disponibilidad (errores y `recursion_limit_reached`), coste por pregunta y por caso resuelto, y aciertos por
+   categoría.
+4. **Prueba de integración: agente + `text2sql` reales.** Pocos casos (~10) con los dos de verdad, después del punto 3
+   y con `text2sql` ya medido (TRAVEL-007 y TRAVEL-008). Da la **cifra compuesta** (los errores se multiplican) y
+   comprueba que se entienden: que la pregunta que el agente pasa a `text2sql` es una que este sabe responder. Incluye
+   las **preguntas compuestas** («reservas y gasto de C-001») para medir si acierta más pasando todo junto a
+   `consultar_bbdd` o dividido en varias llamadas; si gana dividido, se cambia la descripción de la tool
+   (TRAVEL-006). Si un caso falla, la traza dice de quién es: filas malas de `text2sql` → caso de regresión en su
+   examen; filas buenas → fallo del agente. Se repite, ampliada, al añadir piezas (RAG en la fase 8, memoria hasta el
+   SQL en la 7b) y entera por la API en la fase 10.
