@@ -1077,6 +1077,7 @@ name = "travel-agent"
 version = "0.1.0"
 source = { editable = "agent" }
 dependencies = [
+    { name = "httpx" },
     { name = "langchain-ollama" },
     { name = "langgraph" },
     { name = "travel-contracts" },
@@ -1087,6 +1088,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "langchain-ollama", specifier = ">=1.1.0" },
     { name = "langgraph", specifier = ">=1.2.22" },
     { name = "travel-contracts", editable = "contracts" },

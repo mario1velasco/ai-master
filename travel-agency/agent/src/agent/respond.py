@@ -13,10 +13,12 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.errors import GraphRecursionError
 
 from agent.graph import build_agent
-from agent.model import build_model
+from agent.model import as_component_error, build_model
 from agent.tools import build_query_db_tool
 from contracts.agent import AgentAnswer, AgentStatus, Source, SourceType
+from contracts.metrics import Component
 from contracts.sql import SqlResult
+from telemetry import span
 from text2sql import ComponentError
 
 # Las de `sesion3/agente_langgraph.py` adaptadas a Viajes Nimbo, más la regla de `construir_system_prompt()` de
@@ -39,14 +41,23 @@ def respond(question: str, *, con: duckdb.DuckDBPyConnection) -> AgentAnswer:
     if not (question or "").strip():
         raise ComponentError("empty_question", "agent", "La pregunta está vacía.")
     question = question.strip()
-    agent = build_agent(build_model(), [build_query_db_tool(con)], INSTRUCTIONS)
-    # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
-    config: RunnableConfig = {"recursion_limit": int(os.environ.get("AGENT_RECURSION_LIMIT", "20"))}
-    try:
-        messages = agent.invoke({"messages": [("user", question)]}, config)["messages"]
-    except GraphRecursionError:
-        # Desvío: en clase no se captura. Aquí se corta con el mensaje fijo de la sesión 1 y la API decide si escala
-        return AgentAnswer(answer=LIMIT_MESSAGE, status=AgentStatus.recursion_limit_reached, answered_without_data=True)
+    # Telemetría: un span `agent.respond` por pregunta; los de text2sql cuelgan de él. input_text: solo se guardan su
+    # longitud y un hash, nunca el texto de la pregunta.
+    with span("agent.respond", component=Component.agent, input_text=question):
+        agent = build_agent(build_model(), [build_query_db_tool(con)], INSTRUCTIONS)
+        # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
+        config: RunnableConfig = {"recursion_limit": int(os.environ.get("AGENT_RECURSION_LIMIT", "20"))}
+        try:
+            messages = agent.invoke({"messages": [("user", question)]}, config)["messages"]
+        except GraphRecursionError:
+            # Desvío: en clase no se captura. Aquí se corta con el mensaje fijo de la sesión 1 y la API decide si escala
+            return AgentAnswer(
+                answer=LIMIT_MESSAGE, status=AgentStatus.recursion_limit_reached, answered_without_data=True
+            )
+        except Exception as exc:
+            if (error := as_component_error(exc)) is None:
+                raise
+            raise error from exc
 
     tool_messages = [m for m in messages if isinstance(m, ToolMessage)]
     results = [m.artifact for m in tool_messages if isinstance(m.artifact, SqlResult)]

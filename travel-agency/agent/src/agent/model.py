@@ -6,13 +6,38 @@ Desvío: `ChatOllama` (API nativa `/api/chat`) en vez de `ChatOpenAI` sobre `/v1
 
 import os
 
+import httpx
 from langchain_ollama import ChatOllama
+
+from text2sql import ComponentError
+
+
+def base_url() -> str:
+    """El Ollama de `OLLAMA_BASE_URL`, sin `/v1` (API nativa)."""
+    return os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+
+
+def as_component_error(exc: Exception) -> ComponentError | None:
+    """Traduce un error de `ChatOllama` al mismo código y mensaje que da `text2sql` (`_post` de `text2sql/ollama.py`,
+    como `chat()` de `sesion_3/asistente/ollama.py`). None si no es un error de Ollama.
+
+    `ChatOllama` pide en streaming: si no hay nadie escuchando, el cliente `ollama` deja pasar el `httpx.ConnectError`
+    (sin streaming lo cambia por `ConnectionError`).
+    """
+    url = f"{base_url()}/api/chat"
+    if isinstance(exc, httpx.ConnectError | ConnectionError):
+        return ComponentError(
+            "ollama_unavailable",
+            "ollama",
+            f"No hay respuesta de Ollama en {url}. ¿Está en marcha? (systemctl status ollama)",
+        )
+    return None
 
 
 def build_model() -> ChatOllama:
     """El modelo de `AGENT_MODEL` en el Ollama de `OLLAMA_BASE_URL` (sin `/v1`)."""
     return ChatOllama(
-        base_url=os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434"),
+        base_url=base_url(),
         model=os.environ.get("AGENT_MODEL", "qwen3:4b-instruct"),
         temperature=0,
         # Un único num_ctx y keep_alive para Qwen3-4B en todo el proyecto, los mismos que lee text2sql
