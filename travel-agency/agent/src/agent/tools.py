@@ -35,10 +35,13 @@ def _for_model(result: SqlResult) -> str:
 
     Como la tool de datos de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/15_analista.py`, que
     solo devuelve el resultado; aquí, además, el SQL. Las métricas ya están en los logs de la traza.
-    Si text2sql respondió con texto sin SQL (`no_sql`, p. ej. «ese dato no existe»), el modelo recibe ese texto.
+    Si text2sql respondió con texto sin SQL (`no_sql`, p. ej. «ese dato no existe»), el modelo recibe ese texto; si
+    acabó con un SQL que el validador no dejó pasar (`sql_error`), el último error del validador.
     """
     if result.status is SqlStatus.no_sql:
         return result.model_text or ""
+    if result.status is SqlStatus.sql_error:
+        return result.error or ""
     queries = [{"sql": q.sql, "rows": q.rows, "truncated": q.truncated} for q in result.queries]
     return json.dumps(queries, ensure_ascii=False)
 
