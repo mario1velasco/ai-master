@@ -99,3 +99,18 @@ def test_no_sql_text_reaches_model_and_answer_has_no_data(
     assert tool_contents(ollama.agent_requests[1]) == [missing]
     assert answer.answered_without_data is True
     assert answer.sources == []
+
+
+def test_two_tool_calls_give_two_sources(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    count_c002 = "SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-002'"
+    ollama.agent_answers = [
+        query_db_answer("¿Cuántas reservas tiene C-001?", "¿Cuántas reservas tiene C-002?"),
+        text_answer("C-001 tiene 2 reservas y C-002 tiene 1."),
+    ]
+    ollama.text2sql_answers = [sql_answer(COUNT_C001), sql_answer(count_c002)]
+
+    answer = respond("¿Cuántas reservas tienen C-001 y C-002?", con=con)
+
+    assert len(ollama.text2sql_requests) == 2
+    assert [(s.views, s.rows) for s in answer.sources] == [(["v_reservas_cliente"], 1), (["v_reservas_cliente"], 1)]
+    assert answer.tools_used == ["query_db"]

@@ -6,6 +6,7 @@ texto y el código se quede con el `SqlResult` entero (las fuentes salen de ahí
 """
 
 import json
+import threading
 
 import duckdb
 from langchain_core.tools import BaseTool, tool
@@ -21,6 +22,12 @@ QUERY_DB_DESCRIPTION = (
     "datos en la misma pregunta. Si un dato depende de otro (por ejemplo, el vuelo de la última reserva de un "
     "cliente), pide primero el que falta y usa su resultado en la siguiente pregunta."
 )
+
+# Desvío: si el modelo pide varias `query_db` en la misma respuesta, `ToolNode` las ejecuta en paralelo, y DuckDB no
+# admite dos llamadas a la vez en la misma conexión («connection is busy»). El candado las pone en fila. En clase no
+# pasa porque las tools de `tienda.py` leen diccionarios en memoria. No se pierde velocidad: Ollama atiende al Qwen
+# de una en una en la GPU de 4 GB.
+_DB_LOCK = threading.Lock()
 
 
 def _for_model(result: SqlResult) -> str:
@@ -41,7 +48,8 @@ def build_query_db_tool(con: duckdb.DuckDBPyConnection) -> BaseTool:
 
     @tool(description=QUERY_DB_DESCRIPTION, response_format="content_and_artifact")
     def query_db(question: str) -> tuple[str, SqlResult]:
-        result = ask(question, con=con)
+        with _DB_LOCK:
+            result = ask(question, con=con)
         return _for_model(result), result
 
     return query_db

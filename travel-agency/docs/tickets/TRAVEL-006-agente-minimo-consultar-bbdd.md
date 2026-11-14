@@ -71,6 +71,11 @@ LangGraph (decisión 5 de `PROYECTO.md`, 2026-11-08), con una sola herramienta, 
   la API decide si escala (`domain/rules.py`, fase 7), como dice `PROYECTO.md` §7.
 - **Sin contadores propios**: las vueltas las cuenta LangGraph (`recursion_limit`) y las métricas se sacan de los
   mensajes al terminar, sin estado global (al revés que `LLAMADAS_REPETIDAS` de la sesión 1).
+- **Candado alrededor de `text2sql.ask()`** (añadido el 2026-11-14 durante el desarrollo, decidido con Mario): si el
+  modelo pide varias `query_db` en la misma respuesta, `ToolNode` las ejecuta en paralelo y DuckDB rechaza la
+  segunda («connection is busy»). Un `threading.Lock` las pone en fila. En clase no pasa: las tools de `tienda.py`
+  leen diccionarios en memoria. Descartados: un `con.cursor()` por llamada (el prompt de `text2sql` va en caché por
+  conexión y se regeneraría el esquema cada vez) y cambiar `ToolNode` por un nodo en serie.
 
 ## Alcance
 
