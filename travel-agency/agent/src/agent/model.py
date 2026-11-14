@@ -15,4 +15,9 @@ def build_model() -> ChatOllama:
         base_url=os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434"),
         model=os.environ.get("AGENT_MODEL", "qwen3:4b-instruct"),
         temperature=0,
+        # Un único num_ctx y keep_alive para Qwen3-4B en todo el proyecto, los mismos que lee text2sql
+        # (PROYECTO.md §5): si el agente pidiera otros, Ollama recargaría el modelo en cada pregunta.
+        num_ctx=int(os.environ.get("OLLAMA_NUM_CTX", "8192")),
+        keep_alive=os.environ.get("OLLAMA_KEEP_ALIVE", "30m"),
+        reasoning=False,  # sin modo razonamiento (`think: false`), como text2sql
     )
