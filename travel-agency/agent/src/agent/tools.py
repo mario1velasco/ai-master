@@ -5,11 +5,23 @@ la descripción que lee el modelo). Desvío: `response_format="content_and_artif
 texto y el código se quede con el `SqlResult` entero (las fuentes salen de ahí).
 """
 
+import json
+
 import duckdb
 from langchain_core.tools import BaseTool, tool
 
 from contracts.sql import SqlResult
 from text2sql import ask
+
+
+def _for_model(result: SqlResult) -> str:
+    """Lo que lee el modelo: por cada consulta, su SQL, sus filas y si se recortó. Sin métricas.
+
+    Como la tool de datos de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/15_analista.py`, que
+    solo devuelve el resultado; aquí, además, el SQL. Las métricas ya están en los logs de la traza.
+    """
+    queries = [{"sql": q.sql, "rows": q.rows, "truncated": q.truncated} for q in result.queries]
+    return json.dumps(queries, ensure_ascii=False)
 
 
 def build_query_db_tool(con: duckdb.DuckDBPyConnection) -> BaseTool:
@@ -19,6 +31,6 @@ def build_query_db_tool(con: duckdb.DuckDBPyConnection) -> BaseTool:
     def consultar_bbdd(pregunta: str) -> tuple[str, SqlResult]:
         """Consulta la base de datos de Viajes Nimbo con una pregunta en lenguaje natural."""
         result = ask(pregunta, con=con)
-        return result.model_dump_json(), result
+        return _for_model(result), result
 
     return consultar_bbdd

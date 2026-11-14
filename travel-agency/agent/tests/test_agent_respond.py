@@ -4,6 +4,9 @@ El modelo es un Ollama falso (`ollama`) que responde lo que dice cada test, tant
 base, la de `fixtures/` con cifras conocidas.
 """
 
+import json
+from typing import Any
+
 import duckdb
 from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, text_answer
 
@@ -25,3 +28,23 @@ def test_db_question_answered_with_query_source(con: duckdb.DuckDBPyConnection, 
     assert answer.answered_without_data is False
     assert [(s.type, s.views, s.rows) for s in answer.sources] == [(SourceType.db, ["v_reservas_cliente"], 1)]
     assert answer.tools_used == ["consultar_bbdd"]
+
+
+def tool_contents(request: dict[str, Any]) -> list[str]:
+    """Los mensajes de la tool que llevan una petición del agente a Ollama."""
+    return [m["content"] for m in request["messages"] if m["role"] == "tool"]
+
+
+def test_tool_message_has_sql_and_rows_without_metrics(
+    con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer
+) -> None:
+    ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
+    ollama.text2sql_answers = [sql_answer(COUNT_C001)]
+
+    respond(QUESTION, con=con)
+
+    [content] = tool_contents(ollama.agent_requests[1])
+    # Por cada consulta, su SQL, sus filas y la marca de recorte (R-1042 y R-1047 en fixtures/reservas.csv)
+    assert json.loads(content) == [{"sql": COUNT_C001, "rows": [{"n": 2}], "truncated": False}]
+    for metric in ("latency_ms", "trace_id", "rows_returned", "metrics"):
+        assert metric not in content
