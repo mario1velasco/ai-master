@@ -144,3 +144,16 @@ def test_truncated_query_reaches_model_marked(con: duckdb.DuckDBPyConnection, ol
     [query] = json.loads(content)
     assert len(query["rows"]) == 50
     assert query["truncated"] is True
+
+
+def test_each_question_starts_clean(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    second = "¿Cuántas reservas tiene C-002?"
+    ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas."), text_answer("No lo sé.")]
+    ollama.text2sql_answers = [sql_answer(COUNT_C001)]
+
+    respond(QUESTION, con=con)
+    respond(second, con=con)
+
+    system, user = ollama.agent_requests[-1]["messages"]  # la única petición de la segunda pregunta
+    assert system["role"] == "system"
+    assert user == {"role": "user", "content": second}
