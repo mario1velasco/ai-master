@@ -76,6 +76,11 @@ class FakeOllamaServer:
         payload = json.loads(request.content)
         self.agent_urls.append(str(request.url))
         self.agent_requests.append(payload)
+        if len(self.agent_requests) > len(self.agent_answers):
+            raise AssertionError(
+                f"El agente llamó al modelo {len(self.agent_requests)} veces y el guion tiene "
+                f"{len(self.agent_answers)} respuestas: no para de pedir."
+            )
         message = self.agent_answers[len(self.agent_requests) - 1]
         # ChatOllama pide streaming: una sola línea NDJSON con done = true es una respuesta completa
         line = json.dumps(_body(payload["model"], message)) + "\n"

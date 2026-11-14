@@ -198,3 +198,14 @@ def test_partial_sql_error_reaches_model_with_good_rows(
     assert "ERROR" in content  # y el error del validador de la que no pasó
     assert [(s.views, s.rows) for s in answer.sources] == [(["v_reservas_cliente"], 1)]
     assert answer.answered_without_data is False
+
+
+def test_recursion_limit_returns_fixed_message(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [query_db_answer(QUESTION)] * 30  # siempre pide la tool, nunca responde
+    ollama.text2sql_answers = [text_answer("Ese dato no existe.")] * 30
+
+    answer = respond(QUESTION, con=con)  # recursion_limit = 20 por defecto; no lanza error
+
+    assert answer.answer == "No he podido completar la consulta. Te paso con un compañero del equipo."
+    assert answer.status == AgentStatus.recursion_limit_reached
+    assert len(ollama.agent_requests) <= 10  # 20 pasos = como mucho 10 vueltas agente → herramientas
