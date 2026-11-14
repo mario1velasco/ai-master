@@ -65,10 +65,11 @@ class FakeResponse:
 class FakeOllamaServer:
     """Devuelve en orden las respuestas del guion de cada papel y guarda las peticiones que recibe.
 
-    Una respuesta del agente que ya es un `httpx.Response` (p. ej. un 404) se devuelve tal cual.
+    Una respuesta del agente que ya es un `httpx.Response` (p. ej. un 404) se devuelve tal cual, y un
+    `httpx.TimeoutException` se lanza, como cuando Ollama no contesta a tiempo.
     """
 
-    agent_answers: list[dict[str, Any] | httpx.Response] = field(default_factory=list)
+    agent_answers: list[dict[str, Any] | httpx.Response | httpx.TimeoutException] = field(default_factory=list)
     text2sql_answers: list[dict[str, Any]] = field(default_factory=list)
     agent_requests: list[dict[str, Any]] = field(default_factory=list)
     text2sql_requests: list[dict[str, Any]] = field(default_factory=list)
@@ -87,6 +88,8 @@ class FakeOllamaServer:
         message = self.agent_answers[len(self.agent_requests) - 1]
         if isinstance(message, httpx.Response):  # un error de Ollama (p. ej. el 404 de un modelo sin instalar)
             return message
+        if isinstance(message, httpx.TimeoutException):  # Ollama no contesta a tiempo
+            raise message
         # ChatOllama pide streaming: una sola línea NDJSON con done = true es una respuesta completa
         line = json.dumps(_body(payload["model"], message)) + "\n"
         return httpx.Response(200, content=line.encode(), headers={"Content-Type": "application/x-ndjson"})

@@ -12,6 +12,8 @@ from ollama import ResponseError
 
 from text2sql import ComponentError
 
+TIMEOUT_S = 600  # segundos, como `chat()` de text2sql (el timeout por defecto de chat() en S3)
+
 
 def base_url() -> str:
     """El Ollama de `OLLAMA_BASE_URL`, sin `/v1` (API nativa)."""
@@ -32,11 +34,15 @@ def as_component_error(exc: Exception) -> ComponentError | None:
             "ollama",
             f"No hay respuesta de Ollama en {url}. ¿Está en marcha? (systemctl status ollama)",
         )
+    model = model_name()
+    if isinstance(exc, httpx.TimeoutException):
+        return ComponentError("ollama_timeout", "ollama", f"{model} no respondió en {TIMEOUT_S} s.")
     if isinstance(exc, ResponseError) and exc.status_code == 404:
-        model = model_name()
         return ComponentError(
             "model_not_installed", "ollama", f"Ollama no tiene el modelo {model}: ollama pull {model}"
         )
+    if isinstance(exc, ResponseError):
+        return ComponentError("ollama_error", "ollama", f"Ollama devolvió {exc.status_code}: {exc.error[:300]}")
     return None
 
 
@@ -56,4 +62,5 @@ def build_model() -> ChatOllama:
         num_ctx=int(os.environ.get("OLLAMA_NUM_CTX", "8192")),
         keep_alive=os.environ.get("OLLAMA_KEEP_ALIVE", "30m"),
         reasoning=False,  # sin modo razonamiento (`think: false`), como text2sql
+        client_kwargs={"timeout": TIMEOUT_S},  # el cliente `ollama` se lo pasa a httpx
     )

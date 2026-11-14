@@ -67,3 +67,23 @@ def test_missing_model_raises_coded_error(
 
     assert error.value.code == "model_not_installed"
     assert "ollama pull qwen3:1.7b" in error.value.message
+
+
+def test_ollama_server_error_raises_coded_error(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [httpx.Response(500, json={"error": "llama runner process has terminated"})]
+
+    with pytest.raises(ComponentError) as error:
+        respond(QUESTION, con=con)
+
+    assert error.value.code == "ollama_error"
+    assert "500" in error.value.message
+
+
+def test_ollama_timeout_raises_coded_error(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [httpx.ReadTimeout("timed out")]
+
+    with pytest.raises(ComponentError) as error:
+        respond(QUESTION, con=con)
+
+    assert error.value.code == "ollama_timeout"
+    assert error.value.message == "qwen3:4b-instruct no respondió en 600 s."  # como text2sql

@@ -235,6 +235,14 @@ durante el desarrollo, decidido con Mario)*
 - **Cuando** se le hace una pregunta al agente
 - **Entonces** se lanza un error con código `model_not_installed` y el mensaje dice el `ollama pull` que falta
 
+**AC-13b — Los demás fallos de Ollama también dan un error con código** *(añadido el 2026-11-14 durante el
+desarrollo, decidido con Mario: los dos códigos del supuesto que no tenían criterio)*
+- **Dado** un Ollama que responde HTTP 500 al modelo del agente, o que no responde dentro del tiempo límite (600 s,
+  el de `text2sql`)
+- **Cuando** se le hace una pregunta al agente
+- **Entonces** se lanza un error con código `ollama_error` (con el estado HTTP en el mensaje) u `ollama_timeout` (con
+  el modelo y los segundos en el mensaje)
+
 **AC-14 — El comando con Ollama caído explica el fallo sin traza de Python**
 - **Dado** el caso del AC-12
 - **Cuando** se ejecuta `python -m agent -q "¿Cuántas reservas tiene C-001?"`
