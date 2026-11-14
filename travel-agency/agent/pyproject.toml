@@ -8,6 +8,8 @@ dependencies = [
     "travel-telemetry",
     "travel-rag",
     "travel-text2sql",
+    "langgraph>=1.2.22",
+    "langchain-ollama>=1.1.0",
 ]
 
 [build-system]

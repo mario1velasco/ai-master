@@ -1,0 +1,43 @@
+from collections.abc import Generator, Iterator
+from pathlib import Path
+
+import duckdb
+import httpx
+import pytest
+from fake_ollama_server import FakeOllamaServer
+
+from database.seed import FIXTURES_DIR
+from database.semantic_layer import open_db
+from telemetry import close_log_files, configure, get_config
+
+
+@pytest.fixture(scope="session")
+def con() -> Generator[duckdb.DuckDBPyConnection]:
+    """La capa semántica sobre las filas a mano (`fixtures/`), una vez para todos los tests: cifras conocidas."""
+    connection = open_db(FIXTURES_DIR)
+    yield connection
+    connection.close()
+
+
+@pytest.fixture(autouse=True)
+def log_dir(tmp_path: Path) -> Iterator[Path]:
+    """Cada test escribe su telemetría en su carpeta temporal, en modo estricto (como en `text2sql/tests`)."""
+    previous = get_config()
+    configure(log_dir=tmp_path, environment="test", strict=True)
+    yield tmp_path
+    close_log_files()
+    configure(log_dir=previous.log_dir, environment=previous.environment, strict=previous.strict)
+
+
+@pytest.fixture
+def ollama(monkeypatch: pytest.MonkeyPatch) -> FakeOllamaServer:
+    """Sustituye la red hacia Ollama (httpx del agente, requests de text2sql) y fija la configuración."""
+    fake = FakeOllamaServer()
+    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", fake.handle_request)
+    monkeypatch.setattr("requests.post", fake.post)
+    monkeypatch.setenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    monkeypatch.setenv("AGENT_MODEL", "qwen3:4b-instruct")
+    monkeypatch.setenv("TEXT2SQL_MODEL", "qwen3:4b-instruct")
+    monkeypatch.setenv("OLLAMA_NUM_CTX", "8192")
+    monkeypatch.setenv("OLLAMA_KEEP_ALIVE", "30m")
+    return fake
