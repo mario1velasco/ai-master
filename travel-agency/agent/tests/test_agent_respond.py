@@ -114,3 +114,21 @@ def test_two_tool_calls_give_two_sources(con: duckdb.DuckDBPyConnection, ollama:
     assert len(ollama.text2sql_requests) == 2
     assert [(s.views, s.rows) for s in answer.sources] == [(["v_reservas_cliente"], 1), (["v_reservas_cliente"], 1)]
     assert answer.tools_used == ["query_db"]
+
+
+def test_one_call_with_two_queries_gives_two_sources(
+    con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer
+) -> None:
+    question = "¿Cuántas reservas tiene C-001 y cuánto ha gastado?"
+    spend = "SELECT gasto_neto FROM v_resumen_clientes WHERE cliente_id = 'C-001'"
+    ollama.agent_answers = [query_db_answer(question), text_answer("C-001 tiene 2 reservas y ha gastado 1195 €.")]
+    ollama.text2sql_answers = [sql_answer(COUNT_C001, spend)]  # text2sql escribe dos SQL en la misma respuesta
+
+    answer = respond(question, con=con)
+
+    [content] = tool_contents(ollama.agent_requests[1])
+    assert json.loads(content) == [
+        {"sql": COUNT_C001, "rows": [{"n": 2}], "truncated": False},
+        {"sql": spend, "rows": [{"gasto_neto": 1195.0}], "truncated": False},  # CHECKS de database: 1195 netos
+    ]
+    assert [(s.views, s.rows) for s in answer.sources] == [(["v_reservas_cliente"], 1), (["v_resumen_clientes"], 1)]
