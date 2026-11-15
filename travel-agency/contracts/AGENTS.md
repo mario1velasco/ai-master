@@ -1,8 +1,9 @@
 # AGENTS.md — `contracts/`
 
-> Estado: **fase 1c + `SqlResult` (fase 5)**. Hechas las métricas `BaseMetrics`, `LlmCallMetrics`, `SqlMetrics`,
-> `RagMetrics`, `AgentMetrics` y `ApiMetrics`, y el resultado de text2sql `SqlResult`. Lo que falta se crea en la
-> fase de su paquete: ver **Pendiente** al final.
+> Estado: **fase 1c + `SqlResult` (fase 5) + `AgentAnswer` y `ComponentError` (fase 6)**. Hechas las métricas
+> `BaseMetrics`, `LlmCallMetrics`, `SqlMetrics`, `RagMetrics`, `AgentMetrics` y `ApiMetrics`, el resultado de text2sql
+> `SqlResult`, el del agente `AgentAnswer` y el error con código `ComponentError`. Lo que falta se crea en la fase de
+> su paquete: ver **Pendiente** al final.
 
 ## Propósito
 
@@ -12,14 +13,16 @@ Esquemas Pydantic compartidos por todos los paquetes. Cada resultado de cada paq
 ## Archivos clave
 
 ```
-src/contracts/sql.py # SqlResult, SqlQuery, SqlStatus: lo que devuelve text2sql.ask() (TRAVEL-005)
+src/contracts/sql.py    # SqlResult, SqlQuery, SqlStatus: lo que devuelve text2sql.ask() (TRAVEL-005)
+src/contracts/agent.py  # AgentAnswer, Source, AgentStatus, SourceType: lo que devuelve agent.respond() (TRAVEL-006)
+src/contracts/errors.py # ComponentError: el error con código que lanzan text2sql y el agente (TRAVEL-006)
 src/contracts/metrics/
 ├── __init__.py      # reexporta todo lo público
 ├── enums.py         # Status, Component
 ├── base.py          # BaseMetrics, Versions, METRICS_SCHEMA_VERSION, short_hash, check_or_fill
 ├── sql.py           # SqlMetrics (span sql.run, uno por cada SQL)
 ├── rag.py           # RagMetrics, ScoreStats (span rag.search)
-├── agent.py         # AgentMetrics (span agent.responder; solo totales)
+├── agent.py         # AgentMetrics (span agent.respond; solo totales)
 ├── api.py           # ApiMetrics (span raíz de cada petición)
 └── llm/
     ├── enums.py     # LlmProvider, LlmPurpose, FinishReason
@@ -45,6 +48,14 @@ from contracts.metrics import (
 - `from contracts.sql import SqlResult, SqlQuery, SqlStatus`: `status` (`ok` / `no_sql` / `sql_error`), `queries`
   (SQL, columnas, filas, `truncated` y su `metrics: SqlMetrics`), `model_text`, `error` y `llm_calls`. Las métricas
   van **en cada consulta**, no en el resultado: una respuesta puede traer varios SQL.
+- `from contracts.agent import AgentAnswer, Source, AgentStatus, SourceType`: `answer`, `status` (`ok` /
+  `recursion_limit_reached`), `answered_without_data`, `sources` (una por consulta `ok`: tipo, vistas, filas y `sql`),
+  `tools_used`, `versions`, `trace_id` y `metrics: AgentMetrics` (null si la telemetría no pudo registrarlas).
+- `from contracts.errors import ComponentError`: `ComponentError(code, component, message)` y `as_dict()`. Vivía en
+  `text2sql`; pasó aquí en TRAVEL-006 porque lo lanzan varios paquetes y la API lo convertirá en su respuesta de
+  error. `component` es texto libre (`"ollama"`, `"agent"`…), no el enum `Component` de las métricas.
+- `AgentMetrics.answered_without_data` (antes `abstained`, renombrado en TRAVEL-006): lo pone el código, `true` si
+  ninguna consulta a la base salió bien.
 
 ## Ejecutar y testear
 
@@ -102,6 +113,6 @@ del `AGENTS.md` raíz).
 |---|---|---|
 | `ConversionMetrics` (archivo, formato, método, páginas, ms/página, tablas, páginas vacías) | 4 | Herramienta de conversión: referencia en el tema 7, sesión 3 (fila 4 del `AGENTS.md` raíz); decidir con Mario |
 | ~~`SqlResult`~~ hecho en TRAVEL-005 (`contracts/sql.py`; `metrics` en cada `SqlQuery`) | 5 | — |
-| `AgentAnswer` (respuesta, fuentes, herramientas, abstención + `metrics: AgentMetrics`) | 6 | Forma de las fuentes (sección 7 de `PROYECTO.md`) |
+| ~~`AgentAnswer`~~ hecho en TRAVEL-006 (`contracts/agent.py`; `metrics: AgentMetrics`) | 6 | — |
 | `SystemMetrics` (CPU, RAM, VRAM, GPU, modelos cargados), opcional | 7 | Si compensa medirlo por petición |
 | `RagHit` / `RagResult` (pasaje, documento, página, score + `metrics: RagMetrics`) | 8 | Chunking (decisión pendiente 1) |

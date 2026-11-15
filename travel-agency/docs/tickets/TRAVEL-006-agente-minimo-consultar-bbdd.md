@@ -8,7 +8,7 @@
 |---|---|
 | Tipo | Story |
 | Carpeta del proyecto | `travel-agency/` (`agent/`, `contracts/`) |
-| Estado | Borrador, pendiente de revisión |
+| Estado | Hecho (2026-11-15) |
 | Creado | 2026-11-13 |
 | Etiquetas | agent, langgraph, llm, ollama, fase-6 |
 
@@ -81,6 +81,10 @@ LangGraph (decisión 5 de `PROYECTO.md`, 2026-11-08), con una sola herramienta, 
   el texto del SQL (solo su longitud), así que no quedaría en ningún sitio. Hace falta para probar a mano (¿la cifra
   sale de un SQL correcto?) y para la evaluación (punto 4 de «Lo que queda»: decidir si un fallo es de `text2sql` o
   del agente). La API de la fase 7 decide si lo enseña (su DTO puede quitarlo).
+- **`ComponentError` pasa de `text2sql` a `contracts/errors.py`** (añadido el 2026-11-15 en el refactor del cierre,
+  decidido con Mario): no es algo de SQL y ya lo lanzan dos paquetes (text2sql y el agente; `rag` lo hará en la
+  fase 8), y la API lo convertirá en su respuesta de error. En clase vive en `sesion_3/asistente/ollama.py` porque allí
+  todo es una sola aplicación. `text2sql` deja de exportarlo; nota fechada en TRAVEL-005.
 
 ## Alcance
 
@@ -297,14 +301,15 @@ desarrollo, decidido con Mario: los dos códigos del supuesto que no tenían cri
 
 ## Definición de hecho
 
-- [ ] Cada AC cubierto por un test automático que pasa, con los modelos falsos (sin red ni Ollama). Los de Ollama
-      caído (AC-12, AC-14) contra `127.0.0.1:1`, sin salir del equipo
-- [ ] Toda la suite del proyecto en verde (`uv run pytest`), incluidos los tests de TRAVEL-002 y TRAVEL-005
-- [ ] ruff y ty limpios
-- [ ] `agent/AGENTS.md` (función pública, desvíos) y `contracts/AGENTS.md` (`AgentAnswer` tachado de pendientes,
+- [x] Cada AC cubierto por un test automático que pasa, con los modelos falsos (sin red ni Ollama). Los de Ollama
+      caído (AC-12, AC-14) contra `127.0.0.1:1`, sin salir del equipo. También los añadidos durante el desarrollo
+      (AC-1b, AC-4b, AC-11b, AC-13b)
+- [x] Toda la suite del proyecto en verde (`uv run pytest`), incluidos los tests de TRAVEL-002 y TRAVEL-005
+- [x] ruff y ty limpios
+- [x] `agent/AGENTS.md` (función pública, desvíos) y `contracts/AGENTS.md` (`AgentAnswer` tachado de pendientes,
       `answered_without_data`) actualizados; fila 6 y «Contratos pendientes» de `travel-agency/AGENTS.md`;
-      `PROYECTO.md` §7 con `answered_without_data` y `status`
-- [ ] Commits sin atribución a la IA
+      `PROYECTO.md` §7 con `answered_without_data` y `status` (y el JSON en inglés, con el SQL en las fuentes)
+- [x] Commits sin atribución a la IA
 
 ## Supuestos y preguntas abiertas
 

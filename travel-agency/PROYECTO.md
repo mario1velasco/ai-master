@@ -608,7 +608,7 @@ api/
 │   │   ├── compress.py      # resumen por tokens sin separar llamada a herramienta y resultado
 │   │   └── memory.py        # memoria a largo plazo por cliente: recuperar, extraer, olvidar
 │   ├── services/
-│   │   ├── agent_service.py # llama a agent.responder(), mide latencia, captura errores
+│   │   ├── agent_service.py # llama a agent.respond(), mide latencia, captura errores
 │   │   └── chat_service.py  # orquesta un turno: hilo + recuerdos → agente → reglas → guardar hilo → log
 │   ├── api_clients/
 │   │   └── agent_client.py  # único módulo que importa el paquete agent/
@@ -641,24 +641,36 @@ api/
 ```json
 {
   "session_id": "s-001",
-  "respuesta": "El vuelo IB3166 de la reserva R-1042 llegó con 312 min de retraso y recorre 2.150 km, por lo que corresponden 400 € [Reglamento 261/2004, art. 7].",
-  "fuentes": [
-    {"tipo": "bbdd", "vista": "v_vuelos_detalle", "filas": 1},
-    {"tipo": "documento", "doc": "leyes/reglamento_261_2004.md", "pagina": 5}
+  "answer": "El vuelo IB3166 de la reserva R-1042 llegó con 312 min de retraso y recorre 2.150 km, por lo que corresponden 400 € [Reglamento 261/2004, art. 7].",
+  "status": "ok",
+  "answered_without_data": false,
+  "sources": [
+    {"type": "db", "views": ["v_vuelos_detalle"], "rows": 1, "sql": "SELECT … FROM v_vuelos_detalle WHERE reserva_id = 'R-1042'"},
+    {"type": "document", "doc": "leyes/reglamento_261_2004.md", "page": 5}
   ],
-  "herramientas": ["query_db", "search_documents"],
-  "abstencion": false,
-  "escalar_a_humano": false,
-  "versiones": {"prompt": "agent_prompt_v1", "text2sql_model": "qwen3:4b-instruct", "corpus": "corpus_v1"},
-  "trace_id": "t-7f3a…",
-  "metricas": {"duracion_total_ms": 8421, "tokens_entrada": 3120, "tokens_salida": 412,
-               "llamadas_llm": 3, "llamadas_herramientas": 2}
+  "tools_used": ["query_db", "search_documents"],
+  "escalate_to_human": false,
+  "versions": {"prompt_version": "agent_prompt_v1", "corpus_version": "corpus_v1"},
+  "trace_id": "7f3a…",
+  "metrics": {"latency_ms": 8421, "input_tokens": 3120, "output_tokens": 412,
+              "llm_call_count": 3, "tool_call_count": 2, "llm_ms": 5200, "tools_ms": 3080}
 }
 ```
 
-- `abstencion: true` cuando no hay evidencia suficiente (el agente dice que no lo sabe).
-- `escalar_a_humano: true` lo decide **`domain/rules.py`**, no el modelo (p. ej. reclamación formal, datos de otro cliente).
-- El SQL, los pasajes completos y el **desglose de métricas por paso** no van en la respuesta: están en `/trace` (sección 8).
+Es el `AgentAnswer` de `contracts/agent.py` (TRAVEL-006) más lo que pone la API (`session_id`, `escalate_to_human`).
+Claves en inglés, como el resto del código.
+
+- `status`: `ok` o `recursion_limit_reached` (el agente se cortó al llegar al límite de pasos y respondió con un
+  mensaje fijo). El agente informa de lo que pasó; la API decide si escala.
+- `answered_without_data: true` cuando ninguna consulta salió bien: la respuesta no se apoya en datos. Lo pone el
+  **código**, no el modelo (sustituye a la antigua `abstencion`). Desde la fase 8, un pasaje devuelto también contará.
+- `escalate_to_human: true` lo decide **`domain/rules.py`**, no el modelo (p. ej. reclamación formal, datos de otro
+  cliente, `recursion_limit_reached`).
+- Cada fuente de BBDD trae **su SQL** (desvío de TRAVEL-006): la telemetría no guarda el texto del SQL, así que es el
+  único sitio donde queda; hace falta para probar a mano y para la evaluación. El DTO puede quitarlo si no se quiere
+  enseñar al cliente.
+- Las filas completas, los pasajes completos y el **desglose de métricas por paso** no van en la respuesta: están en
+  `/trace` (sección 8).
 
 ### Configuración (`config.yml`)
 
@@ -812,7 +824,7 @@ para medir más.
 | `SqlMetrics` (text2sql, uno por cada SQL) | `sql_valid`, `rejection_reason`, `views_used`, `sql_chars`, `rows_returned`, `column_count`, `limit_applied`, `timed_out` |
 | `RagMetrics` (rag) | `search_ms`, `rerank_ms`, `candidate_count`, `passages_returned`, `scores` (`ScoreStats`: max / min / mean), `distinct_docs`, `context_chars`, `context_tokens`, `abstained` |
 | `ConversionMetrics` (rag/conversion) | `archivo`, `formato`, `metodo` (copia / texto / PaddleOCR), `paginas`, `duracion_ms`, `ms_por_pagina`, `chars_salida`, `tablas_detectadas`, `paginas_vacias` |
-| `AgentMetrics` (agent) | `iterations`, `llm_call_count`, `tool_call_count`, `tools_used`, `input_tokens`, `output_tokens`, `total_tokens`, `llm_ms` vs `tools_ms`, `abstained`. Sin lista de pasos: cada paso es su propio span hijo |
+| `AgentMetrics` (agent) | `iterations`, `llm_call_count`, `tool_call_count`, `tools_used`, `input_tokens`, `output_tokens`, `total_tokens`, `llm_ms` vs `tools_ms`, `answered_without_data`. Sin lista de pasos: cada paso es su propio span hijo |
 | `ApiMetrics` (api) | `session_id`, `endpoint`, `http_method`, `status_code`, `request_bytes`, `response_bytes`, `session_turn`, `summary_applied`. La duración total es `latency_ms` y el id de la petición es `trace_id` |
 | `SystemMetrics` (opcional, por petición) | CPU %, RAM usada, VRAM usada y GPU % (si hay GPU), modelos cargados en Ollama |
 
@@ -827,14 +839,13 @@ Cada petición recibe un `trace_id` en la API que **viaja por todos los paquetes
 
 ```
 trace t-7f3a  POST /sessions/s-001/messages                        8.421 ms
-├── span agent.responder                                           8.300 ms
-│   ├── span llm.agente  (decide herramientas)       1.210 tok     1.900 ms
-│   ├── span tool.query_db                                         2.600 ms
+├── span agent.respond                                             8.300 ms
+│   ├── span llm.agent  (decide herramientas)        1.210 tok     1.900 ms
+│   ├── span text2sql.ask  (tool query_db)                         2.600 ms
 │   │   ├── span llm.text2sql  (genera SQL)            640 tok     2.100 ms
-│   │   ├── span sql.validar                                           3 ms
-│   │   └── span sql.ejecutar  (DuckDB, 1 fila)                       12 ms
-│   ├── span tool.search_documents  (4 pasajes)                      480 ms
-│   └── span llm.agente  (redacta respuesta)         1.682 tok     3.300 ms
+│   │   └── span sql.run  (valida y ejecuta, 1 fila)                  15 ms
+│   ├── span rag.search  (tool search_documents, 4 pasajes)          480 ms
+│   └── span llm.agent  (redacta respuesta)          1.682 tok     3.300 ms
 └── span api.guardar_sesion                                            4 ms
 ```
 
@@ -985,7 +996,7 @@ llamar a la herramienta (tema 8, sesión 6).
 
 **Cómo se puntúa:**
 
-- Lo **objetivo se comprueba con código**: herramienta usada, cifras, `abstencion`, citas que existen en el corpus.
+- Lo **objetivo se comprueba con código**: herramienta usada, cifras, `answered_without_data`, citas que existen en el corpus.
 - Lo **subjetivo** (¿la respuesta es fiel a la fuente?, ¿es clara?) lo valora un **LLM juez local** con una rúbrica fija
   de **sí o no por criterio** (`resuelve`, `sin_inventar`, `seguro`, `tono`, con un motivo cada uno, como `evaluar.py`
   del tema 9; detalle en la guía de estrategias, §4) que **ve la evidencia** de las herramientas,

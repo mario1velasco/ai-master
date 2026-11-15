@@ -36,14 +36,14 @@ que lo cambia (o una nota fechada al final del antiguo).
 
 ## Tickets
 
-| Ticket | Fase | Tipo | Qué hace | Estado (2026-11-13) |
+| Ticket | Fase | Tipo | Qué hace | Estado (2026-11-15) |
 |---|---|---|---|---|
 | [TRAVEL-001](tickets/TRAVEL-001-generar-datos-sinteticos.md) | 2b | Código | Generador con semilla fija (`database.seed`) que amplía los CSV a mano de `fixtures/` a miles de filas en `data/`, sin perder casos ancla ni trampas. Sin Faker: `random.Random(semilla)` y listas a mano | Hecho |
 | [TRAVEL-002](tickets/TRAVEL-002-sql-guard-view-whitelist.md) | 5 | Código | Validador del SQL del modelo (`text2sql/guard.py`): `ejecutar_sql_seguro` de clase más una **lista blanca de vistas** (solo lo de `main`; nada de tablas crudas, archivos ni funciones de tabla) | Hecho |
 | [TRAVEL-003](tickets/TRAVEL-003-reunir-corpus-externo.md) | 3 | Datos | Corpus externo del RAG (leyes, salud, seguridad, general) con `SOURCES.md`: fuente, licencia y huella SHA-256; lo de uso privado (AESA, Exteriores) fuera de git | Hecho |
 | [TRAVEL-004](tickets/TRAVEL-004-redactar-documentos-empresa.md) | 3 | Datos | 26 documentos propios de Viajes Nimbo en `rag/corpus/empresa/`, coherentes con la base, con casos difíciles a propósito (versión derogada, política que mejora la ley, documento con inyección) | Hecho |
 | [TRAVEL-005](tickets/TRAVEL-005-consultar-linea-base.md) | 5 | Código | `text2sql.ask()`: pregunta → SQL con Qwen3-4B → validador → DuckDB, con bucle de corrección (3 llamadas como máximo), telemetría y comando `python -m text2sql`. Devuelve filas, **no redacta** | Hecho (sin medir: ver 007 y 008) |
-| [TRAVEL-006](tickets/TRAVEL-006-agente-minimo-consultar-bbdd.md) | 6 | Código | Agente mínimo con LangGraph (`construir_agente` de clase) y la tool `query_db` → `text2sql.ask()`; contrato `AgentAnswer`. Al final, «Lo que queda de la fase 6» (citas y verificador, plan cerrado, casos dorados) | Ticket listo, código pendiente |
+| [TRAVEL-006](tickets/TRAVEL-006-agente-minimo-consultar-bbdd.md) | 6 | Código | Agente mínimo con LangGraph (`construir_agente` de clase) y la tool `query_db` → `text2sql.ask()`; contrato `AgentAnswer`. Al final, «Lo que queda de la fase 6» (citas y verificador, plan cerrado, casos dorados) | Hecho |
 | [TRAVEL-007](tickets/TRAVEL-007-evaluar-text2sql-corrector-metricas.md) | 5 | Código | Herramienta para evaluar `text2sql` (tema 9, sesión 1): corrige cada intento contra el resultado de un SQL de referencia (mismas filas, valores en su fila), métricas pass^k, latencia, disponibilidad y coste por acierto; `trace_id` en `SqlResult` | Borrador; después de 006 |
 | [TRAVEL-008](tickets/TRAVEL-008-examen-text2sql-primera-medida.md) | 5 | Datos | Examen de ~50 preguntas (batería ~35 + final reservado ~15) por trampa y categoría, y primera medida con el Qwen real (k = 3) como línea base. Cierra la fase 5 | Borrador; después de 007 |
 
