@@ -86,6 +86,19 @@ uv run ruff check . && uv run ruff format .
 uv run ty check
 ```
 
+Probar a mano con el Qwen real (Ollama en marcha, `systemctl status ollama`; una vez, `ollama pull qwen3:4b-instruct`):
+
+```bash
+uv run python -m text2sql -q "¿Cuántas reservas tiene C-001?"            # solo text2sql: pregunta → SQL → filas
+uv run python -m agent -q "¿Cuántas reservas tiene C-001?"               # el agente: decide, llama a text2sql y redacta
+uv run python -m agent -q "¿Cuántas reservas tiene C-001?" --no-trace    # sin los eventos de cada paso
+uv run --env-file agent/.env python -m agent -q "…"                      # con un .env (antes: cp agent/.env.example agent/.env)
+```
+
+**Ningún paquete carga su `.env` solo** (no se usa `dotenv`): sin `--env-file` se usan los valores por defecto del
+código, que son los de los `.env.example`. El detalle de cada comando (salida, opciones, errores) está en el
+`AGENTS.md` de su paquete; la lista completa de comandos, en el `README.md`.
+
 Añadir una dependencia a un paquete: `uv add --package travel-<carpeta> <librería>`.
 Dependencia entre paquetes: `travel-<otro>` en `dependencies` + `{ workspace = true }` en `[tool.uv.sources]`.
 
