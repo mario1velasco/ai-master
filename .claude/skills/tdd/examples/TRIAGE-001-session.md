@@ -60,7 +60,7 @@ $ .venv/bin/python -m pytest tests/test_business_rules.py::test_valid_order_id_a
 1 passed
 ```
 
-Passes on the first run, as expected for a guard. No code change. **Checkpoint → user OK.**
+Passes on the first run, as expected for a guard. No code change. **Checkpoint → user OK → commit of the cycle first** (`test: guard a valid order id (AC-1)`), then the next AC.
 
 ## Cycle 2: AC-7, a non-numeric order id is treated as missing
 
@@ -112,7 +112,7 @@ $ make test
 >
 > Next: AC-2. OK?
 
-**User OK.**
+**User OK.** First action: commit this cycle (`feat: …(AC-…)`); only then start AC-2.
 
 ## Cycles 3-7: AC-2, AC-3, AC-4, AC-5, AC-6
 
@@ -141,7 +141,7 @@ It isn't a guard, but it passed on the first run, so the loop **stops**. Report 
 2. `simplify` on the changes. It extracts `normalize_order_id(value: str | None) -> str | None` with `ORDER_ID_MIN_DIGITS` / `ORDER_ID_MAX_DIGITS`, used by `apply_business_rules` and `merge_state`. `make test` → `15 passed`, no test edited.
 3. `AGENTS.md`: the folder has none, and a domain rule change isn't important by the root criteria. Mentioned, not created.
 4. Ticket DoD ticked. Still open: the ticket's question on bumping `rules_version`.
-5. Proposed commit message:
+5. The closing changes are one more cycle: shown without a commit and, on the user's OK, committed as:
 
    ```text
    Validate order id format before starting order workflows
@@ -150,4 +150,4 @@ It isn't a guard, but it passed on the first run, so the loop **stops**. Report 
    An invalid id counts as missing and never overwrites a valid stored one.
    ```
 
-   Suggested `/code-review` before committing.
+   Suggested `/code-review` before that commit.

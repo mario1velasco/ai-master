@@ -32,7 +32,7 @@ The input is a **ticket from `plan-ticket`**: its acceptance criteria (ACs) are 
 4. **Stop after every cycle.** Report and wait for the user's OK before the next AC.
 5. **Never bend a test to the code.** Don't weaken an assertion, skip a test, or edit an earlier test to make new code pass. If that seems necessary, a behavior is changing: stop and agree it with the user.
 6. **Refactoring is not part of the loop.** It happens after the last AC, with the suite green (see *Closing*).
-7. **No commits.** At the end, propose a commit message; the user commits.
+7. **One commit per approved cycle, and it comes first.** Never commit before the user has reviewed the cycle: the checkpoint is shown **without** a commit. When the user approves it ("sí", "continúa", "sigue" or any OK to move on), the **first** action is to commit that cycle, before touching anything else, even when the same message also asks for something more (a fix, another change, the next AC). That extra work goes in its own later commit. Commit only the cycle's files, in the user's name, without AI attribution or `Co-Authored-By`. If the commit is blocked, stop and tell the user before doing anything else.
 
 Load `python-developer` before writing any test or code, and follow the folder's own rules where they differ (Python version, `requirements.txt`, no `src/` layout…). Read `references/good-tests.md`, `references/seams.md` and `references/mocking.md` before the first cycle.
 
@@ -60,6 +60,9 @@ Load `python-developer` before writing any test or code, and follow the folder's
    - the green run (`N passed`);
    - anything you noticed for later refactoring, which you note but don't do.
 
+   No commit yet: the user reviews first.
+4. **Commit on approval.** When the user approves the cycle, commit it first (rule 7), then start the next one.
+
 ### When the loop doesn't go as planned
 
 | What happens | What to do |
@@ -83,10 +86,10 @@ Load `python-developer` before writing any test or code, and follow the folder's
    - the list of ACs → tests, all green;
    - the references followed and the deviations approved;
    - the commands run and their results;
-   - anything left open;
-   - a proposed commit message (no AI attribution, no `Co-Authored-By`).
+   - anything left open.
 
-   Suggest `/code-review` if the user wants a review before committing.
+   The closing changes (refactor, docs, ticket) are one more cycle: commit them when the user approves, as in rule 7.
+   Suggest `/code-review` if the user wants a review before that commit.
 
 ## Examples
 
