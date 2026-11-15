@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import duckdb
+import pytest
 from fake_ollama import FakeOllama, sql_answer
 
 from text2sql import ask
@@ -103,3 +104,28 @@ def test_values_crossed_between_rows_fail(
     verdict = evaluate_attempt(tmp_path, data_con, fake_ollama, normal_question(reference), sql_answer(attempt))
 
     assert verdict["success"] is False  # aunque MAD, BCN, 10 y 5 aparezcan todos en algún sitio
+
+
+@pytest.mark.parametrize(
+    ("amount", "city", "passes"),
+    [
+        ("24.904", "malaga", True),  # dentro de ±0,011; texto sin tilde ni mayúscula
+        ("24.92", "Málaga", False),  # 0,02 de diferencia: fuera de la tolerancia
+        ("24.90", "MALAGA", True),  # texto en mayúsculas
+        ("24.91", "Málaga", True),  # justo 0,01: con ±0,01 suspendería por el redondeo de los float
+    ],
+)
+def test_numbers_with_tolerance_and_normalized_text(
+    tmp_path: Path,
+    data_con: duckdb.DuckDBPyConnection,
+    fake_ollama: FakeOllama,
+    amount: str,
+    city: str,
+    passes: bool,
+) -> None:
+    reference = "SELECT 24.90 AS importe, 'Málaga' AS ciudad"
+    attempt = f"SELECT {amount} AS importe, '{city}' AS ciudad"
+
+    verdict = evaluate_attempt(tmp_path, data_con, fake_ollama, normal_question(reference), sql_answer(attempt))
+
+    assert verdict["success"] is passes

@@ -5,14 +5,39 @@ código, baratas y repetibles, que devuelven si el intento aprueba y, si no, por
 `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/04_examen.py`).
 """
 
+import unicodedata
 from typing import Any
 
 from contracts.sql import SqlResult
 
 
+def normalize(text: str) -> str:
+    """Minúsculas, sin tildes y con coma decimal como punto, para comparar sin falsos negativos.
+
+    `normalizar()` de `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/comun/evaluacion.py`, línea a línea.
+    """
+    text = unicodedata.normalize("NFD", (text or "").lower())
+    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+    return text.replace(",", ".")
+
+
+def equal(a: Any, b: Any) -> bool:
+    """¿El valor del intento (`a`) vale lo mismo que el de la referencia (`b`)?
+
+    `igual()` de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_3/06_evaluar.py`: números con ±0,011
+    (con ±0,01, 24.91 frente a 24.90 suspendería: la resta de los float da 0.0100000000000016). Desvío: los textos se
+    comparan con `normalize()` del tema 9 (sin tildes) en vez de `upper()`, como pide el ticket.
+    """
+    if isinstance(b, bool) or b is None:
+        return a is b
+    if isinstance(b, (int, float)) and isinstance(a, (int, float)):
+        return abs(a - b) <= 0.011
+    return normalize(str(a)).strip() == normalize(str(b)).strip()
+
+
 def _row_contains(row: dict[str, Any], expected_row: dict[str, Any]) -> bool:
     """La fila del intento tiene todos los valores de la fila de la referencia (sin mirar nombres de columna)."""
-    return all(any(value == expected for value in row.values()) for expected in expected_row.values())
+    return all(any(equal(value, expected) for value in row.values()) for expected in expected_row.values())
 
 
 def evaluate_case(question: dict[str, Any], result: SqlResult) -> dict[str, Any]:
