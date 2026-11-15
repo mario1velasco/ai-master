@@ -81,6 +81,24 @@ tema 9 no cubre (`--ver`, examen reservado, guardar resultados).
   `referenced_tables` del validador). En `PROYECTO.md` §6 la clave `vistas` va a mano, pero así no puede haber una
   errata entre las vistas y el SQL (decidido con Mario el 2026-11-15). Las preguntas `must_deny` no tienen vistas.
 
+**Desvíos acordados al empezar el desarrollo** (con Mario, 2026-11-15):
+- **Emparejar filas, opción voraz.** En clase no se emparejan filas: `corregir()` (tema 7) y `evaluar_caso()`
+  (tema 9) buscan cada cifra en cualquier sitio del texto con `any()`, y `parte_calculo()` (tema 7 S3) indexa por una
+  columna clave conocida. Aquí se aplica el mismo `any()` fila a fila: cada fila de la referencia se queda con la
+  primera fila **libre** del intento que contiene todos sus valores. Caso raro conocido: con columnas de más cuyo
+  número coincide con el de otra fila, un intento correcto puede suspender (se ve en el informe con su motivo). Se
+  prefirió a probar todas las combinaciones, que en el caso contrario aprueba un intento malo sin que se note.
+- **Tests sobre `data/`** (los datos con los que se mide), con una conexión de sesión nueva en `conftest.py`. Ollama
+  sigue siendo el falso. El comando siempre usa `data/`: sin opción para cambiar de carpeta.
+- **Un intento en el que falla Ollama** (`ComponentError`) no tiene `trace_id`: cuenta como suspendido y como no
+  disponible, pero no entra en la latencia ni en los tokens.
+- **Tarifa en una variable, `PRICE_PER_MILLION_TOKENS`** (por defecto 0.5), traducción de `PRECIO_MILLON_TOKENS` del
+  tema 9: el mismo precio para la entrada y la salida, en EUR, con `CostRate`.
+- **Eventos del archivo de hoy de `logs/text2sql/`**, como el comando `python -m text2sql -q`.
+- Nombres traducidos de clase: `evaluar_caso` → `evaluate_case`, `evaluar_trayectoria` → `evaluate_trajectory`,
+  `calcular_metricas` → `compute_metrics`, `percentil` → `percentile`, `igual` → `equal`, `normalizar` →
+  `normalize`, `cargar` → `load_exam`, `ver` → `view`.
+
 ## Alcance
 
 **Dentro**
@@ -265,7 +283,7 @@ Ninguno aparte de los anteriores: los tests usan el Ollama falso (Definición de
   - `text2sql/dataset/` queda para el dataset de entrenamiento de la fase 9 (opcional).
 - Los resultados se versionan en git (son la evidencia de la línea base, como `salidas_guardadas/` del tema 7).
 - Tarifa de referencia: por defecto 0,5 € por millón de tokens de entrada y de salida (`PRECIO_MILLON_TOKENS` del
-  tema 9), cambiable por variables de entorno en `text2sql/.env.example`.
+  tema 9), cambiable con `PRICE_PER_MILLION_TOKENS` en `text2sql/.env.example`.
 - Si `ask()` devuelve varias consultas, se corrige la **última** (la que da la respuesta); las anteriores pueden ser
   pasos intermedios.
 - Una referencia que devuelve 0 filas es válida (p. ej. un cliente que no existe): el intento aprueba si también
