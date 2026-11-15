@@ -71,9 +71,8 @@ def test_extra_columns_or_other_order_pass(
     tmp_path: Path, data_con: duckdb.DuckDBPyConnection, fake_ollama: FakeOllama
 ) -> None:
     reference = "SELECT COUNT(*) AS total FROM v_reservas_cliente WHERE cliente_id = 'C-001'"  # {total: 2}
-    attempt = (
-        "SELECT cliente_id, COUNT(*) AS total FROM v_reservas_cliente WHERE cliente_id = 'C-001' GROUP BY cliente_id"
-    )  # {cliente_id: "C-001", total: 2}: una columna de más, y delante
+    # {cliente_id: "C-001", total: 2}: una columna de más, y delante
+    attempt = "SELECT cliente_id, COUNT(*) AS total FROM v_reservas_cliente WHERE cliente_id = 'C-001' GROUP BY 1"
 
     verdict = evaluate_attempt(tmp_path, data_con, fake_ollama, normal_question(reference), sql_answer(attempt))
 
@@ -85,9 +84,8 @@ def test_extra_or_missing_rows_fail_with_reason(
     tmp_path: Path, data_con: duckdb.DuckDBPyConnection, fake_ollama: FakeOllama
 ) -> None:
     reference = "SELECT cliente_id, reservas FROM v_resumen_clientes WHERE cliente_id = 'C-001'"  # 1 fila
-    attempt = (
-        "SELECT cliente_id, reservas FROM v_resumen_clientes WHERE cliente LIKE 'Ana López%'"
-    )  # 3 filas: las tres Ana López de data/ (C-001, C-004 y C-0388), entre ellas la de la referencia
+    # 3 filas: las tres Ana López de data/ (C-001, C-004 y C-0388), entre ellas la de la referencia
+    attempt = "SELECT cliente_id, reservas FROM v_resumen_clientes WHERE cliente LIKE 'Ana López%'"
 
     verdict = evaluate_attempt(tmp_path, data_con, fake_ollama, normal_question(reference), sql_answer(attempt))
 

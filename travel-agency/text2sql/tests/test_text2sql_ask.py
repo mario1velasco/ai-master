@@ -293,7 +293,7 @@ def test_request_follows_configuration(
 
 
 def test_ask_returns_its_trace_id(data_con: duckdb.DuckDBPyConnection, fake_ollama: FakeOllama) -> None:
-    """TRAVEL-007, AC-13: el resultado trae la traza de sus eventos, para que la evaluación saque de ahí sus métricas."""
+    """TRAVEL-007, AC-13: el resultado trae la traza de sus eventos; la evaluación saca de ahí sus métricas."""
     fake_ollama.answers = [sql_answer("SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-001'")]
 
     result = ask("¿Cuántas reservas tiene C-001?", con=data_con)
