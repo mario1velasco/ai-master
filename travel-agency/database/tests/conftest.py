@@ -3,8 +3,9 @@ from collections.abc import Generator
 import duckdb
 import pytest
 
+from database.schema import schema
 from database.seed import FIXTURES_DIR
-from database.semantic_layer import open_db, schema
+from database.semantic_layer import open_db
 
 
 @pytest.fixture(scope="session")

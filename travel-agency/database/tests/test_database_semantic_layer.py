@@ -1,7 +1,8 @@
 import duckdb
 import pytest
 
-from database.semantic_layer import CHECKS, COMMENTS, GUIDE, Row, rounded_rows, run_checks
+from database.checks import CHECKS, Row, rounded_rows, run_checks
+from database.semantic_layer import COMMENTS, GUIDE
 
 
 @pytest.mark.parametrize(("name", "sql", "expected"), CHECKS, ids=[c[0] for c in CHECKS])

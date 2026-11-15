@@ -10,7 +10,8 @@ from functools import cache
 
 import duckdb
 
-from database.semantic_layer import GUIDE, cached_schema
+from database.schema import cached_schema
+from database.semantic_layer import GUIDE
 
 PROMPT_VERSION = "text2sql_prompt_v1"  # va en las Versions de las métricas: cámbiala si cambias el prompt
 

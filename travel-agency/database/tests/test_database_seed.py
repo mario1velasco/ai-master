@@ -11,8 +11,9 @@ import duckdb
 import pytest
 from test_database_audit import AUDIT_QUERIES
 
+from database.checks import CHECKS, Row, rounded_rows
 from database.seed import FIXTURES_DIR, generate, main
-from database.semantic_layer import CHECKS, DATA_DIR, Row, open_db, rounded_rows
+from database.semantic_layer import DATA_DIR, open_db
 
 TABLES = [
     "aerolineas",

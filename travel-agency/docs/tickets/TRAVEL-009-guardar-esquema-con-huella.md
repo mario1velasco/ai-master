@@ -55,19 +55,23 @@ examen de text2sql se mida ya sin los 5,7 s por pregunta (decidido con Mario el 
 - **El esquema no se genera en cada pregunta** (en clase, `construir_system_prompt()` llama a `esquema()` cada vez):
   se lee de un archivo y solo se regenera cuando cambia la huella. El patrón del archivo es el de `vision.py` (huella
   en el nombre) y el de `artifacts.py` (SHA-256 y escritura atómica).
-- **La huella incluye el código** (`semantic_layer.py`) y la versión de DuckDB, en lugar de una `format_version`
+- **La huella incluye el código** (`semantic_layer.py` y `schema.py`) y la versión de DuckDB, en lugar de una `format_version`
   escrita a mano como en el tema 5: así no hay que acordarse de subir ninguna versión (decidido con Mario).
 - **Se quita el `@cache` de `build_system_prompt`**, que guardaba la conexión. En su lugar, las dos capas de
   `vision.py`: la caché en memoria **por huella** (`_SCHEMA_MEMORY_CACHE`, el `_CACHE` de clase; la clave es texto,
   nunca la conexión) y el archivo en disco (decidido con Mario el 2026-11-15).
 - **La huella viaja dentro de la conexión**: `open_db()` la calcula y la guarda con `SET VARIABLE`; la clase no
   cubre esto (decidido con Mario el 2026-11-15).
+- **`semantic_layer.py` se separa en tres archivos** (en clase es uno): `semantic_layer.py` con el negocio y la base
+  (`VIEWS`, `COMMENTS`, `GUIDE`, `open_db()` y el comando), `schema.py` con el esquema y su caché, y `checks.py` con
+  `CHECKS` (decidido con Mario el 2026-11-15). El comando sigue siendo `python -m database.semantic_layer`.
 
 ## Alcance
 
 **Dentro**
 - Guardar el esquema generado en un archivo cuyo nombre lleva la huella de lo que lo determina: los CSV de la
-  carpeta de datos, `semantic_layer.py` y la versión de DuckDB.
+  carpeta de datos, el código que genera el esquema (`semantic_layer.py` y `schema.py`) y la versión de DuckDB.
+- Separar `semantic_layer.py` en `semantic_layer.py`, `schema.py` y `checks.py` (refactor: sin cambiar comportamiento).
 - Leer el archivo si existe; si no, generar el esquema y guardarlo con escritura atómica.
 - Quitar la caché en memoria del prompt de `text2sql` (que retiene las conexiones).
 - Seguir respondiendo, con un aviso en el log, si el archivo está dañado o no se puede escribir.
@@ -107,8 +111,9 @@ caché va en otra carpeta temporal, y «el modelo» es el Ollama falso de los te
 - **Entonces** queda guardado un segundo archivo, con otra huella en su nombre
 - **Y** el modelo recibe el esquema nuevo, con una fila más en la línea de `v_resumen_clientes`
 
-**AC-4 — Otra versión de la capa semántica o de DuckDB regenera el esquema**
-- **Dado** el esquema guardado, y después una huella distinta de `semantic_layer.py` (o de la versión de DuckDB)
+**AC-4 — Otra versión del código que genera el esquema o de DuckDB regenera el esquema**
+- **Dado** el esquema guardado, y después un cambio en `semantic_layer.py`, en `schema.py` o en la versión de DuckDB
+  (ampliado el 2026-11-15 al separar `schema.py`: el texto del esquema depende de los dos archivos)
 - **Cuando** una conexión nueva sobre la misma carpeta hace una pregunta
 - **Entonces** el esquema se genera de nuevo y se guarda en un archivo con otra huella en su nombre
 

@@ -12,8 +12,9 @@ from pathlib import Path
 import pytest
 from fake_ollama import FakeOllama, sql_answer
 
+from database.schema import schema
 from database.seed import FIXTURES_DIR
-from database.semantic_layer import open_db, schema
+from database.semantic_layer import open_db
 from text2sql import ask
 
 QUESTION = "¿Cuántas reservas tiene C-001?"
@@ -30,8 +31,8 @@ def data_dir(tmp_path: Path) -> Path:
 def cache_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """La caché del esquema vacía y solo para este test: su carpeta y su memoria (las dos capas)."""
     path = tmp_path / "cache"
-    monkeypatch.setattr("database.semantic_layer.SCHEMA_CACHE_DIR", path)
-    monkeypatch.setattr("database.semantic_layer._SCHEMA_MEMORY_CACHE", {})
+    monkeypatch.setattr("database.schema.SCHEMA_CACHE_DIR", path)
+    monkeypatch.setattr("database.schema._SCHEMA_MEMORY_CACHE", {})
     return path
 
 
@@ -58,7 +59,7 @@ def test_next_connection_reads_saved_schema(
     content = json.loads(saved.read_text(encoding="utf-8"))
     content["schema"] += "\nMARCA-TRAVEL-009"  # si el modelo la ve, el esquema salió del archivo y no de schema()
     saved.write_text(json.dumps(content, ensure_ascii=False), encoding="utf-8")
-    monkeypatch.setattr("database.semantic_layer._SCHEMA_MEMORY_CACHE", {})  # otro proceso: la memoria empieza vacía
+    monkeypatch.setattr("database.schema._SCHEMA_MEMORY_CACHE", {})  # otro proceso: la memoria empieza vacía
 
     ask(QUESTION, con=open_db(data_dir))
 

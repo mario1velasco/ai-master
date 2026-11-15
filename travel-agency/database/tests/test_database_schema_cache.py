@@ -10,9 +10,9 @@ from pathlib import Path
 import duckdb
 import pytest
 
-from database import semantic_layer
+from database.schema import SCHEMA_SOURCE_FILES, cached_schema
 from database.seed import FIXTURES_DIR
-from database.semantic_layer import cached_schema, open_db
+from database.semantic_layer import open_db
 
 NEW_CLIENT = "C-008,Rosa,Vega Ortiz,rosa.vega@example.com,España,2025-05-05,basico\n"
 
@@ -27,8 +27,8 @@ def data_dir(tmp_path: Path) -> Path:
 def schema_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """La caché del esquema vacía y solo para este test: su carpeta y su memoria (las dos capas)."""
     path = tmp_path / "cache"
-    monkeypatch.setattr("database.semantic_layer.SCHEMA_CACHE_DIR", path)
-    monkeypatch.setattr("database.semantic_layer._SCHEMA_MEMORY_CACHE", {})
+    monkeypatch.setattr("database.schema.SCHEMA_CACHE_DIR", path)
+    monkeypatch.setattr("database.schema._SCHEMA_MEMORY_CACHE", {})
     return path
 
 
@@ -44,18 +44,18 @@ def test_changed_csv_regenerates_schema(data_dir: Path, schema_cache: Path) -> N
     assert "Tabla v_resumen_clientes (8 filas)" in after
 
 
-@pytest.mark.parametrize("change", ["semantic_layer.py", "duckdb"])
+@pytest.mark.parametrize("change", ["semantic_layer.py", "schema.py", "duckdb"])
 def test_other_code_or_duckdb_version_regenerates_schema(
     change: str, data_dir: Path, schema_cache: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    code = Path(shutil.copy(semantic_layer.__file__, tmp_path / "semantic_layer.py"))
-    monkeypatch.setattr("database.semantic_layer.SEMANTIC_LAYER_FILE", code)
+    sources = tuple(Path(shutil.copy(source, tmp_path / source.name)) for source in SCHEMA_SOURCE_FILES)
+    monkeypatch.setattr("database.schema.SCHEMA_SOURCE_FILES", sources)
     cached_schema(open_db(data_dir))
-    if change == "semantic_layer.py":
-        with code.open("a", encoding="utf-8") as source:
-            source.write("# otro comentario de una vista\n")
-    else:
+    if change == "duckdb":
         monkeypatch.setattr(duckdb, "__version__", "0.0.0-otra")
+    else:
+        with (tmp_path / change).open("a", encoding="utf-8") as source:
+            source.write("# otro cambio en el código que decide el esquema\n")
 
     cached_schema(open_db(data_dir))
 
@@ -88,7 +88,7 @@ def test_half_written_schema_is_never_used(data_dir: Path, schema_cache: Path, m
             cached_schema(open_db(data_dir))
 
     assert list(schema_cache.glob("schema_*.json")) == []  # nada a medias con nombre de esquema guardado
-    monkeypatch.setattr("database.semantic_layer._SCHEMA_MEMORY_CACHE", {})  # la pregunta siguiente, en otro proceso
+    monkeypatch.setattr("database.schema._SCHEMA_MEMORY_CACHE", {})  # la pregunta siguiente, en otro proceso
     text = cached_schema(open_db(data_dir))
     [saved] = schema_cache.glob("schema_*.json")
     assert json.loads(saved.read_text(encoding="utf-8"))["schema"] == text

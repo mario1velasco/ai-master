@@ -9,9 +9,12 @@ Copia el patrón de `07_llm_open_source/.../sesion_2/02_capa_semantica.py`. Los 
   v_incidencias        una fila por incidencia, con el retraso y la distancia del viaje completo
   v_resumen_clientes   una fila por cliente: reservas, canceladas, gasto neto e incidencias
 
-Cada vista y cada columna delicada lleva un comentario que el esquema automático incluye. Las vistas se comprueban
-con `CHECKS` (cifras calculadas a mano). Igual que en clase, `crudo` no se describe al modelo, pero no está
-prohibido: la lista blanca de vistas es cosa del validador de text2sql (fase 5).
+Cada vista y cada columna delicada lleva un comentario que el esquema automático incluye (`schema.py`). Las vistas
+se comprueban con `CHECKS` (cifras calculadas a mano, `checks.py`). Igual que en clase, `crudo` no se describe al
+modelo, pero no está prohibido: la lista blanca de vistas es cosa del validador de text2sql (fase 5).
+
+Desvío (TRAVEL-009): en clase todo va en un archivo; aquí este tiene solo el negocio y la base (`VIEWS`, `COMMENTS`,
+`GUIDE`, `open_db()` y el comando), el esquema va en `schema.py` y la comprobación, en `checks.py`.
 
 Uso (desde travel-agency/):
   uv run python -m database.semantic_layer                                 # lo que ve el modelo (y lo que no)
@@ -19,18 +22,16 @@ Uso (desde travel-agency/):
 """
 
 import argparse
-import hashlib
-import json
 from pathlib import Path
 
 import duckdb
 from rich.console import Console
 from rich.panel import Panel
-from rich.table import Table
+
+from database.checks import run_checks
+from database.schema import _FINGERPRINT_VARIABLE, _data_fingerprint, schema
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
-SCHEMA_CACHE_DIR = Path(__file__).resolve().parents[2] / ".cache"  # esquemas guardados por huella (fuera de git)
-SEMANTIC_LAYER_FILE = Path(__file__).resolve()  # vistas y comentarios: si cambia, cambia el esquema (va en la huella)
 
 console = Console()
 
@@ -226,49 +227,6 @@ huelga…), datos de contacto de los clientes, puntos de fidelidad, tarifas y co
 # ---------------------------------------------------------------------------
 
 
-_FINGERPRINT_VARIABLE = "data_fingerprint"  # variable de DuckDB donde open_db() guarda la huella
-
-
-def _file_digest(path: Path) -> str:
-    """SHA-256 de un archivo, por bloques (`file_digest` de `05_rag_langchain/.../infrastructure/artifacts.py`)."""
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for block in iter(lambda: stream.read(2**20), b""):
-            digest.update(block)
-    return digest.hexdigest()
-
-
-def _fingerprint(value: object) -> str:
-    """SHA-256 de un valor JSON (`fingerprint` de `05_rag_langchain/.../infrastructure/artifacts.py`)."""
-    raw = json.dumps(value, sort_keys=True, ensure_ascii=False, default=str).encode()
-    return hashlib.sha256(raw).hexdigest()
-
-
-def _write_json(path: Path, value: object) -> None:
-    """Escritura atómica: primero un `.tmp` y después `replace`, así nunca queda un archivo a medias con su nombre
-    (`write_json` de `05_rag_langchain/.../infrastructure/artifacts.py`)."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    clean = json.loads(json.dumps(value, default=str), parse_constant=lambda _: None)
-    temporary.write_text(json.dumps(clean, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
-    temporary.replace(path)
-
-
-def _data_fingerprint(data_dir: Path) -> str:
-    """Huella de lo que decide el esquema: los CSV, el código de las vistas y la versión de DuckDB.
-
-    Sirve para saber si el esquema guardado sigue valiendo sin generarlo otra vez: va en el nombre del archivo
-    (`schema_<huella>.json`). Si nada cambió, sale la misma huella y se lee el archivo; si cambia un solo byte de
-    cualquiera de las tres cosas, sale otra, no hay archivo y el esquema se genera y se guarda de nuevo.
-    """
-    inputs = {
-        "csv": {csv.name: _file_digest(csv) for csv in sorted(data_dir.glob("*.csv"))},
-        "code": _file_digest(SEMANTIC_LAYER_FILE),
-        "duckdb": duckdb.__version__,
-    }
-    return _fingerprint(inputs)
-
-
 def open_db(data_dir: Path = DATA_DIR) -> duckdb.DuckDBPyConnection:
     """CSV en el esquema oculto «crudo», vistas en «main», sin acceso a archivos.
 
@@ -294,168 +252,6 @@ def open_db(data_dir: Path = DATA_DIR) -> duckdb.DuckDBPyConnection:
     con.execute("SET enable_external_access = false")
     con.execute("SET lock_configuration = true")
     return con
-
-
-def _scalar(con: duckdb.DuckDBPyConnection, sql: str) -> object:
-    """Primer valor de la primera fila (las consultas de `schema` siempre devuelven una)."""
-    row = con.execute(sql).fetchone()
-    return row[0] if row else None
-
-
-def schema(con: duckdb.DuckDBPyConnection, max_values: int = 6) -> str:
-    """Esquema automático de lo que está en «main» (las vistas), con sus comentarios. Nadie lo escribe a mano."""
-    objects = [
-        r[0]
-        for r in con.execute(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'main' ORDER BY 1"
-        ).fetchall()
-    ]
-    view_comments = dict(con.execute("SELECT view_name, comment FROM duckdb_views() WHERE NOT internal").fetchall())
-    column_comments = {
-        (table, col): comment
-        for table, col, comment in con.execute(
-            "SELECT table_name, column_name, comment FROM duckdb_columns() WHERE comment IS NOT NULL"
-        ).fetchall()
-    }
-    parts = []
-    for name in objects:
-        n = _scalar(con, f"SELECT COUNT(*) FROM {name}")
-        header = f"Tabla {name} ({n} filas)" + (f": {view_comments[name]}" if view_comments.get(name) else "")
-        lines = []
-        for col, col_type, *_ in con.execute(f"DESCRIBE {name}").fetchall():
-            distinct = _scalar(con, f'SELECT COUNT(DISTINCT "{col}") FROM {name}')
-            if isinstance(distinct, int) and distinct <= max_values:
-                values = [str(r[0]) for r in con.execute(f'SELECT DISTINCT "{col}" FROM {name} ORDER BY 1').fetchall()]
-                extra = f" valores: {', '.join(values)}"
-            else:
-                example = _scalar(con, f'SELECT "{col}" FROM {name} WHERE "{col}" IS NOT NULL ORDER BY 1 LIMIT 1')
-                extra = f" ej.: {example}"
-            note = f" — {column_comments[(name, col)]}" if (name, col) in column_comments else ""
-            lines.append(f"  - {col} ({col_type}){extra}{note}")
-        parts.append(header + ":\n" + "\n".join(lines))
-    return "\n\n".join(parts)
-
-
-_SCHEMA_MEMORY_CACHE: dict[str, str] = {}  # huella → esquema; la clave es texto, nunca la conexión (no la retiene)
-
-
-def cached_schema(con: duckdb.DuckDBPyConnection) -> str:
-    """El esquema de `schema()`, guardado en memoria y en un archivo con la huella de los datos en el nombre.
-
-    Como las dos capas de `extraer()` en `07_llm_open_source/.../sesion_3/asistente/vision.py`: primero la memoria
-    (mismo proceso), después el disco (otros procesos) y, si no está, se genera. Desvío (TRAVEL-009): en clase el
-    esquema se genera en cada pregunta, y aquí tarda ~5 s.
-    """
-    key = str(_scalar(con, f"SELECT getvariable('{_FINGERPRINT_VARIABLE}')"))
-    disk = SCHEMA_CACHE_DIR / f"schema_{key[:16]}.json"
-    if key in _SCHEMA_MEMORY_CACHE:
-        return _SCHEMA_MEMORY_CACHE[key]
-    if disk.exists():  # mismos datos (huella sha256): el esquema ya está guardado
-        _SCHEMA_MEMORY_CACHE[key] = json.loads(disk.read_text(encoding="utf-8"))["schema"]
-        return _SCHEMA_MEMORY_CACHE[key]
-    text = schema(con)
-    _SCHEMA_MEMORY_CACHE[key] = text
-    _write_json(disk, {"fingerprint": key, "schema": text})
-    return text
-
-
-# ---------------------------------------------------------------------------
-# Comprobación: las vistas dan las cifras calculadas a mano sobre los CSV
-# ---------------------------------------------------------------------------
-
-type Row = tuple[object, ...]
-
-CHECKS: list[tuple[str, str, list[Row]]] = [
-    (
-        "Reservas y vuelos reservados (una reserva NO es un vuelo)",
-        "SELECT COUNT(*), SUM(tramos) FROM v_reservas_cliente",
-        [(7, 12)],
-    ),
-    (
-        "Facturación: cobrado, reembolsado y neto",
-        "SELECT SUM(importe_cobrado), SUM(importe_reembolsado), SUM(importe_neto) FROM v_reservas_cliente",
-        [(2319.0, 470.0, 1849.0)],
-    ),
-    (
-        "R-1042: cobrado y neto (un paquete con reembolso parcial)",
-        "SELECT importe_cobrado, importe_neto FROM v_reservas_cliente WHERE reserva_id = 'R-1042'",
-        [(1250.0, 1100.0)],
-    ),
-    (
-        "IB3166: retraso al salir y al llegar, duración y distancia (Madrid → Nueva York)",
-        "SELECT retraso_salida_min, retraso_llegada_min, duracion_prevista_min, distancia_km "
-        "FROM v_vuelos_detalle WHERE codigo_vuelo = 'IB3166'",
-        [(297, 312, 510, 5762.0)],
-    ),
-    (
-        "IB3166: hora local de llegada prevista en Nueva York",
-        "SELECT strftime(llegada_prevista_local, '%Y-%m-%d %H:%M') FROM v_vuelos_detalle WHERE codigo_vuelo = 'IB3166'",
-        [("2026-07-01 12:35",)],
-    ),
-    (
-        "VY1234: sale con 3 h 20 min de retraso pero llega con menos de 3 h",
-        "SELECT retraso_salida_min, retraso_llegada_min, duracion_prevista_min FROM v_vuelos_detalle "
-        "WHERE codigo_vuelo = 'VY1234'",
-        [(200, 175, 160)],
-    ),
-    (
-        "FR7312: retraso que cruza la medianoche",
-        "SELECT retraso_llegada_min FROM v_vuelos_detalle WHERE codigo_vuelo = 'FR7312'",
-        [(165,)],
-    ),
-    (
-        "Vuelo programado y vuelo cancelado: retraso NULL, no 0",
-        "SELECT codigo_vuelo, retraso_llegada_min, estado FROM v_vuelos_detalle "
-        "WHERE codigo_vuelo IN ('IB0731', 'AF1001') ORDER BY 1",
-        [("AF1001", None, "cancelado"), ("IB0731", None, "programado")],
-    ),
-    (
-        "R-1044 con escala: distancia del viaje (no la suma) y retraso en destino final",
-        "SELECT origen, destino_final, escalas, distancia_km, retraso_llegada_destino_min FROM v_itinerarios "
-        "WHERE reserva_id = 'R-1044'",
-        [("AMS", "MAD", 1, 1461.0, 190)],
-    ),
-    (
-        "Ida y vuelta: dos trayectos, cada uno con su destino",
-        "SELECT trayecto, origen, destino_final FROM v_itinerarios WHERE reserva_id = 'R-1043' ORDER BY 1",
-        [("ida", "MAD", "TFN"), ("vuelta", "TFN", "MAD")],
-    ),
-    (
-        "Incidencia de R-1044: usa la distancia y el retraso del viaje, no del vuelo BCN → MAD",
-        "SELECT codigo_vuelo, distancia_itinerario_km, retraso_llegada_destino_min FROM v_incidencias "
-        "WHERE incidencia_id = 'I-03'",
-        [("VY1002", 1461.0, 190)],
-    ),
-    (
-        "Dos clientes llamados Ana López, distintos por cliente_id",
-        "SELECT cliente_id, reservas, gasto_neto FROM v_resumen_clientes WHERE cliente LIKE 'Ana López%' ORDER BY 1",
-        [("C-001", 2, 1195.0), ("C-004", 1, 230.0)],
-    ),
-    (
-        "Cliente sin reservas: aparece con 0",
-        "SELECT reservas, gasto_neto, incidencias FROM v_resumen_clientes WHERE cliente_id = 'C-007'",
-        [(0, 0.0, 0)],
-    ),
-]
-
-
-def rounded_rows(con: duckdb.DuckDBPyConnection, sql: str) -> list[Row]:
-    """Resultado de `sql` con los decimales redondeados a 2, para compararlo con lo esperado."""
-    return [tuple(round(v, 2) if isinstance(v, float) else v for v in row) for row in con.execute(sql).fetchall()]
-
-
-def run_checks(con: duckdb.DuckDBPyConnection) -> bool:
-    table = Table(title="Las vistas frente a las cifras calculadas a mano sobre los CSV")
-    for col in ("Comprobación", "Resultado de la vista", "Esperado", ""):
-        table.add_column(col)
-    all_ok = True
-    for name, sql, expected in CHECKS:
-        rows = rounded_rows(con, sql)
-        ok = rows == expected
-        all_ok &= ok
-        table.add_row(name, str(rows), str(expected), "[green]✓[/]" if ok else "[red]✗[/]")
-    console.print(table)
-    return all_ok
 
 
 def main() -> None:
