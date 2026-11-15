@@ -28,9 +28,10 @@ def data_dir(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def cache_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """La carpeta de la caché del esquema, vacía y solo para este test."""
+    """La caché del esquema vacía y solo para este test: su carpeta y su memoria (las dos capas)."""
     path = tmp_path / "cache"
     monkeypatch.setattr("database.semantic_layer.CACHE_DIR", path)
+    monkeypatch.setattr("database.semantic_layer._SCHEMA_MEMORY_CACHE", {})
     return path
 
 
@@ -46,3 +47,19 @@ def test_first_question_saves_schema_file(data_dir: Path, cache_dir: Path, fake_
     [saved] = cache_dir.iterdir()
     assert re.fullmatch(r"schema_[0-9a-f]{16}\.json", saved.name)  # la huella va en el nombre, como en vision.py
     assert expected in json.loads(saved.read_text(encoding="utf-8")).values()
+
+
+def test_next_connection_reads_saved_schema(
+    data_dir: Path, cache_dir: Path, fake_ollama: FakeOllama, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake_ollama.answers = [sql_answer(SQL), sql_answer(SQL)]
+    ask(QUESTION, con=open_db(data_dir))
+    [saved] = cache_dir.iterdir()
+    content = json.loads(saved.read_text(encoding="utf-8"))
+    content["schema"] += "\nMARCA-TRAVEL-009"  # si el modelo la ve, el esquema salió del archivo y no de schema()
+    saved.write_text(json.dumps(content, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr("database.semantic_layer._SCHEMA_MEMORY_CACHE", {})  # otro proceso: la memoria empieza vacía
+
+    ask(QUESTION, con=open_db(data_dir))
+
+    assert "MARCA-TRAVEL-009" in fake_ollama.requests[1]["messages"][0]["content"]

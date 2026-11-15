@@ -58,8 +58,8 @@ examen de text2sql se mida ya sin los 5,7 s por pregunta (decidido con Mario el 
 - **La huella incluye el código** (`semantic_layer.py`) y la versión de DuckDB, en lugar de una `format_version`
   escrita a mano como en el tema 5: así no hay que acordarse de subir ninguna versión (decidido con Mario).
 - **Se quita el `@cache` de `build_system_prompt`**, que guardaba la conexión. En su lugar, las dos capas de
-  `vision.py`: un `_CACHE` en memoria **por huella** (texto, nunca la conexión) y el archivo en disco (decidido con
-  Mario el 2026-11-15).
+  `vision.py`: la caché en memoria **por huella** (`_SCHEMA_MEMORY_CACHE`, el `_CACHE` de clase; la clave es texto,
+  nunca la conexión) y el archivo en disco (decidido con Mario el 2026-11-15).
 - **La huella viaja dentro de la conexión**: `open_db()` la calcula y la guarda con `SET VARIABLE`; la clase no
   cubre esto (decidido con Mario el 2026-11-15).
 

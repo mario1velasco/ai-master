@@ -308,15 +308,25 @@ def schema(con: duckdb.DuckDBPyConnection, max_values: int = 6) -> str:
     return "\n\n".join(parts)
 
 
-def cached_schema(con: duckdb.DuckDBPyConnection) -> str:
-    """El esquema de `schema()`, guardado en un archivo con la huella de los datos en el nombre.
+_SCHEMA_MEMORY_CACHE: dict[str, str] = {}  # huella → esquema; la clave es texto, nunca la conexión (no la retiene)
 
-    Como la caché en disco de `extraer()` en `07_llm_open_source/.../sesion_3/asistente/vision.py`. Desvío
-    (TRAVEL-009): en clase el esquema se genera en cada pregunta, y aquí tarda ~5 s.
+
+def cached_schema(con: duckdb.DuckDBPyConnection) -> str:
+    """El esquema de `schema()`, guardado en memoria y en un archivo con la huella de los datos en el nombre.
+
+    Como las dos capas de `extraer()` en `07_llm_open_source/.../sesion_3/asistente/vision.py`: primero la memoria
+    (mismo proceso), después el disco (otros procesos) y, si no está, se genera. Desvío (TRAVEL-009): en clase el
+    esquema se genera en cada pregunta, y aquí tarda ~5 s.
     """
     key = str(_scalar(con, "SELECT getvariable('data_fingerprint')"))
     disk = CACHE_DIR / f"schema_{key[:16]}.json"
+    if key in _SCHEMA_MEMORY_CACHE:
+        return _SCHEMA_MEMORY_CACHE[key]
+    if disk.exists():  # mismos datos (huella sha256): el esquema ya está guardado
+        _SCHEMA_MEMORY_CACHE[key] = json.loads(disk.read_text(encoding="utf-8"))["schema"]
+        return _SCHEMA_MEMORY_CACHE[key]
     text = schema(con)
+    _SCHEMA_MEMORY_CACHE[key] = text
     disk.parent.mkdir(parents=True, exist_ok=True)
     disk.write_text(json.dumps({"fingerprint": key, "schema": text}, ensure_ascii=False, indent=1), encoding="utf-8")
     return text
