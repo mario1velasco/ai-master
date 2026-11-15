@@ -162,6 +162,13 @@ con Mario; ver el desvío «El SQL va en cada fuente de BBDD»)*
   agente en JSON y un bloque con las métricas de cada evento de esa traza (agente, llamadas al LLM, `text2sql` y SQL)
 - **Y** el comando termina con código 0
 
+**AC-4b — Con `--no-trace` el comando no enseña el detalle de cada paso** *(añadido el 2026-11-15 durante el
+desarrollo, decidido con Mario: para leer la respuesta, su SQL y los totales del turno sin el bloque largo de eventos)*
+- **Dado** el caso del AC-1
+- **Cuando** se ejecuta `python -m agent -q "¿Cuántas reservas tiene C-001?" --no-trace`
+- **Entonces** la salida tiene el bloque de la pregunta y el de la respuesta entera (con sus fuentes, el SQL y las
+  métricas del turno), y no tiene el bloque con los eventos de cada paso
+
 ### Casos límite
 
 **AC-5 — Respuesta sin llamar a la tool = sin datos**

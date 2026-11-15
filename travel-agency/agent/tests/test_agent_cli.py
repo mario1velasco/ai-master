@@ -39,3 +39,17 @@ def test_cli_shows_question_answer_and_metrics(ollama: FakeOllamaServer, capsys:
     metrics = block(out, METRICS_HEADER)
     for name in ("agent.respond", "llm.agent", "text2sql.ask", "llm.text2sql", "sql.run"):  # el agente y sus pasos
         assert name in metrics
+
+
+def test_cli_without_trace_keeps_turn_metrics(ollama: FakeOllamaServer, capsys: pytest.CaptureFixture[str]) -> None:
+    sql = "SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-001'"
+    ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
+    ollama.text2sql_answers = [sql_answer(sql)]
+
+    main(["-q", QUESTION, "--data", str(FIXTURES_DIR), "--no-trace"])
+
+    out = capsys.readouterr().out
+    assert METRICS_HEADER not in out  # sin el detalle de cada paso
+    answer = json.loads(block(out, ANSWER_HEADER))
+    assert answer["metrics"]["name"] == "agent.respond"  # pero con los totales del turno
+    assert [source["sql"] for source in answer["sources"]] == [sql]

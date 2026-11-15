@@ -1,5 +1,8 @@
 """Probar el agente a mano con el Qwen real: `uv run python -m agent -q "¿Cuántas reservas tiene C-001?"`.
 
+Con `--no-trace` no enseña el bloque con los eventos de cada paso: solo la pregunta y la respuesta entera (con sus
+fuentes, el SQL de cada una y las métricas del turno).
+
 Como `text2sql/__main__.py` (el `main()` de `07_llm_open_source/clase_01/Ejercicios/practica/04_conectar_ollama.py`:
 bloques `[…]` con `print`). Enseña la pregunta, la respuesta entera del agente y las métricas de cada paso de esa
 traza (el agente, sus llamadas al modelo, text2sql y cada SQL), que salen de los eventos de telemetría (`logs/`). La
@@ -35,6 +38,11 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Pregunta → agente (y text2sql si hace falta) → respuesta y métricas.")
     parser.add_argument("--question", "-q", default=QUESTION, help="Pregunta a enviar.")
     parser.add_argument("--data", type=Path, default=DATA_DIR, help="Carpeta con los 8 CSV (por defecto data/).")
+    parser.add_argument(
+        "--no-trace",
+        action="store_true",
+        help="No enseñar el bloque [MÉTRICAS] con los eventos de cada paso (la respuesta sí trae los totales).",
+    )
     args = parser.parse_args(argv)
 
     answer = respond(args.question, con=open_db(args.data))
@@ -43,6 +51,8 @@ def main(argv: list[str] | None = None) -> None:
     print(args.question)
     print(f"\n{BAR}\n[RESPUESTA DEL AGENTE]\n{BAR}")
     print(answer.model_dump_json(indent=2))
+    if args.no_trace:  # los eventos siguen en los logs: búscalos por el trace_id de la respuesta
+        return
 
     events = _trace_metrics(answer.trace_id)
     print(f"\n{BAR}\n[MÉTRICAS] traza {answer.trace_id} · {len(events)} eventos\n{BAR}")
