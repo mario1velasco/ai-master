@@ -19,6 +19,8 @@ Uso (desde travel-agency/):
 """
 
 import argparse
+import hashlib
+import json
 from pathlib import Path
 
 import duckdb
@@ -27,6 +29,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+CACHE_DIR = Path(__file__).resolve().parents[2] / ".cache"  # esquemas guardados por huella (fuera de git)
 
 console = Console()
 
@@ -222,9 +225,30 @@ huelga…), datos de contacto de los clientes, puntos de fidelidad, tarifas y co
 # ---------------------------------------------------------------------------
 
 
+def _file_digest(path: Path) -> str:
+    """SHA-256 de un archivo, por bloques (`file_digest` de `05_rag_langchain/.../infrastructure/artifacts.py`)."""
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(2**20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _fingerprint(value: object) -> str:
+    """SHA-256 de un valor JSON (`fingerprint` de `05_rag_langchain/.../infrastructure/artifacts.py`)."""
+    raw = json.dumps(value, sort_keys=True, ensure_ascii=False, default=str).encode()
+    return hashlib.sha256(raw).hexdigest()
+
+
 def open_db(data_dir: Path = DATA_DIR) -> duckdb.DuckDBPyConnection:
-    """CSV en el esquema oculto «crudo», vistas en «main», sin acceso a archivos."""
+    """CSV en el esquema oculto «crudo», vistas en «main», sin acceso a archivos.
+
+    Desvío (TRAVEL-009): guarda en la conexión la huella de sus CSV (`getvariable('data_fingerprint')`), para que
+    `cached_schema()` sepa qué esquema guardado le corresponde.
+    """
     con = duckdb.connect()
+    csv_digests = {csv.name: _file_digest(csv) for csv in sorted(data_dir.glob("*.csv"))}
+    con.execute(f"SET VARIABLE data_fingerprint = '{_fingerprint(csv_digests)}'")
     con.execute("CREATE SCHEMA crudo")
     for csv in sorted(data_dir.glob("*.csv")):
         con.execute(f"CREATE TABLE crudo.{csv.stem} AS SELECT * FROM read_csv_auto('{csv.as_posix()}')")
@@ -282,6 +306,20 @@ def schema(con: duckdb.DuckDBPyConnection, max_values: int = 6) -> str:
             lines.append(f"  - {col} ({col_type}){extra}{note}")
         parts.append(header + ":\n" + "\n".join(lines))
     return "\n\n".join(parts)
+
+
+def cached_schema(con: duckdb.DuckDBPyConnection) -> str:
+    """El esquema de `schema()`, guardado en un archivo con la huella de los datos en el nombre.
+
+    Como la caché en disco de `extraer()` en `07_llm_open_source/.../sesion_3/asistente/vision.py`. Desvío
+    (TRAVEL-009): en clase el esquema se genera en cada pregunta, y aquí tarda ~5 s.
+    """
+    key = str(_scalar(con, "SELECT getvariable('data_fingerprint')"))
+    disk = CACHE_DIR / f"schema_{key[:16]}.json"
+    text = schema(con)
+    disk.parent.mkdir(parents=True, exist_ok=True)
+    disk.write_text(json.dumps({"fingerprint": key, "schema": text}, ensure_ascii=False, indent=1), encoding="utf-8")
+    return text
 
 
 # ---------------------------------------------------------------------------

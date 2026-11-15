@@ -18,6 +18,15 @@ def con() -> Generator[duckdb.DuckDBPyConnection]:
     connection.close()
 
 
+@pytest.fixture(scope="session", autouse=True)
+def session_schema_cache(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Path]:
+    """Los esquemas guardados van a una carpeta temporal de la sesión: nunca al repo, y se generan una vez."""
+    with pytest.MonkeyPatch.context() as mp:
+        path = tmp_path_factory.mktemp("schema_cache")
+        mp.setattr("database.semantic_layer.CACHE_DIR", path)
+        yield path
+
+
 @pytest.fixture(autouse=True)
 def log_dir(tmp_path: Path) -> Iterator[Path]:
     """Cada test escribe su telemetría en su carpeta temporal, en modo estricto (como en `telemetry/tests`)."""

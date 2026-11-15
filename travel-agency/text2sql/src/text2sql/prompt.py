@@ -10,7 +10,7 @@ from functools import cache
 
 import duckdb
 
-from database.semantic_layer import GUIDE, schema
+from database.semantic_layer import GUIDE, cached_schema
 
 PROMPT_VERSION = "text2sql_prompt_v1"  # va en las Versions de las métricas: cámbiala si cambias el prompt
 
@@ -30,4 +30,4 @@ def build_system_prompt(con: duckdb.DuckDBPyConnection) -> str:
     La caché guarda cada conexión con su prompt mientras el proceso vive. Basta con una conexión por proceso
     (el comando, la API).
     """
-    return "\n\n".join([INSTRUCTIONS, schema(con), GUIDE])
+    return "\n\n".join([INSTRUCTIONS, cached_schema(con), GUIDE])
