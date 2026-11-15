@@ -4,9 +4,11 @@ Cada test copia `fixtures/` a una carpeta temporal y apunta la caché a otra: as
 y no escribe en el repo.
 """
 
+import gc
 import json
 import re
 import shutil
+import weakref
 from pathlib import Path
 
 import pytest
@@ -64,3 +66,15 @@ def test_next_connection_reads_saved_schema(
     ask(QUESTION, con=open_db(data_dir))
 
     assert "MARCA-TRAVEL-009" in fake_ollama.requests[1]["messages"][0]["content"]
+
+
+def test_connection_is_freed_after_question(data_dir: Path, cache_dir: Path, fake_ollama: FakeOllama) -> None:
+    con = open_db(data_dir)
+    fake_ollama.answers = [sql_answer(SQL)]
+    ask(QUESTION, con=con)
+    alive = weakref.ref(con)  # mira la conexión sin retenerla
+
+    del con  # quien la abrió deja de usarla
+    gc.collect()
+
+    assert alive() is None  # nada de text2sql ni de database la sigue guardando (~11 MB por conexión)

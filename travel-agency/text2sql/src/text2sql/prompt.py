@@ -6,8 +6,6 @@ de `database` (nadie los escribe a mano aquí). Desvío: las `INSTRUCCIONES` de 
 (eso lo hace el agente) y sin `PERIODOS` (Viajes Nimbo no tiene periodos A/B).
 """
 
-from functools import cache
-
 import duckdb
 
 from database.schema import cached_schema
@@ -23,12 +21,8 @@ Si la pregunta compara varios clientes, reservas o vuelos, obtén cada valor y e
 Si la pregunta pide un dato que no existe en las vistas, dilo claramente en lugar de aproximarlo."""
 
 
-@cache
 def build_system_prompt(con: duckdb.DuckDBPyConnection) -> str:
-    """Una vez por conexión. Desvío: en clase se genera en cada pregunta, pero `schema()` tarda ~5 s y la base
-    es de solo lectura, así que el esquema no cambia mientras el proceso vive (acordado con Mario).
-
-    La caché guarda cada conexión con su prompt mientras el proceso vive. Basta con una conexión por proceso
-    (el comando, la API).
+    """En cada pregunta, como en clase. El esquema sale de `cached_schema()`, guardado por huella en memoria y en
+    disco (TRAVEL-009): aquí no se guarda nada, así la conexión se libera cuando quien la abrió deja de usarla.
     """
     return "\n\n".join([INSTRUCTIONS, cached_schema(con), GUIDE])
