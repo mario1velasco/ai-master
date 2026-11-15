@@ -3,6 +3,7 @@
 Cada test copia `fixtures/` a una carpeta temporal y usa una caché vacía (carpeta y memoria), sin Ollama.
 """
 
+import json
 import shutil
 from pathlib import Path
 
@@ -73,3 +74,21 @@ def test_two_data_dirs_do_not_overwrite(data_dir: Path, schema_cache: Path, tmp_
     assert len(list(schema_cache.iterdir())) == 2
     assert "Tabla v_resumen_clientes (7 filas)" in cached_schema(con)  # los 7 clientes de fixtures/clientes.csv
     assert "Tabla v_resumen_clientes (8 filas)" in cached_schema(other_con)
+
+
+def test_half_written_schema_is_never_used(data_dir: Path, schema_cache: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def write_half_and_stop(self: Path, data: str, *args: object, **kwargs: object) -> int:
+        with self.open("w", encoding="utf-8") as file:
+            file.write(data[: len(data) // 2])
+        raise KeyboardInterrupt  # un Ctrl+C a mitad de escribir
+
+    with monkeypatch.context() as cut:
+        cut.setattr(Path, "write_text", write_half_and_stop)
+        with pytest.raises(KeyboardInterrupt):
+            cached_schema(open_db(data_dir))
+
+    assert list(schema_cache.glob("schema_*.json")) == []  # nada a medias con nombre de esquema guardado
+    monkeypatch.setattr("database.semantic_layer._SCHEMA_MEMORY_CACHE", {})  # la pregunta siguiente, en otro proceso
+    text = cached_schema(open_db(data_dir))
+    [saved] = schema_cache.glob("schema_*.json")
+    assert json.loads(saved.read_text(encoding="utf-8"))["schema"] == text

@@ -244,6 +244,16 @@ def _fingerprint(value: object) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def _write_json(path: Path, value: object) -> None:
+    """Escritura atómica: primero un `.tmp` y después `replace`, así nunca queda un archivo a medias con su nombre
+    (`write_json` de `05_rag_langchain/.../infrastructure/artifacts.py`)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    clean = json.loads(json.dumps(value, default=str), parse_constant=lambda _: None)
+    temporary.write_text(json.dumps(clean, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
+    temporary.replace(path)
+
+
 def _data_fingerprint(data_dir: Path) -> str:
     """Huella de lo que decide el esquema: los CSV, el código de las vistas y la versión de DuckDB.
 
@@ -345,8 +355,7 @@ def cached_schema(con: duckdb.DuckDBPyConnection) -> str:
         return _SCHEMA_MEMORY_CACHE[key]
     text = schema(con)
     _SCHEMA_MEMORY_CACHE[key] = text
-    disk.parent.mkdir(parents=True, exist_ok=True)
-    disk.write_text(json.dumps({"fingerprint": key, "schema": text}, ensure_ascii=False, indent=1), encoding="utf-8")
+    _write_json(disk, {"fingerprint": key, "schema": text})
     return text
 
 
