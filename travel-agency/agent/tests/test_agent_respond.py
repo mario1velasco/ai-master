@@ -15,7 +15,15 @@ from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, te
 
 from agent import respond
 from contracts.agent import AgentStatus, SourceType
-from contracts.metrics import AgentMetrics, BaseMetrics, Component, LlmCallMetrics, LlmProvider, LlmPurpose
+from contracts.metrics import (
+    AgentMetrics,
+    BaseMetrics,
+    Component,
+    LlmCallMetrics,
+    LlmProvider,
+    LlmPurpose,
+    Status,
+)
 from telemetry import events_path, read_events
 from text2sql import ComponentError
 
@@ -259,3 +267,16 @@ def test_turn_is_one_trace(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaSer
 
     logs = "".join(path.read_text(encoding="utf-8") for path in log_dir.rglob("*.jsonl"))
     assert QUESTION not in logs  # de la pregunta solo se guardan su longitud y un hash
+
+
+def test_recursion_limit_logged_as_error(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [query_db_answer(QUESTION)] * 30  # siempre pide la tool, nunca responde
+    ollama.text2sql_answers = [text_answer("Ese dato no existe.")] * 30
+
+    answer = respond(QUESTION, con=con)
+
+    [turn] = [m for m in events_of(Component.agent) if m.name == "agent.respond"]
+    assert turn.status == Status.error
+    assert turn.error_type == "recursion_limit_reached"
+    assert turn.error_message is not None and "20 pasos" in turn.error_message
+    assert answer.trace_id == turn.trace_id
