@@ -72,18 +72,21 @@ tema 9 no cubre (`--ver`, examen reservado, guardar resultados).
 - **Arranque en frío** por `OllamaTimings.cold_start` (el equivalente de restar `segundos_carga` en `04_examen.py`).
 - Sin `rich` (no es dependencia del proyecto): salida de texto, como el comando `python -m text2sql`.
 - **Claves del examen y opciones del comando en inglés** (regla de nombres del proyecto), traducidas tal cual de las
-  de clase y de `PROYECTO.md` §6: `id`, `category` (`categoria`), `trap` (`trampa`), `question` (`pregunta`), `sql`,
-  `views` (`vistas`) y `must_deny` (`debe_negar`, la marca de imposible del tema 7). Categorías `normal`, `edge`
+  de clase y de `PROYECTO.md` §6: `id`, `category` (`categoria`), `trap` (`trampa`), `question` (`pregunta`), `sql`
+  y `must_deny` (`debe_negar`, la marca de imposible del tema 7). Categorías `normal`, `edge`
   (`borde`) y `adversarial` (`adversario`). Exámenes `battery.json` (`bateria.json`) y `final_test.json`
   (`prueba_final.json`). Opciones `--exam`, `--repetitions`, `--questions` y `--view` (`--ver`). Las preguntas siguen
   en castellano: es lo que lee el modelo.
+- **Las vistas esperadas no se escriben en el examen**: salen del SQL de referencia al cargarlo (con el mismo
+  `referenced_tables` del validador). En `PROYECTO.md` §6 la clave `vistas` va a mano, pero así no puede haber una
+  errata entre las vistas y el SQL (decidido con Mario el 2026-11-15). Las preguntas `must_deny` no tienen vistas.
 
 ## Alcance
 
 **Dentro**
 - Formato de una pregunta del examen: `id`, `category` (`normal` / `edge` / `adversarial`), `trap` (una trampa de
-  `PROYECTO.md` §3 o `null`), `question`, `views` (las vistas esperadas, como `vistas` en `PROYECTO.md` §6) y, o bien
-  `sql` (el SQL de referencia), o bien `must_deny: true` (imposible). Dos exámenes: `battery.json` y `final_test.json`.
+  `PROYECTO.md` §3 o `null`), `question` y, o bien `sql` (el SQL de referencia, del que salen las vistas esperadas),
+  o bien `must_deny: true` (imposible). Dos exámenes: `battery.json` y `final_test.json`.
 - El corrector de un intento con las reglas del desvío (filas, valores, imposibles, adversarios).
 - La trayectoria de cada intento (llamadas al modelo, SQL rechazados y vistas usadas), como `evaluar_trayectoria` del
   tema 9. Las vistas son **diagnóstico**: no aprueban ni suspenden.
@@ -122,7 +125,7 @@ es la de `open_db()` sobre `data/`.
   coste por caso resuelto (tokens de los 6 intentos entre los 4 aprobados, con la tarifa de referencia)
 
 **AC-3 — El informe separa los aciertos por categoría y por trampa**
-- **Dado** una pregunta `normal` con la trampa «importe bruto vs neto», una `edge` y una `adversarial`, todas
+- **Dado** una pregunta `normal` con la trampa `gross_vs_net_amount`, una `edge` y una `adversarial`, todas
   acertadas salvo la `edge`
 - **Cuando** se ejecuta la evaluación
 - **Entonces** el informe da los aciertos de cada categoría (normal 1/1, edge 0/1, adversarial 1/1) y de cada trampa
@@ -137,7 +140,8 @@ es la de `open_db()` sobre `data/`.
 **AC-5 — `--view` enseña el examen sin llamar al modelo**
 - **Dado** el examen `battery`, con una pregunta cuyo SQL de referencia devuelve 0 filas
 - **Cuando** se ejecuta el comando con `--view`
-- **Entonces** sale cada pregunta con su categoría, su trampa y el resultado de su SQL de referencia (o «imposible»)
+- **Entonces** sale cada pregunta con su categoría, su trampa, las vistas que usa su SQL de referencia y su
+  resultado (o «imposible»)
 - **Y** la de 0 filas sale marcada con «0 filas, revisar» (`PROYECTO.md` §6: los resultados vacíos se revisan)
 - **Y** el modelo no se llama ninguna vez
 
@@ -198,13 +202,17 @@ es la de `open_db()` sobre `data/`.
   por intento (2) y los intentos con algún SQL rechazado por el validador (67 %)
 
 **AC-15 — Las vistas esperadas se informan como diagnóstico, sin cambiar el aprobado**
-- **Dado** una pregunta con la vista esperada `v_reservas_cliente`, y cuatro intentos: uno que la usa y acierta las
+- **Dado** una pregunta cuyo SQL de referencia usa `v_reservas_cliente` (la vista esperada), y cuatro intentos: uno que la usa y acierta las
   filas, uno que la usa y falla las filas, uno que usa `v_resumen_clientes` y acierta las filas, y uno que usa otra
   vista y las falla
 - **Cuando** se ejecuta la evaluación
 - **Entonces** cada intento guarda las vistas que usó y si incluyen las esperadas
 - **Y** el aprobado sale solo de las filas (aprobados el primero y el tercero), y el informe separa los suspensos en
   «vista equivocada» (el cuarto) y «vista correcta, filas malas» (el segundo)
+- **Y** ese reparto sale en una línea «Suspensos» aparte, debajo de las métricas, como recuento y no como porcentaje
+  (no mide calidad, dice por qué falla), con un tercer grupo «otros» para los suspensos sin vistas que comparar
+  (imposibles, adversarios, errores de Ollama). Cada intento suspendido lo dice también en su línea, p. ej.
+  «(vista equivocada: usó v_pagos, esperaba v_resumen_clientes)»
 
 ### Errores
 
@@ -232,6 +240,13 @@ Ninguno aparte de los anteriores: los tests usan el Ollama falso (Definición de
 - [ ] ruff y ty limpios
 - [ ] `text2sql/AGENTS.md` (comando de evaluación, formato del examen, desvíos) y `contracts/AGENTS.md`
       (`SqlResult.trace_id`) actualizados; fila 5 de `travel-agency/AGENTS.md`
+- [ ] El comando de evaluación en `travel-agency/README.md` («Comandos útiles») y en `travel-agency/AGENTS.md`
+      («Entorno»), junto al de `python -m text2sql -q`
+- [ ] **Cada métrica documentada para no olvidar qué significa** (pedido por Mario, 2026-11-15): en el código, un
+      comentario o docstring junto a su cálculo que diga qué mide, cómo se calcula y para qué sirve; y en
+      `text2sql/AGENTS.md`, una tabla con todas las métricas del informe y cómo leerlas (qué valor es bueno y qué
+      hacer si sale mal). Sobre todo las de la trayectoria: «aprobados a la primera» (si el modelo acierta sin la
+      ayuda del validador) e «intentos con algún SQL rechazado» (el «Cumple reglas» de `PROYECTO.md` §6)
 - [ ] Commits sin atribución a la IA
 
 ## Supuestos y preguntas abiertas

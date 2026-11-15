@@ -8,7 +8,7 @@
 |---|---|
 | Tipo | Task |
 | Carpeta del proyecto | `travel-agency/` (`text2sql/`) |
-| Estado | Borrador, pendiente de revisión |
+| Estado | Revisado, listo para hacer (2026-11-15) |
 | Creado | 2026-11-13 |
 | Etiquetas | text2sql, eval, dataset, fase-5 |
 
@@ -22,7 +22,7 @@ la fase 5 quede cerrada con una línea base contra la que comparar cualquier cam
 
 TRAVEL-007 deja la herramienta de medir (formato del examen, corrector, métricas e informe), con solo unas preguntas
 de ejemplo para los tests. Este ticket es el **entregable de datos**: las preguntas reales y la medida. No lleva
-código ni tests nuevos: se comprueba con el propio comando de evaluación (`--ver`) y revisando. `PROYECTO.md` §6 pide
+código ni tests nuevos: se comprueba con el propio comando de evaluación (`--view`) y revisando. `PROYECTO.md` §6 pide
 «~50 a mano: una por cada trampa de la sección 3, núcleo del conjunto de test», con validación automática de cada
 ejemplo; §9 pide categorías normal / borde / adversario, k = 3 y pass^3.
 
@@ -47,10 +47,22 @@ pregunta).
 ## Alcance
 
 **Dentro**
-- Batería (~35 preguntas, con ella se puede ajustar el prompt) y examen final (~15, reservado).
-- Cada pregunta con categoría, trampa (o ninguna), pregunta en castellano como la haría un empleado, vistas
-  esperadas, y SQL de referencia o marca de imposible.
-- Primera medida con el Qwen real de los dos exámenes, con `--repeticiones 3`, y su resumen como línea base.
+- `battery.json` (~35 preguntas, con ella se puede ajustar el prompt) y `final_test.json` (~15, reservado), en
+  `src/text2sql/evaluation/exams/` (TRAVEL-007).
+- Cada pregunta con las claves de TRAVEL-007: `category`, `trap` (o `null`), `question` (en castellano, como la haría
+  un empleado), y `sql` o `must_deny: true`. Las vistas esperadas no se escriben: salen del `sql` (TRAVEL-007).
+- Valores de `trap`, traducidos tal cual de `PROYECTO.md` §3 (decidido con Mario el 2026-11-15):
+
+  | §3 | `trap` |
+  |---|---|
+  | Reserva ≠ tramo ≠ pasajero | `booking_vs_segment_vs_passenger` |
+  | Importe bruto vs neto | `gross_vs_net_amount` |
+  | Retraso a la llegada, no a la salida | `arrival_delay_not_departure` |
+  | Vuelos con escala | `flights_with_layover` |
+  | Zonas horarias | `time_zones` |
+  | Nombres repetidos | `repeated_names` |
+  | Datos ausentes | `missing_data` |
+- Primera medida con el Qwen real de los dos exámenes, con `--repetitions 3`, y su resumen como línea base.
 
 **Fuera**
 - Mejorar `text2sql` según lo que salga (prompt, ejemplos dinámicos, consultas fijas): tickets siguientes si la
@@ -64,41 +76,45 @@ pregunta).
 
 **AC-1 — Los dos exámenes existen con su tamaño**
 - **Dado** la batería y el examen final
-- **Cuando** se ejecuta el comando de evaluación con `--ver` para cada uno
+- **Cuando** se ejecuta el comando de evaluación con `--view` para cada uno
 - **Entonces** la batería enseña entre 30 y 40 preguntas y el final entre 12 y 18, sin error
 
 **AC-2 — Cada trampa de la base tiene al menos una pregunta**
 - **Dado** las siete trampas de `PROYECTO.md` §3 (reserva ≠ tramo ≠ pasajero, bruto frente a neto, retraso a la
   llegada, vuelos con escala, zonas horarias, nombres repetidos, datos ausentes)
-- **Cuando** se revisa la salida de `--ver` de la batería
+- **Cuando** se revisa la salida de `--view` de la batería
 - **Entonces** cada trampa aparece en al menos una pregunta
 
 **AC-3 — Cada examen tiene preguntas de las tres categorías**
 - **Dado** la batería y el examen final
-- **Cuando** se revisa la salida de `--ver` de cada uno
-- **Entonces** cada examen tiene al menos una pregunta `normal`, una `borde` y una `adversario`
-- **Y** entre las de borde hay al menos una imposible (un dato que la base no tiene) y una sobre un cliente o una
+- **Cuando** se revisa la salida de `--view` de cada uno
+- **Entonces** cada examen tiene al menos una pregunta `normal`, una `edge` y una `adversarial`
+- **Y** entre las `edge` hay al menos una imposible (`must_deny`: un dato que la base no tiene) y una sobre un cliente o una
   reserva que no existen
 
 **AC-4 — La primera medida queda guardada y resumida como línea base**
 - **Dado** los dos exámenes y `qwen3:4b-instruct` en Ollama
-- **Cuando** se ejecuta la evaluación de cada examen con `--repeticiones 3`
-- **Entonces** quedan guardados sus dos archivos de resultados
+- **Cuando** se ejecuta la evaluación de cada examen con `--repetitions 3`
+- **Entonces** quedan guardados sus dos archivos de resultados en `text2sql/evaluation_results/`
 - **Y** `text2sql/AGENTS.md` tiene una tabla de línea base con la fecha, el modelo, la versión del prompt y, por examen:
-  tasa de éxito, pass^3, pass@3, latencia p50 y p95, disponibilidad, coste por caso resuelto y los aciertos por
-  categoría y por trampa
+  tasa de éxito, pass^3, pass@3, latencia p50 y p95, disponibilidad, coste por caso resuelto, aprobados a la primera,
+  intentos con algún SQL rechazado, los aciertos por categoría y por trampa, y una fila «Suspensos: vista equivocada /
+  vista correcta, filas malas / otros» con los recuentos (AC-15 de TRAVEL-007), que dice qué arreglar primero
+- **Y** debajo de la tabla, una línea por métrica que diga qué mide (remite a la tabla de métricas de TRAVEL-007)
 
 ### Casos límite
 
-**AC-5 — Las vistas esperadas cuadran con la referencia**
+**AC-5 — Cada referencia usa la vista que toca**
 - **Dado** las preguntas con SQL de referencia
-- **Cuando** se revisan en la salida de `--ver`
-- **Entonces** las vistas esperadas de cada una son las que usa su SQL de referencia
+- **Cuando** se revisan en la salida de `--view` (que enseña las vistas que usa cada SQL)
+- **Entonces** cada una usa la vista que mejor responde a la pregunta (p. ej. el gasto neto, de la vista que ya lo
+  calcula, no sumando pagos), porque esas vistas son las esperadas del diagnóstico «vista equivocada»
 
 **AC-6 — Las referencias sin filas son intencionadas**
 - **Dado** las preguntas cuyo SQL de referencia devuelve 0 filas
-- **Cuando** se revisan en la salida de `--ver`
-- **Entonces** todas son de la categoría `borde` (p. ej. cliente o reserva que no existen)
+- **Cuando** se revisan en la salida de `--view`
+- **Entonces** todas son de la categoría `edge` (p. ej. cliente o reserva que no existen); son las que `--view` marca
+  con «0 filas, revisar» (AC-5 de TRAVEL-007)
 
 **AC-7 — El examen final no repite la batería**
 - **Dado** los dos exámenes
@@ -110,7 +126,7 @@ pregunta).
 
 **AC-8 — Todas las referencias pasan el validador**
 - **Dado** los dos exámenes
-- **Cuando** se ejecuta `--ver` (que se para ante una referencia que no pasa el validador o un id repetido, AC-16 de
+- **Cuando** se ejecuta `--view` (que se para ante una referencia que no pasa el validador o un id repetido, AC-16 de
   TRAVEL-007)
 - **Entonces** termina con código 0 en los dos
 
@@ -127,18 +143,30 @@ pregunta).
 - [ ] Toda la suite del proyecto en verde (`uv run pytest`)
 - [ ] Fila 5 de `travel-agency/AGENTS.md` en ✅ con la línea base, y `PROYECTO.md` §6 si la medida cambia algo de lo
       escrito
+- [ ] Los pasos para lanzar la medida (Supuestos) en `travel-agency/README.md` («Comandos útiles») y en
+      `travel-agency/AGENTS.md` («Entorno»). Cuando toque lanzarla, Claude se los indica a Mario paso a paso
 - [ ] Commits sin atribución a la IA
 
 ## Supuestos y preguntas abiertas
 
 **Supuestos**
 - Las preguntas las redacta Claude y Mario las aprueba por bloques (como los repartos de TRAVEL-001), con el SQL de
-  referencia y el resultado a la vista (`--ver`).
+  referencia y el resultado a la vista (`--view`).
 - Los tamaños (30–40 y 12–18) traducen las «~35 y ~15» acordadas; se pueden mover si al escribirlas sale otro reparto.
 - Las preguntas son de empleado (modo empleado, acceso a todas las vistas): el modo cliente es la decisión pendiente 3
   de `PROYECTO.md` §10.
-- La medida se hace con el modelo calentado de antemano o descartando el arranque en frío, como hace el comando
-  (AC-12 de TRAVEL-007).
+- La medida la lanza Mario a mano (~45 min con el Qwen real) y Claude escribe la tabla de línea base a partir de los
+  archivos de resultados. Pasos, desde `travel-agency/`:
+  1. Ollama arrancado y el modelo instalado: `ollama list` muestra `qwen3:4b-instruct` (si no,
+     `ollama pull qwen3:4b-instruct`).
+  2. `uv sync`.
+  3. Comprobar los exámenes sin modelo: `uv run python -m text2sql.evaluation --exam battery --view` y lo mismo con
+     `--exam final_test`. Los dos terminan sin error.
+  4. Calentar el modelo (el primer arranque tarda ~150 s): `uv run python -m text2sql -q "¿Cuántas reservas tiene C-001?"`.
+     De todos modos, el comando descarta el arranque en frío de la latencia (AC-12 de TRAVEL-007).
+  5. `uv run python -m text2sql.evaluation --exam battery --repetitions 3` (~30 min).
+  6. `uv run python -m text2sql.evaluation --exam final_test --repetitions 3` (~13 min).
+  7. Avisar a Claude: los resultados quedan en `text2sql/evaluation_results/`.
 
 **Preguntas abiertas**
 - Ninguna.
