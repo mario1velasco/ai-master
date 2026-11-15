@@ -30,6 +30,7 @@ from rich.table import Table
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 SCHEMA_CACHE_DIR = Path(__file__).resolve().parents[2] / ".cache"  # esquemas guardados por huella (fuera de git)
+SEMANTIC_LAYER_FILE = Path(__file__).resolve()  # vistas y comentarios: si cambia, cambia el esquema (va en la huella)
 
 console = Console()
 
@@ -243,12 +244,17 @@ def _fingerprint(value: object) -> str:
 def open_db(data_dir: Path = DATA_DIR) -> duckdb.DuckDBPyConnection:
     """CSV en el esquema oculto «crudo», vistas en «main», sin acceso a archivos.
 
-    Desvío (TRAVEL-009): guarda en la conexión la huella de sus CSV (`getvariable('data_fingerprint')`), para que
-    `cached_schema()` sepa qué esquema guardado le corresponde.
+    Desvío (TRAVEL-009): guarda en la conexión la huella de lo que decide el esquema
+    (`getvariable('data_fingerprint')`): sus CSV, el código de las vistas y la versión de DuckDB. Así
+    `cached_schema()` sabe qué esquema guardado le toca.
     """
     con = duckdb.connect()
-    csv_digests = {csv.name: _file_digest(csv) for csv in sorted(data_dir.glob("*.csv"))}
-    con.execute(f"SET VARIABLE data_fingerprint = '{_fingerprint(csv_digests)}'")
+    inputs = {
+        "csv": {csv.name: _file_digest(csv) for csv in sorted(data_dir.glob("*.csv"))},
+        "code": _file_digest(SEMANTIC_LAYER_FILE),
+        "duckdb": duckdb.__version__,
+    }
+    con.execute(f"SET VARIABLE data_fingerprint = '{_fingerprint(inputs)}'")
     con.execute("CREATE SCHEMA crudo")
     for csv in sorted(data_dir.glob("*.csv")):
         con.execute(f"CREATE TABLE crudo.{csv.stem} AS SELECT * FROM read_csv_auto('{csv.as_posix()}')")

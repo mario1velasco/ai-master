@@ -6,8 +6,10 @@ Cada test copia `fixtures/` a una carpeta temporal y usa una caché vacía (carp
 import shutil
 from pathlib import Path
 
+import duckdb
 import pytest
 
+from database import semantic_layer
 from database.seed import FIXTURES_DIR
 from database.semantic_layer import cached_schema, open_db
 
@@ -39,3 +41,21 @@ def test_changed_csv_regenerates_schema(data_dir: Path, schema_cache: Path) -> N
     assert len(list(schema_cache.iterdir())) == 2
     assert "Tabla v_resumen_clientes (7 filas)" in before  # los 7 clientes de fixtures/clientes.csv
     assert "Tabla v_resumen_clientes (8 filas)" in after
+
+
+@pytest.mark.parametrize("change", ["semantic_layer.py", "duckdb"])
+def test_other_code_or_duckdb_version_regenerates_schema(
+    change: str, data_dir: Path, schema_cache: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    code = Path(shutil.copy(semantic_layer.__file__, tmp_path / "semantic_layer.py"))
+    monkeypatch.setattr("database.semantic_layer.SEMANTIC_LAYER_FILE", code)
+    cached_schema(open_db(data_dir))
+    if change == "semantic_layer.py":
+        with code.open("a", encoding="utf-8") as source:
+            source.write("# otro comentario de una vista\n")
+    else:
+        monkeypatch.setattr(duckdb, "__version__", "0.0.0-otra")
+
+    cached_schema(open_db(data_dir))
+
+    assert len(list(schema_cache.iterdir())) == 2
