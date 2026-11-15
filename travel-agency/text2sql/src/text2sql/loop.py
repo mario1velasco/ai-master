@@ -75,7 +75,7 @@ def ask(question: str, *, con: duckdb.DuckDBPyConnection) -> SqlResult:
         component=Component.text2sql,
         input_text=question,
         versions=Versions(prompt_version=PROMPT_VERSION),
-    ):
+    ) as s:
         messages = [
             {"role": "system", "content": build_system_prompt(con)},
             {"role": "user", "content": question},
@@ -111,4 +111,11 @@ def ask(question: str, *, con: duckdb.DuckDBPyConnection) -> SqlResult:
             status = SqlStatus.ok
         else:
             status = SqlStatus.no_sql
-        return SqlResult(status=status, queries=queries, model_text=model_text, error=error, llm_calls=llm_calls)
+        return SqlResult(
+            status=status,
+            queries=queries,
+            model_text=model_text,
+            error=error,
+            llm_calls=llm_calls,
+            trace_id=s.trace_id,  # con él, quien llama encuentra los eventos de esta pregunta (TRAVEL-007)
+        )

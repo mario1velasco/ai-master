@@ -6,7 +6,7 @@ import pytest
 from fake_ollama import FakeOllama
 
 from database.seed import FIXTURES_DIR
-from database.semantic_layer import open_db
+from database.semantic_layer import DATA_DIR, open_db
 from telemetry import close_log_files, configure, get_config
 
 
@@ -14,6 +14,14 @@ from telemetry import close_log_files, configure, get_config
 def con() -> Generator[duckdb.DuckDBPyConnection]:
     """La capa semántica sobre las filas a mano (`fixtures/`), una vez para todos los tests: cifras conocidas."""
     connection = open_db(FIXTURES_DIR)
+    yield connection
+    connection.close()
+
+
+@pytest.fixture(scope="session")
+def data_con() -> Generator[duckdb.DuckDBPyConnection]:
+    """La capa semántica sobre `data/`, los datos con los que se mide (TRAVEL-007), una vez para todos los tests."""
+    connection = open_db(DATA_DIR)
     yield connection
     connection.close()
 

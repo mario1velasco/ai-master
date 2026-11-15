@@ -22,13 +22,9 @@ BAR = "=" * 72
 LINE = "-" * 72
 
 
-def _trace_metrics() -> list[BaseMetrics]:
-    """Los eventos de la última pregunta, ordenados por inicio: primero `text2sql.ask` y luego sus pasos.
-
-    `ask` no devuelve su `trace_id`: se toma el del último `text2sql.ask` escrito, que es el de esta pregunta.
-    """
+def _trace_metrics(trace_id: str) -> list[BaseMetrics]:
+    """Los eventos de la pregunta, ordenados por inicio: primero `text2sql.ask` y luego sus pasos."""
     metrics = [event.metrics for event in read_events(events_path(Component.text2sql, datetime.now(UTC).date()))]
-    trace_id = [m for m in metrics if m.name == "text2sql.ask"][-1].trace_id
     return sorted((m for m in metrics if m.trace_id == trace_id), key=lambda m: m.started_at)
 
 
@@ -49,7 +45,7 @@ def main(argv: list[str] | None = None) -> None:
     print(f"\n{BAR}\n[LO QUE RECIBIRÍA EL AGENTE]\n{BAR}")
     print(result.model_dump_json(indent=2))
 
-    events = _trace_metrics()
+    events = _trace_metrics(result.trace_id)
     print(f"\n{BAR}\n[MÉTRICAS] traza {events[0].trace_id} · {len(events)} eventos\n{BAR}")
     for m in events:
         print(f"{LINE}\n{m.name} · {type(m).__name__} · {m.latency_ms:.0f} ms · {m.status}\n{LINE}")

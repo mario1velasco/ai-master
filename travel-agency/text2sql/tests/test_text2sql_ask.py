@@ -290,3 +290,14 @@ def test_request_follows_configuration(
     assert request["keep_alive"] == "5m"
     assert request["think"] is False
     assert request["stream"] is False
+
+
+def test_ask_returns_its_trace_id(data_con: duckdb.DuckDBPyConnection, fake_ollama: FakeOllama) -> None:
+    """TRAVEL-007, AC-13: el resultado trae la traza de sus eventos, para que la evaluación saque de ahí sus métricas."""
+    fake_ollama.answers = [sql_answer("SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-001'")]
+
+    result = ask("¿Cuántas reservas tiene C-001?", con=data_con)
+
+    events = text2sql_events()
+    assert {m.name for m in events} == {"text2sql.ask", "llm.text2sql", "sql.run"}
+    assert {m.trace_id for m in events} == {result.trace_id}

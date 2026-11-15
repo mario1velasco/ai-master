@@ -44,3 +44,8 @@ class SqlResult(BaseModel):
         default=None, description="Último mensaje del validador cuando el estado es sql_error (lo que vio el modelo)."
     )
     llm_calls: int = Field(ge=0, description="Llamadas al modelo que hicieron falta.")
+    trace_id: str = Field(
+        min_length=1,
+        description="Traza de la pregunta: con ella se encuentran sus eventos (tokens, tiempos), como `traza_id` del "
+        "`Resultado` del tema 9.",
+    )
