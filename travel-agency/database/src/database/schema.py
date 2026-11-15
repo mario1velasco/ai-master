@@ -7,9 +7,12 @@
 
 import hashlib
 import json
+import logging
 from pathlib import Path
 
 import duckdb
+
+logger = logging.getLogger(__name__)  # como `logger.warning` del tema 4; database no depende de telemetry
 
 SCHEMA_CACHE_DIR = Path(__file__).resolve().parents[2] / ".cache"  # esquemas guardados por huella (fuera de git)
 # El código que decide el texto del esquema: las vistas y sus comentarios, y cómo se escribe (va en la huella)
@@ -122,8 +125,11 @@ def cached_schema(con: duckdb.DuckDBPyConnection) -> str:
     if key in _SCHEMA_MEMORY_CACHE:
         return _SCHEMA_MEMORY_CACHE[key]
     if disk.exists():  # mismos datos (huella sha256): el esquema ya está guardado
-        _SCHEMA_MEMORY_CACHE[key] = json.loads(disk.read_text(encoding="utf-8"))["schema"]
-        return _SCHEMA_MEMORY_CACHE[key]
+        try:
+            _SCHEMA_MEMORY_CACHE[key] = json.loads(disk.read_text(encoding="utf-8"))["schema"]
+            return _SCHEMA_MEMORY_CACHE[key]
+        except (ValueError, KeyError, TypeError):  # vacío, a medias o sin esquema: se genera y se reescribe
+            logger.warning("Esquema guardado dañado en %s: se genera de nuevo.", disk)
     text = schema(con)
     _SCHEMA_MEMORY_CACHE[key] = text
     _write_json(disk, {"fingerprint": key, "schema": text})

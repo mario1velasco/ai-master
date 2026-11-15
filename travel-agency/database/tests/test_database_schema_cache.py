@@ -4,6 +4,7 @@ Cada test copia `fixtures/` a una carpeta temporal y usa una caché vacía (carp
 """
 
 import json
+import logging
 import shutil
 from pathlib import Path
 
@@ -92,3 +93,28 @@ def test_half_written_schema_is_never_used(data_dir: Path, schema_cache: Path, m
     text = cached_schema(open_db(data_dir))
     [saved] = schema_cache.glob("schema_*.json")
     assert json.loads(saved.read_text(encoding="utf-8"))["schema"] == text
+
+
+@pytest.mark.parametrize(
+    "damaged",
+    ["", '{"fingerprint": "abc", "sche', '{"fingerprint": "abc"}', "[1, 2]"],
+    ids=["empty", "cut", "no_schema", "not_an_object"],
+)
+def test_damaged_file_is_regenerated_with_warning(
+    damaged: str,
+    data_dir: Path,
+    schema_cache: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    expected = cached_schema(open_db(data_dir))
+    [saved] = schema_cache.glob("schema_*.json")
+    saved.write_text(damaged, encoding="utf-8")
+    monkeypatch.setattr("database.schema._SCHEMA_MEMORY_CACHE", {})  # otro proceso: solo queda el archivo dañado
+
+    with caplog.at_level(logging.WARNING, logger="database.schema"):
+        text = cached_schema(open_db(data_dir))
+
+    assert text == expected
+    assert any(str(saved) in record.getMessage() for record in caplog.records)
+    assert json.loads(saved.read_text(encoding="utf-8"))["schema"] == expected
