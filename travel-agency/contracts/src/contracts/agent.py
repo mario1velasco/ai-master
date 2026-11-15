@@ -28,6 +28,9 @@ class Source(BaseModel):
     type: SourceType = Field(description="Tipo de fuente (hoy solo la base de datos).")
     views: list[str] = Field(description="Vistas que leyó la consulta.")
     rows: int = Field(ge=0, description="Filas que devolvió la consulta (tras el recorte a 50).")
+    sql: str = Field(
+        min_length=1, description="El SQL que escribió text2sql, tal cual se ejecutó (los logs no lo guardan)."
+    )
 
 
 class AgentAnswer(BaseModel):

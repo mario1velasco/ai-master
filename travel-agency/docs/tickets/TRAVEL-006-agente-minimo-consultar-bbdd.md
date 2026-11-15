@@ -76,6 +76,11 @@ LangGraph (decisión 5 de `PROYECTO.md`, 2026-11-08), con una sola herramienta, 
   segunda («connection is busy»). Un `threading.Lock` las pone en fila. En clase no pasa: las tools de `tienda.py`
   leen diccionarios en memoria. Descartados: un `con.cursor()` por llamada (el prompt de `text2sql` va en caché por
   conexión y se regeneraría el esquema cada vez) y cambiar `ToolNode` por un nodo en serie.
+- **El SQL va en cada fuente de BBDD** (añadido el 2026-11-15 durante el desarrollo, decidido con Mario):
+  `PROYECTO.md` §7 dice que el SQL no va en la respuesta porque estará en `/trace`, pero la telemetría nunca guarda
+  el texto del SQL (solo su longitud), así que no quedaría en ningún sitio. Hace falta para probar a mano (¿la cifra
+  sale de un SQL correcto?) y para la evaluación (punto 4 de «Lo que queda»: decidir si un fallo es de `text2sql` o
+  del agente). La API de la fase 7 decide si lo enseña (su DTO puede quitarlo).
 
 ## Alcance
 
@@ -126,6 +131,12 @@ En todos, «el modelo» es un Ollama falso que responde lo que dice el *Dado*, t
 - **Entonces** la respuesta es ese texto, con `status = "ok"` y `answered_without_data = false`
 - **Y** trae una fuente de tipo BBDD con la vista `v_reservas_cliente` y 1 fila, y las herramientas usadas son
   `["query_db"]`
+
+**AC-1b — Cada fuente de BBDD trae el SQL que se ejecutó** *(añadido el 2026-11-15 durante el desarrollo, decidido
+con Mario; ver el desvío «El SQL va en cada fuente de BBDD»)*
+- **Dado** el caso del AC-1
+- **Cuando** se le hace esa pregunta al agente
+- **Entonces** la fuente de BBDD trae el SQL que escribió `text2sql`, tal cual se ejecutó
 
 **AC-2 — El modelo recibe de la tool el SQL y las filas, sin métricas**
 - **Dado** el caso del AC-1, con un modelo que guarda los mensajes que recibe

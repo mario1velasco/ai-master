@@ -44,6 +44,15 @@ def test_db_question_answered_with_query_source(con: duckdb.DuckDBPyConnection, 
     assert answer.tools_used == ["query_db"]
 
 
+def test_db_source_carries_the_sql(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
+    ollama.text2sql_answers = [sql_answer(COUNT_C001)]
+
+    answer = respond(QUESTION, con=con)
+
+    assert [s.sql for s in answer.sources] == [COUNT_C001]
+
+
 def tool_contents(request: dict[str, Any]) -> list[str]:
     """Los mensajes de la tool que llevan una petición del agente a Ollama."""
     return [m["content"] for m in request["messages"] if m["role"] == "tool"]

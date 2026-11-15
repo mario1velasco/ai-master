@@ -42,7 +42,7 @@ LIMIT_MESSAGE = "No he podido completar la consulta. Te paso con un compañero d
 def _sources(runs: list[QueryDbRun]) -> list[Source]:
     """Una fuente por cada consulta que salió bien, en el orden en que se pidieron."""
     return [
-        Source(type=SourceType.db, views=q.metrics.views_used if q.metrics else [], rows=len(q.rows))
+        Source(type=SourceType.db, views=q.metrics.views_used if q.metrics else [], rows=len(q.rows), sql=q.sql)
         for run in runs
         for q in run.result.queries
     ]
