@@ -5,14 +5,19 @@ Desvío: `ChatOllama` (API nativa `/api/chat`) en vez de `ChatOpenAI` sobre `/v1
 """
 
 import os
+from collections.abc import Sequence
+from typing import Any
 
 import httpx
+from langchain_core.messages import AIMessage, BaseMessage, SystemMessage
 from langchain_ollama import ChatOllama
 from ollama import ResponseError
 
+from contracts.metrics import FinishReason, LlmProvider, LlmPurpose, OllamaTimings
 from text2sql import ComponentError
 
 TIMEOUT_S = 600  # segundos, como `chat()` de text2sql (el timeout por defecto de chat() en S3)
+NUM_PREDICT = 1024  # máximo de tokens de salida, como text2sql (01_preguntar_datos.py)
 
 
 def base_url() -> str:
@@ -62,5 +67,36 @@ def build_model() -> ChatOllama:
         num_ctx=int(os.environ.get("OLLAMA_NUM_CTX", "8192")),
         keep_alive=os.environ.get("OLLAMA_KEEP_ALIVE", "30m"),
         reasoning=False,  # sin modo razonamiento (`think: false`), como text2sql
+        num_predict=NUM_PREDICT,
         client_kwargs={"timeout": TIMEOUT_S},  # el cliente `ollama` se lo pasa a httpx
     )
+
+
+def llm_call_fields(
+    model: ChatOllama, messages: Sequence[BaseMessage], tools_offered: int, response: AIMessage
+) -> dict[str, Any]:
+    """Los campos de `LlmCallMetrics` de una llamada al modelo del agente, como los de `chat()` de text2sql.
+
+    Salen de la configuración del modelo y de la respuesta de `ChatOllama`: `response_metadata` trae el JSON final de
+    `/api/chat` (tiempos de Ollama, tokens y `done_reason`).
+    """
+    metadata = response.response_metadata
+    done_reason = metadata.get("done_reason")
+    system = messages[0]
+    return {
+        "provider": LlmProvider.ollama,
+        "model": model.model,
+        # El supuesto del ticket: route_tool si pide herramientas, answer si responde con texto
+        "purpose": LlmPurpose.route_tool if response.tool_calls else LlmPurpose.answer,
+        "temperature": model.temperature,
+        "max_tokens": model.num_predict,
+        "num_ctx": model.num_ctx,
+        "message_count": len(messages),
+        "system_prompt_chars": len(str(system.content)) if isinstance(system, SystemMessage) else None,
+        "tools_offered": tools_offered,
+        "tool_calls": [call["name"] for call in response.tool_calls],
+        "input_tokens": metadata.get("prompt_eval_count") or 0,
+        "output_tokens": metadata.get("eval_count") or 0,
+        "finish_reason": done_reason if done_reason in FinishReason.__members__ else FinishReason.unknown,
+        "ollama": OllamaTimings.from_ollama_response(metadata),
+    }

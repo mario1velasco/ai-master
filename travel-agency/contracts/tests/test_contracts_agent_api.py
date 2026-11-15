@@ -45,7 +45,7 @@ def test_agent_metrics_fills_total_tokens(agent_fields: dict[str, Any]) -> None:
     metrics = AgentMetrics.model_validate(agent_fields)
 
     assert metrics.total_tokens == 3532
-    assert metrics.abstained is False
+    assert metrics.answered_without_data is False
 
 
 def test_agent_metrics_rejects_wrong_total(agent_fields: dict[str, Any]) -> None:

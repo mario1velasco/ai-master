@@ -5,6 +5,8 @@ base, la de `fixtures/` con cifras conocidas.
 """
 
 import json
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import duckdb
@@ -13,6 +15,8 @@ from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, te
 
 from agent import respond
 from contracts.agent import AgentStatus, SourceType
+from contracts.metrics import AgentMetrics, BaseMetrics, Component, LlmCallMetrics, LlmProvider, LlmPurpose
+from telemetry import events_path, read_events
 from text2sql import ComponentError
 
 QUESTION = "¿Cuántas reservas tiene C-001?"
@@ -116,6 +120,7 @@ def test_two_tool_calls_give_two_sources(con: duckdb.DuckDBPyConnection, ollama:
     assert len(ollama.text2sql_requests) == 2
     assert [(s.views, s.rows) for s in answer.sources] == [(["v_reservas_cliente"], 1), (["v_reservas_cliente"], 1)]
     assert answer.tools_used == ["query_db"]
+    assert answer.metrics is not None and answer.metrics.tool_call_count == 2
 
 
 def test_one_call_with_two_queries_gives_two_sources(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
@@ -132,6 +137,7 @@ def test_one_call_with_two_queries_gives_two_sources(con: duckdb.DuckDBPyConnect
         {"sql": spend, "rows": [{"gasto_neto": 1195.0}], "truncated": False},  # CHECKS de database: 1195 netos
     ]
     assert [(s.views, s.rows) for s in answer.sources] == [(["v_reservas_cliente"], 1), (["v_resumen_clientes"], 1)]
+    assert answer.metrics is not None and answer.metrics.tool_call_count == 1
 
 
 def test_truncated_query_reaches_model_marked(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
@@ -219,3 +225,37 @@ def test_empty_question_rejected_without_model(con: duckdb.DuckDBPyConnection, o
 
     assert error.value.code == "empty_question"
     assert ollama.agent_requests == []
+
+
+def events_of(component: Component) -> list[BaseMetrics]:
+    """Las métricas de los eventos que ha escrito un componente hoy (el log va a la carpeta temporal del test)."""
+    return [event.metrics for event in read_events(events_path(component, datetime.now(UTC).date()))]
+
+
+def test_turn_is_one_trace(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer, log_dir: Path) -> None:
+    ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
+    ollama.text2sql_answers = [sql_answer(COUNT_C001)]
+
+    answer = respond(QUESTION, con=con)
+
+    agent_side = events_of(Component.agent)
+    [turn] = [m for m in agent_side if isinstance(m, AgentMetrics)]
+    assert (turn.iterations, turn.llm_call_count, turn.tool_call_count) == (2, 2, 1)
+    assert turn.tools_used == ["query_db"]
+    assert turn.answered_without_data is False
+    assert (answer.trace_id, answer.metrics) == (turn.trace_id, turn)
+
+    llm_calls = [m for m in agent_side if isinstance(m, LlmCallMetrics)]
+    assert [m.purpose for m in llm_calls] == [LlmPurpose.route_tool, LlmPurpose.answer]
+    for call in llm_calls:
+        assert call.provider == LlmProvider.ollama
+        assert call.ollama is not None and call.ollama.prompt_eval_count == 1200  # los tiempos de Ollama
+        assert call.parent_span_id == turn.span_id
+
+    text2sql_side = events_of(Component.text2sql)
+    assert text2sql_side and {m.trace_id for m in text2sql_side} == {turn.trace_id}
+    [ask_span] = [m for m in text2sql_side if m.name == "text2sql.ask"]
+    assert ask_span.parent_span_id == turn.span_id
+
+    logs = "".join(path.read_text(encoding="utf-8") for path in log_dir.rglob("*.jsonl"))
+    assert QUESTION not in logs  # de la pregunta solo se guardan su longitud y un hash

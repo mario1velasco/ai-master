@@ -2,11 +2,13 @@
 
 Como las tools de `08_ia_agentica_automatiz_agentes/tema8-agentes/comun/herramientas_lc.py` (`@tool`, el docstring es
 la descripción que lee el modelo). Desvío: `response_format="content_and_artifact"`, para que el modelo reciba el
-texto y el código se quede con el `SqlResult` entero (las fuentes salen de ahí).
+texto y el código se quede con el `SqlResult` entero (las fuentes salen de ahí) y con lo que tardó (`tools_ms`).
 """
 
 import json
 import threading
+from dataclasses import dataclass
+from time import perf_counter
 
 import duckdb
 from langchain_core.tools import BaseTool, tool
@@ -28,6 +30,14 @@ QUERY_DB_DESCRIPTION = (
 # pasa porque las tools de `tienda.py` leen diccionarios en memoria. No se pierde velocidad: Ollama atiende al Qwen
 # de una en una en la GPU de 4 GB.
 _DB_LOCK = threading.Lock()
+
+
+@dataclass(frozen=True, slots=True)
+class QueryDbRun:
+    """El `artifact` de cada llamada a `query_db`: lo que el código guarda y el modelo no ve."""
+
+    result: SqlResult
+    latency_ms: float  # lo que tardó `ask()`, para `AgentMetrics.tools_ms`
 
 
 def _for_model(result: SqlResult) -> str:
@@ -53,9 +63,11 @@ def build_query_db_tool(con: duckdb.DuckDBPyConnection) -> BaseTool:
     """La tool sobre la conexión `con`."""
 
     @tool(description=QUERY_DB_DESCRIPTION, response_format="content_and_artifact")
-    def query_db(question: str) -> tuple[str, SqlResult]:
+    def query_db(question: str) -> tuple[str, QueryDbRun]:
         with _DB_LOCK:
+            start = perf_counter()
             result = ask(question, con=con)
-        return _for_model(result), result
+            latency_ms = round((perf_counter() - start) * 1000, 3)
+        return _for_model(result), QueryDbRun(result=result, latency_ms=latency_ms)
 
     return query_db

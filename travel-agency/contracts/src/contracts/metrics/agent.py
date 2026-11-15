@@ -8,7 +8,7 @@ from contracts.metrics.base import BaseMetrics, check_or_fill
 
 
 class AgentMetrics(BaseMetrics):
-    """Métricas del span `agent.responder`.
+    """Métricas del span `agent.respond`.
 
     Solo totales: el detalle de cada paso (cada llamada al LLM, cada herramienta) está en su propio span,
     colgando de este por `parent_span_id`. Así nada se guarda dos veces.
@@ -27,7 +27,9 @@ class AgentMetrics(BaseMetrics):
 
     llm_ms: float = Field(ge=0, description="Tiempo total en llamadas al LLM.")
     tools_ms: float = Field(ge=0, description="Tiempo total en herramientas.")
-    abstained: bool = Field(default=False, description="True si el agente respondió que no lo sabe.")
+    answered_without_data: bool = Field(
+        default=False, description="True si ninguna consulta a la base salió bien: la respuesta no se apoya en datos."
+    )
 
     @model_validator(mode="after")
     def _check_and_fill(self) -> Self:

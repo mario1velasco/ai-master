@@ -6,18 +6,18 @@ Las fuentes y las herramientas usadas salen de los mensajes que deja el grafo, s
 """
 
 import os
+from typing import Any
 
 import duckdb
-from langchain_core.messages import ToolMessage
+from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.errors import GraphRecursionError
 
 from agent.graph import build_agent
 from agent.model import as_component_error, build_model
-from agent.tools import build_query_db_tool
+from agent.tools import QueryDbRun, build_query_db_tool
 from contracts.agent import AgentAnswer, AgentStatus, Source, SourceType
-from contracts.metrics import Component
-from contracts.sql import SqlResult
+from contracts.metrics import AgentMetrics, Component, Status, Versions
 from telemetry import span
 from text2sql import ComponentError
 
@@ -31,8 +31,42 @@ INSTRUCTIONS = (
 )
 
 
+PROMPT_VERSION = (
+    "agent_prompt_v1"  # va en las Versions de las métricas y en la respuesta: cámbiala si cambias el prompt
+)
+
 # El mensaje de `agente_minimo.py` de la sesión 1 al llegar al límite de pasos: al usuario no le habla de pasos.
 LIMIT_MESSAGE = "No he podido completar la consulta. Te paso con un compañero del equipo."
+
+
+def _sources(runs: list[QueryDbRun]) -> list[Source]:
+    """Una fuente por cada consulta que salió bien, en el orden en que se pidieron."""
+    return [
+        Source(type=SourceType.db, views=q.metrics.views_used if q.metrics else [], rows=len(q.rows))
+        for run in runs
+        for q in run.result.queries
+    ]
+
+
+def _metrics_fields(messages: list[BaseMessage], runs: list[QueryDbRun], sources: list[Source]) -> dict[str, Any]:
+    """Los totales de `AgentMetrics`, sacados de los mensajes que deja el grafo (sin contadores propios).
+
+    `iterations` = llamadas al modelo del agente, como el «paso» de `agente_minimo.py`. Los tokens y `llm_ms` salen de
+    la respuesta de Ollama de cada llamada (`response_metadata`); `tools_ms`, de lo que midió cada `query_db`.
+    """
+    answers = [m for m in messages if isinstance(m, AIMessage)]
+    tool_messages = [m for m in messages if isinstance(m, ToolMessage)]
+    return {
+        "iterations": len(answers),
+        "llm_call_count": len(answers),
+        "tool_call_count": len(tool_messages),
+        "tools_used": list(dict.fromkeys(m.name for m in tool_messages if m.name)),
+        "input_tokens": sum(m.response_metadata.get("prompt_eval_count") or 0 for m in answers),
+        "output_tokens": sum(m.response_metadata.get("eval_count") or 0 for m in answers),
+        "llm_ms": round(sum(m.response_metadata.get("total_duration") or 0 for m in answers) / 1_000_000, 3),
+        "tools_ms": round(sum(run.latency_ms for run in runs), 3),
+        "answered_without_data": not sources,
+    }
 
 
 def respond(question: str, *, con: duckdb.DuckDBPyConnection) -> AgentAnswer:
@@ -41,35 +75,52 @@ def respond(question: str, *, con: duckdb.DuckDBPyConnection) -> AgentAnswer:
     if not (question or "").strip():
         raise ComponentError("empty_question", "agent", "La pregunta está vacía.")
     question = question.strip()
-    # Telemetría: un span `agent.respond` por pregunta; los de text2sql cuelgan de él. input_text: solo se guardan su
-    # longitud y un hash, nunca el texto de la pregunta.
-    with span("agent.respond", component=Component.agent, input_text=question):
-        agent = build_agent(build_model(), [build_query_db_tool(con)], INSTRUCTIONS)
-        # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
-        config: RunnableConfig = {"recursion_limit": int(os.environ.get("AGENT_RECURSION_LIMIT", "20"))}
+    versions = Versions(prompt_version=PROMPT_VERSION)
+    # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
+    recursion_limit = int(os.environ.get("AGENT_RECURSION_LIMIT", "20"))
+    messages: list[BaseMessage] | None = None
+    # Telemetría: un span `agent.respond` por pregunta; los `llm.agent` y los de text2sql cuelgan de él. input_text:
+    # solo se guardan su longitud y un hash, nunca el texto de la pregunta.
+    with span(
+        "agent.respond", component=Component.agent, metrics_cls=AgentMetrics, input_text=question, versions=versions
+    ) as s:
+        agent = build_agent(build_model(), [build_query_db_tool(con)], INSTRUCTIONS, versions)
+        config: RunnableConfig = {"recursion_limit": recursion_limit}
         try:
             messages = agent.invoke({"messages": [("user", question)]}, config)["messages"]
         except GraphRecursionError:
-            # Desvío: en clase no se captura. Aquí se corta con el mensaje fijo de la sesión 1 y la API decide si escala
-            return AgentAnswer(
-                answer=LIMIT_MESSAGE, status=AgentStatus.recursion_limit_reached, answered_without_data=True
-            )
+            # Desvío: en clase no se captura. Aquí se corta con el mensaje fijo de la sesión 1 y la API decide si
+            # escala. `invoke` pierde los mensajes al cortar: el evento queda como error, con las métricas base.
+            s.status = Status.error
+            s.error_type = AgentStatus.recursion_limit_reached.value
+            s.error_message = f"Se alcanzó el límite de {recursion_limit} pasos del grafo sin respuesta final."
         except Exception as exc:
             if (error := as_component_error(exc)) is None:
                 raise
             raise error from exc
+        if messages is not None:
+            runs = [m.artifact for m in messages if isinstance(m, ToolMessage) and isinstance(m.artifact, QueryDbRun)]
+            sources = _sources(runs)
+            s.output_text = str(messages[-1].content)
+            s.fields.update(_metrics_fields(messages, runs, sources))
 
-    tool_messages = [m for m in messages if isinstance(m, ToolMessage)]
-    results = [m.artifact for m in tool_messages if isinstance(m.artifact, SqlResult)]
-    sources = [
-        Source(type=SourceType.db, views=q.metrics.views_used if q.metrics else [], rows=len(q.rows))
-        for result in results
-        for q in result.queries
-    ]
+    if messages is None:
+        return AgentAnswer(
+            answer=LIMIT_MESSAGE,
+            status=AgentStatus.recursion_limit_reached,
+            answered_without_data=True,
+            versions=versions,
+            trace_id=s.trace_id,
+        )
+    # Las métricas se validan al cerrar el span: por eso la respuesta se crea fuera del `with` (como en text2sql)
+    metrics = s.metrics if isinstance(s.metrics, AgentMetrics) else None
     return AgentAnswer(
         answer=str(messages[-1].content),
         status=AgentStatus.ok,
         answered_without_data=not sources,
         sources=sources,
-        tools_used=list(dict.fromkeys(m.name for m in tool_messages if m.name)),
+        tools_used=list(dict.fromkeys(m.name for m in messages if isinstance(m, ToolMessage) and m.name)),
+        versions=versions,
+        trace_id=s.trace_id,
+        metrics=metrics,
     )

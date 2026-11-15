@@ -4,6 +4,8 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from contracts.metrics import AgentMetrics, Versions
+
 
 class AgentStatus(StrEnum):
     """Cómo terminó el turno del agente."""
@@ -41,4 +43,9 @@ class AgentAnswer(BaseModel):
     sources: list[Source] = Field(default_factory=list, description="Una por cada consulta que salió bien.")
     tools_used: list[str] = Field(
         default_factory=list, description="Herramientas distintas que usó el agente, en orden de primer uso."
+    )
+    versions: Versions = Field(default_factory=Versions, description="Versiones de lo que influyó en la respuesta.")
+    trace_id: str = Field(min_length=1, description="Traza del turno: en los logs están el detalle de cada paso.")
+    metrics: AgentMetrics | None = Field(
+        default=None, description="Métricas del span `agent.respond`; null si la telemetría no pudo registrarlas."
     )
