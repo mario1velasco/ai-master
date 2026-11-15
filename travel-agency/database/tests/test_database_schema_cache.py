@@ -59,3 +59,17 @@ def test_other_code_or_duckdb_version_regenerates_schema(
     cached_schema(open_db(data_dir))
 
     assert len(list(schema_cache.iterdir())) == 2
+
+
+def test_two_data_dirs_do_not_overwrite(data_dir: Path, schema_cache: Path, tmp_path: Path) -> None:
+    other_dir = Path(shutil.copytree(FIXTURES_DIR, tmp_path / "other"))
+    with (other_dir / "clientes.csv").open("a", encoding="utf-8") as csv:
+        csv.write(NEW_CLIENT)
+    con, other_con = open_db(data_dir), open_db(other_dir)
+
+    cached_schema(con)
+    cached_schema(other_con)
+
+    assert len(list(schema_cache.iterdir())) == 2
+    assert "Tabla v_resumen_clientes (7 filas)" in cached_schema(con)  # los 7 clientes de fixtures/clientes.csv
+    assert "Tabla v_resumen_clientes (8 filas)" in cached_schema(other_con)
