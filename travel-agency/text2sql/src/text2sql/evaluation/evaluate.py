@@ -17,9 +17,13 @@ def evaluate_case(question: dict[str, Any], result: SqlResult) -> dict[str, Any]
     valor esperado entre los del intento, como el `any()` de `corregir()` en el tema 7.
     """
     rows = result.queries[-1].rows if result.queries else []
+    expected_rows = question["expected_rows"]
+    # Mismo número de filas: si no, las filas de más pasarían (p. ej. las tres «Ana López» cuando se pedía una)
+    if len(rows) != len(expected_rows):
+        return {"success": False, "reason": f"{len(rows)} filas en vez de {len(expected_rows)}"}
     values = [value for row in rows for value in row.values()]
     missing = [
-        expected for row in question["expected_rows"] for expected in row.values() if not any(v == expected for v in values)
+        expected for row in expected_rows for expected in row.values() if not any(v == expected for v in values)
     ]
     if missing:
         return {"success": False, "reason": f"faltan valores de la referencia: {missing}"}
