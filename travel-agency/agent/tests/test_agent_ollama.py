@@ -52,7 +52,9 @@ def test_ollama_down_raises_coded_error(con: duckdb.DuckDBPyConnection, monkeypa
 
     assert error.value.code == "ollama_unavailable"
     assert "No hay respuesta de Ollama en http://127.0.0.1:1" in error.value.message
-    assert [m.status for m in agent_events()] == [Status.error]
+    events = agent_events()
+    assert [m.status for m in events if m.name == "agent.respond"] == [Status.error]  # el turno
+    assert [m.status for m in events if m.name == "llm.agent"] == [Status.error]  # y la llamada que falló
 
 
 def test_missing_model_raises_coded_error(

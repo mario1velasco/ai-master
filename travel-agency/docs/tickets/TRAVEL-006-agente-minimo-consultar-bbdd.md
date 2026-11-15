@@ -230,6 +230,11 @@ durante el desarrollo, decidido con Mario)*
 - **Entonces** se lanza un error con código `ollama_unavailable` y un mensaje en castellano que dice la dirección
 - **Y** queda un evento del agente con `status = "error"`
 
+  *Nota (2026-11-15, decidido con Mario):* el test de este criterio comprobaba todos los eventos del componente
+  `agent` y daba por hecho que solo habría uno. Con el AC-15 aparece también el span `llm.agent` de la llamada que
+  falló, así que el test pasa a mirar el evento del turno por su nombre (`agent.respond`) y, además, que queda el
+  `llm.agent` con `status = "error"`. El criterio no cambia.
+
 **AC-13 — Un modelo del agente que no está instalado da un error con código**
 - **Dado** un Ollama que responde HTTP 404 al pedir el modelo de `AGENT_MODEL`
 - **Cuando** se le hace una pregunta al agente
