@@ -29,7 +29,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
-CACHE_DIR = Path(__file__).resolve().parents[2] / ".cache"  # esquemas guardados por huella (fuera de git)
+SCHEMA_CACHE_DIR = Path(__file__).resolve().parents[2] / ".cache"  # esquemas guardados por huella (fuera de git)
 
 console = Console()
 
@@ -319,7 +319,7 @@ def cached_schema(con: duckdb.DuckDBPyConnection) -> str:
     esquema se genera en cada pregunta, y aquí tarda ~5 s.
     """
     key = str(_scalar(con, "SELECT getvariable('data_fingerprint')"))
-    disk = CACHE_DIR / f"schema_{key[:16]}.json"
+    disk = SCHEMA_CACHE_DIR / f"schema_{key[:16]}.json"
     if key in _SCHEMA_MEMORY_CACHE:
         return _SCHEMA_MEMORY_CACHE[key]
     if disk.exists():  # mismos datos (huella sha256): el esquema ya está guardado

@@ -30,7 +30,7 @@ def data_dir(tmp_path: Path) -> Path:
 def cache_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """La caché del esquema vacía y solo para este test: su carpeta y su memoria (las dos capas)."""
     path = tmp_path / "cache"
-    monkeypatch.setattr("database.semantic_layer.CACHE_DIR", path)
+    monkeypatch.setattr("database.semantic_layer.SCHEMA_CACHE_DIR", path)
     monkeypatch.setattr("database.semantic_layer._SCHEMA_MEMORY_CACHE", {})
     return path
 

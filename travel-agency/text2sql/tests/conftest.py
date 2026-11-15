@@ -23,7 +23,7 @@ def session_schema_cache(tmp_path_factory: pytest.TempPathFactory) -> Iterator[P
     """Los esquemas guardados van a una carpeta temporal de la sesión: nunca al repo, y se generan una vez."""
     with pytest.MonkeyPatch.context() as mp:
         path = tmp_path_factory.mktemp("schema_cache")
-        mp.setattr("database.semantic_layer.CACHE_DIR", path)
+        mp.setattr("database.semantic_layer.SCHEMA_CACHE_DIR", path)
         yield path
 
 
