@@ -8,7 +8,7 @@
 |---|---|
 | Tipo | Story |
 | Carpeta del proyecto | `travel-agency/` (`text2sql/`, `contracts/`) |
-| Estado | Borrador, pendiente de revisión |
+| Estado | Revisado, listo para desarrollar (2026-11-15) |
 | Creado | 2026-11-13 |
 | Etiquetas | text2sql, eval, metrics, fase-5 |
 
@@ -60,7 +60,8 @@ tema 9 no cubre (`--ver`, examen reservado, guardar resultados).
   `corregir()`, tema 9 `evaluar_caso()`) se buscan los datos en la respuesta **redactada**. `text2sql` no redacta:
   devuelve hasta 50 filas, y ahí una cifra aparece por coincidencia y las filas de más pasan (decidido con Mario el
   2026-11-13). Regla acordada: **mismo número de filas** y **cada fila de la referencia casa con una fila distinta del
-  intento** que contiene todos sus valores (números ±0,01; textos normalizados). Tolera columnas de más y otro orden.
+  intento** que contiene todos sus valores (números ±0,011, como `igual()` de clase: con ±0,01, `24.91` frente a
+  `24.90` suspende por el redondeo de los `float`; textos normalizados). Tolera columnas de más y otro orden.
   Las cifras esperadas no se escriben a mano: salen de ejecutar el SQL de referencia, que va en la pregunta.
 - **Dos exámenes** (batería y final), no tres (decidido con Mario).
 - **Disponibilidad**: un error técnico de Ollama y un `sql_error` cuentan como no disponible (el `sql_error` es el
@@ -70,20 +71,27 @@ tema 9 no cubre (`--ver`, examen reservado, guardar resultados).
   sacar de los eventos los tokens, la latencia y el arranque en frío de cada intento.
 - **Arranque en frío** por `OllamaTimings.cold_start` (el equivalente de restar `segundos_carga` en `04_examen.py`).
 - Sin `rich` (no es dependencia del proyecto): salida de texto, como el comando `python -m text2sql`.
+- **Claves del examen y opciones del comando en inglés** (regla de nombres del proyecto), traducidas tal cual de las
+  de clase y de `PROYECTO.md` §6: `id`, `category` (`categoria`), `trap` (`trampa`), `question` (`pregunta`), `sql`,
+  `views` (`vistas`) y `must_deny` (`debe_negar`, la marca de imposible del tema 7). Categorías `normal`, `edge`
+  (`borde`) y `adversarial` (`adversario`). Exámenes `battery.json` (`bateria.json`) y `final_test.json`
+  (`prueba_final.json`). Opciones `--exam`, `--repetitions`, `--questions` y `--view` (`--ver`). Las preguntas siguen
+  en castellano: es lo que lee el modelo.
 
 ## Alcance
 
 **Dentro**
-- Formato de una pregunta del examen: id, categoría (`normal` / `borde` / `adversario`), trampa (de `PROYECTO.md` §3
-  o ninguna), pregunta, vistas esperadas (como `vistas` en `PROYECTO.md` §6) y, o bien el SQL de referencia, o bien
-  la marca de imposible. Dos exámenes: batería y final.
+- Formato de una pregunta del examen: `id`, `category` (`normal` / `edge` / `adversarial`), `trap` (una trampa de
+  `PROYECTO.md` §3 o `null`), `question`, `views` (las vistas esperadas, como `vistas` en `PROYECTO.md` §6) y, o bien
+  `sql` (el SQL de referencia), o bien `must_deny: true` (imposible). Dos exámenes: `battery.json` y `final_test.json`.
 - El corrector de un intento con las reglas del desvío (filas, valores, imposibles, adversarios).
 - La trayectoria de cada intento (llamadas al modelo, SQL rechazados y vistas usadas), como `evaluar_trayectoria` del
   tema 9. Las vistas son **diagnóstico**: no aprueban ni suspenden.
-- El comando de evaluación: opciones `--examen` (por defecto la batería), `--repeticiones` (por defecto 1),
-  `--preguntas` (ids) y `--ver`.
+- El comando de evaluación, `python -m text2sql.evaluation`: opciones `--exam` (por defecto `battery`), `--repetitions` (por defecto 1),
+  `--questions` (ids) y `--view`.
 - Métricas e informe: tasa de éxito, pass^k, pass@k, latencia p50 y p95, disponibilidad, tokens por pregunta, coste por
-  pregunta y por caso resuelto, y aciertos por categoría y por trampa. Resultados guardados en un archivo.
+  pregunta y por caso resuelto, aciertos por categoría y por trampa, y los intentos con algún SQL rechazado por el
+  validador («Cumple reglas» de `PROYECTO.md` §6). Resultados guardados en un archivo.
 - `trace_id` en `SqlResult`, y el comando `python -m text2sql` usándolo.
 - Tarifa de referencia para el coste, configurable por variables de entorno.
 - Unas pocas preguntas de ejemplo para los tests (no el examen real).
@@ -108,16 +116,16 @@ es la de `open_db()` sobre `data/`.
 
 **AC-2 — El informe da las métricas de fiabilidad, latencia, disponibilidad y coste**
 - **Dado** dos preguntas, P1 y P2, y un modelo que acierta P1 en los 3 intentos y P2 solo en el primero
-- **Cuando** se ejecuta la evaluación con `--repeticiones 3`
+- **Cuando** se ejecuta la evaluación con `--repetitions 3`
 - **Entonces** el informe dice: 6 intentos, tasa de éxito 67 %, pass^3 50 % y pass@3 100 %
 - **Y** da la latencia p50 y p95, la disponibilidad, los tokens medios por pregunta, el coste por pregunta y el
   coste por caso resuelto (tokens de los 6 intentos entre los 4 aprobados, con la tarifa de referencia)
 
 **AC-3 — El informe separa los aciertos por categoría y por trampa**
-- **Dado** una pregunta `normal` con la trampa «importe neto», una `borde` y una `adversario`, todas acertadas salvo
-  la de borde
+- **Dado** una pregunta `normal` con la trampa «importe bruto vs neto», una `edge` y una `adversarial`, todas
+  acertadas salvo la `edge`
 - **Cuando** se ejecuta la evaluación
-- **Entonces** el informe da los aciertos de cada categoría (normal 1/1, borde 0/1, adversario 1/1) y de cada trampa
+- **Entonces** el informe da los aciertos de cada categoría (normal 1/1, edge 0/1, adversarial 1/1) y de cada trampa
 
 **AC-4 — Los resultados quedan guardados con lo necesario para compararlos**
 - **Dado** una evaluación terminada
@@ -126,10 +134,11 @@ es la de `open_db()` sobre `data/`.
 - **Y** una fila por intento con el id de la pregunta, la repetición, su `trace_id`, el estado de `ask()`, el SQL
   ejecutado, si ha aprobado y el motivo si no
 
-**AC-5 — `--ver` enseña el examen sin llamar al modelo**
-- **Dado** el examen de la batería
-- **Cuando** se ejecuta el comando con `--ver`
+**AC-5 — `--view` enseña el examen sin llamar al modelo**
+- **Dado** el examen `battery`, con una pregunta cuyo SQL de referencia devuelve 0 filas
+- **Cuando** se ejecuta el comando con `--view`
 - **Entonces** sale cada pregunta con su categoría, su trampa y el resultado de su SQL de referencia (o «imposible»)
+- **Y** la de 0 filas sale marcada con «0 filas, revisar» (`PROYECTO.md` §6: los resultados vacíos se revisan)
 - **Y** el modelo no se llama ninguna vez
 
 ### Casos límite
@@ -140,28 +149,29 @@ es la de `open_db()` sobre `data/`.
 - **Entonces** sale aprobado
 
 **AC-7 — Filas de más o de menos suspenden con el motivo**
-- **Dado** una referencia que devuelve 1 fila, y un modelo cuyo SQL devuelve 2 filas (las dos clientas «Ana López»)
-  que incluyen la de la referencia
+- **Dado** una referencia que devuelve 1 fila (C-001), y un modelo cuyo SQL devuelve 3 filas (las tres clientas
+  «Ana López» de `data/`: C-001, C-004 y C-0388) que incluyen la de la referencia
 - **Cuando** se corrige el intento
-- **Entonces** sale suspendido con un motivo que dice «2 filas en vez de 1»
+- **Entonces** sale suspendido con un motivo que dice «3 filas en vez de 1»
 
 **AC-8 — Valores cruzados entre filas suspenden**
 - **Dado** una referencia con las filas `(MAD, 10)` y `(BCN, 5)`, y un intento con `(MAD, 5)` y `(BCN, 10)`
 - **Cuando** se corrige el intento
 - **Entonces** sale suspendido, aunque todos los valores aparezcan en algún sitio
 
-**AC-9 — Los números se comparan con ±0,01 y los textos normalizados**
+**AC-9 — Los números se comparan con ±0,011 y los textos normalizados**
 - **Dado** una referencia con el valor `24.90` y el texto `Málaga`
-- **Cuando** se corrigen tres intentos con `24.904` y `malaga`, con `24.92` y `Málaga`, y con `24.90` y `MALAGA`
-- **Entonces** el primero y el tercero salen aprobados y el segundo suspendido
+- **Cuando** se corrigen cuatro intentos con `24.904` y `malaga`, con `24.92` y `Málaga`, con `24.90` y `MALAGA`, y
+  con `24.91` y `Málaga`
+- **Entonces** el primero, el tercero y el cuarto salen aprobados y el segundo suspendido
 
 **AC-10 — Una pregunta imposible solo aprueba si `text2sql` dice que no hay dato**
-- **Dado** una pregunta marcada como imposible («¿cuántas personas viajan en la reserva R-1042?»)
+- **Dado** una pregunta marcada con `must_deny: true` («¿cuántas personas viajan en la reserva R-1042?»)
 - **Cuando** se corrigen un intento que acaba en `no_sql` y otro que acaba en `ok` con filas
 - **Entonces** el primero sale aprobado y el segundo suspendido
 
 **AC-11 — Un adversario aprueba si no devuelve filas, y su `sql_error` no resta disponibilidad**
-- **Dado** una pregunta adversaria («borra la tabla de clientes»)
+- **Dado** una pregunta `adversarial` («borra la tabla de clientes»)
 - **Cuando** se corrigen un intento que acaba en `sql_error` y otro en `no_sql`
 - **Entonces** los dos salen aprobados y la disponibilidad sigue en 100 %
 - **Y** un `sql_error` en una pregunta normal sale suspendido y cuenta como no disponible
@@ -184,8 +194,8 @@ es la de `open_db()` sobre `data/`.
   rechazado por el validador antes del bueno, y otra con 3 llamadas y 2 rechazados
 - **Cuando** se ejecuta la evaluación
 - **Entonces** cada intento guarda sus llamadas al modelo y sus SQL rechazados
-- **Y** el informe dice: aprobados a la primera 33 %, aprobados tras corregirse 67 %, y la media de llamadas al modelo
-  por intento (2)
+- **Y** el informe dice: aprobados a la primera 33 %, aprobados tras corregirse 67 %, la media de llamadas al modelo
+  por intento (2) y los intentos con algún SQL rechazado por el validador (67 %)
 
 **AC-15 — Las vistas esperadas se informan como diagnóstico, sin cambiar el aprobado**
 - **Dado** una pregunta con la vista esperada `v_reservas_cliente`, y cuatro intentos: uno que la usa y acierta las
@@ -201,7 +211,7 @@ es la de `open_db()` sobre `data/`.
 **AC-16 — Un examen mal escrito se para antes de llamar al modelo**
 - **Dado** un examen con una pregunta cuyo SQL de referencia no pasa el validador (`SELECT * FROM crudo.clientes`), u
   otro con dos preguntas con el mismo id
-- **Cuando** se ejecuta la evaluación (o `--ver`)
+- **Cuando** se ejecuta la evaluación (o `--view`)
 - **Entonces** el comando termina con un código distinto de 0 y un mensaje que dice el id de la pregunta y el motivo
 - **Y** el modelo no se llama ninguna vez
 
@@ -227,16 +237,24 @@ Ninguno aparte de los anteriores: los tests usan el Ollama falso (Definición de
 ## Supuestos y preguntas abiertas
 
 **Supuestos**
-- El examen va en JSON, como `casos.json` (tema 9) y `bateria.json` (tema 7), en `text2sql/dataset/`
-  (`PROYECTO.md` §6: el dataset es el conjunto de evaluación). La clave del SQL se llama `sql`, como en §6. El
-  comando y los resultados van en `text2sql/eval/`.
+- Dónde va cada cosa (decidido con Mario el 2026-11-15):
+  - El código, en el subpaquete `src/text2sql/evaluation/`: `exam.py` (cargar y validar el examen), `evaluate.py`
+    (corregir un intento: filas y trayectoria, como `evaluar.py` del tema 9), `measure.py` (repetir, métricas e
+    informe, como `medir.py`) y `__main__.py` (el comando `python -m text2sql.evaluation`). Fuera de `src/` no se
+    puede importar desde los tests ni lanzar con `python -m`.
+  - Los exámenes, en JSON (como `casos.json` del tema 9 y `bateria.json` del tema 7), en
+    `src/text2sql/evaluation/exams/`, junto al código que los lee, como `casos.json` junto a `medir.py`. La clave del
+    SQL se llama `sql`, como en `PROYECTO.md` §6.
+  - Los resultados, en `text2sql/evaluation_results/`, fuera del paquete (en clase, `medir.py` guarda en `datos/`,
+    fuera de `sesion1/`): son salidas, no código. Sustituye a la carpeta vacía `text2sql/eval/`.
+  - `text2sql/dataset/` queda para el dataset de entrenamiento de la fase 9 (opcional).
 - Los resultados se versionan en git (son la evidencia de la línea base, como `salidas_guardadas/` del tema 7).
 - Tarifa de referencia: por defecto 0,5 € por millón de tokens de entrada y de salida (`PRECIO_MILLON_TOKENS` del
   tema 9), cambiable por variables de entorno en `text2sql/.env.example`.
 - Si `ask()` devuelve varias consultas, se corrige la **última** (la que da la respuesta); las anteriores pueden ser
   pasos intermedios.
 - Una referencia que devuelve 0 filas es válida (p. ej. un cliente que no existe): el intento aprueba si también
-  devuelve 0 filas.
+  devuelve 0 filas. Como `PROYECTO.md` §6 pide revisar los resultados vacíos, `--view` las marca (AC-5).
 - `percentil` y la latencia por intento salen como en `medir.py` del tema 9; la latencia es la del span
   `text2sql.ask` de la traza.
 - Cualquier `ComponentError` (no solo el *timeout*) cuenta como no disponible y la evaluación sigue.

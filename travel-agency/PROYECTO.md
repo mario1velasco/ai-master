@@ -139,7 +139,7 @@ travel-agency/
 │   ├── conversion/         ← scripts PDF/imagen → Markdown con PaddleOCR (solo cuando haga falta)
 │   └── markdown/           ← salida de la conversión, misma estructura que corpus/
 ├── text2sql/
-│   ├── dataset/ · finetune/ · src/text2sql/ · eval/
+│   ├── dataset/ · finetune/ · src/text2sql/ (con evaluation/ y sus exams/) · evaluation_results/
 ├── agent/
 │   ├── src/agent/ · eval/
 ├── api/
@@ -567,7 +567,7 @@ adaptador LoRA ─► merge con el modelo base ─► GGUF cuantizado (llama.cpp
 El modelo resultante se usa con la misma API que el resto (`TEXT2SQL_MODEL=travel-sql` en el `.env`).
 Los pesos **no se suben a git** (son GB); se guarda el script para regenerarlos.
 
-### Evaluación (`text2sql/eval/`)
+### Evaluación (`src/text2sql/evaluation/`, resultados en `text2sql/evaluation_results/`)
 
 | Métrica | Qué mide |
 |---|---|
@@ -922,7 +922,7 @@ dice dónde. Todas las evaluaciones escriben un informe CSV/JSON y sus eventos (
 | Nivel | Dónde | Qué se mide |
 |---|---|---|
 | Conversión | `rag/conversion/` | Muestra revisada a mano: tablas y títulos bien convertidos, páginas vacías, texto perdido |
-| Text-to-SQL | `text2sql/eval/` | Execution accuracy, SQL válido, cumple reglas, por trampa (sección 6) |
+| Text-to-SQL | `text2sql/src/text2sql/evaluation/` | Execution accuracy, SQL válido, cumple reglas, por trampa (sección 6) |
 | RAG | `rag/eval/` (cuando exista) | Hit@k por documento y página, abstención cuando no hay respuesta (tema 5) |
 | Agente | `agent/eval/` | Herramienta elegida correcta, nº de pasos, respuesta correcta, citas válidas |
 | Extremo a extremo | `api/eval/` | Casos dorados multi-turno contra la API, en modo mock y en modo real |

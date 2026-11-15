@@ -24,7 +24,8 @@ Depende de: `contracts`, `telemetry`, `database`, `pandas`, `requests`. Detalle 
 - `tests/fake_ollama.py`: Ollama falso que responde como `/api/chat` y guarda cada petición.
 - `tests/test_text2sql_guard.py` (TRAVEL-002), `tests/test_text2sql_ask.py` y `tests/test_text2sql_cli.py`
   (TRAVEL-005), `tests/test_text2sql_schema_cache.py` (TRAVEL-009, por `ask()`): un test por criterio de cada ticket.
-- `dataset/`, `finetune/`, `eval/`: vacíos. `finetune/` es de la fase 9, opcional y aplazada (2026-11-08).
+- `dataset/`, `finetune/`: vacíos, de la fase 9, opcional y aplazada (2026-11-08). La evaluación (TRAVEL-007) irá en
+  `src/text2sql/evaluation/` (código y exámenes) y sus resultados en `evaluation_results/`.
 
 ## Función pública
 
