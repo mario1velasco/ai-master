@@ -92,3 +92,14 @@ def test_extra_or_missing_rows_fail_with_reason(
 
     assert verdict["success"] is False
     assert "3 filas en vez de 1" in verdict["reason"]
+
+
+def test_values_crossed_between_rows_fail(
+    tmp_path: Path, data_con: duckdb.DuckDBPyConnection, fake_ollama: FakeOllama
+) -> None:
+    reference = "SELECT * FROM (VALUES ('MAD', 10), ('BCN', 5)) AS t(origen, reservas)"
+    attempt = "SELECT * FROM (VALUES ('MAD', 5), ('BCN', 10)) AS t(origen, reservas)"  # Madrid con 5: falso
+
+    verdict = evaluate_attempt(tmp_path, data_con, fake_ollama, normal_question(reference), sql_answer(attempt))
+
+    assert verdict["success"] is False  # aunque MAD, BCN, 10 y 5 aparezcan todos en algún sitio
