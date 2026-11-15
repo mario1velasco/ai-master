@@ -46,6 +46,7 @@ que lo cambia (o una nota fechada al final del antiguo).
 | [TRAVEL-006](tickets/TRAVEL-006-agente-minimo-consultar-bbdd.md) | 6 | Código | Agente mínimo con LangGraph (`construir_agente` de clase) y la tool `query_db` → `text2sql.ask()`; contrato `AgentAnswer`. Al final, «Lo que queda de la fase 6» (citas y verificador, plan cerrado, casos dorados) | Hecho |
 | [TRAVEL-007](tickets/TRAVEL-007-evaluar-text2sql-corrector-metricas.md) | 5 | Código | Herramienta para evaluar `text2sql` (tema 9, sesión 1): corrige cada intento contra el resultado de un SQL de referencia (mismas filas, valores en su fila), métricas pass^k, latencia, disponibilidad y coste por acierto; `trace_id` en `SqlResult` | Borrador; después de 006 |
 | [TRAVEL-008](tickets/TRAVEL-008-examen-text2sql-primera-medida.md) | 5 | Datos | Examen de ~50 preguntas (batería ~35 + final reservado ~15) por trampa y categoría, y primera medida con el Qwen real (k = 3) como línea base. Cierra la fase 5 | Borrador; después de 007 |
+| [TRAVEL-009](tickets/TRAVEL-009-guardar-esquema-con-huella.md) | 5 | Código | El esquema de `schema()` (~5,7 s) se guarda en un archivo con la huella SHA-256 (CSV + `semantic_layer.py` + DuckDB) en el nombre y solo se regenera si cambia; fuera el `@cache` de `build_system_prompt`, que retenía las conexiones | Borrador; antes de 007 |
 
 **Evaluación (TRAVEL-007, TRAVEL-008 y las de fases 6 y 10):** la referencia principal es el **tema 9**
 (`../../09_evaluacion_fiabilidad_seguridad/`, sesión 1 en adelante); manda sobre el tema 7 y triage, que solo cubren
