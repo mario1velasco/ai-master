@@ -8,7 +8,7 @@
 |---|---|
 | Tipo | Task |
 | Carpeta del proyecto | `travel-agency/` (`database/`, `text2sql/`) |
-| Estado | Borrador, pendiente de revisión |
+| Estado | Hecho (2026-11-15) |
 | Creado | 2026-11-15 |
 | Etiquetas | database, text2sql, performance, cache, fase-5 |
 
@@ -158,14 +158,14 @@ caché va en otra carpeta temporal, y «el modelo» es el Ollama falso de los te
 
 ## Definición de hecho
 
-- [ ] Cada AC cubierto por un test automático que pasa, con el Ollama falso (sin red ni Ollama) y la caché en una
+- [x] Cada AC cubierto por un test automático que pasa, con el Ollama falso (sin red ni Ollama) y la caché en una
       carpeta temporal (los tests no escriben en el repo)
-- [ ] Toda la suite del proyecto en verde (`uv run pytest`), incluidos los tests de TRAVEL-002, TRAVEL-005 y TRAVEL-006
-- [ ] ruff y ty limpios
-- [ ] `database/AGENTS.md` (funciones públicas, «calcúlalo una vez al arrancar», tiempos) y `text2sql/AGENTS.md` (el
+- [x] Toda la suite del proyecto en verde (`uv run pytest`), incluidos los tests de TRAVEL-002, TRAVEL-005 y TRAVEL-006
+- [x] ruff y ty limpios
+- [x] `database/AGENTS.md` (funciones públicas, «calcúlalo una vez al arrancar», tiempos) y `text2sql/AGENTS.md` (el
       desvío del prompt «una vez por conexión») actualizados; filas 2 y 5 de `travel-agency/AGENTS.md`
-- [ ] La carpeta de la caché en `.gitignore`
-- [ ] Commits sin atribución a la IA
+- [x] La carpeta de la caché en `.gitignore`
+- [x] Commits sin atribución a la IA
 
 ## Supuestos y preguntas abiertas
 
@@ -184,3 +184,21 @@ caché va en otra carpeta temporal, y «el modelo» es el Ollama falso de los te
 
 **Preguntas abiertas**
 - Ninguna.
+
+## Notas del desarrollo (2026-11-15)
+
+- **AC → test** (`database/tests/test_database_schema_cache.py` salvo que se diga): AC-1
+  `text2sql/tests/test_text2sql_schema_cache.py::test_first_question_saves_schema_file`, AC-2
+  `…::test_next_connection_reads_saved_schema`, AC-3 `test_changed_csv_regenerates_schema` (guarda: la huella de los
+  CSV entró en el AC-1), AC-4 `test_other_code_or_duckdb_version_regenerates_schema` (3 casos), AC-5
+  `test_two_data_dirs_do_not_overwrite` (guarda), AC-6 `test_half_written_schema_is_never_used`, AC-7
+  `test_damaged_file_is_regenerated_with_warning` (4 casos), AC-8 `test_read_only_cache_dir_still_returns_schema`,
+  AC-9 `text2sql/tests/test_text2sql_schema_cache.py::test_connection_is_freed_after_question`, AC-10
+  `test_saved_schema_loads_under_half_second` (guarda).
+- **Medido**: generar el esquema ~4-4,5 s; con el esquema guardado, ~1 ms desde el archivo y <1 ms desde memoria.
+- **Decidido durante el desarrollo**: dos capas como `vision.py` (memoria por huella + disco), la huella en la
+  conexión con `SET VARIABLE`, `semantic_layer.py` separado en tres archivos (AC-4 ampliado a `schema.py`), nombres
+  `_SCHEMA_MEMORY_CACHE` y `SCHEMA_CACHE_DIR`.
+- **Fuera, apuntado para después**: un JSON con `{"schema": 5}` se daría por bueno (no cubierto: el archivo solo lo
+  escribe este código, de forma atómica); la suite tarda ~75-90 s porque los tests de la caché generan el esquema
+  ~12 veces.

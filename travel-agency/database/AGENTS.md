@@ -8,33 +8,52 @@
 Los datos de Viajes Nimbo: **`data/`, la fuente de verdad que abre la app** (8 CSV con miles de filas), las filas
 escritas a mano de las que sale (`fixtures/`, también los datos de los tests) y la **capa semántica** que el LLM text-to-SQL verá en lugar de las tablas (sección 3 de [`../PROYECTO.md`](../PROYECTO.md)). Son datos: no sabe nada de LLMs.
 
-**Se implementa igual que en clase**: `semantic_layer.py` ejecuta el mismo código que
+**Se implementa igual que en clase**: `semantic_layer.py`, `schema.py` y `checks.py` ejecutan el mismo código que
 `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py` (nombres y archivos pueden
-cambiar). Antes de cambiar algo, mira cómo está allí.
+cambiar; en clase es un solo archivo, separado en tres en TRAVEL-009). Antes de cambiar algo, mira cómo está allí.
 
 ## Archivos clave
 
 ```
 data/*.csv                       # la fuente de verdad: fixtures + ~15.000 filas generadas (semilla 42, subido a git)
 fixtures/*.csv                   # 8 tablas, ~80 filas a mano; cada fila rara está ahí por una trampa. Datos de los tests
-src/database/semantic_layer.py   # VIEWS, COMMENTS, GUIDE, open_db(), schema(), CHECKS, run_checks()
+src/database/semantic_layer.py   # el negocio y la base: VIEWS, COMMENTS, GUIDE, DATA_DIR, open_db() y el comando
+src/database/schema.py           # lo que ve el modelo: schema() y cached_schema() (guardado por huella, TRAVEL-009)
+src/database/checks.py           # CHECKS, Row, rounded_rows(), run_checks(): las cifras calculadas a mano
 src/database/seed.py             # generate(source_dir, out_dir, seed) y el comando: fixtures/ → data/
+.cache/schema_<huella>.json      # esquemas guardados (fuera de git; se puede borrar: se regenera)
 tests/test_database_audit.py     # auditoría de integridad (como 02_auditoria_integridad.py de la clase 1); AUDIT_QUERIES
 tests/test_database_semantic_layer.py
+tests/test_database_schema_cache.py  # un test por AC de TRAVEL-009 por `cached_schema()`
 tests/test_database_seed.py      # un test por AC de TRAVEL-001 sobre el conjunto generado
 ```
+
+Los imports van en un sentido: `semantic_layer → schema` y `semantic_layer → checks` (para `open_db()` y el comando).
+`schema.py` y `checks.py` no saben nada del negocio ni importan `semantic_layer`.
 
 ## Funciones públicas
 
 ```python
-from database.semantic_layer import open_db, schema, GUIDE
+from database.schema import cached_schema, schema
+from database.semantic_layer import GUIDE, open_db
 
-con = open_db()      # DuckDB EN MEMORIA: CSV → esquema crudo, vistas v_* en main, COMMENT ON, sin acceso a archivos
-text = schema(con)   # lo que verá el LLM: vistas, columnas, tipos, valores/ejemplo y comentarios (~4 s)
+con = open_db()             # DuckDB EN MEMORIA: CSV → esquema crudo, vistas v_* en main, COMMENT ON; guarda la huella
+text = cached_schema(con)   # lo que verá el LLM, guardado por huella: ~2 ms si ya está, ~4-6 s la primera vez
+text = schema(con)          # el mismo texto, generado siempre (~4-6 s): vistas, columnas, tipos, valores y comentarios
 ```
 
-Desvío de la regla "una función pública por paquete": aquí son tres (`open_db`, `schema`, `GUIDE`), como en clase, porque
-text2sql necesita la conexión y el texto por separado. No usan tipos de `contracts/` (son datos, no resultados).
+Desvío de la regla "una función pública por paquete": aquí son cuatro (`open_db`, `schema`, `cached_schema`,
+`GUIDE`), como en clase más la caché, porque text2sql necesita la conexión y el texto por separado. No usan tipos de
+`contracts/` (son datos, no resultados).
+
+**El esquema guardado** (TRAVEL-009): `open_db()` calcula una huella SHA-256 de los CSV, del código que decide el
+esquema (`SCHEMA_SOURCE_FILES`: `semantic_layer.py` y `schema.py`) y de la versión de DuckDB, y la deja en la
+conexión (`SET VARIABLE data_fingerprint`). `cached_schema(con)` busca primero en memoria, después en
+`.cache/schema_<huella>.json` y, si no está, lo genera y lo guarda de forma atómica (las dos capas de `extraer()` de
+`sesion_3/asistente/vision.py`, y `file_digest`/`fingerprint`/`write_json` de `05_rag_langchain/clases/07-RAG/.../artifacts.py`).
+Cambias un CSV o una vista y el esquema se regenera solo; no hay que borrar nada. Si el archivo está dañado o la
+carpeta no se puede escribir, avisa en el log (`logging`, como el tema 4) y sigue con el esquema recién generado.
+El comando `python -m database.semantic_layer` usa `schema()`: enseña siempre el esquema recién generado.
 
 ## Ejecutar y testear
 
@@ -73,8 +92,12 @@ Los tests abren las filas a mano: `open_db(FIXTURES_DIR)`, con `FIXTURES_DIR` de
 - `COMMENT ON` de una columna que no existe hace fallar `open_db()`: los comentarios no se pueden quedar huérfanos.
 - `crudo.*` sigue siendo consultable (igual que en clase): la lista blanca de vistas la pone el validador de
   text2sql (`text2sql/guard.py`).
-- `schema()` hace ~200 consultas sobre vistas anidadas (~4 s): calcúlalo una vez al arrancar, no en cada pregunta.
-  En los tests va en una fixture de sesión (`schema_text`).
+- `schema()` hace ~200 consultas sobre vistas anidadas (~4 s): para el modelo usa `cached_schema()`, nunca
+  `schema()` en cada pregunta. En los tests va en una fixture de sesión (`schema_text`), y los tests que usan
+  `cached_schema()` (también los de `text2sql` y `agent`) apuntan `SCHEMA_CACHE_DIR` a una carpeta temporal: nunca
+  escriben en el repo.
+- La caché en memoria (`_SCHEMA_MEMORY_CACHE`) va **por huella**, nunca por conexión: guardar la conexión la
+  retendría para siempre (~11 MB cada una; el `@cache` que había en text2sql hasta TRAVEL-009).
 - `email` existe en `crudo.clientes`, pero ninguna vista lo enseña (sin datos de contacto para el modelo).
 - Las horas van en ISO 8601 con desfase; DuckDB las lee como `TIMESTAMP WITH TIME ZONE`. Los minutos se calculan con
   `epoch()`, y la hora local con `timezone(zona_horaria, …)`.
@@ -97,7 +120,8 @@ Los tests abren las filas a mano: `open_db(FIXTURES_DIR)`, con `FIXTURES_DIR` de
 - **Si cambias el generador o `fixtures/`, regenera y sube `data/`**: `test_database_seed_same_seed_same_bytes` la
   compara byte a byte con lo que da el generador. Cualquier llamada nueva a `rng` (o en otro orden) cambia todos los
   datos que vienen después.
-- `schema()` tarda ~4,8 s sobre `data/` (~4,2 s sobre `fixtures/`); `open_db()`, ~0,5 s.
+- `schema()` tarda ~4,8 s sobre `data/` (~4,2 s sobre `fixtures/`); `open_db()`, ~0,5 s (la huella, ~0,015 s);
+  `cached_schema()` con el esquema guardado, ~1 ms desde el archivo y menos desde memoria (medido el 2026-11-15).
 - Fecha de corte `CUTOFF = 2026-11-01` («hoy»): lo que sale desde ese día está `programado`, y nada (reservas,
   pagos, incidencias) tiene fecha de ese día o posterior.
 - Horas: la salida es una hora local del origen (06:00-22:55, así no cae en la hora que no existe al cambiar la hora);

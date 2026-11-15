@@ -15,14 +15,15 @@ Depende de: `contracts`, `telemetry`, `database`, `pandas`, `requests`. Detalle 
 - `src/text2sql/loop.py`: `ask()`, el bucle (el modelo pide `run_sql`, el código lo valida y lo ejecuta) y la tool.
 - `src/text2sql/ollama.py`: `chat()` contra `/api/chat` con sus métricas y sus errores con código
   (`ComponentError`, que vive en `contracts.errors` desde TRAVEL-006).
-- `src/text2sql/prompt.py`: instrucciones + `schema()` + `GUIDE`, y `PROMPT_VERSION`.
+- `src/text2sql/prompt.py`: instrucciones + `cached_schema()` + `GUIDE`, y `PROMPT_VERSION`.
 - `src/text2sql/guard.py`: `run_safe_sql(con, query) -> (ok, texto)`, la barrera del SQL del modelo.
 - `src/text2sql/__main__.py`: el comando `python -m text2sql -q "…"`.
-- `tests/conftest.py`: fixture `con` de sesión con `open_db()` (la de `database/tests` no llega aquí), `log_dir`
-  (telemetría a una carpeta temporal, en modo estricto) y `fake_ollama`.
+- `tests/conftest.py`: fixture `con` de sesión con `open_db()` (la de `database/tests` no llega aquí),
+  `session_schema_cache` (los esquemas guardados, a una carpeta temporal de la sesión), `log_dir` (telemetría a una
+  carpeta temporal, en modo estricto) y `fake_ollama`.
 - `tests/fake_ollama.py`: Ollama falso que responde como `/api/chat` y guarda cada petición.
 - `tests/test_text2sql_guard.py` (TRAVEL-002), `tests/test_text2sql_ask.py` y `tests/test_text2sql_cli.py`
-  (TRAVEL-005): un test por criterio de cada ticket.
+  (TRAVEL-005), `tests/test_text2sql_schema_cache.py` (TRAVEL-009, por `ask()`): un test por criterio de cada ticket.
 - `dataset/`, `finetune/`, `eval/`: vacíos. `finetune/` es de la fase 9, opcional y aplazada (2026-11-08).
 
 ## Función pública
@@ -53,8 +54,10 @@ el cliente y los errores de `sesion_3/asistente/ollama.py` (`requests`, `think: 
 
 **Desvíos** (ticket TRAVEL-005): 3 llamadas como máximo (en clase, 4–6 rondas); se ejecutan todas las consultas de
 una respuesta; texto sin SQL → `no_sql` con el texto; códigos de error en inglés; `ComponentError` en vez de
-`ErrorComponente`; instrucciones sin la parte de redactar ni `PERIODOS`; el prompt se genera **una vez por
-conexión** (`schema()` tarda ~5 s); un evento `SqlMetrics` por SQL.
+`ErrorComponente`; instrucciones sin la parte de redactar ni `PERIODOS`; un evento `SqlMetrics` por SQL.
+El prompt se construye en cada pregunta, como en clase, pero el esquema sale de `cached_schema()` de `database`
+(guardado por huella en memoria y en disco, TRAVEL-009): ~1 ms en vez de ~5 s. Hasta TRAVEL-009 se generaba una vez
+por conexión con `@cache`, que retenía cada conexión para siempre.
 
 ## El validador (`guard.py`)
 
@@ -94,7 +97,7 @@ Variables de entorno (`.env.example`; todas tienen valor por defecto): `OLLAMA_B
 
 En la GTX 1650 (4 GB) el 4B va 72 % en CPU: la primera pregunta tarda ~150 s (cargar el modelo y leer el prompt
 de ~3 000 tokens) y las siguientes ~17 s (8 s generando a ~5 tokens/s y ~6 s de `schema()`, que el comando
-genera en cada ejecución).
+generaba en cada ejecución; medido antes de TRAVEL-009, que lo guarda en `database/.cache/` y lo deja en ~1 ms).
 
 ## Decisiones y trampas
 
