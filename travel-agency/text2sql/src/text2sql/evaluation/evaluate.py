@@ -8,7 +8,7 @@ código, baratas y repetibles, que devuelven si el intento aprueba y, si no, por
 import unicodedata
 from typing import Any
 
-from contracts.sql import SqlResult
+from contracts.sql import SqlResult, SqlStatus
 
 
 def normalize(text: str) -> str:
@@ -53,6 +53,11 @@ def evaluate_case(question: dict[str, Any], result: SqlResult) -> dict[str, Any]
     correcto suspende. Se ve en el informe con su motivo; se prefirió a probar todas las combinaciones, que en el caso
     contrario aprueba un intento malo sin que se note.
     """
+    # Imposible (`must_deny`, el `debe_negar` del tema 7): solo aprueba si text2sql dice que no hay dato. Como
+    # text2sql no redacta, «decirlo» es acabar en `no_sql` (el modelo respondió con texto, sin pedir SQL)
+    if question.get("must_deny"):
+        ok = result.status is SqlStatus.no_sql
+        return {"success": ok, "reason": None if ok else "no dice que el dato no existe"}
     rows = result.queries[-1].rows if result.queries else []
     expected_rows = question["expected_rows"]
     # Mismo número de filas: si no, las filas de más pasarían (p. ej. las tres «Ana López» cuando se pedía una)

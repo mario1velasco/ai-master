@@ -9,7 +9,7 @@ from typing import Any
 
 import duckdb
 import pytest
-from fake_ollama import FakeOllama, sql_answer
+from fake_ollama import FakeOllama, sql_answer, text_answer
 
 from text2sql import ask
 from text2sql.evaluation.evaluate import evaluate_case
@@ -127,5 +127,32 @@ def test_numbers_with_tolerance_and_normalized_text(
     attempt = f"SELECT {amount} AS importe, '{city}' AS ciudad"
 
     verdict = evaluate_attempt(tmp_path, data_con, fake_ollama, normal_question(reference), sql_answer(attempt))
+
+    assert verdict["success"] is passes
+
+
+@pytest.mark.parametrize(
+    ("answer", "passes"),
+    [
+        (text_answer("Ese dato no existe: una reserva no dice cuántas personas viajan."), True),  # acaba en no_sql
+        (sql_answer("SELECT tramos FROM v_reservas_cliente WHERE reserva_id = 'R-1042'"), False),  # ok, con filas
+    ],
+)
+def test_must_deny_passes_only_with_no_sql(
+    tmp_path: Path,
+    data_con: duckdb.DuckDBPyConnection,
+    fake_ollama: FakeOllama,
+    answer: dict[str, Any],
+    passes: bool,
+) -> None:
+    impossible = {
+        "id": "E1",
+        "category": "edge",
+        "trap": None,
+        "question": "¿Cuántas personas viajan en la reserva R-1042?",
+        "must_deny": True,
+    }
+
+    verdict = evaluate_attempt(tmp_path, data_con, fake_ollama, impossible, answer)
 
     assert verdict["success"] is passes
