@@ -166,7 +166,8 @@ es la de `open_db()` sobre `data/`.
 ### Casos límite
 
 **AC-6 — Columnas de más u otro orden no suspenden**
-- **Dado** una referencia que devuelve una fila `{total: 3}`, y un modelo cuyo SQL devuelve `{cliente_id: "C-001", total: 3}`
+- **Dado** una referencia que devuelve una fila `{total: 2}` (las reservas de C-001 en `data/`), y un modelo cuyo SQL
+  devuelve `{cliente_id: "C-001", total: 2}`
 - **Cuando** se corrige el intento
 - **Entonces** sale aprobado
 

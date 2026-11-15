@@ -11,7 +11,16 @@ from contracts.sql import SqlResult
 
 
 def evaluate_case(question: dict[str, Any], result: SqlResult) -> dict[str, Any]:
-    """Aprueba si la última consulta (la que da la respuesta) devuelve las filas de la referencia."""
+    """Aprueba si la última consulta (la que da la respuesta) contiene los valores de la referencia.
+
+    Los nombres de las columnas no cuentan (el modelo pone sus alias) y puede haber columnas de más: se busca cada
+    valor esperado entre los del intento, como el `any()` de `corregir()` en el tema 7.
+    """
     rows = result.queries[-1].rows if result.queries else []
-    success = rows == question["expected_rows"]
-    return {"success": success, "reason": None if success else "filas distintas de la referencia"}
+    values = [value for row in rows for value in row.values()]
+    missing = [
+        expected for row in question["expected_rows"] for expected in row.values() if not any(v == expected for v in values)
+    ]
+    if missing:
+        return {"success": False, "reason": f"faltan valores de la referencia: {missing}"}
+    return {"success": True, "reason": None}

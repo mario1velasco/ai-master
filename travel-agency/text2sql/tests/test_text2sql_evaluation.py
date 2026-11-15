@@ -46,3 +46,35 @@ def test_attempt_with_reference_rows_passes(
 
     assert verdict["success"] is True
     assert verdict["reason"] is None
+
+
+def normal_question(sql: str, question: str = "Pregunta de prueba") -> dict[str, Any]:
+    """Una pregunta normal, sin trampa, con su SQL de referencia."""
+    return {"id": "N1", "category": "normal", "trap": None, "question": question, "sql": sql}
+
+
+def evaluate_attempt(
+    tmp_path: Path,
+    con: duckdb.DuckDBPyConnection,
+    fake_ollama: FakeOllama,
+    question: dict[str, Any],
+    answer: dict[str, Any],
+) -> dict[str, Any]:
+    """Carga la pregunta como examen, deja que el modelo falso responda `answer` y corrige ese intento."""
+    [loaded] = load_exam(write_exam(tmp_path, [question]), con)
+    fake_ollama.answers = [answer]
+    return evaluate_case(loaded, ask(loaded["question"], con=con))
+
+
+def test_extra_columns_or_other_order_pass(
+    tmp_path: Path, data_con: duckdb.DuckDBPyConnection, fake_ollama: FakeOllama
+) -> None:
+    reference = "SELECT COUNT(*) AS total FROM v_reservas_cliente WHERE cliente_id = 'C-001'"  # {total: 2}
+    attempt = (
+        "SELECT cliente_id, COUNT(*) AS total FROM v_reservas_cliente WHERE cliente_id = 'C-001' GROUP BY cliente_id"
+    )  # {cliente_id: "C-001", total: 2}: una columna de más, y delante
+
+    verdict = evaluate_attempt(tmp_path, data_con, fake_ollama, normal_question(reference), sql_answer(attempt))
+
+    assert verdict["success"] is True
+    assert verdict["reason"] is None
