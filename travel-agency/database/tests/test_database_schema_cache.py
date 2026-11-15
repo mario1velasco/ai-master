@@ -118,3 +118,19 @@ def test_damaged_file_is_regenerated_with_warning(
     assert text == expected
     assert any(str(saved) in record.getMessage() for record in caplog.records)
     assert json.loads(saved.read_text(encoding="utf-8"))["schema"] == expected
+
+
+def test_read_only_cache_dir_still_returns_schema(
+    data_dir: Path, schema_cache: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    schema_cache.mkdir()
+    schema_cache.chmod(0o500)  # se puede leer y entrar, pero no escribir
+    try:
+        with caplog.at_level(logging.WARNING, logger="database.schema"):
+            text = cached_schema(open_db(data_dir))
+    finally:
+        schema_cache.chmod(0o700)
+
+    assert "Tabla v_resumen_clientes (7 filas)" in text  # el esquema de siempre: los 7 clientes de fixtures/
+    assert any(str(schema_cache) in record.getMessage() for record in caplog.records)
+    assert list(schema_cache.iterdir()) == []

@@ -132,5 +132,8 @@ def cached_schema(con: duckdb.DuckDBPyConnection) -> str:
             logger.warning("Esquema guardado dañado en %s: se genera de nuevo.", disk)
     text = schema(con)
     _SCHEMA_MEMORY_CACHE[key] = text
-    _write_json(disk, {"fingerprint": key, "schema": text})
+    try:
+        _write_json(disk, {"fingerprint": key, "schema": text})
+    except OSError as error:  # sin permiso o sin espacio: la pregunta sigue con el esquema recién generado
+        logger.warning("No se pudo guardar el esquema en %s: %s", SCHEMA_CACHE_DIR, error)
     return text
