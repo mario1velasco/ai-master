@@ -31,9 +31,8 @@ INSTRUCTIONS = (
 )
 
 
-PROMPT_VERSION = (
-    "agent_prompt_v1"  # va en las Versions de las métricas y en la respuesta: cámbiala si cambias el prompt
-)
+# Va en las Versions de las métricas y en la respuesta: cámbiala si cambias el prompt
+PROMPT_VERSION = "agent_prompt_v1"
 
 # El mensaje de `agente_minimo.py` de la sesión 1 al llegar al límite de pasos: al usuario no le habla de pasos.
 LIMIT_MESSAGE = "No he podido completar la consulta. Te paso con un compañero del equipo."
@@ -48,14 +47,15 @@ def _sources(runs: list[QueryDbRun]) -> list[Source]:
     ]
 
 
-def _metrics_fields(messages: list[BaseMessage], runs: list[QueryDbRun], sources: list[Source]) -> dict[str, Any]:
+def _metrics_fields(
+    messages: list[BaseMessage], tool_messages: list[ToolMessage], runs: list[QueryDbRun], sources: list[Source]
+) -> dict[str, Any]:
     """Los totales de `AgentMetrics`, sacados de los mensajes que deja el grafo (sin contadores propios).
 
     `iterations` = llamadas al modelo del agente, como el «paso» de `agente_minimo.py`. Los tokens y `llm_ms` salen de
     la respuesta de Ollama de cada llamada (`response_metadata`); `tools_ms`, de lo que midió cada `query_db`.
     """
     answers = [m for m in messages if isinstance(m, AIMessage)]
-    tool_messages = [m for m in messages if isinstance(m, ToolMessage)]
     return {
         "iterations": len(answers),
         "llm_call_count": len(answers),
@@ -78,7 +78,6 @@ def respond(question: str, *, con: duckdb.DuckDBPyConnection) -> AgentAnswer:
     versions = Versions(prompt_version=PROMPT_VERSION)
     # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
     recursion_limit = int(os.environ.get("AGENT_RECURSION_LIMIT", "20"))
-    messages: list[BaseMessage] | None = None
     # Telemetría: un span `agent.respond` por pregunta; los `llm.agent` y los de text2sql cuelgan de él. input_text:
     # solo se guardan su longitud y un hash, nunca el texto de la pregunta.
     with span(
@@ -90,36 +89,38 @@ def respond(question: str, *, con: duckdb.DuckDBPyConnection) -> AgentAnswer:
             messages = agent.invoke({"messages": [("user", question)]}, config)["messages"]
         except GraphRecursionError:
             # Desvío: en clase no se captura. Aquí se corta con el mensaje fijo de la sesión 1 y la API decide si
-            # escala. `invoke` pierde los mensajes al cortar: el evento queda como error, con las métricas base.
+            # escala. `invoke` pierde los mensajes al cortar: el evento queda como error, con las métricas base (el
+            # span se cierra y se escribe igual al salir del `with` con este return).
             s.status = Status.error
             s.error_type = AgentStatus.recursion_limit_reached.value
             s.error_message = f"Se alcanzó el límite de {recursion_limit} pasos del grafo sin respuesta final."
+            return AgentAnswer(
+                answer=LIMIT_MESSAGE,
+                status=AgentStatus.recursion_limit_reached,
+                answered_without_data=True,
+                versions=versions,
+                trace_id=s.trace_id,
+            )
         except Exception as exc:
             if (error := as_component_error(exc)) is None:
                 raise
             raise error from exc
-        if messages is not None:
-            runs = [m.artifact for m in messages if isinstance(m, ToolMessage) and isinstance(m.artifact, QueryDbRun)]
-            sources = _sources(runs)
-            s.output_text = str(messages[-1].content)
-            s.fields.update(_metrics_fields(messages, runs, sources))
+        tool_messages = [m for m in messages if isinstance(m, ToolMessage)]
+        runs = [m.artifact for m in tool_messages if isinstance(m.artifact, QueryDbRun)]
+        sources = _sources(runs)
+        answer_text = str(messages[-1].content)
+        fields = _metrics_fields(messages, tool_messages, runs, sources)
+        s.output_text = answer_text
+        s.fields.update(fields)
 
-    if messages is None:
-        return AgentAnswer(
-            answer=LIMIT_MESSAGE,
-            status=AgentStatus.recursion_limit_reached,
-            answered_without_data=True,
-            versions=versions,
-            trace_id=s.trace_id,
-        )
     # Las métricas se validan al cerrar el span: por eso la respuesta se crea fuera del `with` (como en text2sql)
     metrics = s.metrics if isinstance(s.metrics, AgentMetrics) else None
     return AgentAnswer(
-        answer=str(messages[-1].content),
+        answer=answer_text,
         status=AgentStatus.ok,
-        answered_without_data=not sources,
+        answered_without_data=fields["answered_without_data"],
         sources=sources,
-        tools_used=list(dict.fromkeys(m.name for m in messages if isinstance(m, ToolMessage) and m.name)),
+        tools_used=fields["tools_used"],
         versions=versions,
         trace_id=s.trace_id,
         metrics=metrics,

@@ -54,9 +54,10 @@ def _for_model(result: SqlResult) -> str:
     queries = json.dumps(
         [{"sql": q.sql, "rows": q.rows, "truncated": q.truncated} for q in result.queries], ensure_ascii=False
     )
-    if result.status is SqlStatus.sql_error:
-        return f"{queries}\n{result.error or ''}" if result.queries else result.error or ""
-    return queries
+    if result.status is not SqlStatus.sql_error:
+        return queries
+    error = result.error or ""
+    return f"{queries}\n{error}" if result.queries else error
 
 
 def build_query_db_tool(con: duckdb.DuckDBPyConnection) -> BaseTool:

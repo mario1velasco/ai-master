@@ -9,7 +9,7 @@ from collections.abc import Sequence
 from typing import Any
 
 import httpx
-from langchain_core.messages import AIMessage, BaseMessage, SystemMessage
+from langchain_core.messages import AIMessage, BaseMessage
 from langchain_ollama import ChatOllama
 from ollama import ResponseError
 
@@ -32,8 +32,8 @@ def as_component_error(exc: Exception) -> ComponentError | None:
     `ChatOllama` pide en streaming: si no hay nadie escuchando, el cliente `ollama` deja pasar el `httpx.ConnectError`
     (sin streaming lo cambia por `ConnectionError`).
     """
-    url = f"{base_url()}/api/chat"
     if isinstance(exc, httpx.ConnectError | ConnectionError):
+        url = f"{base_url()}/api/chat"
         return ComponentError(
             "ollama_unavailable",
             "ollama",
@@ -42,11 +42,11 @@ def as_component_error(exc: Exception) -> ComponentError | None:
     model = model_name()
     if isinstance(exc, httpx.TimeoutException):
         return ComponentError("ollama_timeout", "ollama", f"{model} no respondió en {TIMEOUT_S} s.")
-    if isinstance(exc, ResponseError) and exc.status_code == 404:
-        return ComponentError(
-            "model_not_installed", "ollama", f"Ollama no tiene el modelo {model}: ollama pull {model}"
-        )
     if isinstance(exc, ResponseError):
+        if exc.status_code == 404:
+            return ComponentError(
+                "model_not_installed", "ollama", f"Ollama no tiene el modelo {model}: ollama pull {model}"
+            )
         return ComponentError("ollama_error", "ollama", f"Ollama devolvió {exc.status_code}: {exc.error[:300]}")
     return None
 
@@ -82,7 +82,6 @@ def llm_call_fields(
     """
     metadata = response.response_metadata
     done_reason = metadata.get("done_reason")
-    system = messages[0]
     return {
         "provider": LlmProvider.ollama,
         "model": model.model,
@@ -92,7 +91,7 @@ def llm_call_fields(
         "max_tokens": model.num_predict,
         "num_ctx": model.num_ctx,
         "message_count": len(messages),
-        "system_prompt_chars": len(str(system.content)) if isinstance(system, SystemMessage) else None,
+        "system_prompt_chars": len(str(messages[0].content)),  # el nodo `agent` siempre empieza por el system
         "tools_offered": tools_offered,
         "tool_calls": [call["name"] for call in response.tool_calls],
         "input_tokens": metadata.get("prompt_eval_count") or 0,
