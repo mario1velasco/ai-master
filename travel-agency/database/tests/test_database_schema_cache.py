@@ -7,6 +7,7 @@ import json
 import logging
 import shutil
 from pathlib import Path
+from time import perf_counter
 
 import duckdb
 import pytest
@@ -134,3 +135,18 @@ def test_read_only_cache_dir_still_returns_schema(
     assert "Tabla v_resumen_clientes (7 filas)" in text  # el esquema de siempre: los 7 clientes de fixtures/
     assert any(str(schema_cache) in record.getMessage() for record in caplog.records)
     assert list(schema_cache.iterdir()) == []
+
+
+def test_saved_schema_loads_under_half_second(
+    data_dir: Path, schema_cache: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    cached_schema(open_db(data_dir))  # generarlo tarda ~4 s sobre fixtures/
+    monkeypatch.setattr("database.schema._SCHEMA_MEMORY_CACHE", {})  # otro proceso: solo queda el archivo
+    con = open_db(data_dir)
+
+    start = perf_counter()
+    text = cached_schema(con)
+    seconds = perf_counter() - start
+
+    assert "Tabla v_resumen_clientes (7 filas)" in text
+    assert seconds < 0.5
