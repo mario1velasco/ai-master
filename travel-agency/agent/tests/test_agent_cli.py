@@ -53,3 +53,18 @@ def test_cli_without_trace_keeps_turn_metrics(ollama: FakeOllamaServer, capsys: 
     answer = json.loads(block(out, ANSWER_HEADER))
     assert answer["metrics"]["name"] == "agent.respond"  # pero con los totales del turno
     assert [source["sql"] for source in answer["sources"]] == [sql]
+
+
+def test_cli_with_ollama_down_explains_without_traceback(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("OLLAMA_BASE_URL", "http://127.0.0.1:1")  # Ollama de verdad (httpx real), nadie escucha
+
+    with pytest.raises(SystemExit) as exit_info:
+        main(["-q", QUESTION, "--data", str(FIXTURES_DIR)])
+
+    assert exit_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "ollama_unavailable" in captured.err
+    assert "No hay respuesta de Ollama en http://127.0.0.1:1" in captured.err
+    assert "Traceback" not in captured.out + captured.err

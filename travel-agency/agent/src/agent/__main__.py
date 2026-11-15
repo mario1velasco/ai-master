@@ -10,6 +10,7 @@ configuración, por variables de entorno (`agent/.env.example`).
 """
 
 import argparse
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from agent.respond import respond
 from contracts.metrics import BaseMetrics, Component
 from database.semantic_layer import DATA_DIR, open_db
 from telemetry import events_path, read_events
+from text2sql import ComponentError
 
 QUESTION = "¿Cuántas reservas tiene C-001?"
 BAR = "=" * 72
@@ -45,7 +47,11 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
-    answer = respond(args.question, con=open_db(args.data))
+    try:
+        answer = respond(args.question, con=open_db(args.data))
+    except ComponentError as exc:  # Como el «[ERROR] …» del 04: el código y el mensaje, sin traza de Python
+        print(f"[ERROR] {exc.code}: {exc.message}", file=sys.stderr)
+        raise SystemExit(1) from None
 
     print(f"{BAR}\n[PREGUNTA]\n{BAR}")
     print(args.question)
