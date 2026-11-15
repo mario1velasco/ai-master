@@ -226,6 +226,9 @@ huelga…), datos de contacto de los clientes, puntos de fidelidad, tarifas y co
 # ---------------------------------------------------------------------------
 
 
+_FINGERPRINT_VARIABLE = "data_fingerprint"  # variable de DuckDB donde open_db() guarda la huella
+
+
 def _file_digest(path: Path) -> str:
     """SHA-256 de un archivo, por bloques (`file_digest` de `05_rag_langchain/.../infrastructure/artifacts.py`)."""
     digest = hashlib.sha256()
@@ -241,20 +244,29 @@ def _fingerprint(value: object) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
-def open_db(data_dir: Path = DATA_DIR) -> duckdb.DuckDBPyConnection:
-    """CSV en el esquema oculto «crudo», vistas en «main», sin acceso a archivos.
+def _data_fingerprint(data_dir: Path) -> str:
+    """Huella de lo que decide el esquema: los CSV, el código de las vistas y la versión de DuckDB.
 
-    Desvío (TRAVEL-009): guarda en la conexión la huella de lo que decide el esquema
-    (`getvariable('data_fingerprint')`): sus CSV, el código de las vistas y la versión de DuckDB. Así
-    `cached_schema()` sabe qué esquema guardado le toca.
+    Sirve para saber si el esquema guardado sigue valiendo sin generarlo otra vez: va en el nombre del archivo
+    (`schema_<huella>.json`). Si nada cambió, sale la misma huella y se lee el archivo; si cambia un solo byte de
+    cualquiera de las tres cosas, sale otra, no hay archivo y el esquema se genera y se guarda de nuevo.
     """
-    con = duckdb.connect()
     inputs = {
         "csv": {csv.name: _file_digest(csv) for csv in sorted(data_dir.glob("*.csv"))},
         "code": _file_digest(SEMANTIC_LAYER_FILE),
         "duckdb": duckdb.__version__,
     }
-    con.execute(f"SET VARIABLE data_fingerprint = '{_fingerprint(inputs)}'")
+    return _fingerprint(inputs)
+
+
+def open_db(data_dir: Path = DATA_DIR) -> duckdb.DuckDBPyConnection:
+    """CSV en el esquema oculto «crudo», vistas en «main», sin acceso a archivos.
+
+    Desvío (TRAVEL-009): guarda en la conexión la huella de sus datos, para que `cached_schema()` sepa qué esquema
+    guardado le toca.
+    """
+    con = duckdb.connect()
+    con.execute(f"SET VARIABLE {_FINGERPRINT_VARIABLE} = '{_data_fingerprint(data_dir)}'")
     con.execute("CREATE SCHEMA crudo")
     for csv in sorted(data_dir.glob("*.csv")):
         con.execute(f"CREATE TABLE crudo.{csv.stem} AS SELECT * FROM read_csv_auto('{csv.as_posix()}')")
@@ -324,7 +336,7 @@ def cached_schema(con: duckdb.DuckDBPyConnection) -> str:
     (mismo proceso), después el disco (otros procesos) y, si no está, se genera. Desvío (TRAVEL-009): en clase el
     esquema se genera en cada pregunta, y aquí tarda ~5 s.
     """
-    key = str(_scalar(con, "SELECT getvariable('data_fingerprint')"))
+    key = str(_scalar(con, f"SELECT getvariable('{_FINGERPRINT_VARIABLE}')"))
     disk = SCHEMA_CACHE_DIR / f"schema_{key[:16]}.json"
     if key in _SCHEMA_MEMORY_CACHE:
         return _SCHEMA_MEMORY_CACHE[key]
