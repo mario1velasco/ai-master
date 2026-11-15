@@ -15,10 +15,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from agent.respond import respond
+from contracts.errors import ComponentError
 from contracts.metrics import BaseMetrics, Component
 from database.semantic_layer import DATA_DIR, open_db
 from telemetry import events_path, read_events
-from text2sql import ComponentError
 
 QUESTION = "¿Cuántas reservas tiene C-001?"
 BAR = "=" * 72

@@ -11,9 +11,10 @@ Depende de: `contracts`, `telemetry`, `database`, `pandas`, `requests`. Detalle 
 
 ## Archivos clave
 
-- `src/text2sql/__init__.py`: exporta `ask` y `ComponentError`.
+- `src/text2sql/__init__.py`: exporta `ask`.
 - `src/text2sql/loop.py`: `ask()`, el bucle (el modelo pide `run_sql`, el código lo valida y lo ejecuta) y la tool.
-- `src/text2sql/ollama.py`: `chat()` contra `/api/chat` con sus métricas, y `ComponentError` (errores con código).
+- `src/text2sql/ollama.py`: `chat()` contra `/api/chat` con sus métricas y sus errores con código
+  (`ComponentError`, que vive en `contracts.errors` desde TRAVEL-006).
 - `src/text2sql/prompt.py`: instrucciones + `schema()` + `GUIDE`, y `PROMPT_VERSION`.
 - `src/text2sql/guard.py`: `run_safe_sql(con, query) -> (ok, texto)`, la barrera del SQL del modelo.
 - `src/text2sql/__main__.py`: el comando `python -m text2sql -q "…"`.
@@ -27,7 +28,8 @@ Depende de: `contracts`, `telemetry`, `database`, `pandas`, `requests`. Detalle 
 ## Función pública
 
 ```python
-from text2sql import ask, ComponentError
+from contracts.errors import ComponentError
+from text2sql import ask
 
 result = ask("¿Cuántas reservas tiene C-001?", con=open_db())   # -> contracts.sql.SqlResult
 ```

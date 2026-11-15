@@ -15,6 +15,7 @@ from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, te
 
 from agent import respond
 from contracts.agent import AgentStatus, SourceType
+from contracts.errors import ComponentError
 from contracts.metrics import (
     AgentMetrics,
     BaseMetrics,
@@ -25,7 +26,6 @@ from contracts.metrics import (
     Status,
 )
 from telemetry import events_path, read_events
-from text2sql import ComponentError
 
 QUESTION = "¿Cuántas reservas tiene C-001?"
 COUNT_C001 = "SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-001'"

@@ -13,8 +13,8 @@ from langchain_core.messages import AIMessage, BaseMessage, SystemMessage
 from langchain_ollama import ChatOllama
 from ollama import ResponseError
 
+from contracts.errors import ComponentError
 from contracts.metrics import FinishReason, LlmProvider, LlmPurpose, OllamaTimings
-from text2sql import ComponentError
 
 TIMEOUT_S = 600  # segundos, como `chat()` de text2sql (el timeout por defecto de chat() en S3)
 NUM_PREDICT = 1024  # máximo de tokens de salida, como text2sql (01_preguntar_datos.py)

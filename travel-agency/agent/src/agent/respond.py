@@ -17,9 +17,9 @@ from agent.graph import build_agent
 from agent.model import as_component_error, build_model
 from agent.tools import QueryDbRun, build_query_db_tool
 from contracts.agent import AgentAnswer, AgentStatus, Source, SourceType
+from contracts.errors import ComponentError
 from contracts.metrics import AgentMetrics, Component, Status, Versions
 from telemetry import span
-from text2sql import ComponentError
 
 # Las de `sesion3/agente_langgraph.py` adaptadas a Viajes Nimbo, más la regla de `construir_system_prompt()` de
 # `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py`. Sin el esquema: lo ve text2sql.

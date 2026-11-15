@@ -11,21 +11,11 @@ from typing import Any
 
 import requests
 
+from contracts.errors import ComponentError
 from contracts.metrics import Component, LlmCallMetrics, Versions
 from contracts.metrics.llm import FinishReason, LlmProvider, LlmPurpose, OllamaTimings
 from telemetry import span
 from text2sql.prompt import PROMPT_VERSION
-
-
-class ComponentError(Exception):
-    """Un error que dice qué pieza ha fallado. Como `ErrorComponente` de S3, con el código en inglés."""
-
-    def __init__(self, code: str, component: str, message: str) -> None:
-        super().__init__(message)
-        self.code, self.component, self.message = code, component, message
-
-    def as_dict(self) -> dict[str, str]:
-        return {"code": self.code, "component": self.component, "message": self.message}
 
 
 def _post(url: str, payload: dict[str, Any], model: str, timeout: int) -> requests.Response:

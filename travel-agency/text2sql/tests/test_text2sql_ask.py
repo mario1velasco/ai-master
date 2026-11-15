@@ -10,11 +10,12 @@ import pytest
 import requests
 from fake_ollama import FakeOllama, FakeResponse, sql_answer, text_answer
 
+from contracts.errors import ComponentError
 from contracts.metrics import BaseMetrics, Component, LlmCallMetrics, SqlMetrics, Status
 from contracts.sql import SqlStatus
 from database.semantic_layer import GUIDE, schema
 from telemetry import events_path, read_events
-from text2sql import ComponentError, ask
+from text2sql import ask
 
 
 def text2sql_events() -> list[BaseMetrics]:

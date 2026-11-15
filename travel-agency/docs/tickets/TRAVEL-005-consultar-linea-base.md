@@ -250,3 +250,7 @@ En todos, «el modelo» es un modelo falso que responde lo que dice el *Dado*, y
 
 **Nota (2026-11-14):** la tool del agente que llama a `ask()` se llama `query_db(question)`, no
 `consultar_bbdd(pregunta)` como dice este ticket: se cambió al inglés en TRAVEL-006.
+
+**Nota (2026-11-15):** `ComponentError` ya no está en `text2sql/ollama.py` ni lo exporta `text2sql`: pasó a
+`contracts/errors.py` en TRAVEL-006, porque también lo lanza el agente (y lo hará `rag`). Se importa con
+`from contracts.errors import ComponentError`.

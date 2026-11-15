@@ -12,9 +12,9 @@ import pytest
 from fake_ollama_server import FakeOllamaServer, text_answer
 
 from agent import respond
+from contracts.errors import ComponentError
 from contracts.metrics import BaseMetrics, Component, Status
 from telemetry import events_path, read_events
-from text2sql import ComponentError
 
 QUESTION = "¿Cuántas reservas tiene C-001?"
 

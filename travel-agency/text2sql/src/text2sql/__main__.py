@@ -11,11 +11,11 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+from contracts.errors import ComponentError
 from contracts.metrics import BaseMetrics, Component
 from database.semantic_layer import DATA_DIR, open_db
 from telemetry import events_path, read_events
 from text2sql.loop import ask
-from text2sql.ollama import ComponentError
 
 QUESTION = "¿Cuántas reservas canceladas tiene C-001?"
 BAR = "=" * 72
