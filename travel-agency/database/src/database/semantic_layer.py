@@ -231,6 +231,9 @@ Métricas:
 - Facturación neta = SUM(importe_neto) en v_reservas_cliente · SUM(gasto_neto) en v_resumen_clientes.
   SUM(importe_cobrado) NO descuenta reembolsos.
 - Reservas = COUNT(*) en v_reservas_cliente. Vuelos de las reservas = SUM(tramos). Una reserva NO es un vuelo.
+- Reservas que cumplen algo en sus vuelos (maleta, clase, aerolínea) = COUNT(DISTINCT reserva_id) en v_tramos.
+  COUNT(*) en v_tramos cuenta vuelos, no reservas.
+- Lo que pagó el cliente por una reserva = importe_neto (lo cobrado menos lo devuelto), NO importe_cobrado.
 - Retraso del Reglamento 261/2004 = retraso_llegada_destino_min (al llegar al destino final), NO retraso_salida_min.
 - Distancia del Reglamento 261/2004 = distancia_km de v_itinerarios (origen inicial → destino final),
   NO la suma de los vuelos.
@@ -240,6 +243,11 @@ Cálculos:
 - Duraciones y retrasos: usa las columnas *_min, ya calculadas. Las columnas *_local están en la hora local de
   su aeropuerto: no las restes entre sí.
 - Retraso NULL = el vuelo no ha volado (programado) o se canceló; NO es 0 minutos.
+- «Sin retraso» o «a su hora» = retraso_llegada_min <= 0. «Con retraso» = retraso_llegada_min > 0.
+- Vuelo que aún no ha volado: sus horas son las previstas (*_prevista_local); las reales son NULL.
+- Los aeropuertos van por su código IATA de 3 letras (origen, destino, destino_final), no por el nombre de la ciudad.
+- Al unir vistas: la fecha y el estado de la reserva están en v_reservas_cliente; el nivel y el país del cliente, en
+  v_resumen_clientes.
 - Clientes con el mismo nombre: distingue siempre por cliente_id.
 
 Datos que NO existen (si los piden, dilo y explica qué dato sí hay):

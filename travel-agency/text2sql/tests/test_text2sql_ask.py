@@ -215,7 +215,7 @@ def test_each_step_leaves_its_event_in_the_same_trace(con: duckdb.DuckDBPyConnec
     sql_runs = [m for m in events if isinstance(m, SqlMetrics)]
     assert len(events) == 5
     assert root.parent_span_id is None
-    assert root.versions.prompt_version == "text2sql_prompt_v1"
+    assert root.versions.prompt_version == "text2sql_prompt_v4"
     assert all(m.trace_id == root.trace_id for m in events)
     assert all(m.parent_span_id == root.span_id for m in llm_calls + sql_runs)
 
