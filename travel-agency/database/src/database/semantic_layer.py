@@ -161,6 +161,21 @@ COMMENTS: dict[str, tuple[str, dict[str, str]]] = {
             "estado": "'en_hora', 'retrasado', 'cancelado' o 'programado' (aún no ha volado)",
         },
     ),
+    "v_tramos": (
+        "Una fila por vuelo de cada reserva: clase, asiento, maleta facturada, aerolínea y retraso de ese vuelo. "
+        "Un mismo vuelo sale una vez por cada reserva que lo incluye.",
+        {
+            "trayecto": "'ida' o 'vuelta'",
+            "orden": "posición del vuelo dentro de la reserva (1, 2…)",
+            "clase": "'turista' o 'business'",
+            "asiento": "asiento del pasajero, p. ej. '23A'; NULL = aún sin asignar",
+            "equipaje_facturado": "true si este vuelo lleva maleta facturada",
+            "retraso_salida_min": "minutos de retraso al despegar; NO es el retraso que cuenta para compensar",
+            "retraso_llegada_min": "minutos de retraso al llegar a ESTE destino; negativo = llegó antes; "
+            "NULL si no ha volado o se canceló (NO es 0)",
+            "estado_vuelo": "'en_hora', 'retrasado', 'cancelado' o 'programado' (aún no ha volado)",
+        },
+    ),
     "v_itinerarios": (
         "Una fila por reserva y trayecto (ida o vuelta): el viaje del origen inicial al destino final, con "
         "escalas. Para compensaciones del Reglamento 261/2004, usa esta vista y no la del vuelo suelto.",
@@ -204,6 +219,7 @@ COMMENTS: dict[str, tuple[str, dict[str, str]]] = {
 GUIDE = """Qué vista usar:
 - Una reserva concreta, sus importes (cobrado, reembolsado, neto) o las reservas de un cliente: v_reservas_cliente.
 - Un vuelo concreto (horas, retraso al salir y al llegar, distancia, estado): v_vuelos_detalle.
+- Cada vuelo de una reserva (clase, asiento, maleta facturada, aerolínea, retraso y estado): v_tramos.
 - El viaje completo de una reserva (origen inicial → destino final, escalas, retraso en destino final,
   distancia del viaje): v_itinerarios.
 - Incidencias y reclamaciones (retraso, cancelación, equipaje) y su compensación: v_incidencias.

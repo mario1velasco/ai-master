@@ -2,7 +2,7 @@
 
 import duckdb
 
-from database.semantic_layer import open_db
+from database.semantic_layer import COMMENTS, GUIDE, open_db
 
 
 def test_one_row_per_flight_of_each_booking(con: duckdb.DuckDBPyConnection) -> None:
@@ -80,3 +80,15 @@ def test_same_flight_in_two_bookings_keeps_each_booking_data(con: duckdb.DuckDBP
     ).fetchall()
 
     assert legs == [("R-1045", "business", True), ("R-1048", "turista", False)]
+
+
+def test_model_sees_the_view_with_its_comments_and_when_to_use_it(schema_text: str) -> None:
+    description, columns = COMMENTS["v_tramos"]
+
+    assert "Tabla v_tramos (" in schema_text
+    assert description in schema_text
+    for column in ("clase", "asiento", "equipaje_facturado", "retraso_salida_min", "retraso_llegada_min"):
+        assert columns[column] in schema_text
+    guide_line = next(line for line in GUIDE.splitlines() if "v_tramos" in line)
+    for word in ("clase", "asiento", "maleta", "aerolínea"):
+        assert word in guide_line
