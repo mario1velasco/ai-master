@@ -151,3 +151,20 @@ def test_rejects_reading_from_anything_but_views(con: duckdb.DuckDBPyConnection)
     assert ok is False
     assert text.startswith("ERROR")
     assert "crudo" not in text
+
+
+def test_legs_view_is_allowed_and_listed(data_con: duckdb.DuckDBPyConnection) -> None:
+    ok, text = run_safe_sql(data_con, "SELECT clase, asiento FROM v_tramos WHERE reserva_id = 'R-1042'")
+    _, rejected = run_safe_sql(data_con, "SELECT * FROM crudo.reservas_tramos")
+
+    assert ok is True
+    assert len(json.loads(text)) == 2  # TRAVEL-010: ida y vuelta de R-1042
+    allowed = rejected.split("Vistas permitidas:")[1]
+    assert [view.strip(" .") for view in allowed.split(",")] == [
+        "v_incidencias",
+        "v_itinerarios",
+        "v_reservas_cliente",
+        "v_resumen_clientes",
+        "v_tramos",
+        "v_vuelos_detalle",
+    ]
