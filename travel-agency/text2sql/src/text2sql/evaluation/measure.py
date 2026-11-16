@@ -61,6 +61,7 @@ def run_cases(
                 "repetition": repetition,
                 "trace_id": result.trace_id,
                 "status": result.status.value,
+                "sql": result.queries[-1].sql if result.queries else None,  # la que se corrige
                 "success": verdict["success"],
                 "reason": verdict["reason"],
                 "seconds": asked.latency_ms / 1000,  # el span `text2sql.ask`: la pregunta entera

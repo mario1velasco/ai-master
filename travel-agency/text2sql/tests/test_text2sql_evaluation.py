@@ -16,6 +16,7 @@ from text2sql.evaluation.__main__ import main
 from text2sql.evaluation.evaluate import evaluate_case
 from text2sql.evaluation.exam import load_exam
 from text2sql.evaluation.measure import compute_metrics, run_cases
+from text2sql.prompt import PROMPT_VERSION
 
 RESERVATIONS_C001 = "SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-001'"
 
@@ -191,8 +192,10 @@ def test_sql_error_in_a_normal_question_fails_and_is_unavailable(
 
 @pytest.fixture
 def exams_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, data_con: duckdb.DuckDBPyConnection) -> Path:
-    """El comando lee los exámenes de `tmp_path` y abre la base de `data/` de la sesión (no otra copia)."""
+    """El comando lee los exámenes de `tmp_path`, guarda allí sus resultados (nunca en el repo) y abre la base de
+    `data/` de la sesión (no otra copia)."""
     monkeypatch.setattr("text2sql.evaluation.__main__.EXAMS_DIR", tmp_path)
+    monkeypatch.setattr("text2sql.evaluation.__main__.RESULTS_DIR", tmp_path / "results")
     monkeypatch.setattr("text2sql.evaluation.__main__.open_db", lambda _data_dir: data_con)
     return tmp_path
 
@@ -352,3 +355,23 @@ def test_report_splits_successes_by_category_and_trap(
     out = capsys.readouterr().out
     assert breakdown(out, "Por categoría:") == {"normal": "1/1", "edge": "0/1", "adversarial": "1/1"}
     assert breakdown(out, "Por trampa:") == {"gross_vs_net_amount": "1/1"}
+
+
+def test_results_file_keeps_what_is_needed_to_compare(exams_dir: Path, fake_ollama: FakeOllama) -> None:
+    write_exam(exams_dir, [normal_question(RESERVATIONS_C001)], name="battery")
+    wrong = "SELECT COUNT(*) AS n FROM v_reservas_cliente"
+    fake_ollama.answers = [sql_answer(RESERVATIONS_C001), sql_answer(wrong)]
+
+    main(["--repetitions", "2"])
+
+    [path] = (exams_dir / "results").glob("battery_*.json")
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    assert saved["date"] and saved["model"] == "qwen3:4b-instruct"
+    assert saved["prompt_version"] == PROMPT_VERSION
+    assert (saved["exam"], saved["k"]) == ("battery", 2)
+    assert saved["metrics"]["success_rate"] == 0.5
+    first, second = saved["rows"]
+    assert (first["id"], first["repetition"], first["status"], first["sql"]) == ("N1", 0, "ok", RESERVATIONS_C001)
+    assert first["trace_id"] and first["success"] is True and first["reason"] is None
+    assert (second["repetition"], second["sql"], second["success"]) == (1, wrong, False)
+    assert second["reason"] == "ninguna fila del intento tiene {'n': 2}"
