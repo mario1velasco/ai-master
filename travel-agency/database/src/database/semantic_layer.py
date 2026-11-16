@@ -79,7 +79,8 @@ JOIN crudo.aeropuertos d ON d.aeropuerto_id = v.destino;
 
 -- Una fila por vuelo de cada reserva (como ventas_lineas en clase: la línea con lo de su vuelo pegado).
 CREATE VIEW v_tramos AS
-SELECT rt.reserva_id, r.cliente_id, rt.trayecto, rt.orden, rt.vuelo_id
+SELECT rt.reserva_id, r.cliente_id, rt.trayecto, rt.orden, rt.vuelo_id, v.codigo_vuelo, v.aerolinea,
+       v.origen, v.ciudad_origen, v.destino, v.ciudad_destino, rt.clase, rt.asiento, rt.equipaje_facturado
 FROM crudo.reservas_tramos rt JOIN crudo.reservas r USING (reserva_id)
 JOIN v_vuelos_detalle v USING (vuelo_id);
 
