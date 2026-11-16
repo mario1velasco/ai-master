@@ -57,6 +57,23 @@ CHECKS: list[tuple[str, str, list[Row]]] = [
         [("AF1001", None, "cancelado"), ("IB0731", None, "programado")],
     ),
     (
+        "v_tramos: una fila por vuelo de cada reserva (las 12 de R-1042 a R-1048 en reservas_tramos)",
+        "SELECT COUNT(*) FROM v_tramos WHERE reserva_id BETWEEN 'R-1042' AND 'R-1048'",
+        [(12,)],
+    ),
+    (
+        "v_tramos: R-1042 ida con su vuelo, clase, asiento y maleta",
+        "SELECT codigo_vuelo, clase, asiento, equipaje_facturado FROM v_tramos "
+        "WHERE reserva_id = 'R-1042' AND trayecto = 'ida'",
+        [("IB3166", "turista", "23A", True)],
+    ),
+    (
+        "v_tramos: R-1044 con escala, cada vuelo con su aerolínea, y R-1047 aún sin asiento",
+        "SELECT reserva_id, orden, aerolinea, asiento FROM v_tramos WHERE reserva_id IN ('R-1044', 'R-1047') "
+        "ORDER BY reserva_id, orden",
+        [("R-1044", 1, "KLM", "8C"), ("R-1044", 2, "Vueling", "17D"), ("R-1047", 1, "Iberia", None)],
+    ),
+    (
         "R-1044 con escala: distancia del viaje (no la suma) y retraso en destino final",
         "SELECT origen, destino_final, escalas, distancia_km, retraso_llegada_destino_min FROM v_itinerarios "
         "WHERE reserva_id = 'R-1044'",

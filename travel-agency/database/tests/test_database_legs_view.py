@@ -2,6 +2,7 @@
 
 import duckdb
 
+from database.checks import CHECKS, run_checks
 from database.semantic_layer import COMMENTS, GUIDE, open_db
 
 
@@ -92,3 +93,10 @@ def test_model_sees_the_view_with_its_comments_and_when_to_use_it(schema_text: s
     guide_line = next(line for line in GUIDE.splitlines() if "v_tramos" in line)
     for word in ("clase", "asiento", "maleta", "aerolínea"):
         assert word in guide_line
+
+
+def test_check_command_includes_the_view_and_keeps_old_figures(con: duckdb.DuckDBPyConnection) -> None:
+    legs_checks = [name for name, sql, _ in CHECKS if "v_tramos" in sql]
+
+    assert len(legs_checks) >= 3
+    assert run_checks(con) is True  # lo que enseña `--check --data database/fixtures`: todas en ✓
