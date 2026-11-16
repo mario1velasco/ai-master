@@ -8,7 +8,7 @@
 |---|---|
 | Tipo | Task |
 | Carpeta del proyecto | `travel-agency/` (`text2sql/`) |
-| Estado | Revisado, listo para hacer (2026-11-15) |
+| Estado | En curso: exámenes hechos (batería 37, final 18; 2026-11-16), falta la medida con el Qwen real |
 | Creado | 2026-11-13 |
 | Etiquetas | text2sql, eval, dataset, fase-5 |
 
@@ -153,8 +153,14 @@ pregunta).
 - Las preguntas las redacta Claude y Mario las aprueba por bloques (como los repartos de TRAVEL-001), con el SQL de
   referencia y el resultado a la vista (`--view`).
 - Los tamaños (30–40 y 12–18) traducen las «~35 y ~15» acordadas; se pueden mover si al escribirlas sale otro reparto.
-- Las preguntas son de empleado (modo empleado, acceso a todas las vistas): el modo cliente es la decisión pendiente 3
-  de `PROYECTO.md` §10.
+- Las preguntas son **de cliente con su identificador** (su reserva, su vuelo, su maleta, su reclamación), como el
+  agente se las pasaría a `query_db`, y unas pocas de gestión (decidido con Mario el 2026-11-16, tras investigar qué
+  pregunta un cliente por chat: estado del vuelo y de la reserva, equipaje, compañía, reembolsos). Se responden en
+  modo empleado (acceso a todas las vistas); el modo cliente es la decisión pendiente 3 de `PROYECTO.md` §10, y por eso
+  no hay adversarias del tipo «dame las reservas de otro cliente».
+- Las preguntas de clase, asiento, maleta y aerolínea necesitan `v_tramos` (TRAVEL-010, hecho antes de medir).
+- Hay preguntas de **dos vistas** en los dos exámenes (6 en la batería y 4 en el final): datos que solo están en otra
+  vista (nivel o país del cliente, tipo de reserva, horas del vuelo) obligan a un JOIN, que es donde más falla un 4B.
 - La medida la lanza Mario a mano (~45 min con el Qwen real) y Claude escribe la tabla de línea base a partir de los
   archivos de resultados. Pasos, desde `travel-agency/`:
   1. Ollama arrancado y el modelo instalado: `ollama list` muestra `qwen3:4b-instruct` (si no,
