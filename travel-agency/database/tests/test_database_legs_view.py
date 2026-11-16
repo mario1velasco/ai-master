@@ -38,3 +38,12 @@ def test_leg_has_delay_and_status_of_its_flight(con: duckdb.DuckDBPyConnection) 
 
     assert leg == [(297, 312, "retrasado")]
     assert leg == flight
+
+
+def test_leg_without_checked_bag_is_boolean_false(con: duckdb.DuckDBPyConnection) -> None:
+    row = con.execute(
+        "SELECT equipaje_facturado FROM v_tramos WHERE reserva_id = 'R-1043' AND trayecto = 'ida'"
+    ).fetchone()
+
+    assert row is not None
+    assert row[0] is False  # booleano, no el 0 del CSV (el modelo no lo lee como «cero maletas»)
