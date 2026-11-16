@@ -172,7 +172,18 @@ por `OllamaTimings.cold_start`; un `ComponentError` suspende y cuenta como no di
 tokens; un `sql_error` no resta disponibilidad en los adversarios; sin `rich`; tarifa con `CostRate` en EUR; claves,
 opciones y nombres en inglés.
 
-**Regla del examen reservado**: `final_test` no se usa para ajustar el prompt ni los ejemplos, solo para medir.
+**Regla del examen reservado: dos exámenes, para no hacerse trampas** (como los de `04_examen.py` del tema 7):
+
+- `battery` (~35 preguntas) es para **trabajar**: la pasas, miras qué falla, cambias el prompt o los ejemplos y la
+  vuelves a pasar.
+- `final_test` (~15 preguntas distintas, ni repetidas ni con otras palabras) es **reservado**: nunca se usa para
+  ajustar el prompt ni los ejemplos, solo para medir.
+
+Por qué: si ajustas el prompt mirando la batería, el modelo acaba «aprendiéndose» esas preguntas, y la batería da una
+nota mejor que la real. El examen final, que nunca se ha usado para tocar nada, da la nota de verdad. Ejemplo: la
+batería falla «¿cuánto ha gastado Ana López?» (suma el importe bruto). Añades una regla sobre el importe neto y la
+batería ya acierta. Si el examen final también acierta sus preguntas de gasto, la regla funciona en general; si falla,
+solo la habías ajustado a esa pregunta.
 
 ## Decisiones y trampas
 

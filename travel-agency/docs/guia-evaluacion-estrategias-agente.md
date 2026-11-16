@@ -10,7 +10,9 @@
 > código, `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/sesion1/` (`medir.py`, `evaluar.py`, `casos.json`,
 > `etiquetas_humanas.json`) y `comun/evaluacion.py`, es la referencia de clase del banco de pruebas.
 >
-> Estado: **propuesta**, nada implementado. Las decisiones abiertas están al final (sección 9).
+> Ampliada el 2026-11-16 con lo que se puede reutilizar de la evaluación de text2sql (TRAVEL-007), en la sección 8.1.
+>
+> Estado: **propuesta**, nada implementado del agente (la evaluación de text2sql sí está hecha). Las decisiones abiertas están al final (sección 9).
 
 ## Índice
 
@@ -307,7 +309,7 @@ corpus se compara contra ella antes de aceptarlo.
 |---|---|
 | **1c. Contratos** | `JudgeVerdict` y el resultado de una ejecución de estrategia, si se decide meterlos ya |
 | **6. Agente mínimo** | Estrategia A como línea base y el banco de pruebas con las comprobaciones de código (3.2) y las métricas de coste (3.1), sin juez todavía |
-| **8. RAG** | Las citas entran en las comprobaciones; las preguntas mixtas hacen interesante la estrategia C |
+| **8. RAG** | Las citas entran en las comprobaciones; las preguntas mixtas hacen interesante la estrategia C. Su evaluación reutiliza la de text2sql (8.1): la búsqueda sin LLM (Hit@k, MRR) y la respuesta con código y juez |
 | **10. Evaluación completa** | Juez de fidelidad, evaluación del juez (5), estrategias B–E e informe comparado |
 | **11. MLflow** | Cada estrategia es un *run*; los veredictos del juez, artefactos; las trazas, en MLflow Tracing |
 
@@ -320,6 +322,44 @@ Referencias del repo para cuando se implemente (rutas desde `ebis/`):
 | Casos dorados y ejecución mock/real | `llm-customer-support-triage/eval/` (`eval_cases.yml`, `run_eval.py`) |
 | Métricas, estadística y selección | `05_rag_langchain/clases/06-Const-evaluacion/src/retrieval_lab/evaluation/`, `07-RAG/src/umbra/evaluation/comparison.py` |
 | Revisión manual de una muestra | `05_rag_langchain/practica/herramientas/preparar_revision.py` |
+
+### 8.1 Qué reutilizar de la evaluación de text2sql
+
+La primera evaluación hecha es la de `text2sql` (TRAVEL-007, `text2sql/src/text2sql/evaluation/`, sección
+«Evaluación» de `text2sql/AGENTS.md`). Sigue `medir.py` y `evaluar.py` del tema 9, y el tema 7 solo en lo que el tema
+9 no trae. **Cómo se mide** es igual para text2sql, el RAG y el agente; **qué se corrige** cambia en cada uno.
+
+**Se reutiliza tal cual (o casi):**
+
+| Pieza | Dónde está | Qué hace |
+|---|---|---|
+| `run_cases` | `measure.py` | Repite cada caso k veces; una fila por intento con su `trace_id`, segundos y tokens |
+| `compute_metrics`, `percentile` | `measure.py` | Tasa de éxito, pass^k, pass@k, latencia (mediana y p95), disponibilidad, tokens, coste por pregunta y por caso resuelto |
+| `print_metrics`, `print_breakdown` | `measure.py` | El informe y el desglose por categoría y por trampa |
+| Guardar resultados | `__main__.py` | JSON con fecha, modelo, versión del prompt, examen, k, métricas y filas, en `<paquete>/evaluation_results/` |
+| `load_exam`, `view` | `exam.py` | Examen en JSON con id único, `category`, `trap` y `must_deny`; `--view` lo enseña sin llamar al modelo |
+| `normalize`, `equal` | `evaluate.py` | Comparar sin tildes y con coma decimal; números con ±0,011 |
+| Batería y examen reservado | `text2sql/AGENTS.md` | `battery` para ajustar, `final_test` solo para medir |
+
+Decisiones de text2sql que conviene repetir:
+- la latencia no cuenta los intentos con **arranque en frío** (`OllamaTimings.cold_start`);
+- un error técnico (`ComponentError`) **suspende y resta disponibilidad**, pero no entra en latencia ni en tokens;
+- tokens y latencia salen de los **eventos de la traza** (`trace_id`), no del resultado;
+- la tarifa sale de `PRICE_PER_MILLION_TOKENS` con `CostRate`.
+
+**Es propio de cada pieza:**
+
+| | text2sql | RAG | Agente |
+|---|---|---|---|
+| Qué se corrige (`evaluate_case`) | Las filas, contra las del SQL de referencia | La búsqueda, sin LLM: Hit@k y MRR por página (`rag-tenerife`, `14_evaluar_rag.py` del tema 7). La respuesta: cifras con código y fidelidad con el juez | Datos concretos con código (3.2) y fidelidad con el juez (4) |
+| Trayectoria (`evaluate_trajectory`) | Vistas usadas y SQL rechazado | Pasajes recuperados y si cita los esperados | Herramientas usadas, pasos y acciones prohibidas (como `evaluar_trayectoria` de clase) |
+| Juez | No: text2sql no redacta | Sí, con los pasajes como evidencia | Sí, con lo que devolvieron las herramientas como evidencia |
+
+**Cuándo sacarlo a un módulo común:** cuando llegue la segunda evaluación (la del RAG, fase 8), no antes. Con un solo
+usuario no se sabe qué es común de verdad. Al hacerlo, lo de la primera tabla pasa a un sitio compartido y cada
+paquete conserva su `evaluate_case`, su `evaluate_trajectory` y sus exámenes. Así se puede **medir por etapas** (fase
+10): si el agente falla, se mira cada pieza por separado para saber si el fallo es del SQL, de la búsqueda o del
+propio agente.
 
 ## 9. Decisiones abiertas
 

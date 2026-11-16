@@ -36,7 +36,7 @@ que lo cambia (o una nota fechada al final del antiguo).
 
 ## Tickets
 
-| Ticket | Fase | Tipo | Qué hace | Estado (2026-11-15) |
+| Ticket | Fase | Tipo | Qué hace | Estado (2026-11-16) |
 |---|---|---|---|---|
 | [TRAVEL-001](tickets/TRAVEL-001-generar-datos-sinteticos.md) | 2b | Código | Generador con semilla fija (`database.seed`) que amplía los CSV a mano de `fixtures/` a miles de filas en `data/`, sin perder casos ancla ni trampas. Sin Faker: `random.Random(semilla)` y listas a mano | Hecho |
 | [TRAVEL-002](tickets/TRAVEL-002-sql-guard-view-whitelist.md) | 5 | Código | Validador del SQL del modelo (`text2sql/guard.py`): `ejecutar_sql_seguro` de clase más una **lista blanca de vistas** (solo lo de `main`; nada de tablas crudas, archivos ni funciones de tabla) | Hecho |
@@ -44,7 +44,7 @@ que lo cambia (o una nota fechada al final del antiguo).
 | [TRAVEL-004](tickets/TRAVEL-004-redactar-documentos-empresa.md) | 3 | Datos | 26 documentos propios de Viajes Nimbo en `rag/corpus/empresa/`, coherentes con la base, con casos difíciles a propósito (versión derogada, política que mejora la ley, documento con inyección) | Hecho |
 | [TRAVEL-005](tickets/TRAVEL-005-consultar-linea-base.md) | 5 | Código | `text2sql.ask()`: pregunta → SQL con Qwen3-4B → validador → DuckDB, con bucle de corrección (3 llamadas como máximo), telemetría y comando `python -m text2sql`. Devuelve filas, **no redacta** | Hecho (sin medir: ver 007 y 008) |
 | [TRAVEL-006](tickets/TRAVEL-006-agente-minimo-consultar-bbdd.md) | 6 | Código | Agente mínimo con LangGraph (`construir_agente` de clase) y la tool `query_db` → `text2sql.ask()`; contrato `AgentAnswer`. Al final, «Lo que queda de la fase 6» (citas y verificador, plan cerrado, casos dorados) | Hecho |
-| [TRAVEL-007](tickets/TRAVEL-007-evaluar-text2sql-corrector-metricas.md) | 5 | Código | Herramienta para evaluar `text2sql` (tema 9, sesión 1): corrige cada intento contra el resultado de un SQL de referencia (mismas filas, valores en su fila), métricas pass^k, latencia, disponibilidad y coste por acierto; `trace_id` en `SqlResult` | Borrador; después de 006 |
+| [TRAVEL-007](tickets/TRAVEL-007-evaluar-text2sql-corrector-metricas.md) | 5 | Código | Herramienta para evaluar `text2sql` (tema 9, sesión 1): corrige cada intento contra el resultado de un SQL de referencia (mismas filas, valores en su fila), métricas pass^k, latencia, disponibilidad y coste por acierto; `trace_id` en `SqlResult` | Hecho |
 | [TRAVEL-008](tickets/TRAVEL-008-examen-text2sql-primera-medida.md) | 5 | Datos | Examen de ~50 preguntas (batería ~35 + final reservado ~15) por trampa y categoría, y primera medida con el Qwen real (k = 3) como línea base. Cierra la fase 5 | Borrador; después de 007 |
 | [TRAVEL-009](tickets/TRAVEL-009-guardar-esquema-con-huella.md) | 5 | Código | El esquema de `schema()` (~5,7 s) se guarda en un archivo con la huella SHA-256 (CSV + `semantic_layer.py` + DuckDB) en el nombre y solo se regenera si cambia; fuera el `@cache` de `build_system_prompt`, que retenía las conexiones; `semantic_layer.py` separado en tres archivos | Hecho |
 
@@ -58,7 +58,7 @@ Al crear un ticket nuevo, **añade su fila** a esta tabla; al cerrarlo, cambia s
 
 | Documento | Qué es | Cuándo leerlo |
 |---|---|---|
-| [`guia-evaluacion-estrategias-agente.md`](guia-evaluacion-estrategias-agente.md) | Cómo comparar estrategias del agente (tool calling, ReAct, plan-and-execute, verificador, razonamiento) y detectar invenciones con un LLM evaluador que **ve la evidencia**. Nace del tema 8, sesión 2, y se amplió con el tema 9, sesión 1 (pass^k, disponibilidad, coste por caso resuelto, normalizar números, calibrar al juez). Estado: propuesta, con decisiones abiertas al final | Fases 6 (casos dorados), 10 (evaluación completa) y 11 (MLflow) |
+| [`guia-evaluacion-estrategias-agente.md`](guia-evaluacion-estrategias-agente.md) | Cómo comparar estrategias del agente (tool calling, ReAct, plan-and-execute, verificador, razonamiento) y detectar invenciones con un LLM evaluador que **ve la evidencia**. Nace del tema 8, sesión 2, y se amplió con el tema 9, sesión 1 (pass^k, disponibilidad, coste por caso resuelto, normalizar números, calibrar al juez). La sección 8.1 dice qué reutilizar de la evaluación de text2sql (TRAVEL-007) y qué es propio del RAG y del agente. Estado: propuesta, con decisiones abiertas al final | Fases 6 (casos dorados), 8 (evaluación del RAG), 10 (evaluación completa) y 11 (MLflow) |
 | [`guia-indices-vectoriales.md`](guia-indices-vectoriales.md) | Guía de estudio de los índices de FAISS (Flat, HNSW, IVF, IVF-PQ) y por qué el RAG usa `IndexFlatIP`. Complementa el tema 5, sesión 4 | Fase 8 (RAG), o si se replantea el índice |
 
 Las decisiones de arquitectura se registrarán como **ADR** en esta carpeta cuando se tomen (lista de pendientes en
