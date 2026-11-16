@@ -2,7 +2,7 @@
 
 Explicación sencilla de la sesión 2 del Tema 9, centrada en las ideas principales. Se construye a partir del PDF de la sesión (`Tema9_Sesion2_Guardarrailes_y_seguridad.pdf`), de los documentos de deberes y trabajo previo (`Tema9_Deberes_y_lecturas.pdf`, `Tema9_Trabajo_previo_a_clase.pdf`), del código de `../codigo_ejercicios/sesion2/` y de las soluciones de `Soluciones_sesion2/`. Los ejemplos propios van marcados como *ilustrativos*. Los resultados «en mi máquina» son de ejecutar las demos con `qwen3:4b-instruct` en local (16-11-2026): el curso usa `qwen2.5:7b`, así que con otro modelo saldrán otros resultados.
 
-La demo del humano en el bucle (`ejemplo_humano_bucle/`) no se trata aquí: tendrá su propia explicación.
+La demo del humano en el bucle (`ejemplo_humano_bucle/`) no se trata aquí: tiene su propia explicación en `ejemplo_humano_bucle/explicacion-humano-en-el-bucle.md`.
 
 ---
 
