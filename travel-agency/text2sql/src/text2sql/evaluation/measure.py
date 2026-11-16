@@ -86,6 +86,43 @@ def _attempt(question: dict[str, Any], con: duckdb.DuckDBPyConnection) -> dict[s
     }
 
 
+FAILURE_KINDS = {
+    "wrong_view": "vista equivocada",
+    "right_view_bad_rows": "vista correcta, filas malas",
+    "other": "otros",
+}
+
+
+def failure_kind(row: dict[str, Any]) -> str | None:
+    """Por qué suspende un intento, mirando sus vistas (diagnóstico de AC-15 de TRAVEL-007; None si aprueba).
+
+    - `wrong_view`: no usó las vistas de la referencia. Seguramente no sabe qué vista responde la pregunta:
+      se arregla con el esquema o los ejemplos del prompt.
+    - `right_view_bad_rows`: usó las vistas buenas pero sacó otras filas (filtro, agrupación o cálculo mal): se
+      arregla con las reglas del prompt sobre las trampas de los datos.
+    - `other`: no hay vistas que comparar: imposibles, adversarios, errores de Ollama o intentos sin ninguna consulta.
+    """
+    if row["success"]:
+        return None
+    trajectory = row["trajectory"]
+    if trajectory is None or trajectory["uses_expected_views"] is None or not trajectory["views_used"]:
+        return "other"
+    return "right_view_bad_rows" if trajectory["uses_expected_views"] else "wrong_view"
+
+
+def _failure_note(row: dict[str, Any]) -> str:
+    """Lo que dice la línea de un intento suspendido sobre sus vistas, p. ej. «(vista equivocada: usó …)»."""
+    match failure_kind(row):
+        case "wrong_view":
+            trajectory = row["trajectory"]
+            used, expected = ", ".join(trajectory["views_used"]), ", ".join(trajectory["expected_views"])
+            return f"  (vista equivocada: usó {used}, esperaba {expected})"
+        case "right_view_bad_rows":
+            return "  (vista correcta, filas malas)"
+        case _:
+            return ""
+
+
 def run_cases(
     questions: list[dict[str, Any]], con: duckdb.DuckDBPyConnection, repetitions: int = 1, verbose: bool = True
 ) -> list[dict[str, Any]]:
@@ -105,7 +142,9 @@ def run_cases(
                 tokens = row["input_tokens"] + row["output_tokens"]
                 print(
                     f"  {mark} {row['id']} #{repetition + 1}  {_seconds(row['seconds']):>7}  {tokens:5} tokens  "
-                    f"{row['status'] or 'error'}" + (f"   falla: {row['reason']}" if row["reason"] else "")
+                    f"{row['status'] or 'error'}"
+                    + (f"   falla: {row['reason']}" if row["reason"] else "")
+                    + _failure_note(row)
                 )
     return rows
 
@@ -173,6 +212,9 @@ def compute_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         # `PROYECTO.md` §6 al revés (aprueben o no). Si sube, el modelo intenta leer tablas crudas, escribir o
         # usar vistas que no existen: hay que reforzar las reglas del prompt
         "rejected_rate": sum(row["trajectory"]["rejected_sql"] > 0 for row in traced) / len(traced) if traced else None,
+        # Suspensos por motivo (recuento, no porcentaje: no mide calidad, dice qué arreglar primero). Ver
+        # `failure_kind()`: vista equivocada → esquema/ejemplos; vista correcta, filas malas → reglas del prompt
+        "failures": {kind: sum(failure_kind(row) == kind for row in rows) for kind in FAILURE_KINDS},
     }
 
 
@@ -206,6 +248,8 @@ def print_metrics(m: dict[str, Any], k: int) -> None:
         f" · aprobados tras corregirse {_pct(m['corrected_rate'])} · {calls} llamadas al modelo por intento"
         f" · intentos con algún SQL rechazado {_pct(m['rejected_rate'])}"
     )
+    failures = " · ".join(f"{label} {m['failures'][kind]}" for kind, label in FAILURE_KINDS.items())
+    print(f"\n   Suspensos       {failures}")
 
 
 def print_breakdown(rows: list[dict[str, Any]], key: str, title: str) -> None:

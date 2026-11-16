@@ -86,8 +86,16 @@ def evaluate_trajectory(question: dict[str, Any], result: SqlResult, events: lis
     - `llm_calls`: llamadas al modelo (los `pasos` de clase): 1 si acierta a la primera, hasta 3 si se corrige.
     - `rejected_sql`: SQL que paró el validador (las «acciones que no debía hacer» de clase). No vienen en el
       `SqlResult` (solo trae las consultas que pasaron): salen de los eventos `sql.run` de la traza.
+    - `views_used`: las vistas de todas sus consultas, y `uses_expected_views`, si están todas las del SQL de
+      referencia (el `usa_las_esperadas` de clase; None si la pregunta no tiene referencia). Es diagnóstico: hay
+      preguntas con dos caminos buenos (las reservas salen de `v_reservas_cliente` y de `v_resumen_clientes`).
     """
+    views_used = list(dict.fromkeys(view for q in result.queries if q.metrics for view in q.metrics.views_used))
+    expected = question.get("expected_views")
     return {
         "llm_calls": result.llm_calls,
         "rejected_sql": sum(isinstance(m, SqlMetrics) and not m.sql_valid for m in events),
+        "views_used": views_used,
+        "expected_views": expected,
+        "uses_expected_views": None if not expected else all(view in views_used for view in expected),
     }

@@ -315,7 +315,13 @@ def attempt_row(seconds: float, cold_start: bool = False, success: bool = True, 
         "output_tokens": 40,
         "error": None,
         "limit_reached": False,
-        "trajectory": {"llm_calls": 1, "rejected_sql": 0},
+        "trajectory": {
+            "llm_calls": 1,
+            "rejected_sql": 0,
+            "views_used": ["v_reservas_cliente"],
+            "expected_views": ["v_reservas_cliente"],
+            "uses_expected_views": True,
+        },
     } | extra
 
 
@@ -430,3 +436,34 @@ def test_trajectory_separates_first_time_passes_from_corrected_ones(
     assert "aprobados tras corregirse 67%" in out
     assert "2.0 llamadas al modelo por intento" in out
     assert "intentos con algún SQL rechazado 67%" in out
+
+
+def test_expected_views_are_a_diagnosis_that_does_not_change_the_verdict(
+    exams_dir: Path, fake_ollama: FakeOllama, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_exam(exams_dir, [normal_question(RESERVATIONS_C001)], name="battery")  # espera v_reservas_cliente
+    fake_ollama.answers = [
+        sql_answer(RESERVATIONS_C001),  # vista esperada, filas bien
+        sql_answer("SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-004'"),  # esperada, filas mal
+        sql_answer("SELECT reservas FROM v_resumen_clientes WHERE cliente_id = 'C-001'"),  # otra vista, filas bien
+        sql_answer("SELECT COUNT(*) AS n FROM v_vuelos_detalle"),  # otra vista, filas mal
+    ]
+
+    main(["--repetitions", "4"])
+
+    [path] = (exams_dir / "results").glob("battery_*.json")
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    rows = saved["rows"]
+    assert [row["success"] for row in rows] == [True, False, True, False]  # el aprobado sale solo de las filas
+    assert [row["trajectory"]["views_used"] for row in rows] == [
+        ["v_reservas_cliente"],
+        ["v_reservas_cliente"],
+        ["v_resumen_clientes"],
+        ["v_vuelos_detalle"],
+    ]
+    assert [row["trajectory"]["uses_expected_views"] for row in rows] == [True, True, False, False]
+    assert saved["metrics"]["failures"] == {"wrong_view": 1, "right_view_bad_rows": 1, "other": 0}
+    out = capsys.readouterr().out
+    assert "Suspensos       vista equivocada 1 · vista correcta, filas malas 1 · otros 0" in out
+    assert "(vista equivocada: usó v_vuelos_detalle, esperaba v_reservas_cliente)" in out
+    assert "(vista correcta, filas malas)" in out
