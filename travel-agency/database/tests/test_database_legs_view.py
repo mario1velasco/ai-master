@@ -63,3 +63,12 @@ def test_unassigned_seat_is_null_not_empty(con: duckdb.DuckDBPyConnection) -> No
     ).fetchall()
 
     assert leg == [(None, None, None)]  # IB0731 aún no ha volado: ni asiento ni retraso (NULL, no '' ni 0)
+
+
+def test_cancelled_flight_leg_has_no_arrival_delay(con: duckdb.DuckDBPyConnection) -> None:
+    leg = con.execute(
+        "SELECT codigo_vuelo, estado_vuelo, retraso_llegada_min, clase FROM v_tramos "
+        "WHERE reserva_id = 'R-1045' AND trayecto = 'ida'"
+    ).fetchall()
+
+    assert leg == [("AF1001", "cancelado", None, "business")]
