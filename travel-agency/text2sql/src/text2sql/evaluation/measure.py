@@ -63,6 +63,8 @@ def run_cases(
                 "success": verdict["success"],
                 "reason": verdict["reason"],
                 "seconds": asked.latency_ms / 1000,  # el span `text2sql.ask`: la pregunta entera
+                # Ollama tuvo que cargar el modelo en memoria (`OllamaTimings.cold_start`, ~150 s en el primero)
+                "cold_start": any(m.ollama is not None and m.ollama.cold_start for m in llm),
                 "input_tokens": sum(m.input_tokens for m in llm),
                 "output_tokens": sum(m.output_tokens for m in llm),
                 "error": None,
@@ -96,7 +98,9 @@ def compute_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         by_question.setdefault(row["id"], []).append(row["success"])
     passed = sum(row["success"] for row in rows)
     measured = [row for row in rows if row["seconds"] is not None]  # con traza: sin error de Ollama
-    seconds = [row["seconds"] for row in measured]
+    # Sin el arranque en frío: cargar el modelo no es lo que tarda una pregunta (como restar `segundos_carga` en
+    # `04_examen.py`). Ese intento sí cuenta para el resto de métricas
+    seconds = [row["seconds"] for row in measured if not row["cold_start"]]
     tokens = sum(row["input_tokens"] + row["output_tokens"] for row in measured)
     cost = CostEstimate.from_tokens(
         sum(row["input_tokens"] for row in measured), sum(row["output_tokens"] for row in measured), RATE

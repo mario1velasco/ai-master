@@ -297,3 +297,28 @@ def test_report_gives_reliability_latency_availability_and_cost(
     assert "2440 tokens/pregunta" in out
     assert "1.220 € por 1.000 preguntas" in out  # 2440 tokens × 0,5 € / millón
     assert "1.830 € por 1.000 casos resueltos" in out  # 6 × 2440 tokens entre los 4 aprobados
+
+
+def attempt_row(seconds: float, cold_start: bool = False, success: bool = True, **extra: Any) -> dict[str, Any]:
+    """Una fila de `run_cases()` escrita a mano, para probar `compute_metrics()` con medidas concretas."""
+    return {
+        "id": "N1",
+        "category": "normal",
+        "success": success,
+        "seconds": seconds,
+        "cold_start": cold_start,
+        "input_tokens": 2400,
+        "output_tokens": 40,
+        "error": None,
+        "limit_reached": False,
+    } | extra
+
+
+def test_cold_start_is_left_out_of_latency() -> None:
+    rows = [attempt_row(150, cold_start=True), attempt_row(17, success=False), attempt_row(18, success=False)]
+
+    metrics = compute_metrics(rows)
+
+    assert metrics["latency_p50"] == 17.5  # solo 17 s y 18 s: los 150 s eran cargar el modelo
+    assert metrics["latency_p95"] == 18
+    assert metrics["success_rate"] == pytest.approx(1 / 3)  # el de 150 s sí cuenta para la tasa de éxito
