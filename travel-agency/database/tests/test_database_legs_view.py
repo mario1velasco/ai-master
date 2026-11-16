@@ -25,3 +25,16 @@ def test_leg_has_class_seat_baggage_and_its_flight(con: duckdb.DuckDBPyConnectio
     ).fetchall()
 
     assert leg == [("IB3166", "Iberia", "MAD", "Madrid", "JFK", "Nueva York", "turista", "23A", True)]
+
+
+def test_leg_has_delay_and_status_of_its_flight(con: duckdb.DuckDBPyConnection) -> None:
+    leg = con.execute(
+        "SELECT retraso_salida_min, retraso_llegada_min, estado_vuelo FROM v_tramos "
+        "WHERE reserva_id = 'R-1042' AND trayecto = 'ida'"
+    ).fetchall()
+    flight = con.execute(
+        "SELECT retraso_salida_min, retraso_llegada_min, estado FROM v_vuelos_detalle WHERE codigo_vuelo = 'IB3166'"
+    ).fetchall()
+
+    assert leg == [(297, 312, "retrasado")]
+    assert leg == flight
