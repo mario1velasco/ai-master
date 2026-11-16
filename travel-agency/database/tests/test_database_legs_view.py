@@ -72,3 +72,11 @@ def test_cancelled_flight_leg_has_no_arrival_delay(con: duckdb.DuckDBPyConnectio
     ).fetchall()
 
     assert leg == [("AF1001", "cancelado", None, "business")]
+
+
+def test_same_flight_in_two_bookings_keeps_each_booking_data(con: duckdb.DuckDBPyConnection) -> None:
+    legs = con.execute(
+        "SELECT reserva_id, clase, equipaje_facturado FROM v_tramos WHERE codigo_vuelo = 'AF1300' ORDER BY reserva_id"
+    ).fetchall()
+
+    assert legs == [("R-1045", "business", True), ("R-1048", "turista", False)]
