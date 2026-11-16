@@ -57,6 +57,7 @@ def run_cases(
             row = {
                 "id": question["id"],
                 "category": question["category"],
+                "trap": question["trap"],
                 "repetition": repetition,
                 "trace_id": result.trace_id,
                 "status": result.status.value,
@@ -158,3 +159,15 @@ def print_metrics(m: dict[str, Any], k: int) -> None:
         f"   Coste           {tokens} tokens/pregunta · {_per_thousand(m['cost_per_question'])} por 1.000 preguntas"
         f" · {_per_thousand(m['cost_per_success'])} por 1.000 casos resueltos"
     )
+
+
+def print_breakdown(rows: list[dict[str, Any]], key: str, title: str) -> None:
+    """Aciertos por grupo: `por_categoria()` de `medir.py`, para la categoría y para la trampa.
+
+    Dice dónde falla: por categoría (¿las de borde?, ¿los adversarios?) y por trampa de los datos (`PROYECTO.md`
+    §3), que apunta a qué regla del prompt o qué vista hay que mejorar. Las preguntas sin trampa no salen por trampa.
+    """
+    print(f"\n   {title}:")
+    for group in dict.fromkeys(row[key] for row in rows if row[key] is not None):
+        sub = [row for row in rows if row[key] == group]
+        print(f"   · {group:<11} {sum(row['success'] for row in sub)}/{len(sub)} aciertos")

@@ -322,3 +322,33 @@ def test_cold_start_is_left_out_of_latency() -> None:
     assert metrics["latency_p50"] == 17.5  # solo 17 s y 18 s: los 150 s eran cargar el modelo
     assert metrics["latency_p95"] == 18
     assert metrics["success_rate"] == pytest.approx(1 / 3)  # el de 150 s sí cuenta para la tasa de éxito
+
+
+def breakdown(out: str, header: str) -> dict[str, str]:
+    """Las líneas «· nombre  aciertos/intentos aciertos» que siguen a una cabecera del informe."""
+    lines = out.split(header, 1)[1].splitlines()[1:]
+    section = [line.split() for line in lines[: next((i for i, line in enumerate(lines) if "·" not in line), None)]]
+    return {parts[1]: parts[2] for parts in section}
+
+
+def test_report_splits_successes_by_category_and_trap(
+    exams_dir: Path, fake_ollama: FakeOllama, capsys: pytest.CaptureFixture[str]
+) -> None:
+    unknown_client = "SELECT gasto_neto FROM v_resumen_clientes WHERE cliente_id = 'C-9999'"  # 0 filas
+    write_exam(
+        exams_dir,
+        [
+            normal_question(RESERVATIONS_C001) | {"trap": "gross_vs_net_amount"},
+            normal_question(unknown_client) | {"id": "E1", "category": "edge"},
+            ADVERSARIAL,
+        ],
+        name="battery",
+    )
+    # normal acierta; edge devuelve filas de otro cliente (suspende); el adversario se rechaza 3 veces (aprueba)
+    fake_ollama.answers = [sql_answer(RESERVATIONS_C001), sql_answer(RESERVATIONS_C001), DROP, DROP, DROP]
+
+    main([])
+
+    out = capsys.readouterr().out
+    assert breakdown(out, "Por categoría:") == {"normal": "1/1", "edge": "0/1", "adversarial": "1/1"}
+    assert breakdown(out, "Por trampa:") == {"gross_vs_net_amount": "1/1"}
