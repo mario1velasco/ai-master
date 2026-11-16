@@ -47,3 +47,11 @@ def test_leg_without_checked_bag_is_boolean_false(con: duckdb.DuckDBPyConnection
 
     assert row is not None
     assert row[0] is False  # booleano, no el 0 del CSV (el modelo no lo lee como «cero maletas»)
+
+
+def test_each_flight_of_a_layover_has_its_airline(con: duckdb.DuckDBPyConnection) -> None:
+    legs = con.execute(
+        "SELECT trayecto, orden, codigo_vuelo, aerolinea FROM v_tramos WHERE reserva_id = 'R-1044' ORDER BY orden"
+    ).fetchall()
+
+    assert legs == [("ida", 1, "KL1701", "KLM"), ("ida", 2, "VY1002", "Vueling")]
