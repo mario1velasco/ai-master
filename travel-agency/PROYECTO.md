@@ -211,6 +211,7 @@ Igual que en el resto del repo `ebis`, se usa `AGENTS.md` como fuente única de 
 |---|---|
 | `v_reservas_cliente` | Reservas con nombre del cliente, estado e importe neto (cargos − reembolsos) |
 | `v_vuelos_detalle` | Vuelo con aerolínea, ciudades, **minutos de retraso** y **distancia en km** ya calculados |
+| `v_tramos` | Una fila por vuelo de cada reserva: **clase, asiento, maleta facturada**, aerolínea, ruta, retraso y estado del vuelo (TRAVEL-010: lo que más pregunta un cliente por chat) |
 | `v_itinerarios` | Una fila por reserva y trayecto: origen inicial → destino final, escalas, retraso en destino final y distancia del viaje |
 | `v_incidencias` | Incidencias con el cliente, el vuelo y el retraso y la distancia **del viaje** (no del vuelo suelto) |
 | `v_resumen_clientes` | Agregados por cliente (también sin reservas): nº reservas, canceladas, gasto neto, incidencias |

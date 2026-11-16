@@ -8,7 +8,7 @@
 |---|---|
 | Tipo | Task |
 | Carpeta del proyecto | `travel-agency/` (`database/`) |
-| Estado | Revisado, listo para hacer (2026-11-16) |
+| Estado | Hecho (2026-11-16) |
 | Creado | 2026-11-16 |
 | Etiquetas | database, capa-semantica, fase-2, fase-5 |
 
@@ -138,12 +138,12 @@ Ninguno para este ticket.
 
 ## Definición de hecho
 
-- [ ] Cada AC cubierto por un test automático en verde
-- [ ] Toda la suite del proyecto en verde (`uv run pytest`)
-- [ ] ruff y ty sin errores
-- [ ] `database/AGENTS.md` (vistas, tabla de trampas con el asiento NULL), `PROYECTO.md` §3 (tabla de vistas) y la
+- [x] Cada AC cubierto por un test automático en verde (`database/tests/test_database_legs_view.py`, AC-1 a AC-10; `text2sql/tests/test_text2sql_guard.py::test_legs_view_is_allowed_and_listed`, AC-11)
+- [x] Toda la suite del proyecto en verde (`uv run pytest`: 314 passed)
+- [x] ruff y ty sin errores (los 5 avisos de `ruff format --check` son de bloques de código en Markdown y ya estaban antes)
+- [x] `database/AGENTS.md` (vistas, tabla de trampas con el asiento NULL), `PROYECTO.md` §3 (tabla de vistas) y la
       fila 2 de `travel-agency/AGENTS.md` actualizados
-- [ ] Commits sin atribución a la IA
+- [x] Commits sin atribución a la IA
 
 ## Supuestos y preguntas abiertas
 

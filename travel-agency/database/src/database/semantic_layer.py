@@ -5,6 +5,7 @@ Copia el patrón de `07_llm_open_source/.../sesion_2/02_capa_semantica.py`. Los 
 
   v_reservas_cliente   una fila por reserva: cliente, tramos e importes (cobrado, reembolsado y NETO)
   v_vuelos_detalle     una fila por vuelo: horas locales, retrasos en minutos y distancia ya calculados
+  v_tramos             una fila por vuelo de cada reserva: clase, asiento, maleta, aerolínea, retraso y estado
   v_itinerarios        una fila por reserva y trayecto: origen inicial → destino final, retraso en destino final
   v_incidencias        una fila por incidencia, con el retraso y la distancia del viaje completo
   v_resumen_clientes   una fila por cliente: reservas, canceladas, gasto neto e incidencias

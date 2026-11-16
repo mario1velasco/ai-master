@@ -85,6 +85,8 @@ Los tests abren las filas a mano: `open_db(FIXTURES_DIR)`, con `FIXTURES_DIR` de
 | NULL ≠ 0 | IB0731 (programado), AF1001 (cancelado) | retraso NULL |
 | Nombres repetidos | C-001 y C-004, las dos "Ana López" | distinguir por `cliente_id` |
 | Cliente sin reservas | C-007 | aparece con 0 |
+| Asiento sin asignar | R-1047 (IB0731, programado) | `asiento` NULL en `v_tramos`, no `''` |
+| Mismo vuelo en dos reservas | AF1300 en R-1045 (business, con maleta) y R-1048 (turista, sin maleta) | una fila por reserva en `v_tramos` |
 
 ## Decisiones y trampas
 
@@ -99,6 +101,9 @@ Los tests abren las filas a mano: `open_db(FIXTURES_DIR)`, con `FIXTURES_DIR` de
 - La caché en memoria (`_SCHEMA_MEMORY_CACHE`) va **por huella**, nunca por conexión: guardar la conexión la
   retendría para siempre (~11 MB cada una; el `@cache` que había en text2sql hasta TRAVEL-009).
 - `email` existe en `crudo.clientes`, pero ninguna vista lo enseña (sin datos de contacto para el modelo).
+- `clase`, `asiento` y `equipaje_facturado` de `crudo.reservas_tramos` se enseñan en `v_tramos` (TRAVEL-010), una fila
+  por vuelo de cada reserva, como `ventas_lineas` en clase. `equipaje_facturado` va como booleano (`CAST` en la vista:
+  el 0/1 del CSV se leería como número de maletas) y `asiento` NULL es «aún sin asignar».
 - Las horas van en ISO 8601 con desfase; DuckDB las lee como `TIMESTAMP WITH TIME ZONE`. Los minutos se calculan con
   `epoch()`, y la hora local con `timezone(zona_horaria, …)`.
 - `reservas_tramos.trayecto` (ida / vuelta) no estaba en el diseño inicial: sin él, el destino final de un ida y
