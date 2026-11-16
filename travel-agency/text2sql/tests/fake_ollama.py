@@ -30,10 +30,11 @@ class FakeResponse:
 class FakeOllama:
     """Devuelve en orden los mensajes de `answers`, con la forma de /api/chat, y guarda lo que se le envía.
 
-    Una respuesta que ya es un `FakeResponse` (p. ej. un 404) se devuelve tal cual.
+    Una respuesta que ya es un `FakeResponse` (p. ej. un 404) se devuelve tal cual, y una excepción (p. ej.
+    `requests.exceptions.Timeout()`) se lanza, como haría `requests.post`.
     """
 
-    answers: list[dict[str, Any] | FakeResponse] = field(default_factory=list)
+    answers: list[dict[str, Any] | FakeResponse | Exception] = field(default_factory=list)
     requests: list[dict[str, Any]] = field(default_factory=list)
     urls: list[str] = field(default_factory=list)
 
@@ -42,6 +43,8 @@ class FakeOllama:
         # Copia: el requests.post real serializa la petición en el momento; el bucle sigue añadiendo mensajes
         self.requests.append(copy.deepcopy(json))
         message = self.answers[len(self.requests) - 1]
+        if isinstance(message, Exception):
+            raise message
         if isinstance(message, FakeResponse):
             return message
         return FakeResponse(

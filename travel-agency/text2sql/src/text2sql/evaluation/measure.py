@@ -13,6 +13,7 @@ from typing import Any
 
 import duckdb
 
+from contracts.errors import ComponentError
 from contracts.metrics import BaseMetrics, Component, LlmCallMetrics
 from contracts.metrics.llm import CostEstimate, CostRate
 from contracts.sql import SqlStatus
@@ -42,6 +43,47 @@ def _trace_events(trace_id: str) -> list[BaseMetrics]:
     return [event.metrics for event in events if event.metrics.trace_id == trace_id]
 
 
+def _attempt(question: dict[str, Any], con: duckdb.DuckDBPyConnection) -> dict[str, Any]:
+    """Un intento: `ask()`, su corrección y sus medidas, sacadas de los eventos de su traza."""
+    try:
+        result = ask(question["question"], con=con)
+    except ComponentError as exc:
+        # Ollama falló (caído, timeout, sin el modelo…): suspende y cuenta como no disponible, y la evaluación
+        # sigue. Sin `trace_id` no hay eventos: no entra en la latencia ni en los tokens (desvío de TRAVEL-007)
+        return {
+            "trace_id": None,
+            "status": None,
+            "sql": None,
+            "success": False,
+            "reason": exc.code,
+            "seconds": None,
+            "cold_start": False,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "error": exc.code,
+            "limit_reached": False,
+        }
+    verdict = evaluate_case(question, result)
+    events = _trace_events(result.trace_id)
+    [asked] = [m for m in events if m.name == "text2sql.ask"]
+    llm = [m for m in events if isinstance(m, LlmCallMetrics)]
+    return {
+        "trace_id": result.trace_id,
+        "status": result.status.value,
+        "sql": result.queries[-1].sql if result.queries else None,  # la que se corrige
+        "success": verdict["success"],
+        "reason": verdict["reason"],
+        "seconds": asked.latency_ms / 1000,  # el span `text2sql.ask`: la pregunta entera
+        # Ollama tuvo que cargar el modelo en memoria (`OllamaTimings.cold_start`, ~150 s en el primero)
+        "cold_start": any(m.ollama is not None and m.ollama.cold_start for m in llm),
+        "input_tokens": sum(m.input_tokens for m in llm),
+        "output_tokens": sum(m.output_tokens for m in llm),
+        "error": None,
+        # El «límite de pasos» de text2sql: 3 llamadas sin un SQL que pase el validador
+        "limit_reached": result.status is SqlStatus.sql_error,
+    }
+
+
 def run_cases(
     questions: list[dict[str, Any]], con: duckdb.DuckDBPyConnection, repetitions: int = 1, verbose: bool = True
 ) -> list[dict[str, Any]]:
@@ -49,37 +91,19 @@ def run_cases(
     rows = []
     for question in questions:
         for repetition in range(repetitions):
-            result = ask(question["question"], con=con)
-            verdict = evaluate_case(question, result)
-            events = _trace_events(result.trace_id)
-            [asked] = [m for m in events if m.name == "text2sql.ask"]
-            llm = [m for m in events if isinstance(m, LlmCallMetrics)]
             row = {
                 "id": question["id"],
                 "category": question["category"],
                 "trap": question["trap"],
                 "repetition": repetition,
-                "trace_id": result.trace_id,
-                "status": result.status.value,
-                "sql": result.queries[-1].sql if result.queries else None,  # la que se corrige
-                "success": verdict["success"],
-                "reason": verdict["reason"],
-                "seconds": asked.latency_ms / 1000,  # el span `text2sql.ask`: la pregunta entera
-                # Ollama tuvo que cargar el modelo en memoria (`OllamaTimings.cold_start`, ~150 s en el primero)
-                "cold_start": any(m.ollama is not None and m.ollama.cold_start for m in llm),
-                "input_tokens": sum(m.input_tokens for m in llm),
-                "output_tokens": sum(m.output_tokens for m in llm),
-                "error": None,
-                # El «límite de pasos» de text2sql: 3 llamadas sin un SQL que pase el validador
-                "limit_reached": result.status is SqlStatus.sql_error,
-            }
+            } | _attempt(question, con)
             rows.append(row)
             if verbose:
                 mark = "✅" if row["success"] else "❌"
                 tokens = row["input_tokens"] + row["output_tokens"]
                 print(
-                    f"  {mark} {row['id']} #{repetition + 1}  {row['seconds']:5.1f} s  {tokens:5} tokens  "
-                    f"{row['status']}" + (f"   falla: {row['reason']}" if row["reason"] else "")
+                    f"  {mark} {row['id']} #{repetition + 1}  {_seconds(row['seconds']):>7}  {tokens:5} tokens  "
+                    f"{row['status'] or 'error'}" + (f"   falla: {row['reason']}" if row["reason"] else "")
                 )
     return rows
 

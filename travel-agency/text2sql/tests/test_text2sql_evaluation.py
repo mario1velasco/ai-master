@@ -9,6 +9,7 @@ from typing import Any
 
 import duckdb
 import pytest
+import requests
 from fake_ollama import FakeOllama, sql_answer, text_answer
 
 from text2sql import ask
@@ -375,3 +376,27 @@ def test_results_file_keeps_what_is_needed_to_compare(exams_dir: Path, fake_olla
     assert first["trace_id"] and first["success"] is True and first["reason"] is None
     assert (second["repetition"], second["sql"], second["success"]) == (1, wrong, False)
     assert second["reason"] == "ninguna fila del intento tiene {'n': 2}"
+
+
+def test_ollama_failure_counts_as_unavailable_and_evaluation_goes_on(
+    exams_dir: Path, fake_ollama: FakeOllama, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_exam(
+        exams_dir,
+        [normal_question(RESERVATIONS_C001) | {"id": question_id} for question_id in ("N1", "N2", "N3")],
+        name="battery",
+    )
+    good = sql_answer(RESERVATIONS_C001)
+    fake_ollama.answers = [good, requests.exceptions.Timeout(), good]  # Ollama no responde solo en la segunda
+
+    main([])
+
+    [path] = (exams_dir / "results").glob("battery_*.json")  # el informe se guarda
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    assert [(row["id"], row["success"], row["reason"]) for row in saved["rows"]] == [
+        ("N1", True, None),
+        ("N2", False, "ollama_timeout"),
+        ("N3", True, None),
+    ]
+    assert saved["metrics"]["availability"] == pytest.approx(2 / 3)
+    assert "Disponibilidad  67%" in capsys.readouterr().out
