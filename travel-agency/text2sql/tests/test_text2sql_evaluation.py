@@ -12,6 +12,7 @@ import pytest
 from fake_ollama import FakeOllama, sql_answer, text_answer
 
 from text2sql import ask
+from text2sql.evaluation.__main__ import main
 from text2sql.evaluation.evaluate import evaluate_case
 from text2sql.evaluation.exam import load_exam
 from text2sql.evaluation.measure import compute_metrics, run_cases
@@ -19,9 +20,9 @@ from text2sql.evaluation.measure import compute_metrics, run_cases
 RESERVATIONS_C001 = "SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-001'"
 
 
-def write_exam(tmp_path: Path, questions: list[dict[str, Any]]) -> Path:
+def write_exam(tmp_path: Path, questions: list[dict[str, Any]], name: str = "exam") -> Path:
     """Un examen en JSON, con el formato de `exams/` (claves `id`, `category`, `trap`, `question`, `sql`…)."""
-    path = tmp_path / "exam.json"
+    path = tmp_path / f"{name}.json"
     path.write_text(json.dumps(questions, ensure_ascii=False), encoding="utf-8")
     return path
 
@@ -186,3 +187,40 @@ def test_sql_error_in_a_normal_question_fails_and_is_unavailable(
     assert rows[0]["status"] == "sql_error"
     assert rows[0]["success"] is False
     assert compute_metrics(rows)["availability"] == 0.0
+
+
+@pytest.fixture
+def exams_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, data_con: duckdb.DuckDBPyConnection) -> Path:
+    """El comando lee los exámenes de `tmp_path` y abre la base de `data/` de la sesión (no otra copia)."""
+    monkeypatch.setattr("text2sql.evaluation.__main__.EXAMS_DIR", tmp_path)
+    monkeypatch.setattr("text2sql.evaluation.__main__.open_db", lambda _data_dir: data_con)
+    return tmp_path
+
+
+@pytest.mark.parametrize(
+    ("questions", "bad_id", "reason"),
+    [
+        ([normal_question("SELECT * FROM crudo.clientes")], "N1", "no pasa el validador"),
+        ([normal_question(RESERVATIONS_C001), normal_question(RESERVATIONS_C001)], "N1", "repetido"),
+    ],
+)
+@pytest.mark.parametrize("view", [False, True])
+def test_badly_written_exam_stops_before_calling_the_model(
+    exams_dir: Path,
+    fake_ollama: FakeOllama,
+    capsys: pytest.CaptureFixture[str],
+    questions: list[dict[str, Any]],
+    bad_id: str,
+    reason: str,
+    view: bool,
+) -> None:
+    write_exam(exams_dir, questions, name="battery")
+
+    with pytest.raises(SystemExit) as exit_info:
+        main(["--exam", "battery"] + (["--view"] if view else []))
+
+    assert exit_info.value.code != 0
+    err = capsys.readouterr().err
+    assert bad_id in err
+    assert reason in err
+    assert fake_ollama.requests == []  # el modelo no se llama ninguna vez
