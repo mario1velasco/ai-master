@@ -11,7 +11,7 @@ from pathlib import Path
 
 from database.semantic_layer import DATA_DIR, open_db
 from text2sql.evaluation.exam import load_exam, view
-from text2sql.evaluation.measure import run_cases
+from text2sql.evaluation.measure import compute_metrics, print_metrics, run_cases
 
 EXAMS_DIR = Path(__file__).with_name("exams")
 EXAMS = ["battery", "final_test"]  # batería (para ajustar) y prueba final (reservada: solo para medir)
@@ -36,7 +36,9 @@ def main(argv: list[str] | None = None) -> None:
     if args.view:
         view(questions, args.exam)
         return
-    run_cases(questions, con, args.repetitions)
+    print(f"🧪 Examen «{args.exam}»: {len(questions)} preguntas × {args.repetitions} repeticiones")
+    rows = run_cases(questions, con, args.repetitions)
+    print_metrics(compute_metrics(rows), args.repetitions)
 
 
 if __name__ == "__main__":

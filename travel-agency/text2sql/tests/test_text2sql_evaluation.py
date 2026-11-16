@@ -266,3 +266,34 @@ def test_view_shows_exam_with_views_and_results_without_the_model(
     assert "missing_data" in blocks["E2"] and "imposible" in blocks["E2"]
     assert "0 filas, revisar" not in blocks["N1"] + blocks["E2"]
     assert fake_ollama.requests == []
+
+
+def test_report_gives_reliability_latency_availability_and_cost(
+    exams_dir: Path, fake_ollama: FakeOllama, capsys: pytest.CaptureFixture[str]
+) -> None:
+    reservations_c004 = "SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-004'"  # 1 reserva
+    write_exam(
+        exams_dir,
+        [normal_question(RESERVATIONS_C001) | {"id": "P1"}, normal_question(reservations_c004) | {"id": "P2"}],
+        name="battery",
+    )
+    good_p1, good_p2, wrong_p2 = (
+        sql_answer(RESERVATIONS_C001),
+        sql_answer(reservations_c004),
+        sql_answer(RESERVATIONS_C001),
+    )
+    # P1 acierta los 3 intentos; P2 solo el primero. Cada llamada del Ollama falso: 2400 + 40 tokens
+    fake_ollama.answers = [good_p1, good_p1, good_p1, good_p2, wrong_p2, wrong_p2]
+
+    main(["--repetitions", "3"])
+
+    out = capsys.readouterr().out
+    assert "6 intentos" in out
+    assert "tasa de éxito 67%" in out
+    assert "pass^3 50%" in out
+    assert "pass@3 100%" in out
+    assert "mediana" in out and "p95" in out
+    assert "Disponibilidad  100%" in out
+    assert "2440 tokens/pregunta" in out
+    assert "1.220 € por 1.000 preguntas" in out  # 2440 tokens × 0,5 € / millón
+    assert "1.830 € por 1.000 casos resueltos" in out  # 6 × 2440 tokens entre los 4 aprobados
