@@ -55,3 +55,11 @@ def test_each_flight_of_a_layover_has_its_airline(con: duckdb.DuckDBPyConnection
     ).fetchall()
 
     assert legs == [("ida", 1, "KL1701", "KLM"), ("ida", 2, "VY1002", "Vueling")]
+
+
+def test_unassigned_seat_is_null_not_empty(con: duckdb.DuckDBPyConnection) -> None:
+    leg = con.execute(
+        "SELECT asiento, retraso_salida_min, retraso_llegada_min FROM v_tramos WHERE reserva_id = 'R-1047'"
+    ).fetchall()
+
+    assert leg == [(None, None, None)]  # IB0731 aún no ha volado: ni asiento ni retraso (NULL, no '' ni 0)
