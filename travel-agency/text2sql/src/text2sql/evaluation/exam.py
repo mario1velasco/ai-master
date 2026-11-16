@@ -23,10 +23,11 @@ def load_exam(path: Path, con: duckdb.DuckDBPyConnection) -> list[dict[str, Any]
     repetido mezclaría los intentos de dos preguntas, y una referencia que no pasa el validador no da respuesta.
     """
     questions: list[dict[str, Any]] = json.loads(path.read_text(encoding="utf-8"))
-    ids = [question["id"] for question in questions]
+    seen: set[str] = set()
     for question in questions:
-        if ids.count(question["id"]) > 1:
+        if question["id"] in seen:
             raise ValueError(f"{question['id']}: id repetido")
+        seen.add(question["id"])
         if question.get("sql"):
             ok, text = run_safe_sql(con, question["sql"])
             if not ok:

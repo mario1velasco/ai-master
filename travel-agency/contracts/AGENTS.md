@@ -46,8 +46,9 @@ from contracts.metrics import (
 - `short_hash(text)`: sha256 de 16 caracteres para `input_hash`.
 - `ScoreStats.from_scores(scores)`: máximo, mínimo y media de los scores; `None` si no hay pasajes.
 - `from contracts.sql import SqlResult, SqlQuery, SqlStatus`: `status` (`ok` / `no_sql` / `sql_error`), `queries`
-  (SQL, columnas, filas, `truncated` y su `metrics: SqlMetrics`), `model_text`, `error` y `llm_calls`. Las métricas
-  van **en cada consulta**, no en el resultado: una respuesta puede traer varios SQL.
+  (SQL, columnas, filas, `truncated` y su `metrics: SqlMetrics`), `model_text`, `error`, `llm_calls` y `trace_id`
+  (TRAVEL-007: con él se encuentran los eventos de esa pregunta en `logs/text2sql/`, como el `traza_id` del tema 9).
+  Las métricas van **en cada consulta**, no en el resultado: una respuesta puede traer varios SQL.
 - `from contracts.agent import AgentAnswer, Source, AgentStatus, SourceType`: `answer`, `status` (`ok` /
   `recursion_limit_reached`), `answered_without_data`, `sources` (una por consulta `ok`: tipo, vistas, filas y `sql`),
   `tools_used`, `versions`, `trace_id` y `metrics: AgentMetrics` (null si la telemetría no pudo registrarlas).

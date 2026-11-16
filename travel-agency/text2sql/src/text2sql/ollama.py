@@ -37,13 +37,18 @@ def _post(url: str, payload: dict[str, Any], model: str, timeout: int) -> reques
     return r
 
 
+def model_name() -> str:
+    """El modelo de text2sql, `TEXT2SQL_MODEL` (como `model_name()` de `agent/model.py`)."""
+    return os.environ.get("TEXT2SQL_MODEL", "qwen3:4b-instruct")
+
+
 def chat(messages: list[dict[str, Any]], tools: list[dict[str, Any]], *, retries: int = 0) -> dict[str, Any]:
     """Una llamada a /api/chat sin streaming. Devuelve el JSON de Ollama tal cual.
 
     `retries` es cuántos reintentos van antes de esta llamada; solo se apunta en las métricas.
     """
     url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/") + "/api/chat"
-    model = os.environ.get("TEXT2SQL_MODEL", "qwen3:4b-instruct")
+    model = model_name()
     timeout = 600  # segundos, como el timeout por defecto de chat() en S3
     temperature, num_predict = 0.0, 1024
     # Un único num_ctx y keep_alive para Qwen3-4B en todo el proyecto (PROYECTO.md §5): si text2sql y el agente

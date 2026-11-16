@@ -8,7 +8,7 @@
 |---|---|
 | Tipo | Story |
 | Carpeta del proyecto | `travel-agency/` (`text2sql/`, `contracts/`) |
-| Estado | Revisado, listo para desarrollar (2026-11-15) |
+| Estado | Hecho (2026-11-16) |
 | Creado | 2026-11-13 |
 | Etiquetas | text2sql, eval, metrics, fase-5 |
 
@@ -254,19 +254,19 @@ Ninguno aparte de los anteriores: los tests usan el Ollama falso (Definición de
 
 ## Definición de hecho
 
-- [ ] Cada AC cubierto por un test automático que pasa, con el Ollama falso (sin red ni Ollama)
-- [ ] Toda la suite del proyecto en verde (`uv run pytest`), incluidos los tests de TRAVEL-002, TRAVEL-005 y TRAVEL-006
-- [ ] ruff y ty limpios
-- [ ] `text2sql/AGENTS.md` (comando de evaluación, formato del examen, desvíos) y `contracts/AGENTS.md`
+- [x] Cada AC cubierto por un test automático que pasa, con el Ollama falso (sin red ni Ollama)
+- [x] Toda la suite del proyecto en verde (`uv run pytest`), incluidos los tests de TRAVEL-002, TRAVEL-005 y TRAVEL-006
+- [x] ruff y ty limpios
+- [x] `text2sql/AGENTS.md` (comando de evaluación, formato del examen, desvíos) y `contracts/AGENTS.md`
       (`SqlResult.trace_id`) actualizados; fila 5 de `travel-agency/AGENTS.md`
-- [ ] El comando de evaluación en `travel-agency/README.md` («Comandos útiles») y en `travel-agency/AGENTS.md`
+- [x] El comando de evaluación en `travel-agency/README.md` («Comandos útiles») y en `travel-agency/AGENTS.md`
       («Entorno»), junto al de `python -m text2sql -q`
-- [ ] **Cada métrica documentada para no olvidar qué significa** (pedido por Mario, 2026-11-15): en el código, un
+- [x] **Cada métrica documentada para no olvidar qué significa** (pedido por Mario, 2026-11-15): en el código, un
       comentario o docstring junto a su cálculo que diga qué mide, cómo se calcula y para qué sirve; y en
       `text2sql/AGENTS.md`, una tabla con todas las métricas del informe y cómo leerlas (qué valor es bueno y qué
       hacer si sale mal). Sobre todo las de la trayectoria: «aprobados a la primera» (si el modelo acierta sin la
       ayuda del validador) e «intentos con algún SQL rechazado» (el «Cumple reglas» de `PROYECTO.md` §6)
-- [ ] Commits sin atribución a la IA
+- [x] Commits sin atribución a la IA
 
 ## Supuestos y preguntas abiertas
 

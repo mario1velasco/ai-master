@@ -81,6 +81,18 @@ uv run --env-file text2sql/.env python -m text2sql -q "…"                # con
 Enseña la pregunta, lo que recibiría el agente (el SQL, las columnas y las filas, en JSON) y las métricas de cada paso
 (la llamada al modelo y cada SQL).
 
+**Evaluar text2sql** (`text2sql.evaluation`): pasa un examen de preguntas con su SQL de referencia, varias veces, y
+corrige cada intento comparando sus filas con las de la referencia. Da la tasa de éxito, pass^k, pass@k, latencia,
+disponibilidad, coste y por qué falla (vista equivocada o filas malas). Los resultados quedan en
+`text2sql/evaluation_results/`.
+
+```bash
+uv run python -m text2sql.evaluation --exam battery --view               # el examen y sus resultados, sin modelo
+uv run python -m text2sql.evaluation --exam battery --repetitions 3      # medir: cada pregunta 3 veces (pass^3)
+uv run python -m text2sql.evaluation --exam final_test --repetitions 3   # el examen reservado: solo para medir
+uv run python -m text2sql.evaluation --questions N01 N02                 # solo esas preguntas
+```
+
 **Agente** (`agent/`): responde la pregunta como lo haría un empleado. Decide si necesita datos de la base; si los
 necesita, se los pide a text2sql con la tool `query_db` (una o varias veces) y redacta la respuesta con esas filas,
 sin inventar cifras. Si el dato no existe, lo dice. Devuelve la respuesta con sus fuentes (cada una con su SQL).

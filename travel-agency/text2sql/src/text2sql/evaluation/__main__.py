@@ -9,7 +9,6 @@ de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_3/06_evaluar.py
 
 import argparse
 import json
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -17,6 +16,7 @@ from pathlib import Path
 from database.semantic_layer import DATA_DIR, open_db
 from text2sql.evaluation.exam import load_exam, view
 from text2sql.evaluation.measure import compute_metrics, print_breakdown, print_metrics, run_cases
+from text2sql.ollama import model_name
 from text2sql.prompt import PROMPT_VERSION
 
 EXAMS_DIR = Path(__file__).with_name("exams")
@@ -54,7 +54,7 @@ def main(argv: list[str] | None = None) -> None:
     path = RESULTS_DIR / f"{args.exam}_{now:%Y-%m-%d_%H%M%S}.json"
     saved = {
         "date": now.strftime("%d/%m/%Y %H:%M"),
-        "model": os.environ.get("TEXT2SQL_MODEL", "qwen3:4b-instruct"),  # el mismo valor que usa `ollama.chat`
+        "model": model_name(),
         "prompt_version": PROMPT_VERSION,
         "exam": args.exam,
         "k": args.repetitions,

@@ -8,6 +8,7 @@ de su traza (`trace_id`) en el archivo de hoy de `logs/text2sql/`, como hace el 
 
 import os
 import statistics
+from collections import Counter
 from datetime import UTC, datetime
 from typing import Any
 
@@ -118,7 +119,7 @@ def _failure_note(row: dict[str, Any]) -> str:
             used, expected = ", ".join(trajectory["views_used"]), ", ".join(trajectory["expected_views"])
             return f"  (vista equivocada: usó {used}, esperaba {expected})"
         case "right_view_bad_rows":
-            return "  (vista correcta, filas malas)"
+            return f"  ({FAILURE_KINDS['right_view_bad_rows']})"
         case _:
             return ""
 
@@ -164,15 +165,13 @@ def compute_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     for row in rows:
         by_question.setdefault(row["id"], []).append(row["success"])
     passed = sum(row["success"] for row in rows)
-    measured = [row for row in rows if row["seconds"] is not None]  # con traza: sin error de Ollama
-    traced = [row for row in rows if row["trajectory"] is not None]
+    answered = [row for row in rows if row["trajectory"] is not None]  # con respuesta de text2sql: sin error de Ollama
     # Sin el arranque en frío: cargar el modelo no es lo que tarda una pregunta (como restar `segundos_carga` en
     # `04_examen.py`). Ese intento sí cuenta para el resto de métricas
-    seconds = [row["seconds"] for row in measured if not row["cold_start"]]
-    tokens = sum(row["input_tokens"] + row["output_tokens"] for row in measured)
-    cost = CostEstimate.from_tokens(
-        sum(row["input_tokens"] for row in measured), sum(row["output_tokens"] for row in measured), RATE
-    ).total_cost
+    seconds = [row["seconds"] for row in answered if not row["cold_start"]]
+    input_tokens, output_tokens = sum(row["input_tokens"] for row in rows), sum(row["output_tokens"] for row in rows)
+    cost = CostEstimate.from_tokens(input_tokens, output_tokens, RATE).total_cost
+    failures = Counter(failure_kind(row) for row in rows)
     return {
         "attempts": n,
         # Tasa de éxito (calidad): aprobados / intentos. ¿Responde bien? Es la nota del examen
@@ -193,9 +192,9 @@ def compute_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "availability": 1 - sum(_unavailable(row) for row in rows) / n,
         # Tokens medios por pregunta (entrada + salida de todas sus llamadas al modelo): el tamaño del prompt y
         # de los reintentos. Sube con el esquema en el prompt o si el modelo necesita corregirse
-        "tokens_mean": tokens / len(measured) if measured else None,
+        "tokens_mean": (input_tokens + output_tokens) / len(answered) if answered else None,
         # Coste por pregunta: los tokens con la tarifa de referencia (en local es 0; sirve para comparar)
-        "cost_per_question": cost / len(measured) if measured else None,
+        "cost_per_question": cost / len(answered) if answered else None,
         # Coste por caso resuelto: todo lo gastado entre los aprobados. Lo que de verdad cuesta una respuesta
         # buena: un modelo barato que falla mucho sale caro
         "cost_per_success": cost / passed if passed else None,
@@ -204,17 +203,19 @@ def compute_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         # - Aprobados a la primera: aprueban sin ningún SQL rechazado / intentos. El modelo acierta solo.
         # - Aprobados tras corregirse: aprueban con algún SQL rechazado antes del bueno / intentos. Acierta porque
         #   el validador le devolvió el error; si es alta, el prompt deja al modelo escribir SQL que no vale
-        "first_time_rate": sum(row["success"] and row["trajectory"]["rejected_sql"] == 0 for row in traced) / n,
-        "corrected_rate": sum(row["success"] and row["trajectory"]["rejected_sql"] > 0 for row in traced) / n,
+        "first_time_rate": sum(row["success"] and row["trajectory"]["rejected_sql"] == 0 for row in answered) / n,
+        "corrected_rate": sum(row["success"] and row["trajectory"]["rejected_sql"] > 0 for row in answered) / n,
         # Llamadas al modelo por intento (1 a 3): cada una suma tokens y segundos. Lo ideal, cerca de 1
-        "llm_calls_mean": statistics.mean(row["trajectory"]["llm_calls"] for row in traced) if traced else None,
+        "llm_calls_mean": statistics.mean(row["trajectory"]["llm_calls"] for row in answered) if answered else None,
         # Intentos con algún SQL rechazado por el validador / intentos con respuesta: el «Cumple reglas» de
         # `PROYECTO.md` §6 al revés (aprueben o no). Si sube, el modelo intenta leer tablas crudas, escribir o
         # usar vistas que no existen: hay que reforzar las reglas del prompt
-        "rejected_rate": sum(row["trajectory"]["rejected_sql"] > 0 for row in traced) / len(traced) if traced else None,
+        "rejected_rate": sum(row["trajectory"]["rejected_sql"] > 0 for row in answered) / len(answered)
+        if answered
+        else None,
         # Suspensos por motivo (recuento, no porcentaje: no mide calidad, dice qué arreglar primero). Ver
         # `failure_kind()`: vista equivocada → esquema/ejemplos; vista correcta, filas malas → reglas del prompt
-        "failures": {kind: sum(failure_kind(row) == kind for row in rows) for kind in FAILURE_KINDS},
+        "failures": {kind: failures[kind] for kind in FAILURE_KINDS},
     }
 
 
