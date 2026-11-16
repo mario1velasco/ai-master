@@ -8,6 +8,7 @@ código, baratas y repetibles, que devuelven si el intento aprueba y, si no, por
 import unicodedata
 from typing import Any
 
+from contracts.metrics import BaseMetrics, SqlMetrics
 from contracts.sql import SqlResult, SqlStatus
 
 
@@ -76,3 +77,17 @@ def evaluate_case(question: dict[str, Any], result: SqlResult) -> dict[str, Any]
             return {"success": False, "reason": f"ninguna fila del intento tiene {expected_row}"}
         free.remove(match)
     return {"success": True, "reason": None}
+
+
+def evaluate_trajectory(question: dict[str, Any], result: SqlResult, events: list[BaseMetrics]) -> dict[str, Any]:
+    """Cómo ha llegado, no solo adónde: `evaluar_trayectoria()` de `09_evaluacion_fiabilidad_seguridad/
+    codigo_ejercicios/sesion1/evaluar.py`. No aprueba ni suspende; sirve para saber si acierta solo o con ayuda.
+
+    - `llm_calls`: llamadas al modelo (los `pasos` de clase): 1 si acierta a la primera, hasta 3 si se corrige.
+    - `rejected_sql`: SQL que paró el validador (las «acciones que no debía hacer» de clase). No vienen en el
+      `SqlResult` (solo trae las consultas que pasaron): salen de los eventos `sql.run` de la traza.
+    """
+    return {
+        "llm_calls": result.llm_calls,
+        "rejected_sql": sum(isinstance(m, SqlMetrics) and not m.sql_valid for m in events),
+    }

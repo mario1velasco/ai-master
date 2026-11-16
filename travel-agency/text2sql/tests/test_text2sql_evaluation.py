@@ -315,6 +315,7 @@ def attempt_row(seconds: float, cold_start: bool = False, success: bool = True, 
         "output_tokens": 40,
         "error": None,
         "limit_reached": False,
+        "trajectory": {"llm_calls": 1, "rejected_sql": 0},
     } | extra
 
 
@@ -400,3 +401,32 @@ def test_ollama_failure_counts_as_unavailable_and_evaluation_goes_on(
     ]
     assert saved["metrics"]["availability"] == pytest.approx(2 / 3)
     assert "Disponibilidad  67%" in capsys.readouterr().out
+
+
+def test_trajectory_separates_first_time_passes_from_corrected_ones(
+    exams_dir: Path, fake_ollama: FakeOllama, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_exam(
+        exams_dir,
+        [normal_question(RESERVATIONS_C001) | {"id": question_id} for question_id in ("T1", "T2", "T3")],
+        name="battery",
+    )
+    good, rejected = sql_answer(RESERVATIONS_C001), sql_answer("SELECT * FROM crudo.clientes")
+    # T1 a la primera; T2 con 1 SQL rechazado por el validador antes del bueno; T3 con 2
+    fake_ollama.answers = [good, rejected, good, rejected, rejected, good]
+
+    main([])
+
+    [path] = (exams_dir / "results").glob("battery_*.json")
+    rows = json.loads(path.read_text(encoding="utf-8"))["rows"]
+    assert [row["success"] for row in rows] == [True, True, True]
+    assert [(row["trajectory"]["llm_calls"], row["trajectory"]["rejected_sql"]) for row in rows] == [
+        (1, 0),
+        (2, 1),
+        (3, 2),
+    ]
+    out = capsys.readouterr().out
+    assert "aprobados a la primera 33%" in out
+    assert "aprobados tras corregirse 67%" in out
+    assert "2.0 llamadas al modelo por intento" in out
+    assert "intentos con algún SQL rechazado 67%" in out

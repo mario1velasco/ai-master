@@ -18,7 +18,7 @@ from contracts.metrics import BaseMetrics, Component, LlmCallMetrics
 from contracts.metrics.llm import CostEstimate, CostRate
 from contracts.sql import SqlStatus
 from telemetry import events_path, read_events
-from text2sql.evaluation.evaluate import evaluate_case
+from text2sql.evaluation.evaluate import evaluate_case, evaluate_trajectory
 from text2sql.loop import ask
 
 # € por millón de tokens, de entrada y de salida (orientativo): `PRECIO_MILLON_TOKENS` de `medir.py`
@@ -62,6 +62,7 @@ def _attempt(question: dict[str, Any], con: duckdb.DuckDBPyConnection) -> dict[s
             "output_tokens": 0,
             "error": exc.code,
             "limit_reached": False,
+            "trajectory": None,
         }
     verdict = evaluate_case(question, result)
     events = _trace_events(result.trace_id)
@@ -81,6 +82,7 @@ def _attempt(question: dict[str, Any], con: duckdb.DuckDBPyConnection) -> dict[s
         "error": None,
         # El «límite de pasos» de text2sql: 3 llamadas sin un SQL que pase el validador
         "limit_reached": result.status is SqlStatus.sql_error,
+        "trajectory": evaluate_trajectory(question, result, events),
     }
 
 
@@ -124,6 +126,7 @@ def compute_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         by_question.setdefault(row["id"], []).append(row["success"])
     passed = sum(row["success"] for row in rows)
     measured = [row for row in rows if row["seconds"] is not None]  # con traza: sin error de Ollama
+    traced = [row for row in rows if row["trajectory"] is not None]
     # Sin el arranque en frío: cargar el modelo no es lo que tarda una pregunta (como restar `segundos_carga` en
     # `04_examen.py`). Ese intento sí cuenta para el resto de métricas
     seconds = [row["seconds"] for row in measured if not row["cold_start"]]
@@ -157,6 +160,19 @@ def compute_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         # Coste por caso resuelto: todo lo gastado entre los aprobados. Lo que de verdad cuesta una respuesta
         # buena: un modelo barato que falla mucho sale caro
         "cost_per_success": cost / passed if passed else None,
+        # Trayectoria (de los intentos con respuesta de text2sql; los errores de Ollama no tienen). Las dos primeras
+        # suman la tasa de éxito y dicen cuánto del acierto se debe al validador:
+        # - Aprobados a la primera: aprueban sin ningún SQL rechazado / intentos. El modelo acierta solo.
+        # - Aprobados tras corregirse: aprueban con algún SQL rechazado antes del bueno / intentos. Acierta porque
+        #   el validador le devolvió el error; si es alta, el prompt deja al modelo escribir SQL que no vale
+        "first_time_rate": sum(row["success"] and row["trajectory"]["rejected_sql"] == 0 for row in traced) / n,
+        "corrected_rate": sum(row["success"] and row["trajectory"]["rejected_sql"] > 0 for row in traced) / n,
+        # Llamadas al modelo por intento (1 a 3): cada una suma tokens y segundos. Lo ideal, cerca de 1
+        "llm_calls_mean": statistics.mean(row["trajectory"]["llm_calls"] for row in traced) if traced else None,
+        # Intentos con algún SQL rechazado por el validador / intentos con respuesta: el «Cumple reglas» de
+        # `PROYECTO.md` §6 al revés (aprueben o no). Si sube, el modelo intenta leer tablas crudas, escribir o
+        # usar vistas que no existen: hay que reforzar las reglas del prompt
+        "rejected_rate": sum(row["trajectory"]["rejected_sql"] > 0 for row in traced) / len(traced) if traced else None,
     }
 
 
@@ -183,6 +199,12 @@ def print_metrics(m: dict[str, Any], k: int) -> None:
     print(
         f"   Coste           {tokens} tokens/pregunta · {_per_thousand(m['cost_per_question'])} por 1.000 preguntas"
         f" · {_per_thousand(m['cost_per_success'])} por 1.000 casos resueltos"
+    )
+    calls = "—" if m["llm_calls_mean"] is None else f"{m['llm_calls_mean']:.1f}"
+    print(
+        f"   Trayectoria     aprobados a la primera {_pct(m['first_time_rate'])}"
+        f" · aprobados tras corregirse {_pct(m['corrected_rate'])} · {calls} llamadas al modelo por intento"
+        f" · intentos con algún SQL rechazado {_pct(m['rejected_rate'])}"
     )
 
 
