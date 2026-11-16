@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 from database.semantic_layer import DATA_DIR, open_db
-from text2sql.evaluation.exam import load_exam
+from text2sql.evaluation.exam import load_exam, view
 from text2sql.evaluation.measure import run_cases
 
 EXAMS_DIR = Path(__file__).with_name("exams")
@@ -34,6 +34,7 @@ def main(argv: list[str] | None = None) -> None:
     if args.questions:
         questions = [q for q in questions if q["id"] in args.questions]
     if args.view:
+        view(questions, args.exam)
         return
     run_cases(questions, con, args.repetitions)
 

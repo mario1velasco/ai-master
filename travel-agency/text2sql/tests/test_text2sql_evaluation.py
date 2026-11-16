@@ -224,3 +224,45 @@ def test_badly_written_exam_stops_before_calling_the_model(
     assert bad_id in err
     assert reason in err
     assert fake_ollama.requests == []  # el modelo no se llama ninguna vez
+
+
+def test_view_shows_exam_with_views_and_results_without_the_model(
+    exams_dir: Path, fake_ollama: FakeOllama, capsys: pytest.CaptureFixture[str]
+) -> None:
+    write_exam(
+        exams_dir,
+        [
+            {
+                "id": "N1",
+                "category": "normal",
+                "trap": "booking_vs_segment_vs_passenger",
+                "question": "¿Cuántas reservas tiene C-001?",
+                "sql": RESERVATIONS_C001,
+            },
+            {
+                "id": "E1",
+                "category": "edge",
+                "trap": None,
+                "question": "¿Cuánto ha gastado el cliente C-9999?",
+                "sql": "SELECT gasto_neto FROM v_resumen_clientes WHERE cliente_id = 'C-9999'",  # no existe: 0 filas
+            },
+            {
+                "id": "E2",
+                "category": "edge",
+                "trap": "missing_data",
+                "question": "¿Cuántas personas viajan en la reserva R-1042?",
+                "must_deny": True,
+            },
+        ],
+        name="battery",
+    )
+
+    main(["--view"])  # sin --exam: la batería
+
+    blocks = {block.split("]")[0].strip("[\n "): block for block in capsys.readouterr().out.split("\n\n")[1:]}
+    assert "normal" in blocks["N1"] and "booking_vs_segment_vs_passenger" in blocks["N1"]
+    assert "v_reservas_cliente" in blocks["N1"] and '[{"n": 2}]' in blocks["N1"]
+    assert "v_resumen_clientes" in blocks["E1"] and "0 filas, revisar" in blocks["E1"]
+    assert "missing_data" in blocks["E2"] and "imposible" in blocks["E2"]
+    assert "0 filas, revisar" not in blocks["N1"] + blocks["E2"]
+    assert fake_ollama.requests == []
