@@ -931,6 +931,14 @@ Por decidir en la fase 7: si es un comando, un endpoint o las dos cosas, y dónd
 pide no guardar nada «más tiempo del necesario». Si algún día los datos pasan a una base en la nube, se añade un plazo
 de retención por tipo de dato (eventos, hilos, memoria de clientes, auditoría) y un borrado periódico.
 
+**Grafana (opción muy futura, sin material de clase en el repo).** Si el proyecto llega a producción o a la nube,
+Grafana (open source) puede ser el sitio donde **ver** los eventos: no cambia la telemetría, que sigue escribiendo
+sus JSONL. Los eventos irían a Loki (logs, leídos de los ficheros sin tocar el código), las trazas a Tempo (ya llevan
+`trace_id` y `span_id` al estilo OpenTelemetry) y las alertas de arriba pasarían a reglas de Grafana Alerting. No
+compite con MLflow: MLflow es para quien construye (comparar versiones, evaluación); Grafana, para vigilar el
+servicio en marcha. Podría ir en local, en el `docker-compose.yml` de la fase 15. Por eso la función de alertas de la
+fase 7 se mantiene pequeña: los umbrales en un sitio y nada más.
+
 ### Hacia MLflow (futuro)
 
 [MLflow](https://mlflow.org) (Apache 2.0) cubre justo estas necesidades. La [demo pública](https://demo.mlflow.org/#/)
