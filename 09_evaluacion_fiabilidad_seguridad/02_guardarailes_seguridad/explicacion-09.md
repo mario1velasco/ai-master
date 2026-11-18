@@ -37,7 +37,7 @@ En la sesión 1 vimos que el agente se inventaba el plazo de Canarias y que filt
 
 En palabras normales: el coste por acierto **siempre** es igual o mayor que el coste por pregunta, porque los fallos también se pagan. Si la diferencia es grande, el agente falla mucho y cada acierto sale caro. Y del juez, lo que más preocupa es que **apruebe respuestas malas**: da falsa tranquilidad.
 
-La diapositiva dice que las soluciones están en `soluciones/sesion1`; esa carpeta no está todavía en este repositorio.
+La diapositiva dice que las soluciones están en `soluciones/sesion1`; aquí están en `../01_medir_metricas_pruebas_benchmarks/Soluciones_sesion1/`, explicadas con sus resultados en la sección 8 de la explicación de la sesión 1.
 
 ### Los ficheros de la práctica (`../codigo_ejercicios/sesion2/`)
 
