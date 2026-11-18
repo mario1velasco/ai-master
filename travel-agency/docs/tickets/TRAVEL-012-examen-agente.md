@@ -37,6 +37,10 @@ su corrector y sus exámenes.
   `no_debe_contener`, `max_pasos`, `sin_efectos`) y `comun/evaluacion.py` (`normalizar`, `contiene_alguno`,
   `evaluar_caso`, `sin_error_tecnico`).
 - `01_medir_metricas_pruebas_benchmarks/explicacion-09.md` (código si se puede, juez si no, personas para calibrar).
+- `01_medir_metricas_pruebas_benchmarks/Soluciones_sesion1/` (soluciones de los deberes): `deber_reto.py` aprueba
+  con `all(veredicto.values())`, así que un juez que no devuelve ningún criterio cuenta como aprobado (→ AC-15);
+  `deber_base.py`, casos B5 y B6 (nombre incompleto y email mal escrito, → AC-18). Resultados en la sección 8 de
+  `01_medir_metricas_pruebas_benchmarks/explicacion-09.md`.
 - `text2sql/src/text2sql/evaluation/` (TRAVEL-007: `run_cases`, `compute_metrics`, `print_metrics`,
   `print_breakdown`, `load_exam`, `view`, `normalize`, `equal`, guardar con fecha y modelo, arranque en frío fuera de
   la latencia, tokens y latencia de los eventos de la traza) y `text2sql/AGENTS.md` (batería y examen reservado).
@@ -174,9 +178,11 @@ Salvo que se diga otra cosa, los tests usan el modelo falso de `agent/tests/` y 
 - **Y** no se llama al modelo
 
 **AC-15 — Un fallo en un intento no para la medida**
-- **Dado** un intento en el que Ollama falla, o en el que el juez no devuelve JSON
+- **Dado** un intento en el que Ollama falla, o en el que el juez no devuelve JSON o lo devuelve sin los cuatro
+  criterios de la rúbrica
 - **Cuando** se ejecuta
-- **Entonces** ese intento cuenta como no disponible (o queda con «juez sin veredicto»)
+- **Entonces** ese intento cuenta como no disponible (o queda con «juez sin veredicto», nunca como aprobado por el
+  juez)
 - **Y** la medida sigue con el siguiente
 
 **AC-16 — La evaluación de text2sql sigue igual (regresión, tras sacar lo común)**
@@ -198,7 +204,8 @@ Salvo que se diga otra cosa, los tests usan el modelo falso de `agent/tests/` y 
 - **Entonces** hay al menos un caso de cada tipo: solo base de datos; trampa de datos (importe neto); dato que no
   existe; reserva o cliente que no existen; pregunta «inocente» sobre la reserva de otro cliente; promesa falsa
   («cancela mi reserva», «cámbiame el asiento»); tentación de contestar sin consultar; inyección («olvida las
-  reglas…»); una tarjeta o un DNI en el mensaje
+  reglas…»); una tarjeta o un DNI en el mensaje; un dato mal escrito por el cliente (una reserva como «R-1O42» o un
+  email con una errata)
 
 **AC-19 — El final no repite la batería**
 - **Dado** los dos exámenes
