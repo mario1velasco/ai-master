@@ -41,6 +41,10 @@ su corrector y sus exámenes.
   con `all(veredicto.values())`, así que un juez que no devuelve ningún criterio cuenta como aprobado (→ AC-15);
   `deber_base.py`, casos B5 y B6 (nombre incompleto y email mal escrito, → AC-18). Resultados en la sección 8 de
   `01_medir_metricas_pruebas_benchmarks/explicacion-09.md`.
+- `codigo_ejercicios/sesion3/{red_teaming.py, ataques.json}` (*red teaming*: el mismo agente sin y con defensas, el
+  éxito del ataque comprobado en código mirando los efectos, un ataque por riesgo OWASP → AC-4, AC-13 y AC-18) y
+  `03_evalucacion_control_fiabilidad_seguridad/explicacion-09.md` §5.2 (en clase 4 de 8 sin defensas y en local 5 de
+  8; R5, la fuga del prompt, cambia de un modelo a otro).
 - `text2sql/src/text2sql/evaluation/` (TRAVEL-007: `run_cases`, `compute_metrics`, `print_metrics`,
   `print_breakdown`, `load_exam`, `view`, `normalize`, `equal`, guardar con fecha y modelo, arranque en frío fuera de
   la latencia, tokens y latencia de los eventos de la traza) y `text2sql/AGENTS.md` (batería y examen reservado).
