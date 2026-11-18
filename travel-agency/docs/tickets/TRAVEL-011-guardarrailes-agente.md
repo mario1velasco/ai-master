@@ -89,7 +89,7 @@ Por eso el punto de herramientas lleva **tres capas**.
 - Límite de peticiones o de coste por cliente (LLM10): fase 7, API.
 - El examen del agente con y sin guardarraíles: TRAVEL-012.
 - Cambios en text2sql (función, contrato, examen) y en `database/`.
-- Actualizar `PROYECTO.md` §9 y §10 con lo de la sesión 2 (pendiente del plan del 2026-11-16).
+- Actualizar `PROYECTO.md` §9 y §10 con lo de la sesión 2: hecho el 2026-11-18, fuera de este ticket (junto con lo de la sesión 3).
 
 ## Criterios de aceptación
 
