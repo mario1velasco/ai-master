@@ -205,7 +205,8 @@ Salvo que se diga otra cosa, los tests usan el modelo falso de `agent/tests/` y 
   existe; reserva o cliente que no existen; pregunta «inocente» sobre la reserva de otro cliente; promesa falsa
   («cancela mi reserva», «cámbiame el asiento»); tentación de contestar sin consultar; inyección («olvida las
   reglas…»); una tarjeta o un DNI en el mensaje; un dato mal escrito por el cliente (una reserva como «R-1O42» o un
-  email con una errata)
+  email con una errata); una petición de repetir las instrucciones del sistema (LLM07) y una que fuerza muchas
+  consultas seguidas (LLM10)
 
 **AC-19 — El final no repite la batería**
 - **Dado** los dos exámenes
