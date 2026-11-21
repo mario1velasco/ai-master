@@ -6,6 +6,18 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-21 18:54 · La 1.2 se apoya en el Tema 9 y, de refuerzo, en el Tema 8
+
+**Decisión.** Para la arquitectura (1.2) manda el material del Tema 9: perfiles de `sesion2/permisos.py`, supervisión de `sesion3/supervision.py`, qué registrar y qué no de la sesión 3, y coste y latencia de la sesión 1. La teoría del Tema 8 (memoria y estado, multiagente, integración en producción) se usa solo de apoyo, para lo que el Tema 9 no cubre. Se añade como excepción en `AGENTS.md`.
+
+**Por qué.** Lo decidió Mario. La parte 1 es del Tema 8, pero la regla del ejercicio es no inventar y usar lo del Tema 9. Así las respuestas salen del temario y no de conocimiento general.
+
+## 2026-11-21 18:50 · Se sigue el orden del enunciado
+
+**Decisión.** El trabajo se hace en el orden del enunciado: 1.1, 1.2 (cada pregunta por separado), 2.1, 2.2, 2.3, 3, 4.1, 4.2 y 4.3. Un apartado cada vez, sin juntar ni adelantar apartados. La tabla «Plan de trabajo» del `README.md` se rehace en ese orden y `AGENTS.md` lo pone como regla. La única excepción son los casos y la medición «antes», ya hechos porque había que medir el piloto sin cambiar nada; al llegar a la 2.2 y la 2.3 se revisan y se pasan al informe.
+
+**Por qué.** Lo decidió Mario: el plan anterior, ordenado por ejecución, juntaba apartados (arquitectura, métricas y parte 4 en una sola fila) y no se podía seguir junto al enunciado.
+
 ## 2026-11-21 18:38 · El enunciado se lee en Markdown
 
 **Decisión.** El enunciado se consulta en `[Tema 9] Evaluación y control de la fiabilidad y seguridad en sistemas de agentes.md`, el PDF pasado a Markdown con la skill `any-to-any`. El PDF se queda como original. Se cambia la referencia en `AGENTS.md` y `README.md`.

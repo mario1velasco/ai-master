@@ -73,21 +73,37 @@ Todo en el informe:
 2. **Observabilidad**: qué registrar en cada conversación y qué no registrar nunca; **al menos tres alertas** con su umbral, indicando cuál habría saltado durante el incidente.
 3. **Recomendación** a la Directora de Operaciones: ¿se reactiva Alba? Con qué condiciones y plan de seguimiento, o qué falta. Apoyada en las mediciones.
 
-## Plan de trabajo (en orden de ejecución)
+## Plan de trabajo (en el orden del enunciado)
 
-El orden no es el de las partes: la medición inicial tiene que hacerse **antes** de tocar las herramientas, porque mide el piloto «sin cambiar nada».
+Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno, las preguntas una a una. No se juntan ni se adelantan apartados.
+
+Única excepción: los casos (2.2) y la medición «antes» (2.3) se hicieron antes que el resto, porque la medición tenía que ser del piloto «sin cambiar nada». Al llegar a esos apartados se revisan y se pasan al informe.
 
 | # | Apartado | Produce | Cómo se comprueba | Estado |
 |---|---|---|---|---|
-| 1 | 2.2 Casos de prueba | `pruebas/mis_casos.json` | Revisión del fichero (es un entregable de datos) | Pendiente |
-| 2 | 2.3 Medición inicial, con los dos modelos | `resultados/antes.json`, `resultados/antes_qwen3-4b.json` | Comando | Pendiente |
-| 3 | 1.1 Herramientas | `albor/herramientas.py` | Revisión y carga del módulo | Pendiente |
-| 4 | 3 Protección | `albor/guardas.py`, `albor/configuracion.py` | Revisión y comprobaciones en la terminal, sin modelo | Pendiente |
-| 5 | 3 Nueva medición, con los dos modelos | `resultados/despues.json`, `resultados/despues_qwen3-4b.json` | Comando | Pendiente |
-| 6 | 1.2 Arquitectura, 2.1 Métricas, 4 Postmortem, observabilidad y recomendación | Secciones de `informe.md` | Redacción | Pendiente |
-| 7 | Informe y zip | `informe.pdf` y `caso_albor_<apellido>_<nombre>.zip` | — | Pendiente |
+| 1.1 | Herramientas | Propuesta en `albor/herramientas_copia.py` y tabla en `informe.md` | Revisión y carga del módulo | Hecho (la propuesta pasa a `herramientas.py` al empezar la parte 3) |
+| 1.2a | Arquitectura: ¿qué canales hay y qué herramientas ve cada uno? | `informe.md` | Redacción | Pendiente |
+| 1.2b | Arquitectura: ¿qué es síncrono y qué asíncrono? ¿Dónde y cómo interviene una persona? | `informe.md` | Redacción | Pendiente |
+| 1.2c | Arquitectura: ¿qué estado o memoria se guarda y qué no? | `informe.md` | Redacción | Pendiente |
+| 1.2d | Arquitectura: ¿un agente o multiagente? (coste, latencia y complejidad) | `informe.md` | Redacción | Pendiente |
+| 1.2e | Arquitectura: diagrama | Imagen en el informe | Revisión | Pendiente |
+| 2.1 | Métricas: calidad, fiabilidad, latencia, disponibilidad y coste, cada una con umbral y porqué | `informe.md` | Redacción | Pendiente |
+| 2.2 | Casos de prueba | `pruebas/mis_casos.json` y resumen en `informe.md` | Revisión del fichero (es un entregable de datos) | Casos hechos (18); falta decidir N6 y el resumen |
+| 2.3 | Medición inicial, con los dos modelos | `resultados/antes.json`, `resultados/antes_qwen3-4b.json` y resumen en `informe.md` | Comando | Medición hecha; falta el resumen (fallos, tasa de éxito, pass^3 y pass@3) |
+| 3a | Pasar la propuesta de 1.1 a `herramientas.py` | `albor/herramientas.py` | Revisión y carga del módulo | Pendiente |
+| 3b | Mínimo privilegio: herramientas por conversación y acciones solo para el titular | `albor/configuracion.py`, `albor/guardas.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3c | Validación en código de las acciones irreversibles | `albor/guardas.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3d | Aprobación humana de los reembolsos de más de 300 € | `albor/guardas.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3e | Defensa frente a la inyección de prompt indirecta | `albor/guardas.py`, `albor/configuracion.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3f | Protección de los datos personales en la entrada o en la salida | `albor/guardas.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3g | Nueva medición, con los dos modelos | `resultados/despues.json`, `resultados/despues_qwen3-4b.json` | Comando | Pendiente |
+| 3h | Controles implementados y tabla antes/después | `informe.md` | Redacción | Pendiente |
+| 4.1 | Postmortem | `informe.md` | Redacción | Pendiente |
+| 4.2 | Observabilidad: qué registrar, qué no y al menos tres alertas | `informe.md` | Redacción | Pendiente |
+| 4.3 | Recomendación | `informe.md` | Redacción | Pendiente |
+| 5 | Resumen ejecutivo, informe en PDF y zip | `informe.md`, `informe.pdf` y `caso_albor_<apellido>_<nombre>.zip` | — | Pendiente |
 
-Dos reglas que salen de este orden:
+Dos reglas para que la comparación antes/después valga:
 - **Los casos solo nombran herramientas que van a seguir existiendo.** Si un caso pide una herramienta que luego se renombra o se elimina, fallaría en el «después» por un motivo que no tiene nada que ver con la seguridad.
 - **Mismos casos y mismas repeticiones** antes y después, para que la comparación valga.
 

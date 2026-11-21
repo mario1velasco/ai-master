@@ -32,6 +32,7 @@ Guía para un agente que trabaje en esta carpeta. Tiene prioridad sobre el `AGEN
 - **Lo más parecido al original**: mismo estilo, misma estructura y mismas formas de hacerlo que el kit y que el código del tema. Se adapta lo de Lumen Shop a Hoteles Albor (datos, nombres, reglas de la política) y nada más.
 - **Las reglas de negocio** salen solo del PDF y de `albor/hotel.py` (política, importes, titulares).
 - **Nada de fuera de esta carpeta**: ni librerías nuevas, ni patrones, ni reglas, ni código de otros temas o proyectos del repositorio. **Si hace falta algo que no está aquí, se pregunta antes** y se explica por qué.
+- **Excepción: la 1.2 (arquitectura, solo diseño en el informe).** Lo que manda es el Tema 9 (`sesion2/permisos.py`, `sesion3/supervision.py`, la sesión 3 sobre qué registrar y qué no, las métricas de la sesión 1). La teoría del Tema 8 (`../../08_ia_agentica_automatiz_agentes/`: `04-memoria-contexto-estado`, `05-sistemas-multiagente`, `06-prod-integracion-empresarial`) se usa solo de apoyo, para lo que el Tema 9 no cubre. Nunca para código.
 - Si algo no se puede hacer con lo que hay, se dice; no se rellena con una suposición.
 
 ## Qué se toca y qué no
@@ -77,6 +78,7 @@ LLM_MODEL=qwen3:4b-instruct python -m pruebas.medir --casos pruebas/mis_casos.js
 
 ## Orden obligatorio
 
+0. **Se sigue el orden del enunciado** (1.1, 1.2, 2.1, 2.2, 2.3, 3, 4.1, 4.2, 4.3): un apartado cada vez y, dentro de cada uno, las preguntas una a una. No se juntan ni se adelantan apartados, y lo que se le cuente al usuario se ordena igual. El plan y el estado de cada apartado están en la tabla «Plan de trabajo» del `README.md`. La única excepción es el punto 1 (los casos y la medición «antes», ya hechos).
 1. **La medición «antes» va antes de tocar `herramientas.py`, `guardas.py` o `configuracion.py`.** El PDF pide medir el piloto «sin cambiar nada». Comprueba con `diff` contra `caso-hoteles-albor-original/albor/` que esos ficheros siguen intactos antes de medir.
 2. **Los casos de `mis_casos.json` solo nombran herramientas que van a seguir existiendo** después del rediseño. Si no, fallarían en el «después» por un cambio de nombre, no por seguridad.
 3. **Mismos casos y 3 repeticiones** en todas las mediciones.
