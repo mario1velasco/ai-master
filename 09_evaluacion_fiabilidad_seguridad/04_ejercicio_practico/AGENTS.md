@@ -4,9 +4,10 @@ Guía para un agente que trabaje en esta carpeta. Tiene prioridad sobre el `AGEN
 
 ## Fuentes
 
-- **El enunciado manda**: `[Tema 9] Evaluación y control de la fiabilidad y seguridad en sistemas de agentes.pdf`. Si algo de esta guía o del README lo contradice, gana el PDF.
+- **El enunciado manda**: léelo en `[Tema 9] Evaluación y control de la fiabilidad y seguridad en sistemas de agentes.md`, el PDF del mismo nombre pasado a Markdown con el mismo contenido (el PDF es el original). Si algo de esta guía o del README lo contradice, gana el enunciado.
 - **`README.md`**: el resumen del reto, el plan de trabajo en orden y el **estado** de cada apartado. Léelo antes de empezar.
 - **`informe.md`**: el borrador del informe; cada apartado de diseño o redacción se escribe ahí.
+- **`changelog.md`**: el historial de decisiones del ejercicio, con fecha y hora. Léelo para saber qué se ha decidido y por qué antes de proponer algo.
 - El temario de referencia son las `explicacion-09.md` de las tres sesiones del tema (`../01_…`, `../02_…`, `../03_…`): métricas y pass^k, guardarraíles en cuatro puntos, mínimo privilegio, procedencia, supervisión y postmortem.
 
 ## Regla principal: no inventar nada
@@ -102,5 +103,7 @@ Va dirigido a la **Directora de Operaciones**: PDF de 6 páginas como máximo, c
 `.zip` con `caso-hoteles-albor-v1/` (sin `.venv` ni `.env`) y el informe. Los resultados de `qwen3:4b-instruct` no son obligatorios en el zip.
 
 ## Mantenimiento de la documentación
+
+**Cada decisión se apunta en `changelog.md`** en el mismo momento en que se toma: una entrada nueva arriba del todo (lo más reciente primero) con fecha y hora (`date '+%Y-%m-%d %H:%M'`), un título corto, **Decisión** y **Por qué** (o **Hallazgo** y **Pendiente** si aún no se ha decidido). Bien explicada y breve. Cuando se cierra algo pendiente, se añade una entrada nueva; no se reescriben las anteriores.
 
 Al cerrar un apartado, actualiza su **Estado** en la tabla «Plan de trabajo» del `README.md`. Si cambia algo de lo que describe esta guía (ficheros, orden, comandos), actualízala en el mismo cambio. Cambios puntuales: edita solo esas líneas.

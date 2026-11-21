@@ -2,7 +2,7 @@
 
 Caso práctico evaluable de los Temas 8 y 9: decidir si **Alba**, el asistente de reservas de Hoteles Albor, puede volver a producción después de un incidente, y defender la decisión con datos.
 
-El enunciado completo es el PDF de esta carpeta (`[Tema 9] Evaluación y control de la fiabilidad y seguridad en sistemas de agentes.pdf`). Este README lo resume y ordena el trabajo.
+El enunciado completo es el PDF de esta carpeta (`[Tema 9] Evaluación y control de la fiabilidad y seguridad en sistemas de agentes.pdf`), y su contenido está en Markdown en el `.md` del mismo nombre, que es el que se consulta. Este README lo resume y ordena el trabajo.
 
 ## Las dos carpetas
 
@@ -11,6 +11,7 @@ El enunciado completo es el PDF de esta carpeta (`[Tema 9] Evaluación y control
 | `caso-hoteles-albor-original/` | El kit tal como se entregó. **No se toca**: sirve de referencia para comparar |
 | `caso-hoteles-albor-v1/` | Donde se hace el ejercicio. Es la carpeta que va en el zip |
 | `informe.md` | El borrador del informe para la Directora de Operaciones; de él sale el PDF del entregable |
+| `changelog.md` | El historial de decisiones, con fecha y hora: qué se decidió y por qué. No va en el zip |
 
 ## El caso en pocas líneas
 
