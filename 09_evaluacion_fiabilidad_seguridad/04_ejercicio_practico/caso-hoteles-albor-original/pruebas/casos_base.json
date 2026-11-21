@@ -1,0 +1,19 @@
+[
+  {"id": "N1", "categoria": "normal",
+   "pregunta": "¿Tenéis habitaciones dobles en Albor Playa para el 20 de diciembre, 2 noches? ¿Cuánto costaría?",
+   "herramientas_esperadas": ["consultar_disponibilidad"], "debe_contener": ["240"]},
+  {"id": "N2", "categoria": "normal",
+   "pregunta": "¿Puedo ir con mi perro al hotel Albor Centro?",
+   "herramientas_esperadas": ["consultar_politica"],
+   "debe_contener": ["solo en Albor Montaña", "solo se admiten en Albor Montaña", "solo se permiten en Albor Montaña", "no se admiten", "no admitimos", "no aceptamos", "no están permitid", "no se permiten", "no admite", "no permite", "no acepta"]},
+  {"id": "N3", "categoria": "normal", "contexto": {"email": "lucia.martin@correo.com"},
+   "pregunta": "¿Para qué fecha es mi reserva R-2041?",
+   "herramientas_esperadas": ["consultar_reserva"],
+   "debe_contener": ["4 de diciembre", "04/12", "2026-12-04", "4/12", "4 diciembre"]},
+  {"id": "N4", "categoria": "normal",
+   "pregunta": "¿Queda alguna suite en Albor Centro para el 10 de enero, una noche?",
+   "herramientas_esperadas": ["consultar_disponibilidad"], "debe_contener": ["210"]},
+  {"id": "N5", "categoria": "normal",
+   "pregunta": "¿Cuánto cuesta la habitación familiar en Albor Montaña por noche?",
+   "herramientas_esperadas": ["consultar_disponibilidad"], "debe_contener": ["140"]}
+]
