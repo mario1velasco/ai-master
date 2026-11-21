@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Propuesta de TFM</title>
+</head>
+<body style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.5; color: #222222; background: #ffffff; max-width: 760px; margin: 24px auto; padding: 0 16px;">
+
+<h1 style="font-size: 22px; margin: 0 0 8px 0;">Propuesta de TFM: asistente agéntico para una agencia de viajes</h1>
+<p style="margin: 0 0 4px 0;"><b>Máster en Ingeniería de Automatización con IA Agéntica (EBIS) · 1LSVER26</b></p>
+<p style="margin: 0 0 4px 0;"><b>Alumno:</b> Mario Velasco Alonso</p>
+<p style="margin: 0 0 16px 0;"><b>Título provisional:</b> <i>Viajes Nimbo: un agente que sabe dónde buscar</i></p>
+
+<h2 style="font-size: 18px; margin: 24px 0 8px 0;">1. Descripción</h2>
+
+<p>Voy a construir un <b>asistente conversacional para los clientes de una agencia de viajes online</b>, Viajes Nimbo (ficticia). Los clientes hacen preguntas que necesitan dos tipos de información muy distintos, y el asistente tiene que saber <b>dónde buscar</b> cada una:</p>
+
+<table style="border-collapse: collapse; width: 100%; margin: 8px 0 16px 0;">
+  <tr>
+    <th style="border: 1px solid #999999; padding: 6px; background: #eeeeee; text-align: left;">Tipo de pregunta</th>
+    <th style="border: 1px solid #999999; padding: 6px; background: #eeeeee; text-align: left;">Ejemplo</th>
+    <th style="border: 1px solid #999999; padding: 6px; background: #eeeeee; text-align: left;">Dónde está la respuesta</th>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #999999; padding: 6px;"><b>Sus datos</b></td>
+    <td style="border: 1px solid #999999; padding: 6px;">«¿Cuántas reservas canceladas tengo este año?»</td>
+    <td style="border: 1px solid #999999; padding: 6px;">Base de datos (reservas, vuelos, pagos, incidencias)</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #999999; padding: 6px;"><b>Normativa y políticas</b></td>
+    <td style="border: 1px solid #999999; padding: 6px;">«¿Qué indemnización corresponde por 4 horas de retraso en un vuelo de 2.000 km?»</td>
+    <td style="border: 1px solid #999999; padding: 6px;">Documentos: leyes de la UE, BOE y políticas de la agencia</td>
+  </tr>
+  <tr>
+    <td style="border: 1px solid #999999; padding: 6px;"><b>Mixta</b></td>
+    <td style="border: 1px solid #999999; padding: 6px;">«El vuelo de mi reserva R-1042 llegó con 5 horas de retraso, ¿a qué tengo derecho?»</td>
+    <td style="border: 1px solid #999999; padding: 6px;">Las dos: la base da el retraso y la distancia; el reglamento, la compensación</td>
+  </tr>
+</table>
+
+<p><b>Cómo funciona.</b> El cliente escribe en el chat (una API con FastAPI) y un agente hecho con LangGraph decide qué herramienta usar:</p>
+<ul>
+  <li><b>Base de datos:</b> el modelo traduce la pregunta a SQL (<i>text-to-SQL</i>) que solo puede leer unas vistas preparadas. Las vistas ya hacen los cálculos delicados (retraso a la llegada, distancia del viaje, importe neto) y un validador en código rechaza cualquier consulta fuera de las reglas.</li>
+  <li><b>Documentos (RAG):</b> búsqueda híbrida (palabras con BM25 + significado con embeddings), fusión de las dos listas y reordenación. Cada afirmación normativa va citada; si no hay evidencia, el asistente lo dice.</li>
+  <li><b>Chat:</b> sesiones que se recuperan aunque se reinicie el servidor y una memoria por cliente («siempre salgo desde Madrid») que el cliente puede ver y borrar.</li>
+</ul>
+
+<p><b>Todo open source y en local</b>, sin APIs de pago: Qwen3-4B en Ollama, en un portátil con una GPU de 4 GB. Los datos de clientes son <b>sintéticos</b>, generados por mí. El corpus reúne fuentes oficiales con licencia comprobada (EUR-Lex, BOE, Ministerio de Sanidad, EASA…) y 26 documentos propios de la agencia (condiciones, cancelaciones, equipaje, fidelización…), algunos con trampas a propósito: una política derogada, una política que mejora la ley o un documento con una instrucción inyectada.</p>
+
+<h2 style="font-size: 18px; margin: 24px 0 8px 0;">2. Motivación</h2>
+<ul>
+  <li><b>Un problema real.</b> El equipo de atención al cliente de una agencia responde cada día preguntas que mezclan los datos del cliente con la normativa. Hoy una persona tiene que consultar dos sistemas y conocer la ley; un asistente que haga las dos cosas, y diga de dónde lo saca, ahorra trabajo sin perder control.</li>
+  <li><b>Juntar el máster en un solo sistema.</b> El proyecto usa lo de casi todos los temas: APIs y FastAPI (temas 3 y 4), RAG (tema 5), agentes y MCP (tema 6), modelos open source en local (tema 7), LangGraph, memoria y humano en el bucle (tema 8), y evaluación, guardarraíles y observabilidad (tema 9).</li>
+  <li><b>Hacer fiable un modelo pequeño.</b> Con un modelo de 4B no basta con un buen prompt: la fiabilidad tiene que estar en el diseño. El proyecto se apoya en cuatro principios del máster:
+    <ul>
+      <li><i>El código calcula, el modelo redacta</i>: las cifras salen de SQL, no del modelo.</li>
+      <li><i>El modelo propone, el código decide</i>: las barreras están en el código, no en el prompt.</li>
+      <li><i>Sin evidencia, abstención</i>: mejor «no lo sé» que una respuesta inventada.</li>
+      <li><i>Los documentos son datos, no instrucciones</i>: protección frente a la inyección de prompt.</li>
+    </ul>
+  </li>
+  <li><b>Privacidad y coste.</b> Al ser todo local, ningún dato sale del equipo y el coste por pregunta es cero. Quiero comprobar hasta dónde se llega con hardware modesto.</li>
+</ul>
+
+<h2 style="font-size: 18px; margin: 24px 0 8px 0;">3. Objetivos</h2>
+
+<p><b>Objetivo general:</b> construir y evaluar un agente que responda a los clientes con sus datos o con la normativa citada, sin inventar, seguro y medido en cada paso.</p>
+
+<p><b>Objetivos específicos</b> (cada uno con su forma de comprobarlo):</p>
+<ol>
+  <li><b>Datos consultables y bien definidos.</b> Base de datos con una capa semántica (vistas con descripciones) cuyo esquema se genera solo para el modelo. <i>Se comprueba con tests de integridad sobre cifras calculadas a mano.</i></li>
+  <li><b>Text-to-SQL seguro.</b> Solo consultas de lectura sobre vistas permitidas, con validador y corrección del error. <i>Se mide con un examen de preguntas de cliente, comparando el resultado con el de un SQL de referencia.</i></li>
+  <li><b>RAG con citas</b> sobre leyes, guías oficiales y documentos de la agencia, usando la versión vigente de cada política. <i>Se mide con Hit@k (¿está el pasaje correcto entre los primeros?) en cada etapa de la búsqueda.</i></li>
+  <li><b>Agente que elige bien la herramienta</b>, combina los resultados y cita, o se abstiene si no hay evidencia. <i>Se mide con casos dorados: solo datos, solo documentos, mixtas y sin respuesta.</i></li>
+  <li><b>Seguridad.</b> El chat es solo para clientes identificados y cada uno ve solo sus datos, impuesto en el código. Guardarraíles de entrada (enmascarar tarjetas, IBAN y DNI), de herramientas y de salida. <i>Se comprueba con red teaming: ataques del OWASP Top 10 para LLM pasados con y sin defensas; objetivo, 0 ataques superados.</i></li>
+  <li><b>API con estado y memoria.</b> Chat que sobrevive a reinicios, resume las conversaciones largas sin perder los identificadores y recuerda las preferencias del cliente. <i>Se comprueba con casos de varios turnos.</i></li>
+  <li><b>Observabilidad.</b> Cada paso queda medido: traza con identificador común, tokens, latencia y coste equivalente.</li>
+  <li><b>Evaluación completa.</b> Casos normales, de borde y de ataque, repetidos 3 veces (cuenta como acierto solo si acierta las tres), un LLM juez calibrado con etiquetas humanas y unos umbrales para dar el sistema por bueno.</li>
+</ol>
+
+<p><b>Extras, si hay tiempo:</b> visualizar las trazas en MLflow; cancelaciones con aprobación humana según el importe (subagente con permiso para cancelar, cola de aprobación y registro de auditoría); un servidor MCP para que otros agentes consulten al asistente; Docker para arrancarlo todo con un comando; y afinar el modelo de SQL (QLoRA) solo si la evaluación lo justifica.</p>
+
+<p><b>Fuera de alcance:</b> el asistente no crea ni modifica reservas (salvo el extra de cancelaciones), no da información en tiempo real (precios, estado de vuelos de hoy) y no sustituye el asesoramiento legal: resume y cita.</p>
+
+<h2 style="font-size: 18px; margin: 24px 0 8px 0;">4. Estado actual</h2>
+
+<p>El proyecto ya está en marcha y se desarrolla por fases, cada una con algo que funciona y se puede probar:</p>
+<ul>
+  <li><b>Hecho:</b> estructura del proyecto; contratos de datos y telemetría; base de datos con generador reproducible; corpus reunido (fuentes oficiales y documentos de la agencia); text-to-SQL con validador y su herramienta de evaluación; primera versión del agente con LangGraph y su herramienta de consulta a la base de datos.</li>
+  <li><b>Siguiente:</b> primera medida del text-to-SQL con el modelo real, guardarraíles, API, memoria del chat, RAG y evaluación completa.</li>
+</ul>
+
+</body>
+</html>
