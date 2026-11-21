@@ -10,7 +10,7 @@ El enunciado completo es el PDF de esta carpeta (`[Tema 9] Evaluación y control
 |---|---|
 | `caso-hoteles-albor-original/` | El kit tal como se entregó. **No se toca**: sirve de referencia para comparar |
 | `caso-hoteles-albor-v1/` | Donde se hace el ejercicio. Es la carpeta que va en el zip |
-| `tickets/` | Los tickets de los apartados que llevan código o datos (`ALBOR-NNN-*.md`). No van en el zip |
+| `informe.md` | El borrador del informe para la Directora de Operaciones; de él sale el PDF del entregable |
 
 ## El caso en pocas líneas
 
@@ -76,15 +76,15 @@ Todo en el informe:
 
 El orden no es el de las partes: la medición inicial tiene que hacerse **antes** de tocar las herramientas, porque mide el piloto «sin cambiar nada».
 
-| # | Apartado | Produce | Ticket | Desarrollo | Estado |
-|---|---|---|---|---|---|
-| 1 | 2.2 Casos de prueba | `pruebas/mis_casos.json` | Sí | Revisión del fichero (es un entregable de datos) | Pendiente |
-| 2 | 2.3 Medición inicial, con los dos modelos | `resultados/antes.json`, `resultados/antes_qwen3-4b.json` | No | Comando | Pendiente |
-| 3 | 1.1 Herramientas | `albor/herramientas.py` | Sí | TDD sin ficheros de test | Pendiente |
-| 4 | 3 Protección | `albor/guardas.py`, `albor/configuracion.py` | Sí (uno o varios, se decide al planificar) | TDD sin ficheros de test | Pendiente |
-| 5 | 3 Nueva medición, con los dos modelos | `resultados/despues.json`, `resultados/despues_qwen3-4b.json` | No | Comando | Pendiente |
-| 6 | 1.2 Arquitectura, 2.1 Métricas, 4 Postmortem, observabilidad y recomendación | Secciones del informe | No | Redacción | Pendiente |
-| 7 | Informe y zip | `informe.pdf` y `caso_albor_<apellido>_<nombre>.zip` | No | — | Pendiente |
+| # | Apartado | Produce | Cómo se comprueba | Estado |
+|---|---|---|---|---|
+| 1 | 2.2 Casos de prueba | `pruebas/mis_casos.json` | Revisión del fichero (es un entregable de datos) | Pendiente |
+| 2 | 2.3 Medición inicial, con los dos modelos | `resultados/antes.json`, `resultados/antes_qwen3-4b.json` | Comando | Pendiente |
+| 3 | 1.1 Herramientas | `albor/herramientas.py` | Revisión y carga del módulo | Pendiente |
+| 4 | 3 Protección | `albor/guardas.py`, `albor/configuracion.py` | Revisión y comprobaciones en la terminal, sin modelo | Pendiente |
+| 5 | 3 Nueva medición, con los dos modelos | `resultados/despues.json`, `resultados/despues_qwen3-4b.json` | Comando | Pendiente |
+| 6 | 1.2 Arquitectura, 2.1 Métricas, 4 Postmortem, observabilidad y recomendación | Secciones de `informe.md` | Redacción | Pendiente |
+| 7 | Informe y zip | `informe.pdf` y `caso_albor_<apellido>_<nombre>.zip` | — | Pendiente |
 
 Dos reglas que salen de este orden:
 - **Los casos solo nombran herramientas que van a seguir existiendo.** Si un caso pide una herramienta que luego se renombra o se elimina, fallaría en el «después» por un motivo que no tiene nada que ver con la seguridad.

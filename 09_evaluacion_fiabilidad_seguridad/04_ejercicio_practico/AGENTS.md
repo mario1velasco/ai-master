@@ -6,7 +6,7 @@ Guía para un agente que trabaje en esta carpeta. Tiene prioridad sobre el `AGEN
 
 - **El enunciado manda**: `[Tema 9] Evaluación y control de la fiabilidad y seguridad en sistemas de agentes.pdf`. Si algo de esta guía o del README lo contradice, gana el PDF.
 - **`README.md`**: el resumen del reto, el plan de trabajo en orden y el **estado** de cada apartado. Léelo antes de empezar.
-- **`tickets/ALBOR-NNN-*.md`**: un ticket por apartado con código o datos. Los criterios de aceptación de cada ticket son lo que hay que cumplir.
+- **`informe.md`**: el borrador del informe; cada apartado de diseño o redacción se escribe ahí.
 - El temario de referencia son las `explicacion-09.md` de las tres sesiones del tema (`../01_…`, `../02_…`, `../03_…`): métricas y pass^k, guardarraíles en cuatro puntos, mínimo privilegio, procedencia, supervisión y postmortem.
 
 ## Regla principal: no inventar nada
@@ -83,14 +83,8 @@ LLM_MODEL=qwen3:4b-instruct python -m pruebas.medir --casos pruebas/mis_casos.js
 ## Flujo de trabajo
 
 - **Propuesta antes de implementar**: enseña qué vas a cambiar y espera el OK antes de escribir código.
-- **Un ticket por apartado con código o datos**, con la skill `plan-ticket`, guardado en `tickets/` (clave `ALBOR`). Los apartados que solo son preguntas (arquitectura, métricas, postmortem, observabilidad, recomendación) no llevan ticket: van en el informe.
-- **Desarrollo con la skill `tdd`, pero sin ficheros de test.** No se crean tests ni carpetas de tests. Cada criterio de aceptación se comprueba con Python ejecutado en la terminal desde `caso-hoteles-albor-v1/` (`python - <<'EOF' … EOF`), sin guardarlo:
-  1. **Rojo**: la comprobación falla, y por el motivo esperado.
-  2. **Verde**: el código mínimo para que pase.
-  3. **Parar** y enseñar el resultado para revisión antes del siguiente criterio.
-
-  Las comprobaciones llaman al código directamente (`Guardas().revisar_herramienta(...)`, `CATALOGO[...]`, `crear_agente(...)`), sin modelo, para que sean deterministas. Al modelo solo se le llama en las mediciones.
-- **`mis_casos.json` es un entregable de datos**: se comprueba revisándolo (y cargándolo con `json`), sin TDD.
+- **Sin tickets ni TDD** en este ejercicio. Lo que es código (`herramientas.py`, `guardas.py`, `configuracion.py`) se comprueba cargándolo y, si hace falta, con Python ejecutado en la terminal desde `caso-hoteles-albor-v1/` (`python - <<'EOF' … EOF`), sin guardarlo y sin modelo, para que sea determinista. Al modelo solo se le llama en las mediciones. No se crean tests ni carpetas de tests.
+- **`mis_casos.json` es un entregable de datos**: se comprueba revisándolo (y cargándolo con `json`).
 - **Commits solo cuando el usuario los pida.**
 
 ## Mediciones y conclusiones
@@ -105,7 +99,7 @@ Va dirigido a la **Directora de Operaciones**: PDF de 6 páginas como máximo, c
 
 ## Entregable
 
-`.zip` con `caso-hoteles-albor-v1/` (sin `.venv` ni `.env`) y el informe. Los resultados de `qwen3:4b-instruct` y la carpeta `tickets/` no son obligatorios en el zip.
+`.zip` con `caso-hoteles-albor-v1/` (sin `.venv` ni `.env`) y el informe. Los resultados de `qwen3:4b-instruct` no son obligatorios en el zip.
 
 ## Mantenimiento de la documentación
 
