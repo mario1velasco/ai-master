@@ -9,6 +9,30 @@ Guía para un agente que trabaje en esta carpeta. Tiene prioridad sobre el `AGEN
 - **`tickets/ALBOR-NNN-*.md`**: un ticket por apartado con código o datos. Los criterios de aceptación de cada ticket son lo que hay que cumplir.
 - El temario de referencia son las `explicacion-09.md` de las tres sesiones del tema (`../01_…`, `../02_…`, `../03_…`): métricas y pass^k, guardarraíles en cuatro puntos, mínimo privilegio, procedencia, supervisión y postmortem.
 
+## Regla principal: no inventar nada
+
+**Solo se usa código que ya existe en `09_evaluacion_fiabilidad_seguridad/`, y lo implementado se parece lo más posible al original.**
+
+- **Las únicas fuentes de código** son el kit (`caso-hoteles-albor-original/`) y el código del tema:
+
+  | Para | Referencia en el tema |
+  |---|---|
+  | Herramientas con esquema y riesgo | `codigo_ejercicios/comun/herramientas.py` |
+  | Guardarraíles en cuatro puntos (entrada, herramientas, resultados, salida) | `codigo_ejercicios/sesion2/guardarrailes.py` |
+  | Perfiles de mínimo privilegio | `codigo_ejercicios/sesion2/permisos.py` |
+  | Inyección indirecta y contenido no fiable | `codigo_ejercicios/sesion2/inyeccion.py` |
+  | Procedencia: bloquear lo irreversible tras leer contenido de terceros | `02_guardarailes_seguridad/Soluciones_sesion2/deber_reto.py` |
+  | Detector de alucinaciones como guardarraíl de salida | `codigo_ejercicios/sesion2/alucinaciones.py`, `02_guardarailes_seguridad/Soluciones_sesion2/deber_base.py` |
+  | Supervisión y aprobación humana | `codigo_ejercicios/sesion3/supervision.py` |
+  | Casos de prueba y sus claves | `codigo_ejercicios/sesion1/casos.json`, `codigo_ejercicios/comun/evaluacion.py`, `01_medir_metricas_pruebas_benchmarks/Soluciones_sesion1/deber_base.py` |
+  | Ataques y casos de regresión | `codigo_ejercicios/sesion3/ataques.json`, `03_evalucacion_control_fiabilidad_seguridad/Soluciones_sesion3/deber_reto.py` |
+  | Postmortem y alertas | `codigo_ejercicios/sesion3/incidente.py`, `03_evalucacion_control_fiabilidad_seguridad/Soluciones_sesion3/deber_base.py` |
+
+- **Lo más parecido al original**: mismo estilo, misma estructura y mismas formas de hacerlo que el kit y que el código del tema. Se adapta lo de Lumen Shop a Hoteles Albor (datos, nombres, reglas de la política) y nada más.
+- **Las reglas de negocio** salen solo del PDF y de `albor/hotel.py` (política, importes, titulares).
+- **Nada de fuera de esta carpeta**: ni librerías nuevas, ni patrones, ni reglas, ni código de otros temas o proyectos del repositorio. **Si hace falta algo que no está aquí, se pregunta antes** y se explica por qué.
+- Si algo no se puede hacer con lo que hay, se dice; no se rellena con una suposición.
+
 ## Qué se toca y qué no
 
 | No se toca | Por qué |
