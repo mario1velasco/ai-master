@@ -94,8 +94,8 @@ Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno,
 | 3.1 | Mínimo privilegio: herramientas por conversación y acciones solo para el titular | `albor/configuracion.py`, `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
 | 3.2 | Validación en código de las acciones irreversibles | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
 | 3.3 | Aprobación humana de los reembolsos de más de 300 € | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
-| 3.4 | Defensa frente a la inyección de prompt indirecta | `albor/guardas.py`, `albor/configuracion.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
-| 3.5 | Protección de los datos personales en la entrada o en la salida | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3.4 | Defensa frente a la inyección de prompt indirecta | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
+| 3.5 | Protección de los datos personales en la entrada o en la salida | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
 | 3.6 | Nueva medición con los dos modelos y tabla antes/después | `resultados/despues.json`, `resultados/despues_qwen3-4b.json` y sección en `informe.md` | Comando | Pendiente |
 | 4.1 | Postmortem | `informe.md` | Redacción | Pendiente |
 | 4.2 | Observabilidad: qué registrar, qué no y al menos tres alertas | `informe.md` | Redacción | Pendiente |

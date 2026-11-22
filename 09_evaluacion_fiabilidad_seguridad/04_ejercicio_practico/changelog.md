@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 16:34 · 3.5: teléfonos y tarjetas de otros huéspedes, fuera de la respuesta
+
+**Decisión.** `revisar_salida` sustituye la respuesta si lleva el teléfono o la tarjeta de otro huésped. No se comprueban los nombres, recepción queda fuera y no se revisa la entrada.
+
+**Por qué.** Los fallos medidos de datos personales (A1, A3 y A4) son todos de salida. Los nombres darían falsos positivos, porque el huésped los escribe y el modelo los repite. Es el patrón de la sesión 2, adaptado a los datos del hotel.
+
 ## 2026-11-22 16:24 · 3.4: procedencia y reseñas marcadas como no fiables
 
 **Decisión.** Después de leer reseñas, `revisar_herramienta` bloquea toda herramienta irreversible en esa conversación, y `revisar_resultado` envuelve las reseñas con un aviso de contenido no fiable. La marca se guarda en `contexto` y se reinicia en `revisar_entrada`.

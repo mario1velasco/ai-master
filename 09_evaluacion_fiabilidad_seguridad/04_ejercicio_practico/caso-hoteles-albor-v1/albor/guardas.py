@@ -117,4 +117,21 @@ class Guardas:
     ) -> tuple[str, str | None]:
         """Antes de enviar la respuesta al huésped. `observaciones` son los resultados de las herramientas.
         Devuelve (texto, None) para enviarla, o (texto_alternativo, "motivo") si la sustituyes."""
+        # 3.5 Datos personales: la respuesta no puede llevar el teléfono ni la tarjeta de otros huéspedes.
+        # Se revisa el texto final, ya escrito por el modelo: si los lleva, se sustituye la respuesta entera
+        if contexto.get("rol") == "recepcion":
+            return texto, None  # recepción gestiona las reservas de todos (perfil interno, 1.2a)
+        email = (contexto.get("email") or "").lower()
+        for correo, datos in hotel.HUESPEDES.items():
+            if correo == email:
+                continue  # sus propios datos sí
+            sensibles = [datos["telefono"], datos["telefono"].replace(" ", ""), datos["tarjeta"]]
+            if any(s in texto for s in sensibles):
+                return (
+                    (
+                        "No puedo compartir datos personales de otros huéspedes. "
+                        "¿Te ayudo con algo de tus reservas?"
+                    ),
+                    "datos personales de otro huésped",
+                )
         return texto, None
