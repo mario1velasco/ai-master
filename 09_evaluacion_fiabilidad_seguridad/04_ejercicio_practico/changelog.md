@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 16:24 · 3.4: procedencia y reseñas marcadas como no fiables
+
+**Decisión.** Después de leer reseñas, `revisar_herramienta` bloquea toda herramienta irreversible en esa conversación, y `revisar_resultado` envuelve las reseñas con un aviso de contenido no fiable. La marca se guarda en `contexto` y se reinicia en `revisar_entrada`.
+
+**Por qué.** La inyección de c-131 entró por una reseña. Marcarla ayuda, pero el modelo puede obedecer igualmente; la procedencia corta el camino en código. A7 es el caso donde se nota: la reseña pide cancelar una reserva del propio titular con el importe correcto, y sin la 3.4 solo la pararía la aprobación.
+
 ## 2026-11-22 16:09 · 3.2: el aviso de cancelación se le indica al modelo
 
 **Decisión.** La descripción de `cancelar_reserva` pide enviar siempre el email al titular con el importe real y no confirmar cancelaciones pendientes o bloqueadas, y `revisar_resultado` añade al resultado de una cancelación hecha un `siguiente_paso` con el email y el importe. `enviar_email` sigue en manos del modelo.

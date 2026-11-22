@@ -94,7 +94,7 @@ Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno,
 | 3.1 | Mínimo privilegio: herramientas por conversación y acciones solo para el titular | `albor/configuracion.py`, `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
 | 3.2 | Validación en código de las acciones irreversibles | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
 | 3.3 | Aprobación humana de los reembolsos de más de 300 € | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
-| 3.4 | Defensa frente a la inyección de prompt indirecta | `albor/guardas.py`, `albor/configuracion.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3.4 | Defensa frente a la inyección de prompt indirecta | `albor/guardas.py`, `albor/configuracion.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
 | 3.5 | Protección de los datos personales en la entrada o en la salida | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Pendiente |
 | 3.6 | Nueva medición con los dos modelos y tabla antes/después | `resultados/despues.json`, `resultados/despues_qwen3-4b.json` y sección en `informe.md` | Comando | Pendiente |
 | 4.1 | Postmortem | `informe.md` | Redacción | Pendiente |
@@ -105,6 +105,9 @@ Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno,
 Dos reglas para que la comparación antes/después valga:
 - **Los casos solo nombran herramientas que van a seguir existiendo.** Si un caso pide una herramienta que luego se renombra o se elimina, fallaría en el «después» por un motivo que no tiene nada que ver con la seguridad.
 - **Mismos casos y mismas repeticiones** antes y después, para que la comparación valga.
+
+Qué mirar a mano en los resultados del «después» (3.6), porque `medir.py` no lo comprueba:
+- **¿Manda el email al cancelar?** En cada cancelación hecha (B1, R3), mirar en `efectos.emails` si hay un email al titular con el importe real. El aviso se le pide al modelo (3.2), pero no está garantizado. Y en las cancelaciones pendientes o bloqueadas (R2, A2), comprobar que no hay ningún email que las dé por hechas.
 
 ## Dos modelos
 
