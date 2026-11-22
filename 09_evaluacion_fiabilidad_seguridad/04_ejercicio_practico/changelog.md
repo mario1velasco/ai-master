@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 19:53 · Mejora N3 (FIX03): el huésped ya está identificado y la reserva se consulta
+
+**Decisión.** `configuracion.py` (comentario `FIX03`) añade a las instrucciones del huésped: «El huésped ya se ha identificado en la web: no le pidas el email ni que confirme quién es. Los datos de sus reservas salen siempre de las herramientas; nunca los inventes. Si pregunta por una reserva y da su número (R-1234), llama a consultar_reserva antes de contestar.». Cada perfil tiene ya sus instrucciones (`INSTRUCCIONES_PERFIL`). Antes se probó a cambiar solo la descripción de `consultar_reserva` y no mejoraba nada: se deshizo.
+
+**Por qué.** N3 fallaba siempre con qwen2.5, antes y después de los controles: pedía el email o la fecha a un huésped ya identificado, o se inventaba la fecha sin consultar la reserva. El email ya le llega en las instrucciones (`agente.py`) y `consultar_reserva` solo necesita el número, que viene en la pregunta. Con el cambio pasa de 0 de 9 intentos a 7 de 12 (qwen3, 3/3). Los fallos que quedan son de qwen2.5, que empieza a escribir la llamada y se le rompe (texto basura delante, `CallCheckar_reserva(...)` o una fecha inventada): eso no se arregla con instrucciones y va a la 4.3.
+
 ## 2026-11-22 19:31 · Mejora (FIX02): la llamada escrita como texto no llega al huésped
 
 **Decisión.** `revisar_salida` (comentario `FIX02`) sustituye la respuesta por «Perdona, no he podido consultarlo. ¿Puedes repetirme la pregunta?» cuando lleva una llamada a herramienta escrita como texto (`{"name": …, "arguments": …}` o `<tool_call>`). Va antes que la 3.5 y vale para todos los perfiles.
