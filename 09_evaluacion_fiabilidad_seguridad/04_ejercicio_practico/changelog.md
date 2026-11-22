@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 08:11 · 1.2d: un solo agente
+
+**Decisión.** Un solo agente configurado por canal (perfiles de 1.2a). El multiagente con un lector de reseñas aislado se anota en el informe como alternativa más segura, descartada por ahora.
+
+**Por qué.** Coste (×2,3 tokens en la demo del Tema 8), latencia (p95 de 33 s ya con un agente) y complejidad. La regla del Tema 8, sesión 5: un equipo solo con contexto saturado, especialización o paralelismo, y aquí no hay ninguno. El lector aislado protege mejor de la inyección, pero la procedencia (`deber_reto.py`) ya corta ese camino con un agente y no hay código de clase para hacerlo.
+
 ## 2026-11-22 08:05 · 1.2c: estado por conversación y cola de aprobaciones; sin memoria a largo plazo
 
 **Decisión.** Se guarda el estado de cada conversación (canal y email del login, y si ha leído reseñas), la cola de aprobaciones (como `aprobaciones.json` de `sesion3/supervision.py`) y las conversaciones escaladas. Las cancelaciones automáticas no dejan estado pendiente: se ejecutan al momento y constan en el sistema de reservas y en la auditoría. No hay memoria entre conversaciones, nada de lo leído en reseñas se guarda y la cola no lleva teléfono ni tarjeta.

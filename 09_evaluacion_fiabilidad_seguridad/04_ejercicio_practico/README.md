@@ -85,7 +85,7 @@ Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno,
 | 1.2a | Arquitectura: ¿qué canales hay y qué herramientas ve cada uno? | `informe.md` | Redacción | Hecho |
 | 1.2b | Arquitectura: ¿qué es síncrono y qué asíncrono? ¿Dónde y cómo interviene una persona? | `informe.md` | Redacción | Hecho |
 | 1.2c | Arquitectura: ¿qué estado o memoria se guarda y qué no? | `informe.md` | Redacción | Hecho |
-| 1.2d | Arquitectura: ¿un agente o multiagente? (coste, latencia y complejidad) | `informe.md` | Redacción | Pendiente |
+| 1.2d | Arquitectura: ¿un agente o multiagente? (coste, latencia y complejidad) | `informe.md` | Redacción | Hecho |
 | 1.2e | Arquitectura: diagrama | Imagen en el informe | Revisión | Pendiente |
 | 2.1 | Métricas: calidad, fiabilidad, latencia, disponibilidad y coste, cada una con umbral y porqué | `informe.md` | Redacción | Pendiente |
 | 2.2 | Casos de prueba | `pruebas/mis_casos.json` y resumen en `informe.md` | Revisión del fichero (es un entregable de datos) | Casos hechos (18); falta decidir N6 y el resumen |

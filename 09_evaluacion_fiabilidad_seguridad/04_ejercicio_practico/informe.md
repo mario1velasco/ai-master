@@ -85,7 +85,21 @@ Alba atiende tres canales. El canal lo fija el inicio de sesión, no el modelo, 
 - **Nada de lo leído en reseñas.** Si pasara a una memoria, la inyección afectaría a todas las conversaciones siguientes.
 - **Teléfono ni tarjeta en la cola de aprobaciones**: basta con la reserva, el importe y el email.
 
-*Pendiente: uno o varios agentes, y diagrama.*
+#### Un solo agente
+
+Alba es **un solo agente**, configurado distinto en cada canal: mismas instrucciones y mismo bucle, pero con las herramientas y el alcance de su perfil.
+
+| Criterio | Un agente | Multiagente |
+|---|---|---|
+| **Coste** | El medido (parte 2) | Más llamadas al modelo por consulta: en la demo del curso, 2,3 veces más tokens |
+| **Latencia** | Ya es alta: mediana 14 s, p95 33 s | Peor: un coordinador y más llamadas antes de responder, en un chat donde el huésped espera |
+| **Complejidad** | Un solo flujo que se mide y se depura entero | Hay que coordinar agentes y, si algo falla, averiguar cuál se equivocó |
+
+Además, las tareas son **cortas y encadenadas** (consultar la reserva → mirar la política → cancelar), con pocas herramientas por canal y nada que hacer en paralelo. Varios agentes compensan cuando hay tareas amplias, especialidades distintas o mucho contexto, y aquí no se da ninguna.
+
+**Alternativa más segura, descartada por ahora.** Un segundo agente, **aislado y sin herramientas**, que solo lea las reseñas y devuelva un resumen. Alba no vería nunca el texto escrito por terceros, y la inyección del incidente no llegaría al agente que puede cancelar o enviar emails.
+
+*Pendiente: diagrama.*
 
 ## Parte 2 · Plan de evaluación y medición inicial
 
