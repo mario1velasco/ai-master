@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 11:41 · 3.1: mínimo privilegio con perfil y alcance
+
+**Decisión.** Tres perfiles en `configuracion.py` (`publico`, `huesped` y `recepcion`), elegidos por la sesión. En `revisar_herramienta`, las reservas y los datos personales solo del email de la sesión. Recepción no pasa por la regla de alcance.
+
+**Por qué.** Es el patrón de la sesión 2: lo que el modelo no ve no lo puede usar, y lo que ve, solo sobre los datos del titular. Recepción necesita ver todas las reservas y su perfil no tiene acciones irreversibles.
+
 ## 2026-11-22 11:28 · Parte 3: una sección del informe por control
 
 **Decisión.** La parte 3 del informe tiene una sección por cada control que pide el enunciado (3.1 mínimo privilegio, 3.2 validación de las acciones irreversibles, 3.3 aprobación humana, 3.4 inyección y 3.5 datos personales) y otra para la nueva medición (3.6). Cada control explica qué se ha hecho, cómo se comprobó sin modelo y qué casos lo cubren. Los apartados 3b–3f del README corresponden a las secciones 3.1–3.5, y los 3g–3h, a la 3.6.

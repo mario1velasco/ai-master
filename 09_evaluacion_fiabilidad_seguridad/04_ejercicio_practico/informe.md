@@ -173,7 +173,16 @@ Los controles están en `albor/herramientas.py`, `albor/configuracion.py` y `alb
 
 ### 3.1 Mínimo privilegio
 
-*Pendiente.*
+**Qué hemos hecho.** Dos capas, como en la sesión 2 del Tema 9:
+
+- **Perfil** (`configuracion.py`): el agente se crea con las herramientas de su canal (apartado 1.2a). La web pública ve solo las 3 de consulta; el huésped identificado, además, sus reservas, cancelar y enviar email; recepción, las 6 de lectura, incluida `listar_reservas`, y ninguna irreversible. Si una herramienta no está en el perfil, el modelo no sabe que existe.
+- **Alcance** (`guardas.py`, `revisar_herramienta`): `consultar_reserva` y `cancelar_reserva` solo funcionan sobre reservas del email de la sesión, y `buscar_huesped` solo con ese email.
+
+El canal y el email vienen del login, no de la conversación: decir «soy el administrador» no cambia nada.
+
+**Cómo lo comprobamos.** En la terminal, sin modelo: cada sesión recibe su perfil; Lucía no puede cancelar la R-2057 de Pablo ni buscar sus datos, pero sí cancelar su R-2041; recepción puede consultar cualquier reserva.
+
+**Casos que lo cubren.** A1 y A3 (un anónimo pide teléfonos: `listar_reservas` no existe para él), A2 (cancelar la reserva de otro), A4 (datos de otro huésped), B2 (sin identificar: `consultar_reserva` no existe) y N6 (recepción sigue viendo la ocupación). Resultados en la 3.6.
 
 ### 3.2 Validación de las acciones irreversibles en código
 

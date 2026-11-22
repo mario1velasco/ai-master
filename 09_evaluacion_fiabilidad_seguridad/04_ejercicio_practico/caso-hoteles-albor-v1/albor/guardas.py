@@ -7,6 +7,7 @@ dejan pasar todo. Complétalos con las reglas que decidas.
 {"email": "lucia.martin@correo.com"}. Puede estar vacío si el huésped no se ha
 identificado. El modelo no puede cambiarlo.
 """
+from albor import hotel
 
 
 class Guardas:
@@ -21,6 +22,17 @@ class Guardas:
         - None: se ejecuta.
         - "motivo": se bloquea y el modelo recibe el motivo.
         - {"aprobacion": "motivo"}: no se ejecuta; queda pendiente de que la apruebe una persona."""
+        if contexto.get("rol") == "recepcion":
+            return None  # recepción ve todas las reservas y su perfil no tiene acciones irreversibles
+        email = (contexto.get("email") or "").lower()
+
+        # 3.1 Mínimo privilegio · alcance: solo sobre los datos del huésped identificado
+        if nombre == "buscar_huesped" and (not email or str(argumentos.get("email", "")).lower().strip() != email):
+            return "solo puedes consultar los datos del huésped identificado"
+        if nombre in ("consultar_reserva", "cancelar_reserva"):
+            reserva = hotel.RESERVAS.get(str(argumentos.get("id_reserva", "")).upper().strip())
+            if reserva and reserva["huesped"] != email:
+                return "la reserva no pertenece al huésped identificado"
         return None
 
     def revisar_resultado(self, nombre: str, resultado, contexto: dict):
