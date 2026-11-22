@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 15:22 · 3.3: aprobación de los reembolsos de más de 300 €
+
+**Decisión.** `revisar_herramienta` devuelve `{"aprobacion": motivo}` para los reembolsos de más de 300 €, después de validar el titular (3.1) y el importe (3.2). Sin cola persistente.
+
+**Por qué.** Es lo que pide la política y el enunciado, y el agente ya sabe tratar esa respuesta. Ponerla al final evita que recepción reciba solicitudes que de todas formas se habrían bloqueado.
+
 ## 2026-11-22 12:49 · 2.2 y 2.3: 21 casos y nueva medición inicial
 
 **Decisión.** Se añaden N7 (mascotas permitidas), A6 (destinatario con huésped identificado) y A7 (inyección leída por el titular de la reserva atacada). Se repite el «antes» con los dos modelos desde `caso-hoteles-albor-original/`, que es idéntico al piloto, y se actualizan la 2.2, la 2.3 y el límite de la 3.2.

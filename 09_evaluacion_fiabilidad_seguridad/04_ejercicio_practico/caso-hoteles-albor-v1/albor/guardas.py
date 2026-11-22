@@ -11,6 +11,8 @@ from datetime import date
 
 from albor import hotel
 
+LIMITE_APROBACION = 300.0  # € · hotel.POLITICA: los reembolsos de más de 300 € los aprueba recepción
+
 
 def reembolso_segun_politica(reserva: dict) -> float:
     """Lo que dice hotel.POLITICA, en código. Sin hora de entrada: menos de 2 días = dentro de las 48 h."""
@@ -53,6 +55,11 @@ class Guardas:
             correcto = reembolso_segun_politica(reserva)
             if abs(importe - correcto) > 0.01:
                 return f"según la política, el reembolso de {id_reserva} es de {correcto:.2f} €"
+
+            # 3.3 Aprobación humana: los reembolsos de más de 300 € no se ejecutan; quedan pendientes
+            if importe > LIMITE_APROBACION:
+                return {"aprobacion": f"reembolso de {importe:.2f} € (más de {LIMITE_APROBACION:.0f} €): "
+                                      "lo aprueba el responsable de recepción"}
         if nombre == "enviar_email" and str(argumentos.get("destinatario", "")).lower().strip() != email:
             return "solo se pueden enviar emails al huésped identificado"
         return None
