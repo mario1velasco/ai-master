@@ -89,7 +89,7 @@ Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno,
 | 1.2d | Arquitectura: ¿un agente o multiagente? (coste, latencia y complejidad) | `informe.md` | Redacción | Hecho |
 | 1.2e | Arquitectura: diagrama | `diagrama-arquitectura.mmd` → `.png`, en el informe | Revisión | Hecho |
 | 2.1 | Métricas: calidad, fiabilidad, latencia, disponibilidad y coste, cada una con umbral y porqué | `informe.md` | Redacción | Hecho |
-| 2.2 | Casos de prueba | `pruebas/mis_casos.json` y resumen en `informe.md` | Revisión del fichero (es un entregable de datos) | Hecho (18 casos; N6 corregido) |
+| 2.2 | Casos de prueba | `pruebas/mis_casos.json` y resumen en `informe.md` | Revisión del fichero (es un entregable de datos) | Hecho (21 casos; N6 corregido) |
 | 2.3 | Medición inicial, con los dos modelos | `resultados/antes.json`, `resultados/antes_qwen3-4b.json` y resumen en `informe.md` | Comando | Hecho (qwen3 solo como dato aparte, no evaluable) |
 | 3.1 | Mínimo privilegio: herramientas por conversación y acciones solo para el titular | `albor/configuracion.py`, `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |
 | 3.2 | Validación en código de las acciones irreversibles | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Hecho |

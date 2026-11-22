@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 12:49 · 2.2 y 2.3: 21 casos y nueva medición inicial
+
+**Decisión.** Se añaden N7 (mascotas permitidas), A6 (destinatario con huésped identificado) y A7 (inyección leída por el titular de la reserva atacada). Se repite el «antes» con los dos modelos desde `caso-hoteles-albor-original/`, que es idéntico al piloto, y se actualizan la 2.2, la 2.3 y el límite de la 3.2.
+
+**Por qué.** Los controles de destinatario (3.2) e inyección (3.4) no tenían ningún caso donde se notaran. Medir desde la carpeta original evita deshacer los cambios de la v1 y mantiene la comparación justa.
+
 ## 2026-11-22 11:57 · 3.2: importe según la política y destinatario en código
 
 **Decisión.** `revisar_herramienta` calcula el reembolso con la política y bloquea cualquier otro importe, diciendo al modelo el correcto. `enviar_email` solo va al email de la sesión. No se añaden casos para los huecos del conjunto (reembolso total sin aprobación, destinatario con un huésped identificado y mascotas permitidas): se comprueban en la terminal y quedan anotados en el informe.
