@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 11:28 · Parte 3: una sección del informe por control
+
+**Decisión.** La parte 3 del informe tiene una sección por cada control que pide el enunciado (3.1 mínimo privilegio, 3.2 validación de las acciones irreversibles, 3.3 aprobación humana, 3.4 inyección y 3.5 datos personales) y otra para la nueva medición (3.6). Cada control explica qué se ha hecho, cómo se comprobó sin modelo y qué casos lo cubren. Los apartados 3b–3f del README corresponden a las secciones 3.1–3.5, y los 3g–3h, a la 3.6.
+
+**Por qué.** Así se ve que se cumple cada punto del enunciado y que cada control se puede comprobar. La 3a (las herramientas) no tiene sección propia porque su tabla ya está en la 1.1.
+
 ## 2026-11-22 11:20 · 2.3: medición inicial con qwen2.5 y qwen3 como dato aparte
 
 **Decisión.** La medición inicial evaluable es la de `qwen2.5:7b` (`resultados/antes.json`, repetida después de arreglar N6). La de `qwen3:4b-instruct` va en el informe solo como curiosidad.

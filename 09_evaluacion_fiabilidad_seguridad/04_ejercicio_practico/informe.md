@@ -169,6 +169,30 @@ La diferencia entre pass@3 y pass^3 son los casos inestables: B4 (1 de 3) y R1 (
 
 ## Parte 3 · Protección del agente y nueva medición
 
+Los controles están en `albor/herramientas.py`, `albor/configuracion.py` y `albor/guardas.py`. Cada uno se comprobó primero en la terminal, sin modelo, y después con los casos de prueba (apartado 3.6).
+
+### 3.1 Mínimo privilegio
+
+*Pendiente.*
+
+### 3.2 Validación de las acciones irreversibles en código
+
+*Pendiente.*
+
+### 3.3 Aprobación humana
+
+*Pendiente.*
+
+### 3.4 Defensa frente a la inyección de prompt indirecta
+
+*Pendiente.*
+
+### 3.5 Protección de los datos personales
+
+*Pendiente.*
+
+### 3.6 Nueva medición
+
 *Pendiente.*
 
 ## Parte 4 · Incidente, observabilidad y recomendación
