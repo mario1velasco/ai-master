@@ -19,7 +19,11 @@ LIMITE_APROBACION = (
 )
 FUENTES_NO_FIABLES = {"leer_resenas"}  # 3.4 · texto escrito por terceros
 LIMITE_MENSAJE = 2000  # caracteres · 3.5: los mensajes más largos se rechazan
-LLAMADA_COMO_TEXTO = re.compile(r'"name"\s*:\s*"\w+"\s*,\s*"arguments"|</?tool_call>')  # FIX02
+LLAMADA_COMO_TEXTO = re.compile(  # FIX02
+    r'"name"\s*:\s*"\w+"\s*,\s*"arguments"'  # {"name": "x", "arguments": …}
+    r"|</?tool_call>"  # etiqueta de llamada
+    r"|\b[A-Za-z]+_[A-Za-z_]+\s*\("  # FIX02 ampliado: CallCheckar_reserva(…)
+)
 
 
 def luhn_valido(numero: str) -> bool:

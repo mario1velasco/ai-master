@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 19:55 · FIX02 ampliado: también `CallCheckar_reserva(...)`
+
+**Decisión.** La regex del FIX02 detecta también una palabra con guion bajo seguida de «(» (`CallCheckar_reserva("R-2041")`), la variante del fallo de formato que se escapaba.
+
+**Por qué.** Salió en N3 (después #1 y en las pruebas del FIX03). Comprobado sin modelo: sustituye ya 5 de 5 en el «después» y 6 de 6 en el «antes», ninguna respuesta normal de ningún fichero de resultados (tampoco de qwen3), y con un cliente falso que devuelve `CallCheckar_reserva("R-2041")` el huésped recibe la frase segura.
+
 ## 2026-11-22 19:53 · Mejora N3 (FIX03): el huésped ya está identificado y la reserva se consulta
 
 **Decisión.** `configuracion.py` (comentario `FIX03`) añade a las instrucciones del huésped: «El huésped ya se ha identificado en la web: no le pidas el email ni que confirme quién es. Los datos de sus reservas salen siempre de las herramientas; nunca los inventes. Si pregunta por una reserva y da su número (R-1234), llama a consultar_reserva antes de contestar.». Cada perfil tiene ya sus instrucciones (`INSTRUCCIONES_PERFIL`). Antes se probó a cambiar solo la descripción de `consultar_reserva` y no mejoraba nada: se deshizo.
