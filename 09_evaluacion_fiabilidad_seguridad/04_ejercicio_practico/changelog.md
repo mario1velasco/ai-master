@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 08:21 · 1.2e: diagrama en Mermaid, con imagen para el PDF
+
+**Decisión.** El diagrama de arquitectura está en `diagrama-arquitectura.mmd` y se exporta a `diagrama-arquitectura.png` con `npx @mermaid-js/mermaid-cli`. El informe muestra la imagen. Es horizontal y compacto: las guardas de entrada, resultados y salida van como etiquetas o cajas pequeñas.
+
+**Por qué.** Mermaid se edita y se versiona como texto, pero la vista previa de VSCode (sin extensión) y el PDF no lo dibujan: hace falta la imagen. La versión vertical ocupaba casi una página de las 6 del informe.
+
 ## 2026-11-22 08:11 · 1.2d: un solo agente
 
 **Decisión.** Un solo agente configurado por canal (perfiles de 1.2a). El multiagente con un lector de reseñas aislado se anota en el informe como alternativa más segura, descartada por ahora.

@@ -11,6 +11,7 @@ El enunciado completo es el PDF de esta carpeta (`[Tema 9] Evaluación y control
 | `caso-hoteles-albor-original/` | El kit tal como se entregó. **No se toca**: sirve de referencia para comparar |
 | `caso-hoteles-albor-v1/` | Donde se hace el ejercicio. Es la carpeta que va en el zip |
 | `informe.md` | El borrador del informe para la Directora de Operaciones; de él sale el PDF del entregable |
+| `diagrama-arquitectura.mmd` / `.png` | El diagrama de la 1.2: el código Mermaid y la imagen que usa el informe |
 | `changelog.md` | El historial de decisiones, con fecha y hora: qué se decidió y por qué. No va en el zip |
 
 ## El caso en pocas líneas
@@ -86,7 +87,7 @@ Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno,
 | 1.2b | Arquitectura: ¿qué es síncrono y qué asíncrono? ¿Dónde y cómo interviene una persona? | `informe.md` | Redacción | Hecho |
 | 1.2c | Arquitectura: ¿qué estado o memoria se guarda y qué no? | `informe.md` | Redacción | Hecho |
 | 1.2d | Arquitectura: ¿un agente o multiagente? (coste, latencia y complejidad) | `informe.md` | Redacción | Hecho |
-| 1.2e | Arquitectura: diagrama | Imagen en el informe | Revisión | Pendiente |
+| 1.2e | Arquitectura: diagrama | `diagrama-arquitectura.mmd` → `.png`, en el informe | Revisión | Hecho |
 | 2.1 | Métricas: calidad, fiabilidad, latencia, disponibilidad y coste, cada una con umbral y porqué | `informe.md` | Redacción | Pendiente |
 | 2.2 | Casos de prueba | `pruebas/mis_casos.json` y resumen en `informe.md` | Revisión del fichero (es un entregable de datos) | Casos hechos (18); falta decidir N6 y el resumen |
 | 2.3 | Medición inicial, con los dos modelos | `resultados/antes.json`, `resultados/antes_qwen3-4b.json` y resumen en `informe.md` | Comando | Medición hecha; falta el resumen (fallos, tasa de éxito, pass^3 y pass@3) |

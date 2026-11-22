@@ -1,0 +1,22 @@
+%% Diagrama de arquitectura de Alba (informe, apartado 1.2).
+%% Para regenerar la imagen, desde esta carpeta:
+%%   npx -y @mermaid-js/mermaid-cli@11.4.2 -i diagrama-arquitectura.mmd -o diagrama-arquitectura.png -b white -s 2
+flowchart LR
+    subgraph Canales["Canales (chat síncrono)"]
+        R["Recepción<br/>6 de lectura"]
+        H["Huésped identificado<br/>7 herramientas"]
+        P["Web pública<br/>3 herramientas"]
+    end
+
+    R & H & P --> GE["🛡 Guarda<br/>de entrada"]
+    GE --> A["Alba<br/>un solo agente<br/>con el perfil del canal"]
+    A -->|pide una herramienta| GH["🛡 Guarda de herramientas<br/>titular · importe<br/>destinatario<br/>tras leer reseñas"]
+    GH -->|permitida| S[("Sistema de reservas")]
+    S -->|"resultado<br/>🛡 reseñas = no fiables"| A
+    GH -->|bloqueada| A
+    GH -->|reembolso > 300 €| C[("Cola de aprobaciones")]
+    C -.->|aprueba o rechaza| JR(["Responsable de recepción"])
+    JR -.->|si aprueba, se ejecuta| S
+    A -->|"🛡 guarda de salida<br/>datos personales"| RESP["Respuesta"]
+    A -.->|no puede resolverlo| B[("Bandeja de escalados")]
+    B -.-> EQ(["Equipo de recepción"])

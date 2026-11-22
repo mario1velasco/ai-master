@@ -99,7 +99,11 @@ Además, las tareas son **cortas y encadenadas** (consultar la reserva → mirar
 
 **Alternativa más segura, descartada por ahora.** Un segundo agente, **aislado y sin herramientas**, que solo lea las reseñas y devuelva un resumen. Alba no vería nunca el texto escrito por terceros, y la inyección del incidente no llegaría al agente que puede cancelar o enviar emails.
 
-*Pendiente: diagrama.*
+#### Diagrama
+
+![Arquitectura de Alba](diagrama-arquitectura.png)
+
+Líneas continuas: el chat, mientras el usuario espera. Líneas de puntos: lo que hace una persona después. Cilindros: lo que se guarda. Óvalos: las personas. 🛡: los cuatro puntos de control (entrada, herramientas, resultados y salida), que se implementan en la parte 3.
 
 ## Parte 2 · Plan de evaluación y medición inicial
 
