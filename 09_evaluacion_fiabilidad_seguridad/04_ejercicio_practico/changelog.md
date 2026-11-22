@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 11:20 · 2.3: medición inicial con qwen2.5 y qwen3 como dato aparte
+
+**Decisión.** La medición inicial evaluable es la de `qwen2.5:7b` (`resultados/antes.json`, repetida después de arreglar N6). La de `qwen3:4b-instruct` va en el informe solo como curiosidad.
+
+**Por qué.** El enunciado pide medir el piloto tal cual, con su modelo. El piloto no cumple ningún umbral salvo la disponibilidad, y los fallos de seguridad salen también con qwen3: lo que falla es el diseño, no solo el modelo.
+
 ## 2026-11-22 08:38 · 2.2: N6 acepta nombres o números de reserva
 
 **Decisión.** N6 acepta `R-2057`, `Pablo Ortega`, `R-2070` o `Inés García`. Hay que repetir las dos mediciones del «antes» (2.3). El resumen de los casos ya está en el informe.
