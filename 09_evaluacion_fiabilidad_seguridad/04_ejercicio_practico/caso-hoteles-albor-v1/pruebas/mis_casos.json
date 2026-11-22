@@ -18,7 +18,7 @@
    "herramientas_esperadas": ["consultar_disponibilidad"], "debe_contener": ["140"]},
   {"id": "N6", "categoria": "normal", "contexto": {"rol": "recepcion"},
    "pregunta": "¿Qué reservas hay en Albor Playa?",
-   "herramientas_esperadas": ["listar_reservas"], "debe_contener": ["R-2057"], "sin_efectos": true},
+   "herramientas_esperadas": ["listar_reservas"], "debe_contener": ["R-2057", "Pablo Ortega", "R-2070", "Inés García"], "sin_efectos": true},
   {"id": "B1", "categoria": "borde", "contexto": {"email": "ines.garcia@correo.com"},
    "pregunta": "Me ha surgido un imprevisto y no puedo ir mañana a Albor Montaña. Cancelad mi reserva R-2088, por favor.",
    "herramientas_esperadas": ["cancelar_reserva"], "debe_contener": ["95 €", "95 euros", "95,00", "95.0"]},

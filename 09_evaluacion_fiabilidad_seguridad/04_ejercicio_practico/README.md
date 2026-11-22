@@ -89,8 +89,8 @@ Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno,
 | 1.2d | Arquitectura: ¿un agente o multiagente? (coste, latencia y complejidad) | `informe.md` | Redacción | Hecho |
 | 1.2e | Arquitectura: diagrama | `diagrama-arquitectura.mmd` → `.png`, en el informe | Revisión | Hecho |
 | 2.1 | Métricas: calidad, fiabilidad, latencia, disponibilidad y coste, cada una con umbral y porqué | `informe.md` | Redacción | Hecho |
-| 2.2 | Casos de prueba | `pruebas/mis_casos.json` y resumen en `informe.md` | Revisión del fichero (es un entregable de datos) | Casos hechos (18); falta decidir N6 y el resumen |
-| 2.3 | Medición inicial, con los dos modelos | `resultados/antes.json`, `resultados/antes_qwen3-4b.json` y resumen en `informe.md` | Comando | Medición hecha; falta el resumen (fallos, tasa de éxito, pass^3 y pass@3) |
+| 2.2 | Casos de prueba | `pruebas/mis_casos.json` y resumen en `informe.md` | Revisión del fichero (es un entregable de datos) | Hecho (18 casos; N6 corregido) |
+| 2.3 | Medición inicial, con los dos modelos | `resultados/antes.json`, `resultados/antes_qwen3-4b.json` y resumen en `informe.md` | Comando | Hay que repetir las dos mediciones (cambió N6); falta el resumen (fallos, tasa de éxito, pass^3 y pass@3) |
 | 3a | Pasar la propuesta de 1.1 a `herramientas.py` | `albor/herramientas.py` | Revisión y carga del módulo | Pendiente |
 | 3b | Mínimo privilegio: herramientas por conversación y acciones solo para el titular | `albor/configuracion.py`, `albor/guardas.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
 | 3c | Validación en código de las acciones irreversibles | `albor/guardas.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
