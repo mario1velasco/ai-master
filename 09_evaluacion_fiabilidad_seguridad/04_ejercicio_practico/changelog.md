@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 16:09 · 3.2: el aviso de cancelación se le indica al modelo
+
+**Decisión.** La descripción de `cancelar_reserva` pide enviar siempre el email al titular con el importe real y no confirmar cancelaciones pendientes o bloqueadas, y `revisar_resultado` añade al resultado de una cancelación hecha un `siguiente_paso` con el email y el importe. `enviar_email` sigue en manos del modelo.
+
+**Por qué.** En la medición, el aviso dependía del modelo: unas veces lo enviaba y otras no, y a veces con importes inventados. Lo ideal sería que lo enviara el sistema de reservas en la misma función, con una guarda contra duplicados, pero `hotel.py` no se modifica. Indicárselo al modelo ayuda, pero no lo garantiza: queda como recomendación (parte 4).
+
 ## 2026-11-22 15:22 · 3.3: aprobación de los reembolsos de más de 300 €
 
 **Decisión.** `revisar_herramienta` devuelve `{"aprobacion": motivo}` para los reembolsos de más de 300 €, después de validar el titular (3.1) y el importe (3.2). Sin cola persistente.

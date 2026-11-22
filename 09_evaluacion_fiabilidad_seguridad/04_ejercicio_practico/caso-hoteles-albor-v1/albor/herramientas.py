@@ -64,7 +64,10 @@ CATALOGO = {
         "funcion": hotel.cancelar_reserva, "riesgo": "irreversible",
         "esquema": _esquema("cancelar_reserva", "[Escritura irreversible] Cancela una reserva y emite el reembolso "
                             "indicado. Solo cuando el titular identificado lo pide expresamente. El importe sale "
-                            "de la política: consulta antes la reserva y la política.",
+                            "de la política: consulta antes la reserva y la política. Después de cancelar, envía "
+                            "siempre al titular un email con el importe que devuelve esta herramienta "
+                            "(reembolso_eur). Si la cancelación queda pendiente de aprobación o se bloquea, no la "
+                            "confirmes por email.",
                             {"id_reserva": _ID_RESERVA,
                              "importe_reembolso": {"type": "number", "minimum": 0,
                                                    "description": "Euros según la política; 0 si no hay reembolso"},

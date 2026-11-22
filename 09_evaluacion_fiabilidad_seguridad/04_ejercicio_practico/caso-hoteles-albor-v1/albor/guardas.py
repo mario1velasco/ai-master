@@ -67,6 +67,10 @@ class Guardas:
     def revisar_resultado(self, nombre: str, resultado, contexto: dict):
         """Después de ejecutar una herramienta y antes de que el modelo vea el resultado.
         Devuelve el resultado, tal cual o modificado."""
+        # Aviso de cancelación: el sistema de reservas no lo envía, así que se le recuerda al modelo con el dato real
+        if nombre == "cancelar_reserva" and isinstance(resultado, dict) and resultado.get("estado") == "cancelada":
+            resultado = {**resultado, "siguiente_paso": f"envía un email a {contexto.get('email')} confirmando "
+                                                        f"la cancelación y un reembolso de {resultado['reembolso_eur']:.2f} €"}
         return resultado
 
     def revisar_salida(self, texto: str, contexto: dict, observaciones: str) -> tuple[str, str | None]:

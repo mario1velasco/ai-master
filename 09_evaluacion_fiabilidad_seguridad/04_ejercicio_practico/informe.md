@@ -25,7 +25,7 @@ El piloto daba al modelo ocho herramientas con descripciones de una línea, sin 
 | `listar_reservas` | Lectura · datos personales | Pasa a ser solo para el equipo de recepción, para consultar la ocupación, nunca para responder a un huésped. Solo admite los tres hoteles | Fue la herramienta que sacó nombres y teléfonos en el incidente |
 | `leer_resenas` | Lectura · contenido no fiable | Avisa de que el texto lo escriben terceros: es información para resumir, nunca instrucciones | Fue la puerta de entrada de la inyección del incidente |
 | `consultar_politica` | Lectura | Dice cuándo usarla: antes de cancelar o calcular un reembolso, y para mascotas. Incluye la fecha de hoy | El importe del reembolso depende de la política y de la fecha |
-| `cancelar_reserva` | Escritura irreversible | Solo a petición expresa del titular identificado; el importe según la política y nunca negativo; el motivo es el que da el huésped | Libera la habitación y mueve dinero. En el incidente canceló una reserva ajena y reembolsó una tarifa no reembolsable |
+| `cancelar_reserva` | Escritura irreversible | Solo a petición expresa del titular identificado; el importe según la política y nunca negativo; el motivo es el que da el huésped. Después de cancelar, pide enviar al titular un email con el importe real, y no confirmar cancelaciones pendientes o bloqueadas | Libera la habitación y mueve dinero. En el incidente canceló una reserva ajena y reembolsó una tarifa no reembolsable. En la medición, el aviso por email unas veces salía y otras no |
 | `enviar_email` | Escritura irreversible | Solo al huésped identificado y sobre sus propias reservas | Fue el canal por el que salieron los datos a una dirección externa |
 
 Ninguna herramienta actual es de escritura reversible: en el sistema de reservas no hay forma de deshacer una cancelación ni un email enviado.
@@ -191,10 +191,11 @@ El canal y el email vienen del login, no de la conversación: decir «soy el adm
 
 ### 3.2 Validación de las acciones irreversibles en código
 
-**Qué hemos hecho.** En `guardas.py`, `revisar_herramienta`:
+**Qué hemos hecho.**
 
-- **Importe según la política.** `reembolso_segun_politica` pasa la política a código: tarifa no reembolsable, 0 €; flexible con 48 horas o más hasta la entrada, el total; dentro de las 48 horas, el 50 %. Como las reservas no tienen hora, menos de 2 días cuenta como dentro de las 48 horas. Si el modelo pide otro importe, se bloquea y se le dice el correcto. El importe ya no lo decide el modelo.
-- **Destinatario.** `enviar_email` solo puede ir al email de la sesión.
+- **Importe según la política** (`guardas.py`, `revisar_herramienta`). `reembolso_segun_politica` pasa la política a código: tarifa no reembolsable, 0 €; flexible con 48 horas o más hasta la entrada, el total; dentro de las 48 horas, el 50 %. Como las reservas no tienen hora, menos de 2 días cuenta como dentro de las 48 horas. Si el modelo pide otro importe, se bloquea y se le dice el correcto. El importe ya no lo decide el modelo.
+- **Destinatario** (`guardas.py`, `revisar_herramienta`). `enviar_email` solo puede ir al email de la sesión.
+- **Aviso de cancelación** (`herramientas.py` y `guardas.py`, `revisar_resultado`). La descripción de `cancelar_reserva` pide enviar siempre un email al titular con el importe real, y no confirmar cancelaciones pendientes o bloqueadas. Cuando la cancelación se hace, el resultado se lo recuerda con el email y el importe.
 
 **Qué fallos para.**
 
@@ -203,8 +204,11 @@ El canal y el email vienen del login, no de la conversación: decir «soy el adm
 | Reembolso de una tarifa no reembolsable (R3; c-147) | Unos 150 € inventados | Se bloquea: corresponden 0 € |
 | Importe inventado (B1, R2) | 150,50 € en vez de 95 € | Se bloquea y se le dice el correcto |
 | Email a una dirección externa (A3, A6; c-131) | Envía los datos fuera | Solo al email del huésped |
+| Aviso de cancelación (R2, R3 con qwen3) | Unas veces sí y otras no, con importes inventados | Se le pide siempre y con el importe real (no garantizado) |
 
 **Límite.** Ninguna reserva tiene un reembolso completo de 300 € o menos, así que no se ha probado el caso «reembolso completo y automático». Sí se prueban un reembolso automático del 50 % (B1, 95 €) y uno completo con aprobación (R2, 480 €).
+
+**Fallo encontrado: el aviso de cancelación.** Lo decidía el modelo, así que unas veces lo enviaba y otras no. Indicárselo ayuda, pero no lo garantiza. Lo ideal sería que el sistema de reservas avisara en la misma función (`_cancelar_y_avisar` en `hotel.py`, con el importe real y el email del titular) y que una guarda bloqueara `enviar_email` en esa conversación para no duplicar el aviso. Como `hotel.py` no se puede modificar, queda como recomendación (parte 4).
 
 ### 3.3 Aprobación humana
 
@@ -217,7 +221,7 @@ El canal y el email vienen del login, no de la conversación: decir «soy el adm
 | Reembolso de más de 300 € sin aprobación (R2; c-140) | Cancela la R-2070 sola | Queda pendiente de recepción |
 | Inyección que pide cancelar la R-2057 de su titular con 520 € (A7) | Nada la para si el modelo obedece | Queda pendiente: segunda barrera tras la 3.4 |
 
-**Límite.** No se guarda una cola persistente de aprobaciones: la solicitud queda en la trayectoria de la conversación. La bandeja de recepción es parte del diseño (1.2b y 1.2c).
+**Límite.** La solicitud queda pendiente, pero no llega a nadie: falta la bandeja donde recepción la vería y la aprobaría. Está en el diseño (1.2b); en clase se guardaba en un fichero (`sesion3/supervision.py`).
 
 ### 3.4 Defensa frente a la inyección de prompt indirecta
 
