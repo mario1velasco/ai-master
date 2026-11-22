@@ -70,7 +70,22 @@ Alba atiende tres canales. El canal lo fija el inicio de sesión, no el modelo, 
 
 (2) **Mejora futura: revisión por muestreo.** Una persona revisaría después, al azar, una parte (p. ej. el 20 %) de lo que el agente hace solo, para descubrir fallos que ninguna regla había previsto. No se implementa en esta versión.
 
-*Pendiente: estado y memoria, uno o varios agentes, y diagrama.*
+#### Estado y memoria
+
+| Se guarda | Cuánto dura | Por qué |
+|---|---|---|
+| Canal y email del inicio de sesión | La conversación | De ellos dependen las herramientas y los datos que ve. El modelo no los puede cambiar |
+| Si la conversación ha leído reseñas | La conversación | Para bloquear las acciones irreversibles después |
+| Solicitud pendiente de aprobación (reembolso de más de 300 €): reserva, importe, huésped, estado, decisión y motivo | Hasta que se decide, y después como registro | Sin ella no hay aprobación asíncrona. Al aprobar, se ejecuta tal como se pidió |
+| Cancelación automática (reembolso de hasta 300 €) | Nada nuevo: se ejecuta al momento | No queda pendiente. Consta en el sistema de reservas y en la auditoría (apartado 4.2) |
+| Conversación escalada | Hasta que recepción la atiende | Recepción necesita saber qué pasó para contestar |
+
+**No se guarda:**
+- **Memoria entre conversaciones.** Cada conversación empieza limpia. Las reservas ya están en el sistema de reservas, y guardar menos datos personales es guardar solo lo necesario (RGPD).
+- **Nada de lo leído en reseñas.** Si pasara a una memoria, la inyección afectaría a todas las conversaciones siguientes.
+- **Teléfono ni tarjeta en la cola de aprobaciones**: basta con la reserva, el importe y el email.
+
+*Pendiente: uno o varios agentes, y diagrama.*
 
 ## Parte 2 · Plan de evaluación y medición inicial
 

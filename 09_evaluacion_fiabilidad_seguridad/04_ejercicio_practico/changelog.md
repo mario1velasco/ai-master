@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 08:05 · 1.2c: estado por conversación y cola de aprobaciones; sin memoria a largo plazo
+
+**Decisión.** Se guarda el estado de cada conversación (canal y email del login, y si ha leído reseñas), la cola de aprobaciones (como `aprobaciones.json` de `sesion3/supervision.py`) y las conversaciones escaladas. Las cancelaciones automáticas no dejan estado pendiente: se ejecutan al momento y constan en el sistema de reservas y en la auditoría. No hay memoria entre conversaciones, nada de lo leído en reseñas se guarda y la cola no lleva teléfono ni tarjeta.
+
+**Por qué.** Estado frente a memoria (Tema 8, sesión 4): Alba necesita retomar una aprobación, no recordar al huésped; las reservas ya están en el sistema de reservas. Menos datos personales guardados (RGPD) y una inyección no puede quedarse en memoria. Lo que se registra en los logs se decide en la 4.2.
+
 ## 2026-11-22 07:58 · 1.2b: chat síncrono; aprobación y escalado asíncronos
 
 **Decisión.** El chat es síncrono en los tres canales. Lo que hace una persona es asíncrono: **aprobar** los reembolsos de más de 300 € (cola, como en `sesion3/supervision.py`; se ejecuta al aprobar) y **escalar** a recepción lo que el agente no resuelve (en el kit es solo una frase; en el diseño, la conversación queda en una bandeja de recepción). Las cancelaciones de hasta 300 € y los emails al propio huésped son automáticos; lo ajeno o fuera de política, bloqueado. Editar no se usa. La **revisión por muestreo** de la sesión 3 queda solo en el diseño, como mejora futura.
