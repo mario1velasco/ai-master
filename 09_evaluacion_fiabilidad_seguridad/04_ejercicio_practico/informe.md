@@ -321,3 +321,4 @@ Aciertos de 3 por caso:
 | Caso | Fallo | Causa | Cambio | Resultado (de 3) |
 |---|---|---|---|---|
 | N6 | Recepción pide las reservas y el modelo se niega: «solo recepción tiene acceso» | Las instrucciones hablan de huéspedes y el modelo no sabe el rol de la sesión | **FIX01** · `configuracion.py`: a recepción se le dice que habla con recepción | qwen2.5 0 → 2; qwen3 3 → 3. Ya no se niega en ningún intento: el que falla es por otra causa (siguiente fila) |
+| N3, B3, A5 y R2 (unos 5 de 63 intentos) | El huésped recibe la llamada a la herramienta escrita como texto | Fallo de formato de qwen2.5 (qwen3 no lo tiene) | **FIX02** · `guardas.py`: respuesta segura en `revisar_salida` | Sin cambio en el éxito: el caso sigue fallando, pero el huésped ya no ve el JSON (N6: 1 de 6 intentos, con la frase segura). Limitación del modelo (4.3) |

@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 19:31 · Mejora (FIX02): la llamada escrita como texto no llega al huésped
+
+**Decisión.** `revisar_salida` (comentario `FIX02`) sustituye la respuesta por «Perdona, no he podido consultarlo. ¿Puedes repetirme la pregunta?» cuando lleva una llamada a herramienta escrita como texto (`{"name": …, "arguments": …}` o `<tool_call>`). Va antes que la 3.5 y vale para todos los perfiles.
+
+**Por qué.** qwen2.5 a veces escribe la llamada como texto: no se ejecuta y el huésped recibe JSON (5 de 63 intentos del «después», 6 del «antes»; con qwen3, ninguno). Es la respuesta segura del Tema 9, sesión 2. No arregla el caso: lo arreglaría un reintento, que en clase no se aplica al tool calling. Comprobado con las respuestas reales guardadas (sustituye 4 de 5 en el «después» y 6 de 6 en el «antes», y ninguna respuesta normal) y con el modelo: en N6 salió 1 vez de 6 y el huésped recibió la frase segura, con el bloqueo registrado. Se escapa `CallCheckar_reserva({...})` (N3), que no tiene JSON. Queda para la 4.3 como limitación de qwen2.5.
+
 ## 2026-11-22 19:11 · Mejora N6 (FIX01): recepción sabe que habla con recepción
 
 **Decisión.** `configuracion.py` (comentario `FIX01`) añade a las instrucciones de recepción: «Ahora hablas con el equipo de recepción, no con un huésped: puedes consultar la ocupación y las reservas de todos los huéspedes». Los huéspedes y el público siguen con las instrucciones del piloto. La descripción de `listar_reservas` no cambia: se probó una nueva y no mejoraba nada.

@@ -19,6 +19,7 @@ LIMITE_APROBACION = (
 )
 FUENTES_NO_FIABLES = {"leer_resenas"}  # 3.4 · texto escrito por terceros
 LIMITE_MENSAJE = 2000  # caracteres · 3.5: los mensajes más largos se rechazan
+LLAMADA_COMO_TEXTO = re.compile(r'"name"\s*:\s*"\w+"\s*,\s*"arguments"|</?tool_call>')  # FIX02
 
 
 def luhn_valido(numero: str) -> bool:
@@ -144,6 +145,14 @@ class Guardas:
     ) -> tuple[str, str | None]:
         """Antes de enviar la respuesta al huésped. `observaciones` son los resultados de las herramientas.
         Devuelve (texto, None) para enviarla, o (texto_alternativo, "motivo") si la sustituyes."""
+        # FIX02 · Formato: qwen2.5 a veces escribe la llamada a la herramienta como texto y no se ejecuta.
+        # El huésped no debe ver ese texto: respuesta segura (Tema 9, sesión 2: «avisar, reintentar o dar una respuesta segura»)
+        if LLAMADA_COMO_TEXTO.search(texto):
+            return (
+                "Perdona, no he podido consultarlo. ¿Puedes repetirme la pregunta?",
+                "llamada a herramienta escrita como texto",
+            )
+
         # 3.5 Datos personales: la respuesta no puede llevar el teléfono ni la tarjeta de otros huéspedes.
         # Se revisa el texto final, ya escrito por el modelo: si los lleva, se sustituye la respuesta entera
         if contexto.get("rol") == "recepcion":
