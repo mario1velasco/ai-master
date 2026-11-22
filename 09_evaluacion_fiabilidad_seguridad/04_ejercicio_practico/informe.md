@@ -275,7 +275,7 @@ El canal y el email vienen del login, no de la conversación: decir «soy el adm
 
 ## Mejoras tras la nueva medición
 
-Fallos de la 3.6, uno a uno. Cada cambio se prueba con su caso una vez y, si pasa, con 3 repeticiones.
+Fallos de la 3.6, uno a uno. Cada cambio se prueba con su caso una vez y, si pasa, con 3 repeticiones. Cada mejora lleva un código (FIX01, FIX02…) que también está en el comentario del código: `grep -rn FIX01 albor/` lo encuentra.
 
 **Punto de partida** (antes → después; `resultados/despues.json` y `despues_qwen3-4b.json`):
 
@@ -320,3 +320,4 @@ Aciertos de 3 por caso:
 
 | Caso | Fallo | Causa | Cambio | Resultado (de 3) |
 |---|---|---|---|---|
+| N6 | Recepción pide las reservas y el modelo se niega: «solo recepción tiene acceso» | Las instrucciones hablan de huéspedes y el modelo no sabe el rol de la sesión | **FIX01** · `configuracion.py`: a recepción se le dice que habla con recepción | qwen2.5 0 → 2; qwen3 3 → 3. Ya no se niega en ningún intento: el que falla es por otra causa (siguiente fila) |

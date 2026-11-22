@@ -9,7 +9,7 @@ Mínimo privilegio en dos capas (Tema 9, sesión 2):
    el modelo ni sabe que existe.
 2. ALCANCE (albor/guardas.py): dentro del perfil, solo sobre los datos del huésped identificado.
 """
-from albor.agente import Agente
+from albor.agente import INSTRUCCIONES, Agente
 from albor.guardas import Guardas
 from albor.herramientas import IRREVERSIBLE, LECTURA
 
@@ -18,6 +18,12 @@ PERFILES = {
     "huesped": [h for h in LECTURA if h != "listar_reservas"] + IRREVERSIBLE,     # huésped identificado
     "recepcion": LECTURA,                                                         # equipo de recepción
 }
+
+# FIX01 · Al modelo solo le llega el email de la sesión, no el rol: a recepción se le dice con quién habla
+RECEPCION = INSTRUCCIONES + (
+    " Ahora hablas con el equipo de recepción, no con un huésped: puedes consultar la ocupación "
+    "y las reservas de todos los huéspedes."
+)
 
 
 def perfil(contexto: dict | None) -> str:
@@ -28,4 +34,6 @@ def perfil(contexto: dict | None) -> str:
 
 
 def crear_agente(contexto: dict | None = None, cliente=None) -> Agente:
-    return Agente(cliente=cliente, herramientas=PERFILES[perfil(contexto)], contexto=contexto, guardas=Guardas())
+    p = perfil(contexto)
+    return Agente(cliente=cliente, herramientas=PERFILES[p], contexto=contexto, guardas=Guardas(),
+                  instrucciones=RECEPCION if p == "recepcion" else INSTRUCCIONES)

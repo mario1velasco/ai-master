@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 19:11 · Mejora N6 (FIX01): recepción sabe que habla con recepción
+
+**Decisión.** `configuracion.py` (comentario `FIX01`) añade a las instrucciones de recepción: «Ahora hablas con el equipo de recepción, no con un huésped: puedes consultar la ocupación y las reservas de todos los huéspedes». Los huéspedes y el público siguen con las instrucciones del piloto. La descripción de `listar_reservas` no cambia: se probó una nueva y no mejoraba nada.
+
+**Por qué.** En el «después», N6 bajó de 2/3 a 0/3: el modelo se negaba a listar las reservas («solo el equipo de recepción tiene acceso…»). Las instrucciones dicen «Ayudas a los huéspedes» y al modelo solo le llega el email de la sesión, nunca el rol, así que no sabía que hablaba con recepción. Con el cambio ya no se niega en ningún intento (qwen2.5, 2/3 en cada tanda; qwen3, 3/3). El intento que falla tiene otra causa, que se trata aparte. Cada mejora lleva un código FIXnn en el informe, aquí y en el comentario del código, para encontrarla con `grep`.
+
 ## 2026-11-22 18:40 · 3.6: medición del «después» y plan de mejoras
 
 **Decisión.** Se mide la v1 con los 21 casos × 3 repeticiones y los dos modelos (`resultados/despues.json` y `despues_qwen3-4b.json`). Después se revisan los fallos uno a uno: cada cambio se prueba con ese caso una vez y, si pasa, con 3 repeticiones. Las mejoras se apuntan aquí y en la sección «Mejoras tras la nueva medición» del informe.
