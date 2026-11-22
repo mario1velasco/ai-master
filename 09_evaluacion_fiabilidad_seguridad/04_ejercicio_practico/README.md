@@ -82,7 +82,7 @@ Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno,
 
 | # | Apartado | Produce | Cómo se comprueba | Estado |
 |---|---|---|---|---|
-| 1.1 | Herramientas | Propuesta en `albor/herramientas_copia.py` y tabla en `informe.md` | Revisión y carga del módulo | Hecho (la propuesta pasa a `herramientas.py` al empezar la parte 3) |
+| 1.1 | Herramientas | `albor/herramientas.py` y tabla en `informe.md` | Revisión y carga del módulo | Hecho |
 | 1.2a | Arquitectura: ¿qué canales hay y qué herramientas ve cada uno? | `informe.md` | Redacción | Hecho |
 | 1.2b | Arquitectura: ¿qué es síncrono y qué asíncrono? ¿Dónde y cómo interviene una persona? | `informe.md` | Redacción | Hecho |
 | 1.2c | Arquitectura: ¿qué estado o memoria se guarda y qué no? | `informe.md` | Redacción | Hecho |
@@ -91,14 +91,12 @@ Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno,
 | 2.1 | Métricas: calidad, fiabilidad, latencia, disponibilidad y coste, cada una con umbral y porqué | `informe.md` | Redacción | Hecho |
 | 2.2 | Casos de prueba | `pruebas/mis_casos.json` y resumen en `informe.md` | Revisión del fichero (es un entregable de datos) | Hecho (18 casos; N6 corregido) |
 | 2.3 | Medición inicial, con los dos modelos | `resultados/antes.json`, `resultados/antes_qwen3-4b.json` y resumen en `informe.md` | Comando | Hecho (qwen3 solo como dato aparte, no evaluable) |
-| 3a | Pasar la propuesta de 1.1 a `herramientas.py` | `albor/herramientas.py` | Revisión y carga del módulo | Pendiente |
-| 3b | Mínimo privilegio: herramientas por conversación y acciones solo para el titular | `albor/configuracion.py`, `albor/guardas.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
-| 3c | Validación en código de las acciones irreversibles | `albor/guardas.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
-| 3d | Aprobación humana de los reembolsos de más de 300 € | `albor/guardas.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
-| 3e | Defensa frente a la inyección de prompt indirecta | `albor/guardas.py`, `albor/configuracion.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
-| 3f | Protección de los datos personales en la entrada o en la salida | `albor/guardas.py` | Comprobaciones en la terminal, sin modelo | Pendiente |
-| 3g | Nueva medición, con los dos modelos | `resultados/despues.json`, `resultados/despues_qwen3-4b.json` | Comando | Pendiente |
-| 3h | Controles implementados y tabla antes/después | `informe.md` | Redacción | Pendiente |
+| 3.1 | Mínimo privilegio: herramientas por conversación y acciones solo para el titular | `albor/configuracion.py`, `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3.2 | Validación en código de las acciones irreversibles | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3.3 | Aprobación humana de los reembolsos de más de 300 € | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3.4 | Defensa frente a la inyección de prompt indirecta | `albor/guardas.py`, `albor/configuracion.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3.5 | Protección de los datos personales en la entrada o en la salida | `albor/guardas.py` y sección en `informe.md` | Comprobaciones en la terminal, sin modelo | Pendiente |
+| 3.6 | Nueva medición con los dos modelos y tabla antes/después | `resultados/despues.json`, `resultados/despues_qwen3-4b.json` y sección en `informe.md` | Comando | Pendiente |
 | 4.1 | Postmortem | `informe.md` | Redacción | Pendiente |
 | 4.2 | Observabilidad: qué registrar, qué no y al menos tres alertas | `informe.md` | Redacción | Pendiente |
 | 4.3 | Recomendación | `informe.md` | Redacción | Pendiente |
