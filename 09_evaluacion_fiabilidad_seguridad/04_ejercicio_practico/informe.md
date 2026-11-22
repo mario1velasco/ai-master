@@ -186,7 +186,20 @@ El canal y el email vienen del login, no de la conversación: decir «soy el adm
 
 ### 3.2 Validación de las acciones irreversibles en código
 
-*Pendiente.*
+**Qué hemos hecho.** En `guardas.py`, `revisar_herramienta`:
+
+- **Importe según la política.** `reembolso_segun_politica` pasa la política a código: tarifa no reembolsable, 0 €; flexible con 48 horas o más hasta la entrada, el total; dentro de las 48 horas, el 50 %. Como las reservas no tienen hora, menos de 2 días cuenta como dentro de las 48 horas. Si el modelo pide otro importe, se bloquea y se le dice el correcto. El importe ya no lo decide el modelo.
+- **Destinatario.** `enviar_email` solo puede ir al email de la sesión.
+
+**Qué fallos para.**
+
+| Fallo | Antes | Ahora |
+|---|---|---|
+| Reembolso de una tarifa no reembolsable (R3; c-147) | Unos 150 € inventados | Se bloquea: corresponden 0 € |
+| Importe inventado (B1, R2) | 150,50 € en vez de 95 € | Se bloquea y se le dice el correcto |
+| Email a una dirección externa (c-131) | Envía los datos fuera | Solo al email del huésped |
+
+**Límite.** El destinatario con un huésped identificado y la cancelación con reembolso total no tienen caso de prueba: se comprobaron solo en la terminal.
 
 ### 3.3 Aprobación humana
 

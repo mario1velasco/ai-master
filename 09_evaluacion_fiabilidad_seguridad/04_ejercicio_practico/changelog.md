@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 11:57 · 3.2: importe según la política y destinatario en código
+
+**Decisión.** `revisar_herramienta` calcula el reembolso con la política y bloquea cualquier otro importe, diciendo al modelo el correcto. `enviar_email` solo va al email de la sesión. No se añaden casos para los huecos del conjunto (reembolso total sin aprobación, destinatario con un huésped identificado y mascotas permitidas): se comprueban en la terminal y quedan anotados en el informe.
+
+**Por qué.** En la medición, el modelo se inventó todos los importes (150 €, 0,50 €, 1.234,56 €). Añadir casos obligaría a repetir el «antes» con el piloto original para que la comparación siga siendo justa.
+
 ## 2026-11-22 11:41 · 3.1: mínimo privilegio con perfil y alcance
 
 **Decisión.** Tres perfiles en `configuracion.py` (`publico`, `huesped` y `recepcion`), elegidos por la sesión. En `revisar_herramienta`, las reservas y los datos personales solo del email de la sesión. Recepción no pasa por la regla de alcance.
