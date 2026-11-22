@@ -6,6 +6,18 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 07:58 · 1.2b: chat síncrono; aprobación y escalado asíncronos
+
+**Decisión.** El chat es síncrono en los tres canales. Lo que hace una persona es asíncrono: **aprobar** los reembolsos de más de 300 € (cola, como en `sesion3/supervision.py`; se ejecuta al aprobar) y **escalar** a recepción lo que el agente no resuelve (en el kit es solo una frase; en el diseño, la conversación queda en una bandeja de recepción). Las cancelaciones de hasta 300 € y los emails al propio huésped son automáticos; lo ajeno o fuera de política, bloqueado. Editar no se usa. La **revisión por muestreo** de la sesión 3 queda solo en el diseño, como mejora futura.
+
+**Por qué.** El enunciado solo obliga a aprobar los reembolsos de más de 300 €. Aprobar cada email de confirmación no escala, y el riesgo de los emails estaba en el destinatario libre, que aquí fija el código. El muestreo se dio en clase (diapositivas y `supervision.py`), pero ni el enunciado ni los deberes lo piden: se deja anotado para una versión futura.
+
+## 2026-11-22 07:46 · 1.2a: tres canales, cada uno con su perfil
+
+**Decisión.** Tres canales según el login: web pública (consultar disponibilidad y política, leer reseñas), huésped identificado (todas menos `listar_reservas`, y solo sobre sus reservas y su email) y recepción (las 6 de lectura, ninguna irreversible). `enviar_email` se queda solo para el huésped, a su propio email. El huésped conserva `leer_resenas`, y el camino reseña → acción irreversible se corta en código con la procedencia de `deber_reto.py`.
+
+**Por qué.** Mínimo privilegio en dos capas, como en `sesion2/permisos.py`: el perfil decide qué herramientas existen y las guardas, sobre qué datos. c-131 era anónima: el perfil público la habría parado. Recepción no necesita enviar nada, y `listar_reservas` devuelve nombre, email y teléfono: sin `enviar_email` esos datos no tienen por dónde salir. Quitar las reseñas al huésped sería más seguro, pero le quitaría una función útil; la procedencia cubre ese riesgo.
+
 ## 2026-11-21 18:54 · La 1.2 se apoya en el Tema 9 y, de refuerzo, en el Tema 8
 
 **Decisión.** Para la arquitectura (1.2) manda el material del Tema 9: perfiles de `sesion2/permisos.py`, supervisión de `sesion3/supervision.py`, qué registrar y qué no de la sesión 3, y coste y latencia de la sesión 1. La teoría del Tema 8 (memoria y estado, multiagente, integración en producción) se usa solo de apoyo, para lo que el Tema 9 no cubre. Se añade como excepción en `AGENTS.md`.

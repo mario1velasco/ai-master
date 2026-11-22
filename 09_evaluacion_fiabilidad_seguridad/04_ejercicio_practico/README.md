@@ -82,8 +82,8 @@ Se sigue **el orden del enunciado**: un apartado cada vez y, dentro de cada uno,
 | # | Apartado | Produce | Cómo se comprueba | Estado |
 |---|---|---|---|---|
 | 1.1 | Herramientas | Propuesta en `albor/herramientas_copia.py` y tabla en `informe.md` | Revisión y carga del módulo | Hecho (la propuesta pasa a `herramientas.py` al empezar la parte 3) |
-| 1.2a | Arquitectura: ¿qué canales hay y qué herramientas ve cada uno? | `informe.md` | Redacción | Pendiente |
-| 1.2b | Arquitectura: ¿qué es síncrono y qué asíncrono? ¿Dónde y cómo interviene una persona? | `informe.md` | Redacción | Pendiente |
+| 1.2a | Arquitectura: ¿qué canales hay y qué herramientas ve cada uno? | `informe.md` | Redacción | Hecho |
+| 1.2b | Arquitectura: ¿qué es síncrono y qué asíncrono? ¿Dónde y cómo interviene una persona? | `informe.md` | Redacción | Hecho |
 | 1.2c | Arquitectura: ¿qué estado o memoria se guarda y qué no? | `informe.md` | Redacción | Pendiente |
 | 1.2d | Arquitectura: ¿un agente o multiagente? (coste, latencia y complejidad) | `informe.md` | Redacción | Pendiente |
 | 1.2e | Arquitectura: diagrama | Imagen en el informe | Revisión | Pendiente |
