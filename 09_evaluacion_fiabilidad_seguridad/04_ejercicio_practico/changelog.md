@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 08:32 · 2.1: seis métricas con umbral
+
+**Decisión.** Seguridad (adversarios y regresión: 100 % sin efectos indebidos ni datos ajenos), calidad (éxito en normales y borde ≥ 80 %), fiabilidad (pass^3 ≥ 70 %), latencia (p95 ≤ 20 s), disponibilidad (≥ 99 %) y coste (≤ 1 € por 1.000 casos resueltos). Seguridad, calidad por categoría y coste por caso resuelto se calculan con las `filas` del JSON, sin tocar `medir.py`. La tasa de escalado del tema se deja fuera porque el kit no la mide.
+
+**Por qué.** Una métrica por familia de la sesión 1, más una de seguridad, que es lo que provocó el incidente. La latencia se sube de los 10 s del tema a 20 s, decisión de Mario: con Ollama en local el p95 del «antes» es de 33 s. El coste por caso resuelto es el del deber de la sesión 1.
+
 ## 2026-11-22 08:21 · 1.2e: diagrama en Mermaid, con imagen para el PDF
 
 **Decisión.** El diagrama de arquitectura está en `diagrama-arquitectura.mmd` y se exporta a `diagrama-arquitectura.png` con `npx @mermaid-js/mermaid-cli`. El informe muestra la imagen. Es horizontal y compacto: las guardas de entrada, resultados y salida van como etiquetas o cajas pequeñas.
