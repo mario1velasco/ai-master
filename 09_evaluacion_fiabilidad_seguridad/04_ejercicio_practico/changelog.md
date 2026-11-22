@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-22 16:42 · 3.5: también la entrada, como en clase
+
+**Decisión.** `revisar_entrada` enmascara tarjetas (con Luhn), IBAN y DNI y rechaza los mensajes de más de 2.000 caracteres. Es el código de `sesion2/guardarrailes.py` sin el registro de bloqueos.
+
+**Por qué.** Con la salida sola, la 3.5 cubría los fallos medidos; con la entrada, además, los datos que escribe el propio huésped no llegan al modelo ni a los registros (4.2). Ningún caso lo prueba, así que se comprueba en la terminal.
+
 ## 2026-11-22 16:34 · 3.5: teléfonos y tarjetas de otros huéspedes, fuera de la respuesta
 
 **Decisión.** `revisar_salida` sustituye la respuesta si lleva el teléfono o la tarjeta de otro huésped. No se comprueban los nombres, recepción queda fuera y no se revisa la entrada.

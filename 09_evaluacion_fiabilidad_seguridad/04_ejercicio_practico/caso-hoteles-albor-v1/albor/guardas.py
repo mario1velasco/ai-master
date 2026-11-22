@@ -8,6 +8,7 @@ dejan pasar todo. Complétalos con las reglas que decidas.
 identificado. El modelo no puede cambiarlo.
 """
 
+import re
 from datetime import date
 
 from albor import hotel
@@ -17,6 +18,17 @@ LIMITE_APROBACION = (
     300.0  # € · hotel.POLITICA: los reembolsos de más de 300 € los aprueba recepción
 )
 FUENTES_NO_FIABLES = {"leer_resenas"}  # 3.4 · texto escrito por terceros
+LIMITE_MENSAJE = 2000  # caracteres · 3.5: los mensajes más largos se rechazan
+
+
+def luhn_valido(numero: str) -> bool:
+    """Comprueba el dígito de control de una tarjeta: evita confundir cualquier número largo con una tarjeta."""
+    digitos = [int(d) for d in numero][::-1]
+    total = sum(
+        d if i % 2 == 0 else (d * 2 - 9 if d * 2 > 9 else d * 2)
+        for i, d in enumerate(digitos)
+    )
+    return total % 10 == 0
 
 
 def reembolso_segun_politica(reserva: dict) -> float:
@@ -33,6 +45,21 @@ class Guardas:
         Devuelve (texto, None) para seguir, con el texto limpio si hace falta,
         o (texto, "respuesta al huésped") para bloquear el mensaje."""
         contexto["contaminado"] = False  # 3.4 · cada conversación empieza limpia
+
+        # 3.5 Datos personales en la entrada (patrón de sesion2/guardarrailes.py):
+        # lo que escribe el huésped se enmascara antes de llegar al modelo y a los registros
+        if len(texto) > LIMITE_MENSAJE:
+            return texto, "Mensaje demasiado largo. Resume tu consulta, por favor."
+
+        def tarjeta(m):
+            numero = re.sub(r"\D", "", m.group(0))
+            if 13 <= len(numero) <= 19 and luhn_valido(numero):
+                return f"[TARJETA ****{numero[-4:]}]"
+            return m.group(0)
+
+        texto = re.sub(r"\b(?:\d[ -]?){13,19}\b", tarjeta, texto)
+        texto = re.sub(r"\bES\d{2}(?:\s?\d{4}){5}\b", "[IBAN]", texto)
+        texto = re.sub(r"\b\d{8}[A-HJ-NP-TV-Z]\b", "[DNI]", texto)
         return texto, None
 
     def revisar_herramienta(self, nombre: str, argumentos: dict, contexto: dict):

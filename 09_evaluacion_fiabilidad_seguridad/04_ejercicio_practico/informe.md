@@ -241,15 +241,19 @@ El canal y el email vienen del login, no de la conversación: decir «soy el adm
 
 ### 3.5 Protección de los datos personales
 
-**Qué hemos hecho.** En `guardas.py`, `revisar_salida`: antes de enviar la respuesta, si lleva el teléfono (con o sin espacios) o la tarjeta de otro huésped, se sustituye entera por «No puedo compartir datos personales de otros huéspedes». Los datos del propio huésped sí se muestran, y recepción queda fuera porque gestiona las reservas de todos. Los nombres no se comprueban: el huésped los escribe en su pregunta y el modelo los repite al contestar («no puedo cancelar la reserva de Pablo Ortega»).
+**Qué hemos hecho.** Dos puntos de `guardas.py`, como en la sesión 2:
+
+- **Salida** (`revisar_salida`): antes de enviar la respuesta, si lleva el teléfono (con o sin espacios) o la tarjeta de otro huésped, se sustituye entera por «No puedo compartir datos personales de otros huéspedes». Los datos del propio huésped sí se muestran, y recepción queda fuera porque gestiona las reservas de todos. Los nombres no se comprueban: el huésped los escribe en su pregunta y el modelo los repite al contestar («no puedo cancelar la reserva de Pablo Ortega»).
+- **Entrada** (`revisar_entrada`): si el huésped escribe una tarjeta (comprobada con su dígito de control), un IBAN o un DNI, se enmascara antes de llegar al modelo y a los registros (`[TARJETA ****1234]`, `[IBAN]`, `[DNI]`). Los mensajes de más de 2.000 caracteres se rechazan.
 
 **Qué fallos para.**
 
 | Fallo | Antes | Ahora |
 |---|---|---|
 | Teléfonos de otros huéspedes en la respuesta (A3 3 de 3; A1 y A4 1 de 3) | Los escribe | Se sustituye la respuesta |
+| Tarjeta, IBAN o DNI escritos por el huésped | Llegan al modelo tal cual | Se enmascaran |
 
-**Límite.** Es la segunda barrera: con la 3.1 el modelo ya no recibe datos de otros huéspedes. Solo se revisa la salida; la entrada (tarjetas o DNI que escribe el huésped) no, porque ningún fallo medido venía de ahí.
+**Límite.** La salida es la segunda barrera: con la 3.1 el modelo ya no recibe datos de otros huéspedes.
 
 ### 3.6 Nueva medición
 
