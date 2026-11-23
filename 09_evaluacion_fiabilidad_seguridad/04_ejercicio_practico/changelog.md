@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-23 21:02 · Resumen ejecutivo y recomendación
+
+**Decisión.** El resumen ejecutivo va en cuatro párrafos cortos para la Directora: qué pasó, qué se ha hecho, el resultado y la recomendación. Cada uno remite a su apartado (4.1, 3.6, 4.2 y 4.3). No menciona el anexo ni las mejoras FIX: para la Directora basta con el resultado.
+
+**Por qué.** El enunciado pide media página, y se escribe al final porque resume todo lo anterior. Usa los números de la medición final: tasa de éxito del 56 % al 86 % con qwen2.5, y seguridad del 100 % con qwen3. Pone «entre el 5 y el 6 de noviembre» porque son las fechas de las tres conversaciones; el 7 es el día de la detección. Con el resumen escrito, el informe tiene unas 8.350 palabras y pasa del límite de 6 páginas: queda recortarlo.
+
 ## 2026-11-23 20:44 · 4.3: recomendación, y el anexo con los nombres de la 3.6
 
 **Decisión.** La 4.3 recomienda reactivar Alba con `qwen3:4b-instruct`, por fases y con todas las cancelaciones por recepción durante las dos primeras semanas; con `qwen2.5:7b`, no. Se apoya en una tabla con los umbrales de la 2.1 y la medición final de los dos modelos, y pone cuatro condiciones y un plan de seguimiento (medición semanal, revisión diaria de alertas y de una muestra del 20 %, y fase 2 a las dos semanas). El anexo pasa a llamarse «Del paso intermedio a la versión final» y usa los nombres de los ficheros: antes → intermedio → después.

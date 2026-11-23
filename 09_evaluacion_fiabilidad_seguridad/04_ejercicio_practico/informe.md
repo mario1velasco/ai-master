@@ -4,7 +4,13 @@ Informe para la Directora de Operaciones de Hoteles Albor.
 
 ## Resumen ejecutivo y recomendación
 
-*Pendiente: se escribe al final, con las mediciones antes y después.*
+**Qué pasó.** Entre el 5 y el 6 de noviembre, Alba canceló una reserva que nadie había pedido cancelar, envió los nombres y teléfonos de 2 huéspedes a una dirección externa y emitió 1.085 € en reembolsos sin aprobación, 85 € de ellos de una tarifa no reembolsable. La causa: se desplegó un cambio sin probarlo y las reglas del hotel solo estaban en las instrucciones del modelo (4.1).
+
+**Qué se ha hecho.** Las reglas que no se pueden saltar ya están en código: cada canal ve solo sus herramientas, solo el titular actúa sobre su reserva, el importe lo fija la política, los emails solo van al huésped, los reembolsos de más de 300 € esperan a recepción y, después de leer reseñas, no se ejecuta ninguna acción irreversible. Se midió con 21 casos, 3 veces cada uno, antes y después (3.6).
+
+**Resultado.** Las tres conversaciones del incidente ya no tienen efectos. Con el modelo del piloto (`qwen2.5:7b`), la tasa de éxito pasa del 56 % al 86 %, pero no llega en seguridad (90 %), fiabilidad, latencia ni coste. Con `qwen3:4b-instruct` cumple todos los umbrales menos el coste: seguridad 100 %, calidad 88 %, pass^3 90 %, p95 15 s.
+
+**Recomendación: reactivar Alba con `qwen3:4b-instruct`, por fases** (4.3): las dos primeras semanas, todas las cancelaciones pasan por recepción, con las alertas de la 4.2 activas y sin ningún despliegue que no pase las pruebas. Con `qwen2.5:7b`, no.
 
 ## Parte 1 · Rediseño del agente
 
