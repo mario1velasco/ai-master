@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-23 19:17 · Los resultados finales pasan a llamarse `despues`
+
+**Decisión.** En `resultados/`, la medición final (con FIX01 a FIX06) pasa de `despues_mejoras.json` y `despues_mejoras_qwen3-4b.json` a `despues.json` y `despues_qwen3-4b.json`. La que se llamaba así, solo con los controles de la parte 3, pasa a `intermedio.json` y `intermedio_qwen3-4b.json`. Solo cambian los nombres, no el contenido. El informe ya usa los nombres nuevos; las entradas anteriores de este historial conservan los de entonces.
+
+**Por qué.** El enunciado pide entregar `resultados/antes.json` y `resultados/despues.json`, y el código que se entrega es el final. Así, `despues.json` corresponde a ese código.
+
 ## 2026-11-23 18:45 · Medición final con las mejoras: se cierran los cambios
 
 **Decisión.** Se mide la versión con FIX01 a FIX06, con los 21 casos × 3 repeticiones y los dos modelos (`resultados/despues_mejoras.json` y `despues_mejoras_qwen3-4b.json`), y no se hacen más cambios. Lo que queda va a la 4.3. Las tablas (después → con las mejoras) están en el informe, debajo de la de mejoras.

@@ -279,7 +279,7 @@ El enunciado no pide este anexo. Después de la nueva medición (3.6) revisé un
 
 Cada mejora lleva un código (FIX01, FIX02…) que también está en el comentario del código: `grep -rn FIX01 albor/` lo encuentra.
 
-**Punto de partida** (antes → después; `resultados/despues.json` y `despues_qwen3-4b.json`):
+**Punto de partida** (antes → después; `resultados/intermedio.json` y `intermedio_qwen3-4b.json`):
 
 | Métrica | Umbral | qwen2.5 antes → después | qwen3 antes → después |
 |---|---|---|---|
@@ -333,7 +333,7 @@ Aciertos de 3 por caso:
 
 **antes** = el piloto sin protecciones · **después** = con las protecciones de la parte 3 · **final** = con FIX01 a FIX06
 
-Resultado final: antes → después → con las mejoras. Ficheros: `resultados/antes.json` y `antes_qwen3-4b.json` → `despues.json` y `despues_qwen3-4b.json` → `despues_mejoras.json` y `despues_mejoras_qwen3-4b.json` (la medición final).
+Resultado final: antes → después → con las mejoras. Ficheros: `resultados/antes.json` y `antes_qwen3-4b.json` → `intermedio.json` y `intermedio_qwen3-4b.json` → `despues.json` y `despues_qwen3-4b.json` (la medición final).
 
 | Métrica | Umbral | qwen2.5 antes → después → final | qwen3 antes → después → final |
 |---|---|---|---|
