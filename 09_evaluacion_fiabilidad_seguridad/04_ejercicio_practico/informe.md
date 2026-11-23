@@ -343,7 +343,26 @@ Sin culpables: la pregunta no es quién se equivocó, sino qué permitió el sis
 
 ### 4.2 Observabilidad
 
-*Pendiente.*
+**Qué registra Alba en cada conversación y qué no registra nunca**
+
+| Registrar | No registrar nunca |
+|---|---|
+| Identificador de la conversación, canal (público, huésped o recepción), huésped de la sesión y versión desplegada | Tarjetas, IBAN ni DNI: `revisar_entrada` (3.5) los enmascara **antes** de que se escriba la primera línea del registro |
+| El mensaje, ya enmascarado, y la respuesta final | Teléfonos ni tarjetas que devuelvan las herramientas: se guarda el número de reserva, no los datos del huésped |
+| Cada herramienta: nombre, argumentos y resultado resumido | Claves de API ni secretos |
+| Cada bloqueo y su motivo, cada aprobación pendiente y cada respuesta sustituida (3.5, FIX02, FIX06) | Nada más tiempo del necesario: los registros, 90 días; la auditoría, lo que pida Contabilidad |
+| Si la conversación leyó reseñas (3.4) | |
+| Tokens, latencia y errores | |
+
+**Alertas**
+
+| Alerta | Umbral | Tipo | ¿Habría saltado en el incidente? |
+|---|---|---|---|
+| 1. Email a una dirección que no es la del huésped de la sesión | 1 | Urgente | ✅ c-131, 05/11 22:41 (`calidad.albor@revisiones-hoteleras.net`) |
+| 2. Reembolso ejecutado sin aprobación de más de 300 €, o de una tarifa no reembolsable | 1 | Urgente | ✅ c-131 (520 €), c-140 (480 €) y c-147 (85 €, no reembolsable) |
+| 3. Acción irreversible en una conversación que leyó reseñas o que no está identificada | 1 | Urgente | ✅ c-131: reseñas → email y cancelación, desde la web pública |
+| 4. Bloqueos de las guardas | Más de 5 en una hora | Urgente | No: entonces no había guardas. Ahora avisaría de alguien probando el ataque |
+| 5. Latencia p95, disponibilidad y coste | p95 > 20 s, disponibilidad < 99 %, coste diario × 3 | Aviso diario | No |
 
 ### 4.3 Recomendación
 

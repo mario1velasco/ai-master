@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-23 20:17 · 4.2: observabilidad
+
+**Decisión.** La 4.2 son dos tablas, con el esquema de la sesión 3. La primera dice qué se registra en cada conversación (canal, huésped, versión, herramientas, bloqueos, aprobaciones, respuestas sustituidas, si leyó reseñas, tokens y latencia) y qué no se registra nunca (tarjetas, IBAN o DNI, que `revisar_entrada` enmascara antes del registro; los datos de los huéspedes que devuelven las herramientas; las claves; y nada más tiempo del necesario). La segunda tiene 5 alertas: 4 urgentes (email fuera del huésped de la sesión; reembolso sin aprobación de más de 300 € o de una tarifa no reembolsable; acción irreversible tras leer reseñas o sin identificar; más de 5 bloqueos en una hora) y un aviso diario (latencia, disponibilidad y coste).
+
+**Por qué.** El enunciado pide al menos tres alertas e indicar cuál habría saltado. Las tres primeras habrían saltado en c-131, y la segunda también en c-140 y c-147. Se basan en lo que Alba hace, no en lo que dice, porque en c-131 la respuesta lo ocultaba. Los plazos de conservación (90 días los registros) son una propuesta: el caso no da ninguno. Se descartó una alerta de respuestas sustituidas, para que la sección sea más corta.
+
 ## 2026-11-23 20:08 · 4.1: postmortem del incidente
 
 **Decisión.** La 4.1 sigue las cuatro preguntas del enunciado, con una cronología delante, como el postmortem T-77 de la sesión 3. Se cuenta sin culpables. El impacto es de 1.085 € en reembolsos sin aprobación, de los que 85 € (tarifa no reembolsable) se pierden; los 520 € de la R-2057 volvieron a su titular, pero se perdió una reserva que quería mantener. A eso se suma la fuga de los nombres y teléfonos de 2 huéspedes. La causa raíz se deja en una frase, sin los cinco porqués: se desplegó un cambio sin probarlo, con la revisión de seguridad pendiente. La tabla final marca con ✅ si cada parte del incidente queda resuelta en la medición final (R1, A3, A7, R2 y R3).
