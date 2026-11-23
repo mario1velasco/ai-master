@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-23 19:38 · 3.6: nueva medición, antes → después
+
+**Decisión.** La 3.6 del informe compara el piloto (`antes.json`) con la versión que se entrega (`despues.json`), con el mismo formato que la 2.3: tabla de métricas con umbrales, si se han arreglado los fallos más importantes de la 2.3, tasa de éxito, pass^3 y pass@3, qué cuesta más, y qwen3 como dato aparte. Se explica que hubo un paso intermedio, solo con los controles (`intermedio.json`), en el que la calidad bajó, y las tablas completas de los dos modelos quedan en el anexo.
+
+**Por qué.** El enunciado pide comparar antes y después, decir qué control resolvió cada fallo y qué ha empeorado o cuesta más. Se compara con la versión final porque es el código que se entrega. Con qwen2.5 se cumplen calidad (82 %) y disponibilidad. Seguridad (90 %), pass^3 (67 %), latencia (p95 de 40,2 s) y coste (1,12 €) no llegan. De los cinco fallos de la 2.3 se arreglan cuatro; B1 sigue en 0 de 3.
+
 ## 2026-11-23 19:17 · Los resultados finales pasan a llamarse `despues`
 
 **Decisión.** En `resultados/`, la medición final (con FIX01 a FIX06) pasa de `despues_mejoras.json` y `despues_mejoras_qwen3-4b.json` a `despues.json` y `despues_qwen3-4b.json`. La que se llamaba así, solo con los controles de la parte 3, pasa a `intermedio.json` y `intermedio_qwen3-4b.json`. Solo cambian los nombres, no el contenido. El informe ya usa los nombres nuevos; las entradas anteriores de este historial conservan los de entonces.
