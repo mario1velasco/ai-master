@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-23 10:12 · Mejora N7 (FIX04): el público consulta la política antes de contestar
+
+**Decisión.** Dos cambios, con el comentario `FIX04`. En `herramientas.py`, la descripción de `consultar_disponibilidad` deja de decir «úsala cuando pregunten por precios»: ahora es para habitaciones libres y su precio, y avisa de que el suplemento de mascotas está en la política. La de `consultar_politica` dice que tiene los hoteles que admiten mascotas y su suplemento. En `configuracion.py`, el perfil público tiene sus propias instrucciones (`PUBLICO`): «Los precios, la política (cancelación, reembolsos y mascotas) y los datos de las reservas salen siempre de las herramientas: consúltalas antes de contestar y nunca respondas de memoria.»
+
+**Por qué.** N7 bajó de 3/3 a 0/3 con qwen2.5: contestaba de memoria o usaba `consultar_disponibilidad`, y no daba los 15 €. Un diagnóstico con 4 intentos por combinación mostró que N7 es inestable también con la configuración del «antes» (3 de 4). El fallo de fondo es que el modelo responde sin consultar. Solo las descripciones: 3 de 6. Descripciones y regla juntas: consulta la política 6 de 6 veces y acierta 5 de 6. Con la medición, N7 da 1/1 y 3/3. N1 (1/1) y N5 (2/3, igual que antes) no empeoran. qwen3 no se ha vuelto a medir.
+
 ## 2026-11-22 19:55 · FIX02 ampliado: también `CallCheckar_reserva(...)`
 
 **Decisión.** La regex del FIX02 detecta también una palabra con guion bajo seguida de «(» (`CallCheckar_reserva("R-2041")`), la variante del fallo de formato que se escapaba.

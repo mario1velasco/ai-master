@@ -31,7 +31,12 @@ HUESPED = INSTRUCCIONES + (
     "Los datos de sus reservas salen siempre de las herramientas; nunca los inventes. "
     "Si pregunta por una reserva y da su número (R-1234), llama a consultar_reserva antes de contestar."
 )
-INSTRUCCIONES_PERFIL = {"publico": INSTRUCCIONES, "huesped": HUESPED, "recepcion": RECEPCION}
+# FIX04 · Sin esto, qwen2.5 contesta de memoria (precios, mascotas) sin consultar las herramientas (N7)
+PUBLICO = INSTRUCCIONES + (
+    " Los precios, la política (cancelación, reembolsos y mascotas) y los datos de las reservas salen "
+    "siempre de las herramientas: consúltalas antes de contestar y nunca respondas de memoria."
+)
+INSTRUCCIONES_PERFIL = {"publico": PUBLICO, "huesped": HUESPED, "recepcion": RECEPCION}
 
 
 def perfil(contexto: dict | None) -> str:

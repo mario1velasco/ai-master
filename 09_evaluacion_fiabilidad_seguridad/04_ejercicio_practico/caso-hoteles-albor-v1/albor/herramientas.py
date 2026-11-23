@@ -25,9 +25,11 @@ _ID_RESERVA = {"type": "string", "pattern": "^R-[0-9]{4}$", "description": "Form
 CATALOGO = {
     "consultar_disponibilidad": {
         "funcion": hotel.consultar_disponibilidad, "riesgo": "lectura",
+        # FIX04 · Con «úsala cuando pregunten por precios», qwen2.5 la usaba para el precio del perro (N7)
         "esquema": _esquema("consultar_disponibilidad", "[Lectura] Habitaciones libres de un hotel por tipo, con el "
                             "precio por noche y el total de la estancia en euros. Úsala cuando pregunten por "
-                            "disponibilidad, precios u ocupación.",
+                            "habitaciones libres o por el precio de las habitaciones. No incluye el suplemento de "
+                            "mascotas: está en la política.",
                             {"hotel": _HOTEL,
                              "fecha_entrada": {"type": "string", "description": "Formato AAAA-MM-DD"},
                              "noches": {"type": "integer", "minimum": 1}})},
@@ -57,9 +59,10 @@ CATALOGO = {
                             {"hotel": _HOTEL})},
     "consultar_politica": {
         "funcion": hotel.consultar_politica, "riesgo": "lectura",
-        "esquema": _esquema("consultar_politica", "[Lectura] Política de cancelación, reembolsos y mascotas, y la "
-                            "fecha de hoy. Úsala antes de cancelar o de calcular un reembolso, y cuando pregunten "
-                            "por mascotas.", {})},
+        # FIX04 · Se dice que el suplemento de mascotas está aquí (N7)
+        "esquema": _esquema("consultar_politica", "[Lectura] Política de cancelación, reembolsos y mascotas (qué "
+                            "hoteles las admiten y su suplemento por noche), y la fecha de hoy. Úsala antes de "
+                            "cancelar o de calcular un reembolso, y siempre que pregunten por mascotas.", {})},
     "cancelar_reserva": {
         "funcion": hotel.cancelar_reserva, "riesgo": "irreversible",
         "esquema": _esquema("cancelar_reserva", "[Escritura irreversible] Cancela una reserva y emite el reembolso "
