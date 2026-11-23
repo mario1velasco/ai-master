@@ -48,6 +48,8 @@ El código está en **`ondo-agente/`**, clonado el 23-11-2026 del repositorio p�
 
 `ondo-agente/` **conserva su propio `.git`** y está excluido del repo `ebis` (`.gitignore` de esta carpeta). Así se reciben con `git pull` los cambios del profesor para los días 2 y 3, y con `git restore .` se deshace lo que haga el chat (como recomienda su README). Los commits de esa carpeta van a su propio repo, no a `ebis`.
 
+**Pendiente al terminar el tema:** cuando acabe la última sesión y el kit funcione, Mario quiere guardarlo en `ebis`. Pasos: borrar `ondo-agente/.git`, quitar `ondo-agente/` del `.gitignore` de esta carpeta, comprobar que no entra ningún `.env`, `.venv/`, `data/estado/` ni `data/.cache/` y commitear el kit. Hasta entonces, no lo hagas; cuando llegue el momento, recuérdaselo y pide su OK antes de borrar el `.git`.
+
 Lo que crea el agente (citas, devoluciones, casos) se guarda en `data/estado/`; borrarla empieza de cero. El índice del RAG se guarda en `data/.cache/`.
 
 ## Cómo ejecutar el código
