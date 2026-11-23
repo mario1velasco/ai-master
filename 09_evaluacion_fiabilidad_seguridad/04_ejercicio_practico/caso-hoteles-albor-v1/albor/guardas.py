@@ -104,8 +104,12 @@ class Guardas:
             except (TypeError, ValueError):
                 return "el importe del reembolso tiene que ser un número"
             correcto = reembolso_segun_politica(reserva)
+            # FIX05 · Con «según la política, es de X €» el modelo se rendía y no cancelaba (B1): se le dice qué hacer
             if abs(importe - correcto) > 0.01:
-                return f"según la política, el reembolso de {id_reserva} es de {correcto:.2f} €"
+                return (
+                    "la reserva no se ha cancelado porque el importe no es el de la política. "
+                    f"Vuelve a llamar a cancelar_reserva con importe_reembolso {correcto:.2f}"
+                )
 
             # 3.3 Aprobación humana: los reembolsos de más de 300 € no se ejecutan; quedan pendientes
             if importe > LIMITE_APROBACION:

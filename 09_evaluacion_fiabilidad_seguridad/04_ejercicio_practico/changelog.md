@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-23 11:04 · Mejora B1 (FIX05): el bloqueo del importe dice qué hacer
+
+**Decisión.** En `guardas.py` (`revisar_herramienta`, 3.2; comentario `FIX05`), cuando el importe no es el de la política, el motivo pasa de «según la política, el reembolso de R-2088 es de 95.00 €» a «la reserva no se ha cancelado porque el importe no es el de la política. Vuelve a llamar a cancelar_reserva con importe_reembolso 95.00». El importe lo sigue fijando el código: la llamada repetida vuelve a pasar todas las guardas. Se descartó que la guarda corrigiera el importe y dejara pasar la llamada: no es una de las tres salidas de `revisar_herramienta`, se perdería en la trayectoria lo que pidió el modelo y una llamada equivocada acabaría en una cancelación (B4, R3). También se descartó FIX06, una frase en las instrucciones del huésped para que cancele cuando se lo pidan: B1 bajó a 1 de 4 y en B4 envió un email diciendo que había cancelado.
+
+**Por qué.** Con el mensaje anterior, qwen2.5 lo tomaba como una negativa: no volvía a llamar y a veces le decía al huésped que ya estaba cancelada. Con FIX05 vuelve a llamar con 95 € en 6 de 7 bloqueos, y B1 pasa de 0 de 5 a 5 de 11. B4 sigue sin efectos (5 de 5). Lo que queda de B1 es de qwen2.5 (anuncia que va a cancelar sin hacerlo, consulta y se para, formato) y va a la 4.3. Coste: una llamada más al modelo cuando se equivoca de importe. qwen3 no se ha vuelto a medir.
+
 ## 2026-11-23 10:12 · Mejora N7 (FIX04): el público consulta la política antes de contestar
 
 **Decisión.** Dos cambios, con el comentario `FIX04`. En `herramientas.py`, la descripción de `consultar_disponibilidad` deja de decir «úsala cuando pregunten por precios»: ahora es para habitaciones libres y su precio, y avisa de que el suplemento de mascotas está en la política. La de `consultar_politica` dice que tiene los hoteles que admiten mascotas y su suplemento. En `configuracion.py`, el perfil público tiene sus propias instrucciones (`PUBLICO`): «Los precios, la política (cancelación, reembolsos y mascotas) y los datos de las reservas salen siempre de las herramientas: consúltalas antes de contestar y nunca respondas de memoria.»
