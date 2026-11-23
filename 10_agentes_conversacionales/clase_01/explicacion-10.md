@@ -1,6 +1,6 @@
 # Sesión 1: Diseño conversacional y agente de chat
 
-Explicación sencilla del día 1 del Tema 10, centrada en las ideas principales. Se construye a partir de los PDF de `clase_01/`: las diapositivas de la sesión, la guía de preparación del entorno, la guía del ejercicio de clase (el bot de Telegram) y los dos ejercicios complementarios con su corrección. El código del kit (`ondo-agente`) todavía no está en el repositorio, así que lo que se cuenta del código sale de las diapositivas y de las guías. Los ejemplos propios van marcados como *ilustrativos*.
+Explicación sencilla del día 1 del Tema 10, centrada en las ideas principales. Se construye a partir de los PDF de `clase_01/`: las diapositivas de la sesión, la guía de preparación del entorno, la guía del ejercicio de clase (el bot de Telegram) y los dos ejercicios complementarios con su corrección. Lo que se cuenta del código sale de las diapositivas y de las guías; el kit está en `../ondo-agente/`. Los ejemplos propios van marcados como *ilustrativos*.
 
 ---
 

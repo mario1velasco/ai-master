@@ -25,9 +25,11 @@ Las tres sesiones del tema (según las diapositivas del día 1):
 
 Las siguientes sesiones irán en `clase_02/`, `clase_03/`… cuando se den.
 
+- `ondo-agente/`: el kit de código del tema, compartido por todas las sesiones (ver la sección siguiente).
+
 ## El kit de código (`ondo-agente`)
 
-El código **no está todavía en esta carpeta**. Es un repositorio público: `git clone https://github.com/alamasfu10/ondo-agente.git` (o el ZIP `ondo-agente-dia1.zip` del campus). Cuando se descargue aquí, actualiza esta sección con su ruta real. Piezas principales, según la guía:
+El código está en **`ondo-agente/`**, clonado el 23-11-2026 del repositorio público `https://github.com/alamasfu10/ondo-agente.git` (último commit `43dafbd`, del 19-11-2026). Es **el mismo kit para las tres sesiones**: el día 1 se entiende y se usa por Telegram, el día 2 se completan los flujos con tests y se evalúa (`evaluacion/`), y el día 3 la API de `app/` recibe las llamadas con ngrok. Tiene su propio `README.md` y su propio `AGENTS.md`, que son las instrucciones **del chat de VS Code de la clase** sobre el kit; cuando se trabaje dentro de `ondo-agente/`, se leen y mandan allí. Piezas principales:
 
 | Pieza | Dónde | Qué hace |
 |---|---|---|
@@ -38,7 +40,15 @@ El código **no está todavía en esta carpeta**. Es un repositorio público: `g
 | Modelo | `agente/llm.py` | Tres llamadas: interpretar, redactar y resumir; el prompt `PERSONA_ONDO` |
 | Herramientas | `agente/herramientas.py` | Una sesión stdio con el servidor MCP `ondo_mcp/` (7 herramientas) |
 | Canales | `canales/telegram_bot.py`, `canales/consola.py` | Telegram (polling) y la consola con `--estado` / `--traza` |
+| Servidor MCP y datos | `ondo_mcp/`, `data/` | 7 herramientas y el RAG; 30 clientes, 40 pedidos, 7 talleres y 10 documentos de política. No se tocan |
+| Evaluación (día 2) | `evaluacion/` | Escenarios, cliente simulado, juez e informe (`python -m evaluacion.suite`) |
+| API (día 3) | `app/main.py` | FastAPI (`GET /salud`, `POST /chat`); con ngrok recibe el audio de las llamadas |
+| Tests | `tests/` | Pruebas del servidor MCP (sin clave de OpenAI); los del flujo de cita se escriben el día 2 |
 | Para el chat | `AGENTS.md`, `.agents/skills/completar-flujo/SKILL.md`, `.github/agents/revisor_conversacion.agent.md` | Reglas del proyecto, skill de tests primero y subagente revisor de solo lectura |
+
+`ondo-agente/` **conserva su propio `.git`** y está excluido del repo `ebis` (`.gitignore` de esta carpeta). Así se reciben con `git pull` los cambios del profesor para los días 2 y 3, y con `git restore .` se deshace lo que haga el chat (como recomienda su README). Los commits de esa carpeta van a su propio repo, no a `ebis`.
+
+Lo que crea el agente (citas, devoluciones, casos) se guarda en `data/estado/`; borrarla empieza de cero. El índice del RAG se guarda en `data/.cache/`.
 
 ## Cómo ejecutar el código
 
@@ -53,6 +63,9 @@ python scripts/comprobar_entorno.py       # debe terminar en «Todo listo»
 python -m canales.telegram_bot            # el bot de Telegram
 python -m canales.consola --traza         # la consola, con el camino por el grafo
 python -m agente.react_fallo              # el agente ReAct genérico que falla (demo)
+python -m pytest                          # pruebas (sin clave de OpenAI)
+python -m evaluacion.suite                # evaluación con conversaciones simuladas (día 2)
+uvicorn app.main:app --port 8000          # la API (día 3)
 ```
 
 En la consola, `/reset` empieza una conversación nueva y `/salir` termina.
