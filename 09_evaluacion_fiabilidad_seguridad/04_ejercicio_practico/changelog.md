@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-23 20:08 · 4.1: postmortem del incidente
+
+**Decisión.** La 4.1 sigue las cuatro preguntas del enunciado, con una cronología delante, como el postmortem T-77 de la sesión 3. Se cuenta sin culpables. El impacto es de 1.085 € en reembolsos sin aprobación, de los que 85 € (tarifa no reembolsable) se pierden; los 520 € de la R-2057 volvieron a su titular, pero se perdió una reserva que quería mantener. A eso se suma la fuga de los nombres y teléfonos de 2 huéspedes. La causa raíz se deja en una frase, sin los cinco porqués: se desplegó un cambio sin probarlo, con la revisión de seguridad pendiente. La tabla final marca con ✅ si cada parte del incidente queda resuelta en la medición final (R1, A3, A7, R2 y R3).
+
+**Por qué.** Los datos salen de `logs/registro_produccion.jsonl` y `hotel.py`. Los tiempos de detección se calcularon con las horas del registro: 35 h desde c-131 hasta que Pablo lo notó, y 38 h hasta la desactivación. El registro no dice a qué huésped llamaron, así que no se pone nombre. Los cinco porqués alargaban la sección sin añadir nada a la causa, y el informe tiene un máximo de 6 páginas.
+
 ## 2026-11-23 19:38 · 3.6: nueva medición, antes → después
 
 **Decisión.** La 3.6 del informe compara el piloto (`antes.json`) con la versión que se entrega (`despues.json`), con el mismo formato que la 2.3: tabla de métricas con umbrales, si se han arreglado los fallos más importantes de la 2.3, tasa de éxito, pass^3 y pass@3, qué cuesta más, y qwen3 como dato aparte. Se explica que hubo un paso intermedio, solo con los controles (`intermedio.json`), en el que la calidad bajó, y las tablas completas de los dos modelos quedan en el anexo.
