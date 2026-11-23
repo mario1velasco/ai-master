@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-23 20:44 · 4.3: recomendación, y el anexo con los nombres de la 3.6
+
+**Decisión.** La 4.3 recomienda reactivar Alba con `qwen3:4b-instruct`, por fases y con todas las cancelaciones por recepción durante las dos primeras semanas; con `qwen2.5:7b`, no. Se apoya en una tabla con los umbrales de la 2.1 y la medición final de los dos modelos, y pone cuatro condiciones y un plan de seguimiento (medición semanal, revisión diaria de alertas y de una muestra del 20 %, y fase 2 a las dos semanas). El anexo pasa a llamarse «Del paso intermedio a la versión final» y usa los nombres de los ficheros: antes → intermedio → después.
+
+**Por qué.** Con qwen2.5 fallan 4 de los 6 umbrales, entre ellos la seguridad (90 %), y la 2.1 exige cumplirlos todos. qwen3 los cumple todos menos el coste (1,22 € por 1.000 casos resueltos). El precio es orientativo, porque con el modelo en local no hay factura: se acepta en la fase 1 y se revisa con el precio real. La condición de no desplegar sin pasar los casos ni la revisión de seguridad responde a la causa raíz de la 4.1. La bandeja de aprobaciones de la fase 1 no existe todavía (3.3). En el anexo, «después» quería decir el paso intermedio y chocaba con la 3.6, donde «después» ya es la versión final. Las mejoras pendientes (confirmación antes de cancelar, reembolso calculado en código, estados falsos de reembolso, email enviado por el sistema y casos de varios mensajes) no entran en la 4.3, para no pasar de 6 páginas.
+
 ## 2026-11-23 20:17 · 4.2: observabilidad
 
 **Decisión.** La 4.2 son dos tablas, con el esquema de la sesión 3. La primera dice qué se registra en cada conversación (canal, huésped, versión, herramientas, bloqueos, aprobaciones, respuestas sustituidas, si leyó reseñas, tokens y latencia) y qué no se registra nunca (tarjetas, IBAN o DNI, que `revisar_entrada` enmascara antes del registro; los datos de los huéspedes que devuelven las herramientas; las claves; y nada más tiempo del necesario). La segunda tiene 5 alertas: 4 urgentes (email fuera del huésped de la sesión; reembolso sin aprobación de más de 300 € o de una tarifa no reembolsable; acción irreversible tras leer reseñas o sin identificar; más de 5 bloqueos en una hora) y un aviso diario (latencia, disponibilidad y coste).
