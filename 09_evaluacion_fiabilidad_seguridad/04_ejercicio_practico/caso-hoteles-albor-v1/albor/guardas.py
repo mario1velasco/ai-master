@@ -24,6 +24,12 @@ LLAMADA_COMO_TEXTO = re.compile(  # FIX02
     r"|</?tool_call>"  # etiqueta de llamada
     r"|\b[A-Za-z]+_[A-Za-z_]+\s*\("  # FIX02 ampliado: CallCheckar_reserva(…)
 )
+DICE_QUE_HA_CANCELADO = re.compile(  # FIX06 · frases que dan la cancelación por hecha
+    r"(?:ha sido|está|queda) cancelad[oa]|(?:he|hemos|se ha) cancelado"
+    r"|(?:realizado|completado|procesado|tramitado) la\W*cancelaci[oó]n"
+    r"|cancelaci[oó]n se ha (?:realizado|completado|procesado|tramitado)",
+    re.IGNORECASE,
+)
 
 
 def luhn_valido(numero: str) -> bool:
@@ -50,6 +56,7 @@ class Guardas:
         Devuelve (texto, None) para seguir, con el texto limpio si hace falta,
         o (texto, "respuesta al huésped") para bloquear el mensaje."""
         contexto["contaminado"] = False  # 3.4 · cada conversación empieza limpia
+        contexto["canceladas"] = []  # FIX06 · reservas canceladas de verdad en esta conversación
 
         # 3.5 Datos personales en la entrada (patrón de sesion2/guardarrailes.py):
         # lo que escribe el huésped se enmascara antes de llegar al modelo y a los registros
@@ -122,6 +129,15 @@ class Guardas:
             and str(argumentos.get("destinatario", "")).lower().strip() != email
         ):
             return "solo se pueden enviar emails al huésped identificado"
+
+        # FIX06 · Un email no puede confirmar una cancelación que no se ha hecho (B1: «hemos completado la cancelación»).
+        # Solo si la da por hecha: «tu cancelación está pendiente de aprobación» sí se puede enviar (R2)
+        texto_email = f"{argumentos.get('asunto', '')} {argumentos.get('cuerpo', '')}"
+        if nombre == "enviar_email" and DICE_QUE_HA_CANCELADO.search(texto_email) and not contexto.get("canceladas"):
+            return (
+                "no se ha cancelado ninguna reserva en esta conversación: no envíes un email "
+                "sobre una cancelación"
+            )
         return None
 
     def revisar_resultado(self, nombre: str, resultado, contexto: dict):
@@ -141,6 +157,7 @@ class Guardas:
             and isinstance(resultado, dict)
             and resultado.get("estado") == "cancelada"
         ):
+            contexto.setdefault("canceladas", []).append(resultado.get("id_reserva"))  # FIX06
             resultado = {
                 **resultado,
                 "siguiente_paso": f"envía un email a {contexto.get('email')} confirmando "
@@ -159,6 +176,15 @@ class Guardas:
             return (
                 "Perdona, no he podido consultarlo. ¿Puedes repetirme la pregunta?",
                 "llamada a herramienta escrita como texto",
+            )
+
+        # FIX06 · Estado falso: la respuesta da por hecha una cancelación que no se ha ejecutado
+        # (B1 tras un bloqueo; A5, A7 y R1 cuando el modelo obedece a la reseña)
+        if DICE_QUE_HA_CANCELADO.search(texto) and not contexto.get("canceladas"):
+            return (
+                "Todavía no he podido cancelar la reserva. Si quieres cancelarla, pídemelo de nuevo "
+                "con el número de reserva.",
+                "dice que ha cancelado sin haber cancelado",
             )
 
         # 3.5 Datos personales: la respuesta no puede llevar el teléfono ni la tarjeta de otros huéspedes.
