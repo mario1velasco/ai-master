@@ -6,6 +6,12 @@ Las horas del 21/11 anteriores a las 18:34 se han sacado de la fecha de los fich
 
 ---
 
+## 2026-11-24 10:19 · Informe recortado a 6 páginas y carpeta de entrega
+
+**Decisión.** `informe.md` pasa a ser la versión que se entrega en PDF (6 páginas). Las referencias llevan el nombre del apartado («4.1 Postmortem»). Una nota pequeña con `*` explica cada código de caso (A2, R1…) la primera vez que aparece. La 3.1 a la 3.5 se juntan en una tabla. El anexo se queda al final de `informe.md`, fuera del PDF. La entrega está en `entrega/caso_albor_velasco_mario.zip` (ignorada en git): el PDF y los 6 ficheros que pide el enunciado.
+
+**Por qué.** El informe ocupaba 15 páginas (12 sin el anexo) y el enunciado pide 6 como máximo. Se recortaron las explicaciones que repetían las tablas, sin quitar ningún dato medido. El PDF se genera con Chrome a partir del Markdown y ocupa justo 6 páginas. El profesor no conoce los códigos de los casos, de ahí las notas.
+
 ## 2026-11-23 21:02 · Resumen ejecutivo y recomendación
 
 **Decisión.** El resumen ejecutivo va en cuatro párrafos cortos para la Directora: qué pasó, qué se ha hecho, el resultado y la recomendación. Cada uno remite a su apartado (4.1, 3.6, 4.2 y 4.3). No menciona el anexo ni las mejoras FIX: para la Directora basta con el resultado.
