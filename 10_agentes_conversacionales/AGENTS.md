@@ -26,6 +26,7 @@ Las tres sesiones del tema (según las diapositivas del día 1):
 Las siguientes sesiones irán en `clase_02/`, `clase_03/`… cuando se den.
 
 - `ondo-agente/`: el kit de código del tema, compartido por todas las sesiones (ver la sección siguiente).
+- `changelog.md`: lo que ha hecho falta para poner el kit a funcionar, lo más reciente arriba, más lo que queda pendiente según la guía del día.
 
 ## El kit de código (`ondo-agente`)
 
