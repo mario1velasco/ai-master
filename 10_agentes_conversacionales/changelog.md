@@ -8,8 +8,8 @@ Lo más reciente, arriba.
 
 Siguen el orden de la guía del día 1:
 
-1. **Clave de OpenAI** (guía, apartado 2): abrir `ondo-agente/.env` y pegarla detrás de
-   `OPENAI_API_KEY=` (sin espacios ni comillas). Después, con el entorno activado:
+1. **Clave y modelos** (guía, apartado 2): en `ondo-agente/.env`, `LLM_PROVEEDOR=anthropic` y
+   `ANTHROPIC_API_KEY` (hecho) y **añadir `RAG_EMBEDDINGS=ollama`**. Después, con el entorno activado:
    `python scripts/comprobar_entorno.py` → debe terminar en «Todo listo» (el aviso de ngrok
    no importa hasta el día 3).
 2. **Bot de Telegram** (paso 1): en Telegram, `@BotFather` → `/newbot` → nombre → username
@@ -21,6 +21,52 @@ Siguen el orden de la guía del día 1:
    pruebas con `python -m canales.consola --traza` (memoria, seguridad, pedido ajeno,
    reparación).
 5. **AGENTS.md, skill y subagente** (paso 4): abrir los tres ficheros y contrastarlos con el chat.
+
+## 2026-11-24 — El kit entra en `ebis` (borrado su `.git`)
+
+- Para ver los cambios del kit en el git de `ebis` (VS Code no detecta un repo anidado a dos niveles),
+  se borró `ondo-agente/.git`. No tenía commits locales ni stash: su historial está en GitHub (`43dafbd`).
+- El `.gitignore` del kit sigue valiendo dentro de `ebis`: `.env`, `.venv/`, `data/estado/` y
+  `data/.cache/` no entran. Comprobado con `git check-ignore`; `ebis` ve 51 ficheros del kit.
+- Dos commits en `ebis`, para ver nuestros cambios como diff: primero el **kit original** (idéntico a
+  un clon limpio de `43dafbd`, comprobado con `diff -r`) y después **los cambios para que funcione**
+  (Claude, bge-m3, comprobador, dependencias y la sección de arquitectura del `AGENTS.md` del kit).
+  `git diff <commit-original> -- 10_agentes_conversacionales/ondo-agente` enseña todo lo que hemos tocado.
+- Se pierde el `git pull` del profesor: para los días 2 y 3, clonar su repo aparte, ver
+  `git diff 43dafbd..origin/main` y aplicar los cambios a mano (pasos en `AGENTS.md`).
+- **RAG con bge-m3, medido** (11 preguntas, mejor fragmento): las 7 que están en los documentos dan
+  0,651–0,797 y aciertan documento y sección (también una en portugués); las 4 de fuera, 0,266–0,426.
+  Con el umbral de 0,35 se cuela «¿Vendéis patinetes eléctricos para niños?» (0,426 → «Envíos»).
+  Propuesta: `RAG_UMBRAL=0.5`.
+
+## 2026-11-24 — Claude como modelo y bge-m3 (Ollama) para el RAG
+
+La clave de OpenAI da **401** (`Incorrect API key provided`). Ni otra variable en la terminal ni el formato
+de la línea lo explican (las comillas las quita `python-dotenv`), así que es la propia clave. Para no
+depender de ella, el kit puede usar la cuenta de Anthropic de Mario. Todo va detrás de dos interruptores
+y **por defecto sigue en OpenAI**, como el curso.
+
+- **Modelo de chat → Claude Haiku 5.5** (`claude-haiku-5-5`, el más barato de Anthropic).
+  - `agente/llm.py`: `modelo()` devuelve `ChatAnthropic` o `ChatOpenAI` según `LLM_PROVEEDOR`. Interpretar,
+    redactar, resumir, el juez, el simulador y el ReAct pasan todos por ahí: no hay que tocar nada más.
+  - Sin `temperature` con Claude: Haiku 5.5 rechaza con un 400 cualquier valor distinto del de por defecto.
+  - La salida estructurada (`with_structured_output`) funciona tal cual. Probado con «la batería huele
+    un poco a quemado al cargar» → `intencion: seguridad`.
+- **Embeddings del RAG → bge-m3 en Ollama**. Anthropic no tiene API de embeddings. bge-m3 es el mismo
+  modelo que usará travel-agency (allí con `sentence-transformers`, porque necesita también el reranker
+  y no quiere competir por la GPU con qwen3; aquí no hay LLM local, así que Ollama no compite con nada).
+  - `ondo_mcp/conocimiento.py`: `_embeddings()` elige según `RAG_EMBEDDINGS`. Las variables empiezan por
+    `RAG_` para que lleguen al subproceso MCP sin tocar `agente/herramientas.py`.
+  - La huella de la caché incluye el modelo: al cambiarlo, el índice de `data/.cache/` se recalcula solo.
+  - `ollama pull bge-m3` (~1,2 GB).
+- `requirements.txt`: bloque nuevo al final con `langchain-anthropic`, `langchain-ollama` y sus
+  dependencias; `langchain-core` sube a 1.8.4 y `langchain-protocol` a 0.0.22.
+- `.env.example`: `LLM_PROVEEDOR`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`, `RAG_EMBEDDINGS`, `RAG_OLLAMA_MODEL`.
+- `scripts/comprobar_entorno.py`: comprueba la clave y llama al modelo del proveedor elegido; con
+  `RAG_EMBEDDINGS=ollama`, comprueba también que Ollama calcula los embeddings.
+- Resultado: «Todo listo» con `anthropic` / `claude-haiku-5-5` y 6 tests pasan.
+- Ficheros tocados respecto al kit del profesor: `llm.py`, `conocimiento.py`, `comprobar_entorno.py`,
+  `requirements.txt`, `.env.example` y `AGENTS.md`. Son los que habrá que mezclar a mano con sus cambios.
 
 ## 2026-11-24 — Entorno del kit listo (falta la clave)
 

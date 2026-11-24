@@ -2,9 +2,10 @@
 
     python scripts/comprobar_entorno.py
 
-Revisa: versión de Python, dependencias, fichero .env, clave de OpenAI
-(con una llamada mínima que cuesta una fracción de céntimo), servidor MCP de
-Ondo y ngrok. No imprime nunca tus claves.
+Revisa: versión de Python, dependencias, fichero .env, clave del proveedor
+del modelo (OpenAI o Anthropic, según LLM_PROVEEDOR, con una llamada mínima
+que cuesta una fracción de céntimo), los embeddings de Ollama si
+RAG_EMBEDDINGS=ollama, servidor MCP de Ondo y ngrok. No imprime nunca tus claves.
 """
 
 import asyncio
@@ -50,22 +51,34 @@ def comprobar_env():
         mal("No existe el fichero .env. Cópialo de .env.example y rellena tu clave")
         return False
     load_dotenv(RAIZ / ".env")
-    clave = os.getenv("OPENAI_API_KEY", "")
-    if not clave.startswith("sk-"):
-        mal("OPENAI_API_KEY no está en el .env o no empieza por «sk-»")
+    proveedor = os.getenv("LLM_PROVEEDOR", "openai").strip().lower()
+    variable, prefijo = ("ANTHROPIC_API_KEY", "sk-ant-") if proveedor == "anthropic" else ("OPENAI_API_KEY", "sk-")
+    if not os.getenv(variable, "").startswith(prefijo):
+        mal(f"{variable} no está en el .env o no empieza por «{prefijo}» (LLM_PROVEEDOR={proveedor})")
         return False
-    print(f"{OK} Fichero .env con OPENAI_API_KEY")
+    print(f"{OK} Fichero .env con {variable} (LLM_PROVEEDOR={proveedor})")
     return True
 
 
-def comprobar_openai():
+def comprobar_modelo():
     try:
-        from langchain_openai import ChatOpenAI
-        from agente.llm import MODELO
-        r = ChatOpenAI(model=MODELO, max_tokens=5).invoke("Responde solo: ok")
-        print(f"{OK} OpenAI responde con el modelo {MODELO} ({r.content.strip()!r})")
+        from agente.llm import MODELO, PROVEEDOR, modelo
+        r = modelo().invoke("Responde solo: ok")
+        print(f"{OK} {PROVEEDOR} responde con el modelo {MODELO} ({r.content.strip()!r})")
     except Exception as e:  # noqa: BLE001
-        mal(f"La llamada a OpenAI falla: {type(e).__name__}: {str(e)[:160]}")
+        mal(f"La llamada al modelo de chat falla: {type(e).__name__}: {str(e)[:160]}")
+
+
+def comprobar_embeddings():
+    if os.getenv("RAG_EMBEDDINGS", "openai").strip().lower() != "ollama":
+        return  # con OpenAI vale la misma clave que ya se ha comprobado
+    try:
+        from ondo_mcp.conocimiento import MODELO_EMBEDDINGS, _embeddings
+        n = len(_embeddings().embed_query("prueba"))
+        print(f"{OK} Ollama calcula embeddings con {MODELO_EMBEDDINGS} ({n} dimensiones)")
+    except Exception as e:  # noqa: BLE001
+        mal(f"Los embeddings de Ollama fallan (¿está Ollama arrancado y hecho «ollama pull bge-m3»?): "
+            f"{type(e).__name__}: {str(e)[:120]}")
 
 
 async def _mcp():
@@ -100,7 +113,8 @@ if __name__ == "__main__":
     comprobar_python()
     comprobar_dependencias()
     if comprobar_env():
-        comprobar_openai()
+        comprobar_modelo()
+        comprobar_embeddings()
     comprobar_mcp()
     comprobar_ngrok()
     print()

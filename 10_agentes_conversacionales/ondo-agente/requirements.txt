@@ -83,7 +83,7 @@ jsonschema-specifications==2025.9.1
     # via jsonschema
 langchain==1.4.10
     # via ondo-agente
-langchain-core==1.7.7
+langchain-core==1.8.4
     # via
     #   langchain
     #   langchain-mcp-adapters
@@ -96,7 +96,7 @@ langchain-mcp-adapters==0.3.2
     # via ondo-agente
 langchain-openai==1.7.4
     # via ondo-agente
-langchain-protocol==0.0.21
+langchain-protocol==0.0.22
     # via
     #   langchain-core
     #   langgraph-sdk
@@ -255,3 +255,14 @@ xxhash==4.1.0
     #   langsmith
 zstandard==0.25.0
     # via langsmith
+
+# --- Añadido (no viene del kit): Claude como modelo de chat y bge-m3 de Ollama para el RAG ---
+# Al instalarlos, langchain-core sube de 1.7.7 a 1.8.4 y langchain-protocol de 0.0.21 a 0.0.22 (arriba).
+langchain-anthropic==1.7.12
+anthropic==2.13.0
+    # via langchain-anthropic
+docstring-parser==0.18.0
+    # via anthropic
+langchain-ollama==1.2.0
+ollama==0.6.3
+    # via langchain-ollama

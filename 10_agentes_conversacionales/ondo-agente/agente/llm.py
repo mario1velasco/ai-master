@@ -12,6 +12,7 @@ import json
 import os
 
 from dotenv import load_dotenv
+from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
@@ -21,10 +22,21 @@ from .herramientas import RAIZ
 
 load_dotenv(RAIZ / ".env")
 
-MODELO = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+# Proveedor del modelo de chat: "openai" (el del curso) o "anthropic" (Claude).
+PROVEEDOR = os.getenv("LLM_PROVEEDOR", "openai").strip().lower()
+if PROVEEDOR == "anthropic":
+    MODELO = os.getenv("ANTHROPIC_MODEL", "claude-haiku-5-5")
+else:
+    MODELO = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 
 
-def modelo(temperatura: float = 0.2) -> ChatOpenAI:
+def modelo(temperatura: float = 0.2) -> BaseChatModel:
+    if PROVEEDOR == "anthropic":
+        from langchain_anthropic import ChatAnthropic
+
+        # Sin temperatura: los modelos actuales de Claude (Haiku 5.5 incluido)
+        # rechazan con un 400 cualquier valor distinto del de por defecto.
+        return ChatAnthropic(model=MODELO, max_tokens=4096)
     return ChatOpenAI(model=MODELO, temperature=temperatura)
 
 

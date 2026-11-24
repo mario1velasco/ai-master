@@ -47,15 +47,17 @@ El código está en **`ondo-agente/`**, clonado el 23-11-2026 del repositorio p�
 | Tests | `tests/` | Pruebas del servidor MCP (sin clave de OpenAI); los del flujo de cita se escriben el día 2 |
 | Para el chat | `AGENTS.md`, `.agents/skills/completar-flujo/SKILL.md`, `.github/agents/revisor_conversacion.agent.md` | Reglas del proyecto, skill de tests primero y subagente revisor de solo lectura |
 
-`ondo-agente/` **conserva su propio `.git`** y no se versiona en `ebis`. A propósito **no** está en ningún `.gitignore`, porque así se ocultaría en la búsqueda de VS Code, así que `git status` de `ebis` lo muestra como `?? 10_agentes_conversacionales/ondo-agente/`. Es lo esperado: **nunca lo añadas** (nada de `git add -A`, `git add .` ni `git add 10_agentes_conversacionales`; en `ebis`, añade siempre rutas concretas). Así se reciben con `git pull` los cambios del profesor para los días 2 y 3, y con `git restore .` se deshace lo que haga el chat (como recomienda su README). Los commits de esa carpeta van a su propio repo, no a `ebis`.
+El 24-11-2026, a petición de Mario, se **borró `ondo-agente/.git`** para ver y versionar el kit dentro de `ebis` (antes de borrarlo se comprobó que no tenía commits locales ni stash: todo su historial está en GitHub, commit `43dafbd`). El `.gitignore` del propio kit sigue valiendo dentro de `ebis` y deja fuera `.env`, `.venv/`, `data/estado/`, `data/.cache/` y `evaluacion/salidas/`; aun así, antes de cada commit comprueba con `git status` que no entra ninguno.
 
-**Pendiente al terminar el tema:** cuando acabe la última sesión y el kit funcione, Mario quiere guardarlo en `ebis`. Pasos: borrar `ondo-agente/.git`, comprobar que no entra ningún `.env`, `.venv/`, `data/estado/` ni `data/.cache/` y commitear el kit. Hasta entonces, no lo hagas; cuando llegue el momento, recuérdaselo y pide su OK antes de borrar el `.git`.
+Consecuencia: **ya no hay `git pull`** de los cambios del profesor para los días 2 y 3. Para traerlos, clona el repo en una carpeta aparte (en el scratchpad, no en `ebis`), compara con `43dafbd` (`git diff 43dafbd..origin/main`) y aplica esos cambios a mano sobre `ondo-agente/`, respetando los cambios locales (Claude y bge-m3, ver `changelog.md`). Para deshacer lo que haga el chat de VS Code, se usa el git de `ebis` (`git restore` sobre rutas del kit).
 
 Lo que crea el agente (citas, devoluciones, casos) se guarda en `data/estado/`; borrarla empieza de cero. El índice del RAG se guarda en `data/.cache/`.
 
 ## Cómo ejecutar el código
 
 Entorno del kit: Python ≥ 3.11 (recomendado 3.12), `.venv` propio con `requirements.txt` y `.env` copiado de `.env.example` con `OPENAI_API_KEY` y `TELEGRAM_BOT_TOKEN`. El modelo del curso es de OpenAI (la corrección de los complementarios usa `gpt-4.1-mini`). Para el día 3 hace falta ngrok (Twilio solo funciona por webhook).
+
+**Cambio local de Mario (no viene del kit):** la clave de OpenAI de EBIS da 401, así que el kit puede usar **Claude** con su cuenta de Anthropic (`LLM_PROVEEDOR=anthropic`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL=claude-haiku-5-5`, el más barato) y, como Anthropic no tiene embeddings, el RAG puede usar **bge-m3 en Ollama** (`RAG_EMBEDDINGS=ollama`; `ollama pull bge-m3` y Ollama arrancado). Es el mismo modelo de embeddings que travel-agency, que allí va con `sentence-transformers`. Por defecto todo sigue en OpenAI. Toca `agente/llm.py` (`modelo()`), `ondo_mcp/conocimiento.py` (`_embeddings()`), `scripts/comprobar_entorno.py`, `requirements.txt` y `.env.example`: al traer los cambios del profesor para los días 2 y 3, esos ficheros hay que mezclarlos a mano. Detalle en `changelog.md`.
 
 ```bash
 cd ondo-agente

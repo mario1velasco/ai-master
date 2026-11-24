@@ -4,7 +4,8 @@ Es el patrón que visteis en el Tema 5, en su versión mínima:
 
 1. Cada documento de data/conocimiento/ se parte por secciones (## ...).
    Un fragmento por sección, con el documento y la sección como metadatos.
-2. Cada fragmento se convierte en un embedding con text-embedding-3-small.
+2. Cada fragmento se convierte en un embedding con text-embedding-3-small
+   (o con bge-m3 en Ollama, en local, si RAG_EMBEDDINGS=ollama).
 3. Los vectores viven en un InMemoryVectorStore de LangChain. Para no pagar
    los embeddings en cada arranque, se guardan en data/.cache/.
 4. La búsqueda devuelve los 3 fragmentos más parecidos que superan un umbral.
@@ -17,6 +18,7 @@ import os
 from pathlib import Path
 
 from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_openai import OpenAIEmbeddings
 
@@ -24,7 +26,13 @@ from .datos import DATA
 
 CARPETA = DATA / "conocimiento"
 CACHE = DATA / ".cache" / "indice.json"
-MODELO_EMBEDDINGS = os.getenv("OPENAI_EMBEDDINGS_MODEL", "text-embedding-3-small")
+# Quién calcula los embeddings: "openai" (el del curso) u "ollama" (local).
+# Las variables empiezan por RAG_ para que lleguen al subproceso MCP (agente/herramientas.py).
+PROVEEDOR_EMBEDDINGS = os.getenv("RAG_EMBEDDINGS", "openai").strip().lower()
+if PROVEEDOR_EMBEDDINGS == "ollama":
+    MODELO_EMBEDDINGS = os.getenv("RAG_OLLAMA_MODEL", "bge-m3")
+else:
+    MODELO_EMBEDDINGS = os.getenv("OPENAI_EMBEDDINGS_MODEL", "text-embedding-3-small")
 K = 3
 UMBRAL = float(os.getenv("RAG_UMBRAL", "0.35"))
 
@@ -51,6 +59,14 @@ def fragmentos() -> list[Document]:
     return docs
 
 
+def _embeddings() -> Embeddings:
+    if PROVEEDOR_EMBEDDINGS == "ollama":
+        from langchain_ollama import OllamaEmbeddings
+
+        return OllamaEmbeddings(model=MODELO_EMBEDDINGS)
+    return OpenAIEmbeddings(model=MODELO_EMBEDDINGS)
+
+
 def _huella(docs):
     h = hashlib.sha256(MODELO_EMBEDDINGS.encode())
     for d in docs:
@@ -63,7 +79,7 @@ def almacen() -> InMemoryVectorStore:
     if _almacen is not None:
         return _almacen
     docs = fragmentos()
-    emb = OpenAIEmbeddings(model=MODELO_EMBEDDINGS)
+    emb = _embeddings()
     huella = _huella(docs)
     vectores = None
     if CACHE.exists():
