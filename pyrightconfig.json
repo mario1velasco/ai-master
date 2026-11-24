@@ -1,0 +1,13 @@
+{
+  "typeCheckingMode": "standard",
+  "executionEnvironments": [
+    {
+      "root": "10_agentes_conversacionales/ondo-agente",
+      "reportTypedDictNotRequiredAccess": "none",
+      "reportArgumentType": "none",
+      "reportAttributeAccessIssue": "none",
+      "reportCallIssue": "none",
+      "reportOptionalMemberAccess": "none"
+    }
+  ]
+}
