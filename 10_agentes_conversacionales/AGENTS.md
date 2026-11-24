@@ -22,6 +22,7 @@ Las tres sesiones del tema (según las diapositivas del día 1):
   - `T10 - Guia de Ejercicio de Clase - Dia 1 - Agente_de_chat_en_Telegram.pdf`: la práctica del día.
   - Dos ejercicios complementarios con su corrección: «Sé el grafo» (8 casos para predecir el camino por el grafo) y «Diagnostica la conversación» (5 conversaciones mal diseñadas).
   - `explicacion-10.md`: explicación didáctica de la sesión.
+  - `tutorial-bot-telegram.md`: paso a paso para crear el bot con @BotFather, conseguir el token, ponerlo en el `.env`, arrancar el bot y qué hacer si falla.
 
 Las siguientes sesiones irán en `clase_02/`, `clase_03/`… cuando se den.
 

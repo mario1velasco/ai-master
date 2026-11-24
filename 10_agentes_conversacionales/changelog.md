@@ -22,6 +22,19 @@ Siguen el orden de la guía del día 1:
    reparación).
 5. **AGENTS.md, skill y subagente** (paso 4): abrir los tres ficheros y contrastarlos con el chat.
 
+## 2026-11-24 — Arreglo: pasar a una persona fallaba con Claude
+
+- **Síntoma:** en devoluciones, seguridad o «quiero hablar con una persona», el bot contestaba «Perdona,
+  he tenido un problema técnico» (en la terminal: `KeyError: 'caso'`).
+- **Causa:** Haiku 5.5 a veces piensa antes de responder y `resumir()` devolvía `res.content`, que
+  entonces es una lista de bloques (pensamiento + texto). La herramienta `escalar_a_humano` solo acepta
+  texto en `resumen` y daba un error de validación.
+- **Arreglo:** `agente/llm.py`, `resumir()` devuelve `res.text` (solo el texto). Con OpenAI no cambia
+  nada. Probado 3 veces en la consola: devolución de Lucía → `CASO-0001..0003` y el turno siguiente
+  pasa por `ya_escalado`. Al traer los cambios del profesor, **mantener esta línea**.
+- De paso: `ondo-agente/flujo-devolucion.md` explica el viaje de un mensaje y la devolución fichero a
+  fichero, y `clase_01/tutorial-bot-telegram.md` recuerda arriba del todo cómo arrancar el bot.
+
 ## 2026-11-24 — El kit entra en `ebis` (borrado su `.git`)
 
 - Para ver los cambios del kit en el git de `ebis` (VS Code no detecta un repo anidado a dos niveles),

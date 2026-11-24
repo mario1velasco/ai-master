@@ -122,4 +122,6 @@ async def resumir(estado: dict, motivo: str) -> str:
     )
     datos = {"motivo": motivo, "cliente": estado.get("cliente"), "datos": estado.get("datos")}
     res = await modelo(0).ainvoke([SystemMessage(sistema), HumanMessage(f"{json.dumps(datos, ensure_ascii=False)}\n\n{texto}")])
-    return res.content
+    # .text y no .content: Claude (Haiku 5.5) a veces piensa antes de responder y devuelve una lista de
+    # bloques (pensamiento + texto); escalar_a_humano solo acepta texto.
+    return res.text
