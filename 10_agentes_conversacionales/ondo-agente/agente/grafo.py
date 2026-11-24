@@ -42,17 +42,17 @@ PELIGRO = re.compile(
 )
 
 
-def construir_grafo(h, checkpointer=None):
-    async def interpretar(e: Estado) -> dict:
-        texto = e["messages"][-1].content
-        it = await llm.interpretar(e)
+def construir_grafo(herramientas, checkpointer=None):
+    async def interpretar(estado: Estado) -> dict:
+        texto = estado["messages"][-1].content
+        interpretacion = await llm.interpretar(estado)
         if texto.strip() in MENU_INTENCION:
-            it.intencion = MENU_INTENCION[texto.strip()]
+            interpretacion.intencion = MENU_INTENCION[texto.strip()]
         if PELIGRO.search(texto):
-            it.intencion = "seguridad"
-        datos = dict(e.get("datos") or {})
+            interpretacion.intencion = "seguridad"
+        datos = dict(estado.get("datos") or {})
         for campo in ("email", "pedido_id", "ciudad"):
-            valor = getattr(it, campo)
+            valor = getattr(interpretacion, campo)
             if valor:
                 datos[campo] = (
                     valor.strip().upper() if campo == "pedido_id" else valor.strip()
@@ -68,67 +68,78 @@ def construir_grafo(h, checkpointer=None):
         ):
             datos["motivo"] = "avería"
         cambios = {
-            "ultima": it.model_dump(),
-            "idioma": it.idioma or e.get("idioma", "es"),
+            "ultima": interpretacion.model_dump(),
+            "idioma": interpretacion.idioma or estado.get("idioma", "es"),
             "datos": datos,
         }
-        nueva = it.intencion
-        if nueva in ("pedido", "devolucion", "cita", "informacion") and nueva != e.get(
-            "intencion"
-        ):
+        nueva_intencion = interpretacion.intencion
+        if nueva_intencion in (
+            "pedido",
+            "devolucion",
+            "cita",
+            "informacion",
+        ) and nueva_intencion != estado.get("intencion"):
             # Cambio de tema: empezamos el flujo nuevo con los datos de este mensaje.
             cambios.update(fin_de_flujo())
             cambios["datos"] = {
-                k: v for k, v in datos.items() if getattr(it, k, None) or k == "motivo"
+                campo_dato: valor_dato
+                for campo_dato, valor_dato in datos.items()
+                if getattr(interpretacion, campo_dato, None) or campo_dato == "motivo"
             }
-            cambios["intencion"] = nueva
-        elif nueva not in ("continuar", "no_entendido"):
-            cambios["intencion"] = nueva
-        if nueva != "no_entendido":
+            cambios["intencion"] = nueva_intencion
+        elif nueva_intencion not in ("continuar", "no_entendido"):
+            cambios["intencion"] = nueva_intencion
+        if nueva_intencion != "no_entendido":
             cambios["intentos_fallidos"] = (
-                0 if nueva != "continuar" else e.get("intentos_fallidos", 0)
+                0
+                if nueva_intencion != "continuar"
+                else estado.get("intentos_fallidos", 0)
             )
         return cambios
 
-    def ruta(e: Estado) -> str:
-        it = e["ultima"]["intencion"]
-        intencion = e.get("intencion")
-        if intencion == "seguridad" or it == "seguridad":
+    def ruta(estado: Estado) -> str:
+        intencion_mensaje = estado["ultima"]["intencion"]  # lo que pide ESTE mensaje
+        intencion_en_curso = estado.get("intencion")  # lo que estaba en marcha
+        if intencion_en_curso == "seguridad" or intencion_mensaje == "seguridad":
             return "escalar"
-        if e.get("escalado"):
+        if estado.get("escalado"):
             return "ya_escalado"
-        if intencion == "persona":
+        if intencion_en_curso == "persona":
             return "escalar"
-        if it == "no_entendido":
+        if intencion_mensaje == "no_entendido":
             # Si un flujo está esperando un dato, que repare él: sabe qué opciones volver a ofrecer.
-            en_flujo = intencion in FLUJOS and e.get("cliente") and e.get("pendiente")
+            en_flujo = (
+                intencion_en_curso in FLUJOS
+                and estado.get("cliente")
+                and estado.get("pendiente")
+            )
             return "flujo" if en_flujo else "reparar"
-        if intencion in FLUJOS:
-            return "flujo" if e.get("cliente") else "identificar"
-        if intencion == "informacion":
+        if intencion_en_curso in FLUJOS:
+            return "flujo" if estado.get("cliente") else "identificar"
+        if intencion_en_curso == "informacion":
             return "informar"
         return "saludar"
 
-    async def reparar(e: Estado) -> dict:
-        intentos = e.get("intentos_fallidos", 0) + 1
+    async def reparar(estado: Estado) -> dict:
+        intentos = estado.get("intentos_fallidos", 0) + 1
         if intentos >= MAX_INTENTOS:
             return {"intentos_fallidos": intentos, "intencion": "persona"}
         if intentos == 1:
-            b = borrador(
+            borrador_respuesta = borrador(
                 "Dile que no le has entendido bien y pídele que te lo cuente de otra forma. "
                 "Recuérdale brevemente en qué puedes ayudarle.",
                 opciones=MENU,
             )
         else:
-            b = borrador(
+            borrador_respuesta = borrador(
                 "Dile que sigues sin entenderle y pídele que elija una de las opciones. "
                 "Si ninguna encaja, que pulse la de hablar con una persona.",
                 opciones=MENU,
             )
-        return {"intentos_fallidos": intentos, "borrador": b}
+        return {"intentos_fallidos": intentos, "borrador": borrador_respuesta}
 
-    async def identificar(e: Estado) -> dict:
-        datos = e.get("datos") or {}
+    async def identificar(estado: Estado) -> dict:
+        datos = estado.get("datos") or {}
         email, pedido_id = datos.get("email"), datos.get("pedido_id")
         if not email:
             pide = "su email de compra" + (
@@ -140,9 +151,9 @@ def construir_grafo(h, checkpointer=None):
                     f"Para ayudarle necesitas identificarle: pídele {pide}."
                 ),
             }
-        r = await h.llamar("buscar_cliente", email=email)
-        if not r.get("encontrado"):
-            intentos = e.get("intentos_fallidos", 0) + 1
+        resultado = await herramientas.llamar("buscar_cliente", email=email)
+        if not resultado.get("encontrado"):
+            intentos = estado.get("intentos_fallidos", 0) + 1
             if intentos >= MAX_INTENTOS:
                 return {"intentos_fallidos": intentos, "intencion": "persona"}
             return {
@@ -154,21 +165,23 @@ def construir_grafo(h, checkpointer=None):
                     "revise o que te dé el email con el que hizo la compra."
                 ),
             }
-        cliente = {**r["cliente"], "pedidos": r["pedidos"]}
+        cliente = {**resultado["cliente"], "pedidos": resultado["pedidos"]}
         return {"cliente": cliente, "pendiente": None, "intentos_fallidos": 0}
 
-    async def flujo(e: Estado) -> dict:
-        nodo = {
+    async def flujo(estado: Estado) -> dict:
+        funcion_flujo = {
             "pedido": flujo_pedido,
             "devolucion": flujo_devolucion,
             "cita": flujo_cita,
-        }[e["intencion"]]
-        return await nodo(e, h)
+        }[estado["intencion"]]
+        return await funcion_flujo(estado, herramientas)
 
-    async def informar(e: Estado) -> dict:
-        r = await h.llamar("buscar_conocimiento", pregunta=e["messages"][-1].content)
+    async def informar(estado: Estado) -> dict:
+        resultado = await herramientas.llamar(
+            "buscar_conocimiento", pregunta=estado["messages"][-1].content
+        )
         cambios = {"intencion": None, "pendiente": None}
-        if not r.get("resultados"):
+        if not resultado.get("resultados"):
             return {
                 **cambios,
                 "borrador": borrador(
@@ -181,12 +194,12 @@ def construir_grafo(h, checkpointer=None):
             "borrador": borrador(
                 "Responde a su pregunta usando solo la información de estos fragmentos, en 2 o 3 frases. "
                 "Si no responden del todo a la pregunta, dilo.",
-                {"fragmentos": r["resultados"]},
+                {"fragmentos": resultado["resultados"]},
             ),
         }
 
-    async def saludar(e: Estado) -> dict:
-        nombre = (e.get("cliente") or {}).get("nombre")
+    async def saludar(estado: Estado) -> dict:
+        nombre = (estado.get("cliente") or {}).get("nombre")
         return {
             "intencion": None,
             "pendiente": None,
@@ -198,21 +211,22 @@ def construir_grafo(h, checkpointer=None):
             ),
         }
 
-    async def escalar(e: Estado) -> dict:
+    async def escalar(estado: Estado) -> dict:
         seguridad = (
-            e.get("intencion") == "seguridad" or e["ultima"]["intencion"] == "seguridad"
+            estado.get("intencion") == "seguridad"
+            or estado["ultima"]["intencion"] == "seguridad"
         )
         if seguridad:
             motivo = "seguridad"
-        elif (e.get("datos") or {}).get("motivo_escalado"):
-            motivo = e["datos"]["motivo_escalado"]
-        elif e["ultima"]["intencion"] == "persona":
+        elif (estado.get("datos") or {}).get("motivo_escalado"):
+            motivo = estado["datos"]["motivo_escalado"]
+        elif estado["ultima"]["intencion"] == "persona":
             motivo = "el cliente pide hablar con una persona"
         else:
             motivo = "el asistente no consigue resolver la consulta"
-        resumen = await llm.resumir(e, motivo)
-        cliente = e.get("cliente") or {}
-        r = await h.llamar(
+        resumen = await llm.resumir(estado, motivo)
+        cliente = estado.get("cliente") or {}
+        resultado = await herramientas.llamar(
             "escalar_a_humano",
             motivo=motivo,
             resumen=resumen,
@@ -220,63 +234,71 @@ def construir_grafo(h, checkpointer=None):
             cliente_id=cliente.get("id"),
         )
         if seguridad:
-            b = borrador(
+            borrador_respuesta = borrador(
                 "Es un caso de seguridad. Pídele que deje de usar la bicicleta y no cargue la batería, que "
                 "desconecte el cargador y deje la batería en un lugar exterior lejos de materiales inflamables si "
                 "puede hacerlo sin riesgo, y que si hay humo o fuego se aleje y llame al 112. Dile que una persona "
                 "de Ondo le llamará por teléfono con prioridad y dale el número de caso.",
-                {"caso": r["caso"]["id"], "espera": r["espera"]},
+                {"caso": resultado["caso"]["id"], "espera": resultado["espera"]},
             )
         else:
-            b = borrador(
+            borrador_respuesta = borrador(
                 "Dile que pasas su consulta a una persona del equipo y, en pocas palabras, por qué "
                 "(motivo). Dile que no tendrá que repetir nada, cuándo le atenderán y su número de caso.",
-                {"motivo": motivo, "caso": r["caso"]["id"], "espera": r["espera"]},
+                {
+                    "motivo": motivo,
+                    "caso": resultado["caso"]["id"],
+                    "espera": resultado["espera"],
+                },
             )
         return {
-            "escalado": r["caso"],
+            "escalado": resultado["caso"],
             "intencion": None,
             "pendiente": None,
-            "borrador": b,
+            "borrador": borrador_respuesta,
         }
 
-    async def ya_escalado(e: Estado) -> dict:
+    async def ya_escalado(estado: Estado) -> dict:
         return {
             "borrador": borrador(
                 "Recuérdale que su consulta ya está en manos de una persona del equipo y su número de caso. "
                 "Si quiere añadir algo, que lo escriba y se lo harás llegar.",
-                {"caso": e["escalado"]},
+                {"caso": estado["escalado"]},
             )
         }
 
-    async def redactar(e: Estado) -> dict:
-        b = e.get("borrador") or borrador("Pregunta en qué puedes ayudarle.")
-        res = await llm.redactar(e, b)
+    async def redactar(estado: Estado) -> dict:
+        borrador_respuesta = estado.get("borrador") or borrador(
+            "Pregunta en qué puedes ayudarle."
+        )
+        respuesta = await llm.redactar(estado, borrador_respuesta)
+        opciones_borrador = borrador_respuesta.get("opciones") or []
+        # Si el modelo no devuelve el mismo número de botones, nos quedamos con los originales.
         opciones = (
-            res.opciones
-            if len(res.opciones) == len(b.get("opciones") or [])
-            else b.get("opciones") or []
+            respuesta.opciones
+            if len(respuesta.opciones) == len(opciones_borrador)
+            else opciones_borrador
         )
         return {
-            "messages": [AIMessage(res.texto)],
+            "messages": [AIMessage(respuesta.texto)],
             "opciones": opciones,
             "borrador": {},
         }
 
-    def tras_nodo(e: Estado) -> str:
+    def tras_nodo(estado: Estado) -> str:
         return (
             "escalar"
-            if e.get("intencion") == "persona" and not e.get("escalado")
+            if estado.get("intencion") == "persona" and not estado.get("escalado")
             else "redactar"
         )
 
-    def tras_identificar(e: Estado) -> str:
-        if e.get("intencion") == "persona":
+    def tras_identificar(estado: Estado) -> str:
+        if estado.get("intencion") == "persona":
             return "escalar"
-        return "flujo" if e.get("cliente") else "redactar"
+        return "flujo" if estado.get("cliente") else "redactar"
 
-    g = StateGraph(Estado)
-    for nombre, fn in [
+    grafo = StateGraph(Estado)
+    for nombre, funcion in [
         ("interpretar", interpretar),
         ("reparar", reparar),
         ("identificar", identificar),
@@ -287,9 +309,9 @@ def construir_grafo(h, checkpointer=None):
         ("ya_escalado", ya_escalado),
         ("redactar", redactar),
     ]:
-        g.add_node(nombre, fn)
-    g.add_edge(START, "interpretar")
-    g.add_conditional_edges(
+        grafo.add_node(nombre, funcion)
+    grafo.add_edge(START, "interpretar")
+    grafo.add_conditional_edges(
         "interpretar",
         ruta,
         [
@@ -302,12 +324,12 @@ def construir_grafo(h, checkpointer=None):
             "saludar",
         ],
     )
-    g.add_conditional_edges("reparar", tras_nodo, ["escalar", "redactar"])
-    g.add_conditional_edges(
+    grafo.add_conditional_edges("reparar", tras_nodo, ["escalar", "redactar"])
+    grafo.add_conditional_edges(
         "identificar", tras_identificar, ["flujo", "redactar", "escalar"]
     )
-    g.add_conditional_edges("flujo", tras_nodo, ["escalar", "redactar"])
-    for n in ("informar", "saludar", "escalar", "ya_escalado"):
-        g.add_edge(n, "redactar")
-    g.add_edge("redactar", END)
-    return g.compile(checkpointer=checkpointer)
+    grafo.add_conditional_edges("flujo", tras_nodo, ["escalar", "redactar"])
+    for nodo in ("informar", "saludar", "escalar", "ya_escalado"):
+        grafo.add_edge(nodo, "redactar")
+    grafo.add_edge("redactar", END)
+    return grafo.compile(checkpointer=checkpointer)

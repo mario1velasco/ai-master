@@ -22,6 +22,17 @@ Siguen el orden de la guía del día 1:
    reparación).
 5. **AGENTS.md, skill y subagente** (paso 4): abrir los tres ficheros y contrastarlos con el chat.
 
+## 2026-11-24 — `grafo.py` con nombres que se entienden
+
+- Solo nombres, misma lógica: `e` → `estado`, `h` → `herramientas`, `it` → `interpretacion`,
+  `r` → `resultado`, `b` → `borrador_respuesta`, `res` → `respuesta`, `nueva` → `nueva_intencion`,
+  `g`/`n`/`fn` → `grafo`/`nodo`/`funcion`. En `ruta()`, `intencion_mensaje` (lo que pide este mensaje)
+  frente a `intencion_en_curso` (lo que estaba en marcha).
+- Los flujos (`flujos/*.py`) siguen con `(estado, h)`, como en clase y en la skill `completar-flujo`.
+- Comprobado: `ruff check` y `pytest` (6 tests) pasan, y en la consola el saludo + pedido, la devolución
+  y la seguridad recorren los mismos nodos que antes.
+- Es un fichero del profesor: al traer sus cambios, **mezclar a mano** (sus cambios usarán `e`/`h`).
+
 ## 2026-11-24 — Arreglo: pasar a una persona fallaba con Claude
 
 - **Síntoma:** en devoluciones, seguridad o «quiero hablar con una persona», el bot contestaba «Perdona,

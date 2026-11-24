@@ -152,6 +152,34 @@ abierto, el bot no empieza otra cosa.
 | `informar` | Busca en la política (RAG) y contesta solo con lo que encuentra | `buscar_conocimiento` |
 | `saludar` | Saluda, dice que es una IA y enseña 3 botones | — |
 
+### ¿En qué momento se llama al servidor MCP?
+
+**Primero se decide y después, si hace falta, un nodo del piso 2 llama al MCP.** Ni `interpretar` ni
+`ruta()` llaman nunca al MCP:
+
+```
+PISO 1   interpretar     → solo Claude (entender)                 ✗ sin MCP
+PUERTA   ruta()          → solo código (decidir)                  ✗ sin MCP
+PISO 2   el nodo elegido → AQUÍ se llama al MCP, si hace falta    ✓
+PISO 3   redactar        → solo Claude (escribir)                 ✗ sin MCP
+```
+
+En el piso 2, solo algunos nodos llaman al MCP:
+
+| Nodo | ¿Llama al MCP? | Herramienta |
+|---|---|---|
+| `identificar` | ✓ | `buscar_cliente` |
+| `flujo` | ✓, depende del flujo | pedido → `estado_pedido`; cita → `huecos_taller`; devolución → ninguna todavía |
+| `informar` | ✓ | `buscar_conocimiento` |
+| `escalar` | ✓ | `escalar_a_humano` |
+| `reparar`, `saludar`, `ya_escalado` | ✗ | no necesitan datos |
+
+**Cómo llama un nodo al MCP:** el grafo se construye con `construir_grafo(herramientas)`, y
+`herramientas` es la conexión con el servidor MCP (`herramientas.py`). Cualquier nodo que necesite
+datos escribe `herramientas.llamar("buscar_cliente", email=...)`, y `herramientas.py` le pasa la
+petición al servidor (`ondo_mcp/server.py`), que lee `data/`. (Dentro de los flujos, la misma
+conexión se sigue llamando `h`, como en clase.)
+
 ### Los desvíos: tres nodos pueden acabar en `escalar`
 
 Casi todos los nodos van directos a `redactar`. **Tres** pueden desviarse antes hacia una persona:
@@ -199,7 +227,7 @@ Ejemplo real con Lucía Martín (cliente `C001`), probado en la consola con `--t
 | 1 | `telegram_bot.py` | Llega el mensaje y se le pasa al agente |
 | 2 | `agente.py` | Saca la ficha de tu chat (vacía, porque la conversación es nueva) |
 | 3 | `grafo.py` → `llm.py` | **interpretar**: Claude entiende que la intención es *devolución*, en español, sin email. El código comprueba además dos cosas que no dependen del modelo: si has pulsado un botón del menú y si hay palabras de peligro («humo», «quemado»…) |
-| 4 | `grafo.py` | **ruta()**: quieres una devolución, pero no sabemos quién eres, así que el siguiente paso es *identificar* |
+| 4 | `grafo.py` | **ruta()**: quieres una devolución, pero no sabemos quién eres, así que el siguiente paso es *identificar*. `ruta()` solo decide: no llama a nada |
 | 5 | `grafo.py` | **identificar**: no hay email, así que deja el borrador «pídele su email» y apunta en la ficha que **está esperando el email** |
 | 6 | `grafo.py` → `llm.py` | **redactar**: Claude escribe *«Claro, te ayudo con la devolución. Para poder localizar tu pedido, ¿me indicas el email que usaste en la compra?»* |
 | 7 | `telegram_bot.py` | Te lo envía |
@@ -213,7 +241,7 @@ Así queda la ficha: intención = devolución · esperando = email · cliente = 
 | 1–2 | `telegram_bot.py`, `agente.py` | Igual que antes, pero ahora la ficha ya dice «esperando email» |
 | 3 | `grafo.py` → `llm.py` | **interpretar**: Claude ve que el mensaje responde a lo que esperábamos (*continuar*) y saca el email. La intención sigue siendo *devolución* porque la ficha la recuerda |
 | 4 | `grafo.py` | **ruta()** → *identificar* |
-| 5 | `herramientas.py` → `ondo_mcp/server.py` → `datos.py` | **identificar** llama a la herramienta `buscar_cliente`, que busca el email en `data/clientes.json`. Encuentra a Lucía, que tiene 2 pedidos: `OND-10231` (enviado) y `OND-10232` (entregado) |
+| 5 | `grafo.py` → `herramientas.py` → `ondo_mcp/server.py` → `datos.py` | Ya en el piso 2, el nodo **identificar** llama al MCP: la herramienta `buscar_cliente`, que busca el email en `data/clientes.json`. Encuentra a Lucía, que tiene 2 pedidos: `OND-10231` (enviado) y `OND-10232` (entregado) |
 | 6 | `agente/flujos/devolucion.py` | Ahora que el agente sabe quién eres, pasa al **flujo de devolución**. **Hoy (día 1) este flujo todavía está vacío:** se limita a decir «esto lo lleva una persona, motivo: devolución» |
 | 7 | `grafo.py` → `llm.py` | **escalar**: Claude escribe un **resumen** para la persona del equipo (qué quiere el cliente, qué datos tenemos, de qué humor está), para que no tengas que repetir nada |
 | 8 | `herramientas.py` → `server.py` → `datos.py` | La herramienta `escalar_a_humano` crea el caso (`CASO-0001`) en `data/estado/escalados.json` y devuelve cuándo te atenderán: en unos minutos si es horario laboral y, si no, el siguiente día laborable |
