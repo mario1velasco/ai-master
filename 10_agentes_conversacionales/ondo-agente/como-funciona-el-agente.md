@@ -1,4 +1,4 @@
-# Cómo viaja un mensaje: la devolución paso a paso
+# Cómo funciona el agente de Ondo: el grafo y la devolución paso a paso
 
 **La idea en una frase:** tu mensaje entra por Telegram, el agente mira en qué punto de la
 conversación estáis, **Claude entiende** lo que has escrito, **el código decide** qué hacer (pedir un
@@ -81,7 +81,114 @@ Tres ideas que explican todo el diseño:
 
 ---
 
-## 4. La devolución, turno a turno
+## 4. El grafo por dentro (`agente/grafo.py`)
+
+### La idea: un edificio de tres pisos
+
+Cada mensaje baja por tres pisos, siempre en este orden:
+
+```
+                         📩 mensaje del cliente
+                                  │
+  PISO 1 · ENTENDER        ┌──────▼──────┐
+  (Claude + reglas fijas)  │ interpretar │
+                           └──────┬──────┘
+                                  │
+                           ruta() elige UNA puerta  ← código normal, sin IA
+                                  │
+  PISO 2 · DECIDIR Y HACER        │
+  ┌─────────┬───────────┬─────────┼──────────┬──────────┬──────────┐
+  ▼         ▼           ▼         ▼          ▼          ▼          ▼
+escalar  ya_escalado  reparar  identificar  flujo    informar   saludar
+  │         │           │         │          │          │          │
+  │  (cada uno deja un BORRADOR: «qué hay que decir»)   │          │
+  └─────────┴───────────┴─────────┼──────────┴──────────┴──────────┘
+                                  │
+  PISO 3 · ESCRIBIR        ┌──────▼──────┐
+  (Claude)                 │  redactar   │  tono de Ondo, idioma, sin markdown
+                           └──────┬──────┘
+                                  ▼
+                                 FIN → respuesta al cliente
+```
+
+### Piso 1 · `interpretar`
+
+Claude lee el mensaje y rellena una ficha: qué quiere, en qué idioma, email, número de pedido y
+ciudad. Después, el código **corrige a Claude** con reglas fijas que no dependen de la IA:
+
+- Si el texto es exactamente un botón del menú → esa intención.
+- Si aparece una palabra de `PELIGRO` («humo», «quemado», «se calienta»…) → **seguridad**, diga lo
+  que diga Claude.
+- Si aparece «revis» → motivo de la cita «revisión»; si aparece «avería», «no funciona»… → «avería».
+- Si cambias de tema (de pedido a devolución, por ejemplo) → se vacía el flujo anterior, pero el
+  agente sigue sabiendo quién eres.
+
+### La puerta · `ruta()`
+
+Mira la ficha y **comprueba las reglas en orden; manda la primera que se cumple**:
+
+| # | Si… | va a |
+|---|---|---|
+| 1 | es de seguridad | `escalar` |
+| 2 | ya hay un caso abierto con una persona | `ya_escalado` |
+| 3 | pide hablar con una persona | `escalar` |
+| 4 | no se le entiende | `reparar` (o `flujo`, si el flujo estaba esperando un dato) |
+| 5 | pedido, devolución o cita | `flujo` si ya sabemos quién es; si no, `identificar` |
+| 6 | pregunta sobre la política de Ondo | `informar` |
+| 7 | cualquier otra cosa (hola, gracias) | `saludar` |
+
+El orden importa. La seguridad va la primera para que nada se le adelante. Y si ya hay un caso
+abierto, el bot no empieza otra cosa.
+
+### Piso 2 · los 7 nodos
+
+| Nodo | Qué hace | Herramienta MCP |
+|---|---|---|
+| `escalar` | Claude resume la conversación y se abre un caso para una persona (urgente si es de seguridad) | `escalar_a_humano` |
+| `ya_escalado` | Solo te recuerda tu número de caso. No llama a nada, porque el caso ya existe | — |
+| `reparar` | No te entendió: la 1.ª vez te pide que lo digas de otra forma, la 2.ª que elijas un botón y la 3.ª te pasa a una persona | — |
+| `identificar` | Te pide el email y te busca. A los 3 emails que no encuentra, te pasa a una persona | `buscar_cliente` |
+| `flujo` | Reparte a `flujos/pedido.py`, `devolucion.py` o `cita.py` | depende del flujo |
+| `informar` | Busca en la política (RAG) y contesta solo con lo que encuentra | `buscar_conocimiento` |
+| `saludar` | Saluda, dice que es una IA y enseña 3 botones | — |
+
+### Los desvíos: tres nodos pueden acabar en `escalar`
+
+Casi todos los nodos van directos a `redactar`. **Tres** pueden desviarse antes hacia una persona:
+
+```
+reparar ─────┐  3.er intento sin entenderte
+identificar ─┤  3.er email que no existe
+flujo ───────┘  el flujo decide que lo lleve una persona (p. ej. la devolución hoy)
+      │
+      ├── sí ──► escalar ──► redactar
+      └── no ──────────────► redactar
+```
+
+En el código, estos desvíos son las funciones `tras_nodo` y `tras_identificar`. Las dos miran lo
+mismo: si el nodo ha dejado la intención en «persona», se desvía a `escalar`.
+
+`identificar` tiene una salida más: si te encuentra, va **directo a `flujo` en el mismo turno**. Por
+eso, al dar tu email, el bot te contesta ya con tu pedido y no con un «gracias, ya te tengo».
+
+### Dónde se conecta todo
+
+Al final de `grafo.py` se monta el edificio con dos tipos de flechas:
+
+- **`add_edge(A, B)`, flecha fija:** de A siempre se va a B. Por ejemplo, `informar`, `saludar`,
+  `escalar` y `ya_escalado` → `redactar`.
+- **`add_conditional_edges(A, función, [opciones])`, flecha con cruce:** la función elige el camino.
+  Por ejemplo, `interpretar` → `ruta()` → una de las 7 puertas.
+
+### La frase para recordar
+
+**Claude entiende (piso 1) y Claude escribe (piso 3). Lo de en medio lo decide el código.** Por eso el
+agente no se salta pasos ni se inventa caminos. Ese es el fallo del agente ReAct genérico
+(`agente/react_fallo.py`), que deja todas las decisiones al modelo.
+
+---
+
+## 5. La devolución, turno a turno
 
 Ejemplo real con Lucía Martín (cliente `C001`), probado en la consola con `--traza`.
 
@@ -121,7 +228,7 @@ recuerda que una persona lleva tu consulta y te da el número de caso. Para empe
 
 ---
 
-## 5. Lo que hará la devolución cuando esté completa (día 2)
+## 6. Lo que hará la devolución cuando esté completa (día 2)
 
 El código deja la tarea marcada en `agente/flujos/devolucion.py`, y la política está en
 `data/conocimiento/devoluciones.md`. La idea es que el flujo:
@@ -138,7 +245,7 @@ Lo veremos en clase.
 
 ---
 
-## 6. Resumen
+## 7. Resumen
 
 ```
 Telegram ─► telegram_bot.py ─► agente.py (ficha del chat)

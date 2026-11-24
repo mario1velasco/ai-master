@@ -32,8 +32,8 @@ Siguen el orden de la guía del día 1:
 - **Arreglo:** `agente/llm.py`, `resumir()` devuelve `res.text` (solo el texto). Con OpenAI no cambia
   nada. Probado 3 veces en la consola: devolución de Lucía → `CASO-0001..0003` y el turno siguiente
   pasa por `ya_escalado`. Al traer los cambios del profesor, **mantener esta línea**.
-- De paso: `ondo-agente/flujo-devolucion.md` explica el viaje de un mensaje y la devolución fichero a
-  fichero, y `clase_01/tutorial-bot-telegram.md` recuerda arriba del todo cómo arrancar el bot.
+- De paso: `ondo-agente/como-funciona-el-agente.md` explica el viaje de un mensaje, el grafo por dentro
+  (los tres pisos, `ruta()` y los desvíos a `escalar`) y la devolución fichero a fichero, y `clase_01/tutorial-bot-telegram.md` recuerda arriba del todo cómo arrancar el bot.
 
 ## 2026-11-24 — El kit entra en `ebis` (borrado su `.git`)
 
