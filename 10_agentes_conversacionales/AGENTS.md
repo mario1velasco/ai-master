@@ -24,7 +24,13 @@ Las tres sesiones del tema (según las diapositivas del día 1):
   - `explicacion-10.md`: explicación didáctica de la sesión.
   - `tutorial-bot-telegram.md`: paso a paso para crear el bot con @BotFather, conseguir el token, ponerlo en el `.env`, arrancar el bot y qué hacer si falla.
 
-Las siguientes sesiones irán en `clase_02/`, `clase_03/`… cuando se den.
+- `clase_02/`: sesión 2 — construir con tests primero y evaluar. Tiene:
+  - `Diapositivas Tema 10 - Sesión 2.pdf`: la teoría (86 diapositivas, con los ejercicios 2 a 5 opcionales al final).
+  - `Guía de Clase - Dia 2 - Construir y evaluar.pdf`: la práctica del día — flujo de cita con tests primero (pasos 4 y 5), revisión con el subagente, la skill `completar-flujo`, el flujo de devolución con esa skill y la evaluación con `evaluacion.suite` (medir, arreglar un fallo y volver a medir).
+  - `ejercicios/`: dos ejercicios complementarios con su corrección: «Diagnostica la evaluación» y «Ampliar la evaluación».
+  - Cada PDF de la sesión tiene al lado su `.md` con el mismo nombre, pasado con la skill any-to-any (mismo texto; en las diapositivas se quitaron los pies `www.ebiseducation.com` y los números de página, y el texto de las imágenes no está).
+
+Las siguientes sesiones irán en `clase_03/`… cuando se den.
 
 - `ondo-agente/`: el kit de código del tema, compartido por todas las sesiones (ver la sección siguiente).
 - `changelog.md`: lo que ha hecho falta para poner el kit a funcionar, lo más reciente arriba, más lo que queda pendiente según la guía del día.
