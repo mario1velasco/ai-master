@@ -18,6 +18,8 @@ El paso de formato convierte la extracción automática en un Markdown limpio y 
 | Rehacer tablas que el PDF desordenó, en el orden de la vista de página | `Mes Gasto (€) 1.200 Enero Febrero 980` → tabla de 2 columnas |
 | Quitar la fila de cabecera vacía y subir la primera fila | ya lo hace `convert_docs.py` en docx |
 | Unir líneas partidas por el ancho de la página del PDF y palabras cortadas con guion al final de línea | `pala-` + `bra` → `palabra` (el check lo admite) |
+| Unir palabras partidas sin guion por el ancho de una celda de tabla | `Comprobaci` + `ones` → `Comprobaciones`, `devolucion.p` + `y` → `devolucion.py` (el check lo admite con AVISO UNIDO) |
+| Escribir las ligaduras del PDF como letras | `ﬂujo` → `flujo` (`convert_docs.py` ya las deshace; el check las da por iguales) |
 | Separar párrafos con una línea en blanco | |
 | Negrita, cursiva, citas (`>`), código (``` ``` ```) cuando el original los tiene | |
 | Escapar caracteres que Markdown interpretaría | `\*`, `\#`, `1\.` |
@@ -42,6 +44,7 @@ El paso de formato convierte la extracción automática en un Markdown limpio y 
   <!-- /original -->
   ```
   Comprueba en el original que el texto va ahí y dile al usuario qué recuperaste. Nunca añadas nada que no veas en el original.
+  Sirve también cuando markitdown desordena el texto de una celda y el segundo lector lo tiene en orden: el bloque puede ir dentro de la celda, en una sola línea (`| <!-- original: segundo_lector.txt -->La skill … <!-- /original --> |`), sin romper la fila.
 - **Texto de imágenes** (páginas sin texto, imágenes incrustadas): solo dentro de un bloque `<!-- transcripcion: ruta -->…<!-- /transcripcion -->` copiado de su parte de img-to-text.
 
 ## Particularidades por formato

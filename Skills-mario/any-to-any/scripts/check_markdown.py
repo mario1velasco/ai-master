@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Verifica que final.md dice lo mismo que bruto.md (la extracción automática) y que el Markdown está sano.
 
-Compara las palabras visibles (sin sintaxis Markdown, comentarios ni URLs; uniendo «pala-\\nbra»):
+Compara las palabras visibles (sin sintaxis Markdown, comentarios ni URLs; uniendo «pala-\\nbra»; ligaduras
+«ﬁ»/«ﬂ» = «fi»/«fl»; palabras partidas sin guion por una celda, «Comprobaci ones» → AVISO UNIDO):
   ERROR (exit 1)  palabras AÑADIDAS que no están en bruto.md (nunca se permiten) y enlaces con URL nueva.
   AVISO           palabras QUITADAS (solo se admiten artefactos como cabeceras/pies/números de página repetidos:
                   hay que justificarlas en la entrega) y contenido MOVIDO (mismo texto en otro orden).
@@ -25,13 +26,66 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 from _md import content_words, parser, signs, text_words, visible_blocks
 
 ORIGINAL = re.compile(r"<!--\s*original:\s*(.+?)\s*-->(.*?)<!--\s*/original\s*-->", re.S)
 REGION = re.compile(r"<!--\s*transcripcion:\s*(.+?)\s*-->(.*?)<!--\s*/transcripcion\s*-->", re.S)
 LINK = re.compile(r"\]\(\s*<?([^)\s>]+)")
+
+
+def join_cell_splits(ref: List[str], words: List[str]) -> Tuple[List[str], List[str]]:
+    """Une en ref las palabras que el PDF partió sin guion por el ancho de una celda («Comprobaci» + «ones»),
+    solo cuando la unión (de 2 o 3 trozos) es una palabra de final.md que no está en ref.
+    Primero une trozos seguidos; después, trozos no seguidos (la extracción mezcló las columnas de una tabla)
+    solo si todos sobran en ref (no están en final.md) y juntos forman exactamente la palabra que falta.
+    Devuelve ref con esas palabras unidas y la lista de uniones hechas (para avisar)."""
+    pending = Counter(words) - Counter(ref)
+    out: List[str] = []
+    joined: List[str] = []
+    i = 0
+    while i < len(ref):
+        for n in (2, 3):
+            if i + n <= len(ref) and pending["".join(ref[i:i + n])] > 0:
+                word = "".join(ref[i:i + n])
+                pending[word] -= 1
+                out.append(word)
+                joined.append("+".join(ref[i:i + n]))
+                i += n
+                break
+        else:
+            out.append(ref[i])
+            i += 1
+
+    spare = Counter(out) - Counter(words)
+    for word in list((Counter(words) - Counter(out)).elements()):
+        pieces = split_into(word, spare)
+        if not pieces:
+            continue
+        spare.subtract(pieces)
+        first = out.index(pieces[0])
+        for p in pieces:
+            out.remove(p)
+        out.insert(min(first, len(out)), word)
+        joined.append("+".join(pieces) + " (no seguidos)")
+    return out, joined
+
+
+def split_into(word: str, spare: Counter) -> List[str]:
+    """Parte word en 2 o 3 trozos que estén todos en spare (palabras sobrantes de ref); [] si no se puede."""
+    for i in range(1, len(word)):
+        a, rest = word[:i], word[i:]
+        if spare[a] <= 0:
+            continue
+        if spare[rest] > 0 and (rest != a or spare[a] > 1):
+            return [a, rest]
+        for j in range(1, len(rest)):
+            b, c = rest[:j], rest[j:]
+            need = Counter([a, b, c])
+            if all(spare[p] >= k for p, k in need.items()):
+                return [a, b, c]
+    return []
 
 
 def snippet(words: List[str], a: int, b: int, ctx: int = 4) -> str:
@@ -104,7 +158,7 @@ def main() -> None:
             errors.append("la transcripción insertada no coincide con {} ({} vs {} palabras)".format(src.name, len(got), len(want)))
         else:
             info.append("transcripción insertada de {} coincide ({} palabras)".format(src.name, len(got)))
-        body = body.replace(m.group(0), "\n")
+        body = body.replace(m.group(0), "\n" if "\n" in m.group(0) else " ")
 
     for m in ORIGINAL.finditer(body):
         src = Path(m.group(1))
@@ -118,7 +172,7 @@ def main() -> None:
             errors.append("bloque recuperado de {} con palabras que no están en él: {}".format(src.name, ", ".join(extra)))
         else:
             info.append("texto recuperado de {} ({} palabras): menciónalo en la entrega".format(src.name, len(content_words(m.group(2)))))
-        body = body.replace(m.group(0), "\n")
+        body = body.replace(m.group(0), "\n" if "\n" in m.group(0) else " ")  # dentro de una celda: no partir la fila
 
     words = content_words(body)
     info.insert(0, "{} palabras en {}".format(len(words), args.markdown.name))
@@ -129,6 +183,11 @@ def main() -> None:
         ref_md = args.reference.read_text(encoding="utf-8")
         ref = content_words(ref_md)
         info.append("{} palabras en {}".format(len(ref), args.reference.name))
+        ref, joined = join_cell_splits(ref, words)
+        if joined:
+            warnings.append("UNIDO: {} palabra(s) partidas sin guion en {} y unidas en {}: {} — correcto si el PDF las "
+                            "cortó por el ancho de una celda o columna; si no, revísalo".format(
+                                len(joined), args.reference.name, args.markdown.name, ", ".join(joined[:20])))
         added = Counter(words) - Counter(ref)
         removed = Counter(ref) - Counter(words)
         sm = difflib.SequenceMatcher(None, ref, words, autojunk=False)

@@ -29,7 +29,7 @@ from collections import Counter
 from pathlib import Path
 from typing import List, Optional
 
-from _md import content_words, escape_line, escape_text, text_words
+from _md import LIGATURES, content_words, escape_line, escape_text, text_words
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tif", ".tiff", ".webp", ".emf", ".wmf", ".svg"}
 SCAN_DPI = 200
@@ -399,6 +399,7 @@ def process_unit(u: dict, work: Path, force: bool) -> dict:
             md = fenced(raw if raw.strip() else read_text_file(src)[0], ext.lstrip(".").replace("jsonl", "json"))
         else:
             md, n_img = clean_markitdown(raw, ext)
+            md = md.translate(LIGATURES)  # «ﬂujo» → «flujo»: glifos del PDF, no contenido
             if n_img:
                 st["warnings"].append("{} imagen(es) referenciadas: quedan como comentario <!-- imagen … --> (no se lee su texto)".format(n_img))
         if ext == ".pdf":

@@ -27,17 +27,24 @@ def parser() -> MarkdownIt:
     return MarkdownIt("commonmark").enable("table")
 
 
+# Ligaduras tipográficas que guardan los PDF («ﬂujo»): son un solo glifo para dos letras, no contenido distinto
+LIGATURES = str.maketrans({"ﬀ": "ff", "ﬁ": "fi", "ﬂ": "fl", "ﬃ": "ffi", "ﬄ": "ffl", "ﬅ": "st", "ﬆ": "st"})
+
+
 def nfc(s: str) -> str:
-    return unicodedata.normalize("NFC", s)
+    """Normaliza a NFC y deshace las ligaduras tipográficas, para comparar palabras."""
+    return unicodedata.normalize("NFC", s).translate(LIGATURES)
 
 
-def inline_text(token) -> str:
+def inline_text(token, soft: str = " ") -> str:
+    """Texto visible de un bloque inline; `soft` es lo que se pone en cada salto de línea (espacio para mostrar,
+    «\\n» para comparar, así join_hyphens puede unir «pala-\\nbra»)."""
     out = []
     for c in token.children or []:
         if c.type in ("text", "code_inline"):
             out.append(c.content)
         elif c.type in ("softbreak", "hardbreak"):
-            out.append(" ")
+            out.append(soft)
         elif c.type == "image":
             out.append(c.content)
         elif c.type == "html_inline":
@@ -61,7 +68,7 @@ def visible_blocks(md_text: str, list_numbers: bool = True) -> List[str]:
                 blocks.append(str(stack[-1]["n"]))
             stack[-1]["n"] += 1
         elif t.type == "inline":
-            blocks.append(inline_text(t))
+            blocks.append(inline_text(t, soft="\n"))
         elif t.type in ("fence", "code_block"):
             blocks.append(t.content)
     return blocks
