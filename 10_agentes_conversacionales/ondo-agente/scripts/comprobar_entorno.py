@@ -4,7 +4,7 @@
 
 Revisa: versión de Python, dependencias, fichero .env, clave del proveedor
 del modelo (OpenAI o Anthropic, según LLM_PROVEEDOR, con una llamada mínima
-que cuesta una fracción de céntimo), los embeddings de Ollama si
+que cuesta una fracción de céntimo; con «ollama», sin clave), los embeddings de Ollama si
 RAG_EMBEDDINGS=ollama, servidor MCP de Ondo y ngrok. No imprime nunca tus claves.
 """
 
@@ -30,31 +30,54 @@ def mal(msg):
 def comprobar_python():
     v = sys.version_info
     if sys.prefix == sys.base_prefix:
-        mal("No estás dentro del entorno virtual. Actívalo (guía, «Antes de empezar») y vuelve a ejecutar este script")
+        mal(
+            "No estás dentro del entorno virtual. Actívalo (guía, «Antes de empezar») y vuelve a ejecutar este script"
+        )
     if v >= (3, 11):
         print(f"{OK} Python {v.major}.{v.minor}")
     else:
-        mal(f"Python {v.major}.{v.minor}: necesitas 3.11 o superior (la guía de preparación recomienda 3.12)")
+        mal(
+            f"Python {v.major}.{v.minor}: necesitas 3.11 o superior (la guía de preparación recomienda 3.12)"
+        )
 
 
 def comprobar_dependencias():
     try:
-        import fastapi, langchain_openai, langgraph, mcp, telegram  # noqa: F401
+        import fastapi  # noqa: F401
+        import langchain_openai  # noqa: F401
+        import langgraph  # noqa: F401
+        import mcp  # noqa: F401
+        import telegram  # noqa: F401
+
         print(f"{OK} Dependencias instaladas")
     except ImportError as e:
-        mal(f"Falta una dependencia ({e.name}). Activa el entorno virtual y ejecuta «python -m pip install -r requirements.txt»")
+        mal(
+            f"Falta una dependencia ({e.name}). Activa el entorno virtual y ejecuta «python -m pip install -r requirements.txt»"
+        )
 
 
 def comprobar_env():
     from dotenv import load_dotenv
+
     if not (RAIZ / ".env").exists():
         mal("No existe el fichero .env. Cópialo de .env.example y rellena tu clave")
         return False
     load_dotenv(RAIZ / ".env")
     proveedor = os.getenv("LLM_PROVEEDOR", "openai").strip().lower()
-    variable, prefijo = ("ANTHROPIC_API_KEY", "sk-ant-") if proveedor == "anthropic" else ("OPENAI_API_KEY", "sk-")
+    if proveedor == "ollama":
+        print(
+            f"{OK} Fichero .env (LLM_PROVEEDOR=ollama: el modelo es local y no necesita clave)"
+        )
+        return True
+    variable, prefijo = (
+        ("ANTHROPIC_API_KEY", "sk-ant-")
+        if proveedor == "anthropic"
+        else ("OPENAI_API_KEY", "sk-")
+    )
     if not os.getenv(variable, "").startswith(prefijo):
-        mal(f"{variable} no está en el .env o no empieza por «{prefijo}» (LLM_PROVEEDOR={proveedor})")
+        mal(
+            f"{variable} no está en el .env o no empieza por «{prefijo}» (LLM_PROVEEDOR={proveedor})"
+        )
         return False
     print(f"{OK} Fichero .env con {variable} (LLM_PROVEEDOR={proveedor})")
     return True
@@ -63,8 +86,11 @@ def comprobar_env():
 def comprobar_modelo():
     try:
         from agente.llm import MODELO, PROVEEDOR, modelo
+
         r = modelo().invoke("Responde solo: ok")
-        print(f"{OK} {PROVEEDOR} responde con el modelo {MODELO} ({r.content.strip()!r})")
+        print(
+            f"{OK} {PROVEEDOR} responde con el modelo {MODELO} ({r.content.strip()!r})"
+        )
     except Exception as e:  # noqa: BLE001
         mal(f"La llamada al modelo de chat falla: {type(e).__name__}: {str(e)[:160]}")
 
@@ -74,15 +100,21 @@ def comprobar_embeddings():
         return  # con OpenAI vale la misma clave que ya se ha comprobado
     try:
         from ondo_mcp.conocimiento import MODELO_EMBEDDINGS, _embeddings
+
         n = len(_embeddings().embed_query("prueba"))
-        print(f"{OK} Ollama calcula embeddings con {MODELO_EMBEDDINGS} ({n} dimensiones)")
+        print(
+            f"{OK} Ollama calcula embeddings con {MODELO_EMBEDDINGS} ({n} dimensiones)"
+        )
     except Exception as e:  # noqa: BLE001
-        mal(f"Los embeddings de Ollama fallan (¿está Ollama arrancado y hecho «ollama pull bge-m3»?): "
-            f"{type(e).__name__}: {str(e)[:120]}")
+        mal(
+            f"Los embeddings de Ollama fallan (¿está Ollama arrancado y hecho «ollama pull bge-m3»?): "
+            f"{type(e).__name__}: {str(e)[:120]}"
+        )
 
 
 async def _mcp():
     from agente.herramientas import conectar_ondo
+
     async with conectar_ondo() as h:
         r = await h.llamar("buscar_cliente", email="lucia.martin@example.com")
         assert r.get("encontrado"), r
@@ -99,13 +131,17 @@ def comprobar_mcp():
 
 def comprobar_ngrok():
     if not shutil.which("ngrok"):
-        print(f"{AVISO} ngrok no está instalado (no lo necesitas hasta el día 3: guía de preparación, paso 5)")
+        print(
+            f"{AVISO} ngrok no está instalado (no lo necesitas hasta el día 3: guía de preparación, paso 5)"
+        )
         return
     r = subprocess.run(["ngrok", "config", "check"], capture_output=True, text=True)
     if r.returncode == 0:
         print(f"{OK} ngrok instalado y configurado")
     else:
-        print(f"{AVISO} ngrok instalado pero sin configurar: «ngrok config add-authtoken TU_TOKEN»")
+        print(
+            f"{AVISO} ngrok instalado pero sin configurar: «ngrok config add-authtoken TU_TOKEN»"
+        )
 
 
 if __name__ == "__main__":
@@ -118,5 +154,9 @@ if __name__ == "__main__":
     comprobar_mcp()
     comprobar_ngrok()
     print()
-    print("Todo listo." if not fallos else f"Hay {fallos} cosa(s) por arreglar: revisa la guía de preparación.")
+    print(
+        "Todo listo."
+        if not fallos
+        else f"Hay {fallos} cosa(s) por arreglar: revisa la guía de preparación."
+    )
     sys.exit(1 if fallos else 0)

@@ -22,6 +22,23 @@ Siguen el orden de la guía del día 1:
    reparación).
 5. **AGENTS.md, skill y subagente** (paso 4): abrir los tres ficheros y contrastarlos con el chat.
 
+## 2026-11-25 — qwen3 en Ollama con `--qwen` (o `LLM_PROVEEDOR=ollama`)
+
+- **Qué:** el agente puede usar `qwen3:4b-instruct` en local, sin coste. Dos formas:
+  - Por terminal, sin tocar el `.env`: `--qwen` en `python -m canales.consola`, `python -m canales.telegram_bot`
+    y `python -m evaluacion.suite`. Sin el flag, todo sigue con el modelo del `.env` (Claude).
+  - Por `.env`: `LLM_PROVEEDOR=ollama` y, si se quiere otro modelo, `OLLAMA_MODEL`.
+- **Cómo:** `agente/llm.py`: `modelo()` devuelve `ChatOllama` con el proveedor `ollama`, y `usar_qwen()` cambia
+  `PROVEEDOR` y `MODELO` para todo el proceso. Como el cliente simulado y el juez también llaman a `modelo()`, en
+  la suite `--qwen` lo cambia **todo** (agente, cliente simulado y juez). Los tres comandos dicen al arrancar qué
+  modelo usan, y el `informe.md` de la suite lo anota. `comprobar_entorno.py` no pide clave con `ollama`.
+  `.env.example` documenta las dos formas. Sin dependencias nuevas: `langchain-ollama` ya estaba por bge-m3.
+- **Comprobado (en mi máquina, 25/11/2026):** `pytest` (6 tests) pasa. En la consola con `--traza --qwen`,
+  «¿dónde está mi pedido?» + `lucia.martin@example.com` llega bien a `buscar_cliente` y `estado_pedido`. Pero el
+  «Hola» inicial lo interpretó como `no_entendido` (con Claude, `saludo`): el modelo pequeño falla más al interpretar.
+- **Al traer cambios del profesor:** `canales/consola.py`, `canales/telegram_bot.py` y `evaluacion/suite.py`
+  también llevan cambios locales; se suman a la lista de ficheros que hay que mezclar a mano.
+
 ## 2026-11-24 — `grafo.py` con nombres que se entienden
 
 - Solo nombres, misma lógica: `e` → `estado`, `h` → `herramientas`, `it` → `interpretacion`,

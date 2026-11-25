@@ -14,22 +14,52 @@ Material del módulo **Agentes conversacionales: automatización de chats y llam
 
 ## Comandos útiles de `ondo-agente`
 
-### Antes de nada (en cada terminal nueva)
+Cada ejemplo empieza con las dos líneas que llevan a la carpeta del kit y activan su entorno virtual, para pegarlo tal cual en una terminal nueva:
 
 ```bash
 cd ~/ebis/10_agentes_conversacionales/ondo-agente
 source .venv/bin/activate
 ```
 
-Con `RAG_EMBEDDINGS=ollama` en el `.env`, **Ollama tiene que estar arrancado** (el RAG usa `bge-m3`).
+Si la terminal ya está en `ondo-agente` con `(.venv)` delante del prompt, basta con la última línea de cada ejemplo.
+
+Con `RAG_EMBEDDINGS=ollama` en el `.env`, **Ollama tiene que estar arrancado** (el RAG usa `bge-m3`). Con `--qwen`, también.
 
 ### Hablar con el agente en la terminal
 
+Solo la conversación:
+
 ```bash
-python -m canales.consola            # solo la conversación
-python -m canales.consola --estado   # y el estado del grafo tras cada turno
-python -m canales.consola --traza    # y además el camino por el grafo en cada turno
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m canales.consola
 ```
+
+Con el estado del grafo tras cada turno:
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m canales.consola --estado
+```
+
+Con el estado y además el camino por el grafo en cada turno:
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m canales.consola --traza
+```
+
+Lo mismo, con qwen3 en Ollama en vez de Claude:
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m canales.consola --traza --qwen
+```
+
+`--qwen` vale también en el bot y en la suite. Sin el flag se usa el modelo del `.env`. Al arrancar, cada comando dice qué modelo usa (`Modelo: ollama · qwen3:4b-instruct`).
 
 Dentro de la consola:
 
@@ -54,38 +84,120 @@ Cada línea numerada es un nodo del grafo: **interpretar** (el modelo entiende e
 
 ### El bot de Telegram
 
+Con Claude (debe decir «Bot @… listo»):
+
 ```bash
-python -m canales.telegram_bot       # debe decir «Bot @… listo»
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m canales.telegram_bot
+```
+
+Con qwen3 en Ollama:
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m canales.telegram_bot --qwen
 ```
 
 Solo contesta mientras esa terminal está abierta. Si dos procesos lo arrancan a la vez, falla con `Conflict: terminated by other getUpdates request`. Paso a paso y problemas en `clase_01/tutorial-bot-telegram.md`.
 
 ### Tests
 
+Todos (no gastan clave: no llaman al modelo):
+
 ```bash
-python -m pytest                     # todos (no gastan clave: no llaman al modelo)
-python -m pytest tests/test_cita.py  # solo los del flujo de cita
-git diff -- tests/                   # tras un cambio del chat: debe salir vacío
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m pytest
+```
+
+Solo los del flujo de cita, y comprobar que nadie ha tocado los tests (el `git diff` debe salir vacío):
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m pytest tests/test_cita.py && git diff -- tests/
 ```
 
 ### Evaluación (día 2)
 
+Los diez escenarios (un par de minutos y unos céntimos):
+
 ```bash
-python -m evaluacion.suite                           # los diez escenarios (un par de minutos, céntimos)
-python -m evaluacion.suite --solo pedido_ajeno       # solo esos escenarios (ids separados por comas)
-python -m evaluacion.suite --sin-juez                # solo las comprobaciones con datos, sin el juez
-python -m evaluacion.suite --paralelo 1              # de uno en uno, si la clave da límite de peticiones
-python -m evaluacion.suite --max-turnos 6            # corta antes las conversaciones (por defecto 10)
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m evaluacion.suite
 ```
+
+Solo algunos escenarios (ids separados por comas):
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m evaluacion.suite --solo pedido_ajeno
+```
+
+Solo las comprobaciones con datos, sin el juez:
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m evaluacion.suite --sin-juez
+```
+
+De uno en uno, si la clave da límite de peticiones:
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m evaluacion.suite --paralelo 1
+```
+
+Cortando antes las conversaciones (por defecto, 10 turnos):
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m evaluacion.suite --max-turnos 6
+```
+
+En local con qwen3, gratis y mejor de uno en uno:
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m evaluacion.suite --sin-juez --qwen --paralelo 1
+```
+
+Con `--qwen`, **todo** pasa a qwen3: el agente, el cliente simulado y el juez. El informe lo anota en su cabecera; no compares sus números con los de Claude como si fueran la misma medida.
 
 El informe y las conversaciones quedan en `evaluacion/salidas/`, con fecha y hora. La suite usa su propio estado: no toca `data/estado/`.
 
 ### Otros
 
+Comprobar el entorno (Python, dependencias, `.env`, modelo, embeddings, servidor MCP y ngrok; debe terminar en «Todo listo»):
+
 ```bash
-python scripts/comprobar_entorno.py  # Python, dependencias, .env, modelo, embeddings, servidor MCP y ngrok: debe terminar en «Todo listo»
-python -m agente.react_fallo         # demo del día 1: el agente ReAct genérico que falla
-uvicorn app.main:app --port 8000     # la API (GET /salud, POST /chat), para el día 3
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python scripts/comprobar_entorno.py
+```
+
+Demo del día 1, el agente ReAct genérico que falla:
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+python -m agente.react_fallo
+```
+
+La API (`GET /salud`, `POST /chat`), para el día 3:
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+source .venv/bin/activate
+uvicorn app.main:app --port 8000
 ```
 
 ### Datos de prueba
@@ -99,9 +211,18 @@ uvicorn app.main:app --port 8000     # la API (GET /salud, POST /chat), para el 
 
 ### Empezar de cero o deshacer
 
+Borrar las citas, devoluciones y casos creados por el agente:
+
 ```bash
-rm -rf data/estado/                  # borra citas, devoluciones y casos creados por el agente
-git restore <ruta>                   # deshace cambios del chat de VS Code en ficheros del kit
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+rm -rf data/estado/
+```
+
+Deshacer los cambios del chat de VS Code en un fichero del kit (cambia la ruta por la del fichero):
+
+```bash
+cd ~/ebis/10_agentes_conversacionales/ondo-agente
+git restore agente/flujos/cita.py
 ```
 
 El kit va versionado dentro del repo `ebis` (sin su propio `.git`), así que `git restore` se hace sobre las rutas del kit. El `.env` no se sube nunca.
@@ -110,8 +231,9 @@ El kit va versionado dentro del repo `ebis` (sin su propio `.git`), así que `gi
 
 | Variable | Valor en local |
 |---|---|
-| `LLM_PROVEEDOR` | `anthropic` (Claude con la cuenta de Mario) u `openai` (el del curso) |
+| `LLM_PROVEEDOR` | `anthropic` (Claude con la cuenta de Mario), `openai` (el del curso) u `ollama` (local; para un solo comando, mejor `--qwen`) |
 | `ANTHROPIC_MODEL` | `claude-haiku-5-5` |
+| `OLLAMA_MODEL` | `qwen3:4b-instruct` (solo con `LLM_PROVEEDOR=ollama`) |
 | `RAG_EMBEDDINGS` | `ollama` (`bge-m3` en local; Anthropic no tiene embeddings) u `openai` |
 | `TELEGRAM_BOT_TOKEN` | El que da @BotFather |
 

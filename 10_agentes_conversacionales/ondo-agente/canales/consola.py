@@ -3,6 +3,7 @@
     python -m canales.consola
     python -m canales.consola --estado     # muestra el estado tras cada turno
     python -m canales.consola --traza      # muestra además el recorrido por el grafo en cada turno
+    python -m canales.consola --qwen       # con qwen3 en Ollama en vez del modelo del .env
 
 Escribe el número de una opción para pulsar ese botón. /reset empieza una
 conversación nueva y /salir termina.
@@ -12,9 +13,18 @@ import argparse
 import asyncio
 import json
 
+from agente import llm
 from agente.agente import AgenteOndo
 
-CAMPOS = ("intencion", "cliente", "datos", "pendiente", "intentos_fallidos", "escalado", "idioma")
+CAMPOS = (
+    "intencion",
+    "cliente",
+    "datos",
+    "pendiente",
+    "intentos_fallidos",
+    "escalado",
+    "idioma",
+)
 
 
 def mostrar_estado(estado: dict) -> None:
@@ -25,7 +35,11 @@ def mostrar_estado(estado: dict) -> None:
 
 
 def _corto(valor, n: int = 90) -> str:
-    texto = valor if isinstance(valor, str) else json.dumps(valor, ensure_ascii=False, default=str)
+    texto = (
+        valor
+        if isinstance(valor, str)
+        else json.dumps(valor, ensure_ascii=False, default=str)
+    )
     return texto if len(texto) <= n else texto[: n - 1] + "…"
 
 
@@ -55,17 +69,23 @@ class Traza:
         if cambios.get("escalado"):
             partes.append(f"caso={cambios['escalado'].get('id')}")
         if cambios.get("borrador"):
-            partes.append(f"borrador: «{_corto(cambios['borrador']['instruccion'], 70)}»")
+            partes.append(
+                f"borrador: «{_corto(cambios['borrador']['instruccion'], 70)}»"
+            )
         if nombre == "redactar":
             partes.append("escribe la respuesta")
         print(f"   {self.paso}. {nombre:<12} " + "; ".join(partes))
         for herramienta, args, resultado in self.llamadas:
-            print(f"        herramienta {herramienta}({_corto(args, 60)}) -> {_corto(resultado)}")
+            print(
+                f"        herramienta {herramienta}({_corto(args, 60)}) -> {_corto(resultado)}"
+            )
         self.llamadas = []
 
 
 async def main(ver_estado: bool, ver_traza: bool) -> None:
-    print("Agente de Ondo en la terminal. /reset para empezar de nuevo, /salir para terminar.\n")
+    print(
+        "Agente de Ondo en la terminal. /reset para empezar de nuevo, /salir para terminar.\n"
+    )
     async with AgenteOndo() as agente:
         opciones: list[str] = []
         while True:
@@ -100,8 +120,23 @@ async def main(ver_estado: bool, ver_traza: bool) -> None:
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("--estado", action="store_true", help="muestra el estado del grafo tras cada turno")
-    p.add_argument("--traza", action="store_true",
-                   help="muestra el recorrido por el grafo en cada turno (incluye el estado al final)")
+    p.add_argument(
+        "--estado",
+        action="store_true",
+        help="muestra el estado del grafo tras cada turno",
+    )
+    p.add_argument(
+        "--traza",
+        action="store_true",
+        help="muestra el recorrido por el grafo en cada turno (incluye el estado al final)",
+    )
+    p.add_argument(
+        "--qwen",
+        action="store_true",
+        help="usa qwen3 en Ollama en vez del modelo del .env",
+    )
     a = p.parse_args()
+    if a.qwen:
+        llm.usar_qwen()
+    print(f"Modelo: {llm.PROVEEDOR} · {llm.MODELO}")
     asyncio.run(main(a.estado or a.traza, a.traza))

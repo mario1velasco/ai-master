@@ -22,15 +22,33 @@ from .herramientas import RAIZ
 
 load_dotenv(RAIZ / ".env")
 
-# Proveedor del modelo de chat: "openai" (el del curso) o "anthropic" (Claude).
+# Proveedor del modelo de chat: "openai" (el del curso), "anthropic" (Claude) u "ollama" (local).
 PROVEEDOR = os.getenv("LLM_PROVEEDOR", "openai").strip().lower()
 if PROVEEDOR == "anthropic":
     MODELO = os.getenv("ANTHROPIC_MODEL", "claude-haiku-5-5")
+elif PROVEEDOR == "ollama":
+    MODELO = os.getenv("OLLAMA_MODEL", "qwen3:4b-instruct")
 else:
     MODELO = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 
+QWEN = "qwen3:4b-instruct"
+
+
+def usar_qwen() -> None:
+    """Pasa todo el proceso (agente, cliente simulado y juez) a qwen3 en Ollama, sin tocar el .env.
+
+    Es lo que hace el flag --qwen de la consola, el bot y la suite. Hay que llamarla antes de la
+    primera llamada al modelo: modelo() lee PROVEEDOR y MODELO cada vez que se le llama.
+    """
+    global PROVEEDOR, MODELO
+    PROVEEDOR, MODELO = "ollama", QWEN
+
 
 def modelo(temperatura: float = 0.2) -> BaseChatModel:
+    if PROVEEDOR == "ollama":
+        from langchain_ollama import ChatOllama
+
+        return ChatOllama(model=MODELO, temperature=temperatura)
     if PROVEEDOR == "anthropic":
         from langchain_anthropic import ChatAnthropic
 
@@ -76,13 +94,23 @@ async def interpretar(estado: dict) -> Interpretacion:
 
 class Respuesta(BaseModel):
     texto: str = Field(description="El mensaje para el cliente.")
-    opciones: list[str] = Field(default_factory=list, description=(
-        "Las opciones recibidas, traducidas al idioma del cliente si hace falta, en el mismo orden."
-    ))
+    opciones: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Las opciones recibidas, traducidas al idioma del cliente si hace falta, en el mismo orden."
+        ),
+    )
 
 
-IDIOMAS = {"es": "español", "en": "inglés", "fr": "francés", "it": "italiano", "pt": "portugués",
-           "de": "alemán", "ca": "catalán"}
+IDIOMAS = {
+    "es": "español",
+    "en": "inglés",
+    "fr": "francés",
+    "it": "italiano",
+    "pt": "portugués",
+    "de": "alemán",
+    "ca": "catalán",
+}
 
 PERSONA_ONDO = """Eres el asistente virtual de Ondo, una tienda online de bicicletas eléctricas que vende en España, \
 Francia, Italia y Portugal. Eres una inteligencia artificial y lo dices si te preguntan.
@@ -97,7 +125,9 @@ Cómo escribes:
 
 
 async def redactar(estado: dict, borrador: dict) -> Respuesta:
-    idioma = IDIOMAS.get(estado.get("idioma") or "es", estado.get("idioma") or "español")
+    idioma = IDIOMAS.get(
+        estado.get("idioma") or "es", estado.get("idioma") or "español"
+    )
     sistema = PERSONA_ONDO.format(idioma=idioma)
     tarea = (
         f"Escribe el siguiente mensaje del asistente, en {idioma}.\n"
@@ -106,7 +136,9 @@ async def redactar(estado: dict, borrador: dict) -> Respuesta:
         f"Opciones (botones) que verá el cliente: {json.dumps(borrador.get('opciones') or [], ensure_ascii=False)}"
     )
     llm = modelo().with_structured_output(Respuesta)
-    return await llm.ainvoke([SystemMessage(sistema), *_historial(estado["messages"]), HumanMessage(tarea)])
+    return await llm.ainvoke(
+        [SystemMessage(sistema), *_historial(estado["messages"]), HumanMessage(tarea)]
+    )
 
 
 async def resumir(estado: dict, motivo: str) -> str:
@@ -120,8 +152,17 @@ async def resumir(estado: dict, motivo: str) -> str:
         "En español, en 3 a 5 líneas: qué necesita el cliente, datos ya recogidos (cliente, pedido, ciudad...), "
         "qué se ha intentado y en qué estado de ánimo está el cliente."
     )
-    datos = {"motivo": motivo, "cliente": estado.get("cliente"), "datos": estado.get("datos")}
-    res = await modelo(0).ainvoke([SystemMessage(sistema), HumanMessage(f"{json.dumps(datos, ensure_ascii=False)}\n\n{texto}")])
+    datos = {
+        "motivo": motivo,
+        "cliente": estado.get("cliente"),
+        "datos": estado.get("datos"),
+    }
+    res = await modelo(0).ainvoke(
+        [
+            SystemMessage(sistema),
+            HumanMessage(f"{json.dumps(datos, ensure_ascii=False)}\n\n{texto}"),
+        ]
+    )
     # .text y no .content: Claude (Haiku 5.5) a veces piensa antes de responder y devuelve una lista de
     # bloques (pensamiento + texto); escalar_a_humano solo acepta texto.
     return res.text
