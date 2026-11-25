@@ -34,6 +34,7 @@ Las tres sesiones del tema (según las diapositivas del día 1):
 Las siguientes sesiones irán en `clase_03/`… cuando se den.
 
 - `ondo-agente/`: el kit de código del tema, compartido por todas las sesiones (ver la sección siguiente).
+- `README.md`: para Mario; qué hay en la carpeta y los comandos útiles de `ondo-agente` (consola con `--estado`/`--traza`, bot, tests, evaluación con sus opciones, datos de prueba, deshacer, variables del `.env`). Si cambian los comandos del kit, actualízalo.
 - `changelog.md`: lo que ha hecho falta para poner el kit a funcionar, lo más reciente arriba, más lo que queda pendiente según la guía del día.
 
 ## El kit de código (`ondo-agente`)
