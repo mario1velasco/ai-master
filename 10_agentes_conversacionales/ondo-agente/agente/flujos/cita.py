@@ -34,7 +34,10 @@ async def flujo_cita(estado: dict, h) -> dict:
             return {
                 "datos": datos,
                 "pendiente": "motivo",
-                "borrador": borrador("Pregunta si la cita es para una revisión o por una avería.", opciones=MOTIVOS),
+                "borrador": borrador(
+                    "Pregunta si la cita es para una revisión o por una avería.",
+                    opciones=MOTIVOS,
+                ),
             }
         datos["motivo"] = MOTIVOS[i].lower()
 
@@ -66,18 +69,23 @@ async def flujo_cita(estado: dict, h) -> dict:
                 "borrador": borrador(
                     "Dile que no hay taller asociado en esa ciudad, enumera las ciudades donde sí hay y pregúntale si "
                     "prefiere otra o que una persona organice la recogida de la bicicleta.",
-                    {"ciudad": datos["ciudad"], "ciudades_con_taller": r.get("ciudades_con_taller")},
+                    {
+                        "ciudad": datos["ciudad"],
+                        "ciudades_con_taller": r.get("ciudades_con_taller"),
+                    },
                     ["Hablar con una persona"],
                 ),
             }
         pagina = datos.get("pagina", 0)
-        huecos = r["huecos"][pagina * 3:(pagina + 1) * 3]
+        huecos = r["huecos"][pagina * 3 : (pagina + 1) * 3]
         if not huecos:
             return {
                 "datos": {**datos, "pagina": 0},
                 "pendiente": None,
                 "intencion": "persona",
-                "borrador": borrador("No quedan huecos libres que ofrecer en las próximas dos semanas."),
+                "borrador": borrador(
+                    "No quedan huecos libres que ofrecer en las próximas dos semanas."
+                ),
             }
         return {
             "datos": {**datos, "taller": r["taller"]},

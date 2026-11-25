@@ -30,7 +30,9 @@ def _cliente_publico(c: dict) -> dict:
 
 
 @mcp.tool()
-def buscar_cliente(email: str | None = None, pedido_id: str | None = None, telefono: str | None = None) -> dict:
+def buscar_cliente(
+    email: str | None = None, pedido_id: str | None = None, telefono: str | None = None
+) -> dict:
     """Identifica a un cliente por su email, por un número de pedido (OND-12345) o por su teléfono.
 
     Devuelve el cliente y la lista resumida de sus pedidos, o encontrado=false.
@@ -40,18 +42,32 @@ def buscar_cliente(email: str | None = None, pedido_id: str | None = None, telef
     if email:
         c = next((x for x in cs if _norm(x["email"]) == _norm(email)), None)
     if c is None and pedido_id:
-        p = next((x for x in datos.pedidos() if _norm(x["id"]) == _norm(pedido_id)), None)
+        p = next(
+            (x for x in datos.pedidos() if _norm(x["id"]) == _norm(pedido_id)), None
+        )
         if p:
             c = next(x for x in cs if x["id"] == p["cliente_id"])
     if c is None and telefono:
         dig = "".join(ch for ch in telefono if ch.isdigit())[-9:]
-        c = next((x for x in cs if "".join(ch for ch in x["telefono"] if ch.isdigit())[-9:] == dig), None)
+        c = next(
+            (
+                x
+                for x in cs
+                if "".join(ch for ch in x["telefono"] if ch.isdigit())[-9:] == dig
+            ),
+            None,
+        )
     if c is None:
         return {"encontrado": False}
     ps = [
-        {"id": p["id"], "estado": p["estado"], "fecha_pedido": p["fecha_pedido"],
-         "productos": ", ".join(l["nombre"] for l in p["lineas"])}
-        for p in datos.pedidos() if p["cliente_id"] == c["id"]
+        {
+            "id": p["id"],
+            "estado": p["estado"],
+            "fecha_pedido": p["fecha_pedido"],
+            "productos": ", ".join(l["nombre"] for l in p["lineas"]),
+        }
+        for p in datos.pedidos()
+        if p["cliente_id"] == c["id"]
     ]
     return {"encontrado": True, "cliente": _cliente_publico(c), "pedidos": ps}
 
@@ -83,7 +99,10 @@ def crear_devolucion(pedido_id: str, cliente_id: str, motivo: str) -> dict:
     if p["cliente_id"] != cliente_id:
         return {"ok": False, "error": "El pedido no pertenece a ese cliente"}
     if p["estado"] != "entregado":
-        return {"ok": False, "error": f"Solo se pueden devolver pedidos entregados (estado: {p['estado']})"}
+        return {
+            "ok": False,
+            "error": f"Solo se pueden devolver pedidos entregados (estado: {p['estado']})",
+        }
     devs = datos.leer_estado("devoluciones")
     if any(d["pedido_id"] == p["id"] for d in devs):
         return {"ok": False, "error": "Ese pedido ya tiene una devolución registrada"}
@@ -113,12 +132,14 @@ def _huecos(taller: dict, dias: int) -> list[dict]:
             hid = f"{taller['id']}-{d.isoformat()}-{h:02d}"
             if hid in reservados:
                 continue
-            salida.append({
-                "hueco_id": hid,
-                "fecha": d.isoformat(),
-                "dia": DIAS[d.weekday()],
-                "hora": f"{h:02d}:00",
-            })
+            salida.append(
+                {
+                    "hueco_id": hid,
+                    "fecha": d.isoformat(),
+                    "dia": DIAS[d.weekday()],
+                    "hora": f"{h:02d}:00",
+                }
+            )
     return salida
 
 
@@ -127,7 +148,10 @@ def huecos_taller(ciudad: str, dias: int = 14) -> dict:
     """Busca el taller asociado de una ciudad y sus huecos libres para los próximos días (citas de 60 minutos)."""
     t = next((x for x in datos.talleres() if _norm(x["ciudad"]) == _norm(ciudad)), None)
     if t is None:
-        return {"encontrado": False, "ciudades_con_taller": [x["ciudad"] for x in datos.talleres()]}
+        return {
+            "encontrado": False,
+            "ciudades_con_taller": [x["ciudad"] for x in datos.talleres()],
+        }
     hs = _huecos(t, dias)
     return {
         "encontrado": True,
@@ -147,7 +171,10 @@ def reservar_cita(cliente_id: str, hueco_id: str, motivo: str) -> dict:
         return {"ok": False, "error": f"Hueco {hueco_id} no válido"}
     libre = next((h for h in _huecos(t, 60) if h["hueco_id"] == hueco_id), None)
     if libre is None:
-        return {"ok": False, "error": "Ese hueco ya no está libre. Vuelve a consultar huecos_taller."}
+        return {
+            "ok": False,
+            "error": "Ese hueco ya no está libre. Vuelve a consultar huecos_taller.",
+        }
     citas = datos.leer_estado("citas")
     cita = {
         "id": f"CIT-{len(citas) + 1:04d}",
@@ -169,8 +196,13 @@ def _en_horario(ahora: datetime) -> bool:
 
 
 @mcp.tool()
-def escalar_a_humano(motivo: str, resumen: str, prioridad: str = "normal",
-                     cliente_id: str | None = None, canal: str = "chat") -> dict:
+def escalar_a_humano(
+    motivo: str,
+    resumen: str,
+    prioridad: str = "normal",
+    cliente_id: str | None = None,
+    canal: str = "chat",
+) -> dict:
     """Pasa el caso a una persona del equipo de atención al cliente.
 
     prioridad: "normal" o "urgente" (seguridad). El resumen lo lee la persona: motivo, datos ya
@@ -194,7 +226,12 @@ def escalar_a_humano(motivo: str, resumen: str, prioridad: str = "normal",
         espera = "Una persona del equipo te atenderá en los próximos minutos."
     else:
         espera = "Una persona del equipo contactará contigo el siguiente día laborable, a partir de las 9:00."
-    return {"ok": True, "caso": caso, "espera": espera, "en_horario": _en_horario(ahora)}
+    return {
+        "ok": True,
+        "caso": caso,
+        "espera": espera,
+        "en_horario": _en_horario(ahora),
+    }
 
 
 @mcp.tool()
