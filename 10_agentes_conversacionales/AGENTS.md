@@ -28,6 +28,7 @@ Las tres sesiones del tema (según las diapositivas del día 1):
   - `Diapositivas Tema 10 - Sesión 2.pdf`: la teoría (86 diapositivas, con los ejercicios 2 a 5 opcionales al final).
   - `Guía de Clase - Dia 2 - Construir y evaluar.pdf`: la práctica del día — flujo de cita con tests primero (pasos 4 y 5), revisión con el subagente, la skill `completar-flujo`, el flujo de devolución con esa skill y la evaluación con `evaluacion.suite` (medir, arreglar un fallo y volver a medir).
   - `ejercicios/`: dos ejercicios complementarios con su corrección: «Diagnostica la evaluación» y «Ampliar la evaluación».
+  - `explicacion-10.md`: explicación didáctica de la sesión (tests como especificación, el flujo de cita, la skill, la devolución, la evaluación con cliente simulado, comprobaciones y juez, Make frente a código y los dos complementarios resueltos).
   - Cada PDF de la sesión tiene al lado su `.md` con el mismo nombre, pasado con la skill any-to-any (mismo texto; en las diapositivas se quitaron los pies `www.ebiseducation.com` y los números de página, y el texto de las imágenes no está).
 
 Las siguientes sesiones irán en `clase_03/`… cuando se den.
