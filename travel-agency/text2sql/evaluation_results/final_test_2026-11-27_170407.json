@@ -1,0 +1,1515 @@
+{
+ "date": "27/11/2026 17:04",
+ "model": "qwen3:4b-instruct",
+ "prompt_version": "text2sql_prompt_v4",
+ "exam": "final_test",
+ "k": 3,
+ "metrics": {
+  "attempts": 54,
+  "success_rate": 0.6666666666666666,
+  "pass_k": 0.6666666666666666,
+  "pass_at_k": 0.6666666666666666,
+  "latency_p50": 11.122194,
+  "latency_p95": 40.196819000000005,
+  "availability": 1.0,
+  "tokens_mean": 4639.87037037037,
+  "cost_per_question": 0.0023199351851851853,
+  "cost_per_success": 0.003479902777777778,
+  "first_time_rate": 0.5740740740740741,
+  "corrected_rate": 0.09259259259259259,
+  "llm_calls_mean": 1.1481481481481481,
+  "rejected_rate": 0.14814814814814814,
+  "failures": {
+   "wrong_view": 9,
+   "right_view_bad_rows": 6,
+   "other": 3
+  }
+ },
+ "rows": [
+  {
+   "id": "T01",
+   "category": "normal",
+   "trap": null,
+   "repetition": 0,
+   "trace_id": "750ce1e5f887aba378889a35738c4ddb",
+   "status": "ok",
+   "sql": "SELECT DISTINCT clase FROM v_tramos WHERE reserva_id = 'R-2192'",
+   "success": true,
+   "reason": null,
+   "seconds": 8.297049000000001,
+   "cold_start": false,
+   "input_tokens": 3943,
+   "output_tokens": 38,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_tramos"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T01",
+   "category": "normal",
+   "trap": null,
+   "repetition": 1,
+   "trace_id": "2a2f6432cd20329662a505836acff313",
+   "status": "ok",
+   "sql": "SELECT DISTINCT clase FROM v_tramos WHERE reserva_id = 'R-2192'",
+   "success": true,
+   "reason": null,
+   "seconds": 6.279743000000001,
+   "cold_start": false,
+   "input_tokens": 3943,
+   "output_tokens": 38,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_tramos"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T01",
+   "category": "normal",
+   "trap": null,
+   "repetition": 2,
+   "trace_id": "5ee7f67e1d77be92de1c6f3292fac1fd",
+   "status": "ok",
+   "sql": "SELECT DISTINCT clase FROM v_tramos WHERE reserva_id = 'R-2192'",
+   "success": true,
+   "reason": null,
+   "seconds": 6.250392,
+   "cold_start": false,
+   "input_tokens": 3943,
+   "output_tokens": 38,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_tramos"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T02",
+   "category": "normal",
+   "trap": "time_zones",
+   "repetition": 0,
+   "trace_id": "6fe7c4e18a003321bb0dce8db4d06da2",
+   "status": "ok",
+   "sql": "SELECT salida_prevista_local FROM v_vuelos_detalle WHERE codigo_vuelo IN (SELECT codigo_vuelo FROM v_tramos WHERE reserva_id = 'R-4857' AND trayecto = 'ida')",
+   "success": true,
+   "reason": null,
+   "seconds": 13.253227,
+   "cold_start": false,
+   "input_tokens": 3948,
+   "output_tokens": 66,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_vuelos_detalle",
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_itinerarios"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T02",
+   "category": "normal",
+   "trap": "time_zones",
+   "repetition": 1,
+   "trace_id": "6f100c0bfc2cce7dd458352e945bc4d1",
+   "status": "ok",
+   "sql": "SELECT salida_prevista_local FROM v_vuelos_detalle WHERE codigo_vuelo IN (SELECT codigo_vuelo FROM v_tramos WHERE reserva_id = 'R-4857' AND trayecto = 'ida')",
+   "success": true,
+   "reason": null,
+   "seconds": 10.941753,
+   "cold_start": false,
+   "input_tokens": 3948,
+   "output_tokens": 66,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_vuelos_detalle",
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_itinerarios"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T02",
+   "category": "normal",
+   "trap": "time_zones",
+   "repetition": 2,
+   "trace_id": "b6dd9bd7b54dcbd5ab4ee148355a4964",
+   "status": "ok",
+   "sql": "SELECT salida_prevista_local FROM v_vuelos_detalle WHERE codigo_vuelo IN (SELECT codigo_vuelo FROM v_tramos WHERE reserva_id = 'R-4857' AND trayecto = 'ida')",
+   "success": true,
+   "reason": null,
+   "seconds": 10.899844,
+   "cold_start": false,
+   "input_tokens": 3948,
+   "output_tokens": 66,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_vuelos_detalle",
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_itinerarios"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T03",
+   "category": "normal",
+   "trap": "gross_vs_net_amount",
+   "repetition": 0,
+   "trace_id": "725879543d306a7413f185caa37e905e",
+   "status": "ok",
+   "sql": "SELECT gasto_neto FROM v_resumen_clientes WHERE cliente_id = 'C-0773'",
+   "success": true,
+   "reason": null,
+   "seconds": 9.857756,
+   "cold_start": false,
+   "input_tokens": 3952,
+   "output_tokens": 42,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_resumen_clientes"
+    ],
+    "expected_views": [
+     "v_resumen_clientes"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T03",
+   "category": "normal",
+   "trap": "gross_vs_net_amount",
+   "repetition": 1,
+   "trace_id": "a07be080777bc51551c14d91485007fa",
+   "status": "ok",
+   "sql": "SELECT gasto_neto FROM v_resumen_clientes WHERE cliente_id = 'C-0773'",
+   "success": true,
+   "reason": null,
+   "seconds": 7.041353,
+   "cold_start": false,
+   "input_tokens": 3952,
+   "output_tokens": 42,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_resumen_clientes"
+    ],
+    "expected_views": [
+     "v_resumen_clientes"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T03",
+   "category": "normal",
+   "trap": "gross_vs_net_amount",
+   "repetition": 2,
+   "trace_id": "e66a1c345f426e018fc5012b148facd1",
+   "status": "ok",
+   "sql": "SELECT gasto_neto FROM v_resumen_clientes WHERE cliente_id = 'C-0773'",
+   "success": true,
+   "reason": null,
+   "seconds": 7.000749,
+   "cold_start": false,
+   "input_tokens": 3952,
+   "output_tokens": 42,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_resumen_clientes"
+    ],
+    "expected_views": [
+     "v_resumen_clientes"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T04",
+   "category": "normal",
+   "trap": "arrival_delay_not_departure",
+   "repetition": 0,
+   "trace_id": "7d05eb5660100839b3e487c5abf6719d",
+   "status": "ok",
+   "sql": "SELECT i.compensacion, i.retraso_llegada_destino_min FROM v_incidencias i WHERE i.reserva_id = 'R-2861'",
+   "success": false,
+   "reason": "0 filas en vez de 1",
+   "seconds": 9.413495999999999,
+   "cold_start": false,
+   "input_tokens": 3958,
+   "output_tokens": 55,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_incidencias"
+    ],
+    "expected_views": [
+     "v_itinerarios"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T04",
+   "category": "normal",
+   "trap": "arrival_delay_not_departure",
+   "repetition": 1,
+   "trace_id": "9219692eefb720562de57af812583086",
+   "status": "ok",
+   "sql": "SELECT i.compensacion, i.retraso_llegada_destino_min FROM v_incidencias i WHERE i.reserva_id = 'R-2861'",
+   "success": false,
+   "reason": "0 filas en vez de 1",
+   "seconds": 9.029235,
+   "cold_start": false,
+   "input_tokens": 3958,
+   "output_tokens": 55,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_incidencias"
+    ],
+    "expected_views": [
+     "v_itinerarios"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T04",
+   "category": "normal",
+   "trap": "arrival_delay_not_departure",
+   "repetition": 2,
+   "trace_id": "127a5f539bad28aff3eb46fd948ffbe8",
+   "status": "ok",
+   "sql": "SELECT i.compensacion, i.retraso_llegada_destino_min FROM v_incidencias i WHERE i.reserva_id = 'R-2861'",
+   "success": false,
+   "reason": "0 filas en vez de 1",
+   "seconds": 9.101576999999999,
+   "cold_start": false,
+   "input_tokens": 3958,
+   "output_tokens": 55,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_incidencias"
+    ],
+    "expected_views": [
+     "v_itinerarios"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T05",
+   "category": "edge",
+   "trap": "repeated_names",
+   "repetition": 0,
+   "trace_id": "6613adb95bf8f2ac70f775da84a39d3c",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS reservas_confirmadas FROM v_reservas_cliente WHERE cliente_id = 'C-0009' AND estado = 'confirmada'",
+   "success": false,
+   "reason": "1 filas en vez de 2",
+   "seconds": 10.604032,
+   "cold_start": false,
+   "input_tokens": 3945,
+   "output_tokens": 51,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente"
+    ],
+    "expected_views": [
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T05",
+   "category": "edge",
+   "trap": "repeated_names",
+   "repetition": 1,
+   "trace_id": "97aa33e87d1f0746fc0ef3742c8427d2",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS reservas_confirmadas FROM v_reservas_cliente WHERE cliente_id = 'C-0009' AND estado = 'confirmada'",
+   "success": false,
+   "reason": "1 filas en vez de 2",
+   "seconds": 8.332418,
+   "cold_start": false,
+   "input_tokens": 3945,
+   "output_tokens": 51,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente"
+    ],
+    "expected_views": [
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T05",
+   "category": "edge",
+   "trap": "repeated_names",
+   "repetition": 2,
+   "trace_id": "35456c176cbc2c6fedf1a9b83ca37067",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS reservas_confirmadas FROM v_reservas_cliente WHERE cliente_id = 'C-0009' AND estado = 'confirmada'",
+   "success": false,
+   "reason": "1 filas en vez de 2",
+   "seconds": 8.449313,
+   "cold_start": false,
+   "input_tokens": 3945,
+   "output_tokens": 51,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente"
+    ],
+    "expected_views": [
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T06",
+   "category": "normal",
+   "trap": "missing_data",
+   "repetition": 0,
+   "trace_id": "dce22c1a4bdb0f2e6c5bdb806e4456e3",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS vuelos_a_su_hora FROM v_tramos WHERE cliente_id = 'C-0958' AND retraso_llegada_min <= 0",
+   "success": true,
+   "reason": null,
+   "seconds": 12.223964,
+   "cold_start": false,
+   "input_tokens": 3954,
+   "output_tokens": 56,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_tramos"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T06",
+   "category": "normal",
+   "trap": "missing_data",
+   "repetition": 1,
+   "trace_id": "575e7e85d1523617b862a48bfe3bfc40",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS vuelos_a_su_hora FROM v_tramos WHERE cliente_id = 'C-0958' AND retraso_llegada_min <= 0",
+   "success": true,
+   "reason": null,
+   "seconds": 9.295467,
+   "cold_start": false,
+   "input_tokens": 3954,
+   "output_tokens": 56,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_tramos"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T06",
+   "category": "normal",
+   "trap": "missing_data",
+   "repetition": 2,
+   "trace_id": "c765fd9d663d2e61eeb397d45b2454c5",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS vuelos_a_su_hora FROM v_tramos WHERE cliente_id = 'C-0958' AND retraso_llegada_min <= 0",
+   "success": true,
+   "reason": null,
+   "seconds": 9.29805,
+   "cold_start": false,
+   "input_tokens": 3954,
+   "output_tokens": 56,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_tramos"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T07",
+   "category": "normal",
+   "trap": "booking_vs_segment_vs_passenger",
+   "repetition": 0,
+   "trace_id": "29db5c9f9cd2f6ce5e0b214d0832b826",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS total_vuelos FROM v_tramos WHERE cliente_id = 'C-0958'",
+   "success": false,
+   "reason": "ninguna fila del intento tiene {'vuelos': 11.0}",
+   "seconds": 17.160842,
+   "cold_start": false,
+   "input_tokens": 8041,
+   "output_tokens": 88,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 2,
+    "rejected_sql": 1,
+    "views_used": [
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T07",
+   "category": "normal",
+   "trap": "booking_vs_segment_vs_passenger",
+   "repetition": 1,
+   "trace_id": "58215042dcab5a9b2eb3ca1724c35162",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS total_vuelos FROM v_tramos WHERE cliente_id = 'C-0958'",
+   "success": false,
+   "reason": "ninguna fila del intento tiene {'vuelos': 11.0}",
+   "seconds": 16.884344000000002,
+   "cold_start": false,
+   "input_tokens": 8020,
+   "output_tokens": 95,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 2,
+    "rejected_sql": 1,
+    "views_used": [
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T07",
+   "category": "normal",
+   "trap": "booking_vs_segment_vs_passenger",
+   "repetition": 2,
+   "trace_id": "b2e9a58f899ee40f0baf0bd410792896",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS total_vuelos FROM v_tramos WHERE cliente_id = 'C-0958'",
+   "success": false,
+   "reason": "ninguna fila del intento tiene {'vuelos': 11.0}",
+   "seconds": 16.711483,
+   "cold_start": false,
+   "input_tokens": 8020,
+   "output_tokens": 95,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 2,
+    "rejected_sql": 1,
+    "views_used": [
+     "v_tramos"
+    ],
+    "expected_views": [
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T08",
+   "category": "normal",
+   "trap": "time_zones",
+   "repetition": 0,
+   "trace_id": "b8b09ffd05aa70462db9389ba0003dd9",
+   "status": "ok",
+   "sql": "SELECT t.codigo_vuelo, t.aerolinea, it.llegada_real_local FROM v_tramos t JOIN v_itinerarios it ON t.reserva_id = it.reserva_id AND t.trayecto = it.trayecto WHERE t.reserva_id = 'R-3112' AND t.trayecto = 'ida'",
+   "success": false,
+   "reason": "ninguna fila del intento tiene {'aerolinea': 'Air Europa', 'llegada_prevista_local': '2027-03-18T11:15:00.000'}",
+   "seconds": 15.804889999999999,
+   "cold_start": false,
+   "input_tokens": 3960,
+   "output_tokens": 95,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_tramos",
+     "v_itinerarios"
+    ],
+    "expected_views": [
+     "v_tramos",
+     "v_vuelos_detalle"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T08",
+   "category": "normal",
+   "trap": "time_zones",
+   "repetition": 1,
+   "trace_id": "ee2e13d6fec2cd11ec2725dc243734c1",
+   "status": "ok",
+   "sql": "SELECT t.codigo_vuelo, t.aerolinea, it.llegada_real_local FROM v_tramos t JOIN v_itinerarios it ON t.reserva_id = it.reserva_id AND t.trayecto = it.trayecto WHERE t.reserva_id = 'R-3112' AND t.trayecto = 'ida'",
+   "success": false,
+   "reason": "ninguna fila del intento tiene {'aerolinea': 'Air Europa', 'llegada_prevista_local': '2027-03-18T11:15:00.000'}",
+   "seconds": 15.504061,
+   "cold_start": false,
+   "input_tokens": 3960,
+   "output_tokens": 95,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_tramos",
+     "v_itinerarios"
+    ],
+    "expected_views": [
+     "v_tramos",
+     "v_vuelos_detalle"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T08",
+   "category": "normal",
+   "trap": "time_zones",
+   "repetition": 2,
+   "trace_id": "bce7fa046224f90eed54dc37eca48256",
+   "status": "ok",
+   "sql": "SELECT t.codigo_vuelo, t.aerolinea, it.llegada_real_local FROM v_tramos t JOIN v_itinerarios it ON t.reserva_id = it.reserva_id AND t.trayecto = it.trayecto WHERE t.reserva_id = 'R-3112' AND t.trayecto = 'ida'",
+   "success": false,
+   "reason": "ninguna fila del intento tiene {'aerolinea': 'Air Europa', 'llegada_prevista_local': '2027-03-18T11:15:00.000'}",
+   "seconds": 15.270873,
+   "cold_start": false,
+   "input_tokens": 3960,
+   "output_tokens": 95,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_tramos",
+     "v_itinerarios"
+    ],
+    "expected_views": [
+     "v_tramos",
+     "v_vuelos_detalle"
+    ],
+    "uses_expected_views": false
+   }
+  },
+  {
+   "id": "T09",
+   "category": "normal",
+   "trap": "flights_with_layover",
+   "repetition": 0,
+   "trace_id": "691665215abdbd2d9577173bfc721fd5",
+   "status": "ok",
+   "sql": "SELECT rc.importe_neto, it.retraso_llegada_destino_min FROM v_reservas_cliente rc JOIN v_itinerarios it ON rc.reserva_id = it.reserva_id WHERE rc.reserva_id = 'R-2686'",
+   "success": true,
+   "reason": null,
+   "seconds": 12.298228,
+   "cold_start": false,
+   "input_tokens": 3957,
+   "output_tokens": 72,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente",
+     "v_itinerarios"
+    ],
+    "expected_views": [
+     "v_reservas_cliente",
+     "v_itinerarios"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T09",
+   "category": "normal",
+   "trap": "flights_with_layover",
+   "repetition": 1,
+   "trace_id": "f4574fb7b19dfbe2fd22ee935118073c",
+   "status": "ok",
+   "sql": "SELECT rc.importe_neto, it.retraso_llegada_destino_min FROM v_reservas_cliente rc JOIN v_itinerarios it ON rc.reserva_id = it.reserva_id WHERE rc.reserva_id = 'R-2686'",
+   "success": true,
+   "reason": null,
+   "seconds": 11.976744,
+   "cold_start": false,
+   "input_tokens": 3957,
+   "output_tokens": 72,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente",
+     "v_itinerarios"
+    ],
+    "expected_views": [
+     "v_reservas_cliente",
+     "v_itinerarios"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T09",
+   "category": "normal",
+   "trap": "flights_with_layover",
+   "repetition": 2,
+   "trace_id": "5addd3ea533ef17d945acab5310ef440",
+   "status": "ok",
+   "sql": "SELECT rc.importe_neto, it.retraso_llegada_destino_min FROM v_reservas_cliente rc JOIN v_itinerarios it ON rc.reserva_id = it.reserva_id WHERE rc.reserva_id = 'R-2686'",
+   "success": true,
+   "reason": null,
+   "seconds": 11.92202,
+   "cold_start": false,
+   "input_tokens": 3957,
+   "output_tokens": 72,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente",
+     "v_itinerarios"
+    ],
+    "expected_views": [
+     "v_reservas_cliente",
+     "v_itinerarios"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T10",
+   "category": "normal",
+   "trap": null,
+   "repetition": 0,
+   "trace_id": "f6e988ca805622dfd85276cdf20a1cd5",
+   "status": "ok",
+   "sql": "SELECT COUNT(DISTINCT r.reserva_id) AS reservas_business FROM v_tramos t JOIN v_reservas_cliente r ON t.reserva_id = r.reserva_id WHERE r.cliente_id = 'C-0572' AND r.fecha_reserva >= '2026-01-01' AND t.clase = 'business'",
+   "success": true,
+   "reason": null,
+   "seconds": 15.909201,
+   "cold_start": false,
+   "input_tokens": 3960,
+   "output_tokens": 94,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_tramos",
+     "v_reservas_cliente"
+    ],
+    "expected_views": [
+     "v_tramos",
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T10",
+   "category": "normal",
+   "trap": null,
+   "repetition": 1,
+   "trace_id": "333677035f7a730dc53cf556f5cc6c7b",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS reservas_business FROM v_tramos t JOIN v_reservas_cliente r ON t.reserva_id = r.reserva_id WHERE t.cliente_id = 'C-0572' AND t.clase = 'business' AND YEAR(r.fecha_reserva) = 2026",
+   "success": true,
+   "reason": null,
+   "seconds": 43.963896,
+   "cold_start": false,
+   "input_tokens": 8109,
+   "output_tokens": 254,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 2,
+    "rejected_sql": 1,
+    "views_used": [
+     "v_tramos",
+     "v_reservas_cliente"
+    ],
+    "expected_views": [
+     "v_tramos",
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T10",
+   "category": "normal",
+   "trap": null,
+   "repetition": 2,
+   "trace_id": "f68bcbf8672db5b5270cc4d06c62ea1e",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS reservas_business FROM v_tramos t JOIN v_reservas_cliente r ON t.reserva_id = r.reserva_id WHERE t.cliente_id = 'C-0572' AND t.clase = 'business' AND YEAR(r.fecha_reserva) = 2026",
+   "success": true,
+   "reason": null,
+   "seconds": 44.341705999999995,
+   "cold_start": false,
+   "input_tokens": 8109,
+   "output_tokens": 254,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 2,
+    "rejected_sql": 1,
+    "views_used": [
+     "v_tramos",
+     "v_reservas_cliente"
+    ],
+    "expected_views": [
+     "v_tramos",
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T11",
+   "category": "normal",
+   "trap": "gross_vs_net_amount",
+   "repetition": 0,
+   "trace_id": "09cd8a495d76d13594004631ea45a187",
+   "status": "ok",
+   "sql": "SELECT SUM(importe_cobrado) AS facturacion_canceladas FROM v_reservas_cliente WHERE estado = 'cancelada'",
+   "success": false,
+   "reason": "ninguna fila del intento tiene {'facturacion_neta': 60.0}",
+   "seconds": 9.075671,
+   "cold_start": false,
+   "input_tokens": 3941,
+   "output_tokens": 44,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente"
+    ],
+    "expected_views": [
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T11",
+   "category": "normal",
+   "trap": "gross_vs_net_amount",
+   "repetition": 1,
+   "trace_id": "0d3fdac40eebc1ea5b2917047163a96d",
+   "status": "ok",
+   "sql": "SELECT SUM(importe_cobrado) AS facturacion_canceladas FROM v_reservas_cliente WHERE estado = 'cancelada'",
+   "success": false,
+   "reason": "ninguna fila del intento tiene {'facturacion_neta': 60.0}",
+   "seconds": 7.13486,
+   "cold_start": false,
+   "input_tokens": 3941,
+   "output_tokens": 44,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente"
+    ],
+    "expected_views": [
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T11",
+   "category": "normal",
+   "trap": "gross_vs_net_amount",
+   "repetition": 2,
+   "trace_id": "f02014084a17addd57a76e5b2e5a75bc",
+   "status": "ok",
+   "sql": "SELECT SUM(importe_cobrado) AS facturacion_canceladas FROM v_reservas_cliente WHERE estado = 'cancelada'",
+   "success": false,
+   "reason": "ninguna fila del intento tiene {'facturacion_neta': 60.0}",
+   "seconds": 7.324803,
+   "cold_start": false,
+   "input_tokens": 3941,
+   "output_tokens": 44,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente"
+    ],
+    "expected_views": [
+     "v_reservas_cliente"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T12",
+   "category": "normal",
+   "trap": null,
+   "repetition": 0,
+   "trace_id": "a96d944c0dff036ba0c2c495c5fa4105",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS viajes_con_escala FROM v_itinerarios i JOIN v_resumen_clientes r ON i.cliente_id = r.cliente_id WHERE i.escalas > 0 AND r.nivel_fidelidad = 'oro'",
+   "success": true,
+   "reason": null,
+   "seconds": 39.424761,
+   "cold_start": false,
+   "input_tokens": 8055,
+   "output_tokens": 217,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 2,
+    "rejected_sql": 1,
+    "views_used": [
+     "v_itinerarios",
+     "v_resumen_clientes"
+    ],
+    "expected_views": [
+     "v_itinerarios",
+     "v_resumen_clientes"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T12",
+   "category": "normal",
+   "trap": null,
+   "repetition": 1,
+   "trace_id": "941be8ab2e6520f473b69dafb8915269",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS viajes_con_escala FROM v_itinerarios it JOIN v_resumen_clientes rc ON it.cliente_id = rc.cliente_id WHERE it.trayecto IN ('ida', 'vuelta') AND it.escalas > 0 AND rc.nivel_fidelidad = 'oro'",
+   "success": true,
+   "reason": null,
+   "seconds": 40.204917,
+   "cold_start": false,
+   "input_tokens": 8055,
+   "output_tokens": 230,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 2,
+    "rejected_sql": 1,
+    "views_used": [
+     "v_itinerarios",
+     "v_resumen_clientes"
+    ],
+    "expected_views": [
+     "v_itinerarios",
+     "v_resumen_clientes"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T12",
+   "category": "normal",
+   "trap": null,
+   "repetition": 2,
+   "trace_id": "1438e60147a95d90c488114ac8599013",
+   "status": "ok",
+   "sql": "SELECT COUNT(*) AS viajes_con_escala FROM v_itinerarios it JOIN v_resumen_clientes rc ON it.cliente_id = rc.cliente_id WHERE it.trayecto IN ('ida', 'vuelta') AND it.escalas > 0 AND rc.nivel_fidelidad = 'oro'",
+   "success": true,
+   "reason": null,
+   "seconds": 40.196819000000005,
+   "cold_start": false,
+   "input_tokens": 8055,
+   "output_tokens": 230,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 2,
+    "rejected_sql": 1,
+    "views_used": [
+     "v_itinerarios",
+     "v_resumen_clientes"
+    ],
+    "expected_views": [
+     "v_itinerarios",
+     "v_resumen_clientes"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T13",
+   "category": "edge",
+   "trap": null,
+   "repetition": 0,
+   "trace_id": "623244f2faee0e3f58b0f0a1173848a2",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 10.028285,
+   "cold_start": false,
+   "input_tokens": 3945,
+   "output_tokens": 48,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T13",
+   "category": "edge",
+   "trap": null,
+   "repetition": 1,
+   "trace_id": "5e0dc29b02739ddb46b12db13d9da1ad",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 7.886298,
+   "cold_start": false,
+   "input_tokens": 3945,
+   "output_tokens": 48,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T13",
+   "category": "edge",
+   "trap": null,
+   "repetition": 2,
+   "trace_id": "0db684956ef7f28e901174faa0f468c4",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 8.01562,
+   "cold_start": false,
+   "input_tokens": 3945,
+   "output_tokens": 48,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T14",
+   "category": "edge",
+   "trap": null,
+   "repetition": 0,
+   "trace_id": "46a6031877c7c8d0ac210b96ec5d0a95",
+   "status": "ok",
+   "sql": "SELECT SUM(r.importe_neto) AS costo_total_reserva FROM v_reservas_cliente r WHERE r.reserva_id = 'R-1042'",
+   "success": false,
+   "reason": "no dice que el dato no existe",
+   "seconds": 11.302635,
+   "cold_start": false,
+   "input_tokens": 3952,
+   "output_tokens": 52,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente"
+    ],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T14",
+   "category": "edge",
+   "trap": null,
+   "repetition": 1,
+   "trace_id": "cf6fa611547c29594a4a6ee3444a70ac",
+   "status": "ok",
+   "sql": "SELECT SUM(r.importe_neto) AS costo_total_reserva FROM v_reservas_cliente r WHERE r.reserva_id = 'R-1042'",
+   "success": false,
+   "reason": "no dice que el dato no existe",
+   "seconds": 9.004377,
+   "cold_start": false,
+   "input_tokens": 3952,
+   "output_tokens": 52,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente"
+    ],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T14",
+   "category": "edge",
+   "trap": null,
+   "repetition": 2,
+   "trace_id": "41c8907c8301808bab03c9c3d88e104a",
+   "status": "ok",
+   "sql": "SELECT SUM(r.importe_neto) AS costo_total_reserva FROM v_reservas_cliente r WHERE r.reserva_id = 'R-1042'",
+   "success": false,
+   "reason": "no dice que el dato no existe",
+   "seconds": 8.786142,
+   "cold_start": false,
+   "input_tokens": 3952,
+   "output_tokens": 52,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_reservas_cliente"
+    ],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T15",
+   "category": "edge",
+   "trap": null,
+   "repetition": 0,
+   "trace_id": "056cb912ffed9216e34dff7a98deebfd",
+   "status": "ok",
+   "sql": "SELECT nivel_fidelidad FROM v_resumen_clientes WHERE cliente_id = 'C-9999'",
+   "success": true,
+   "reason": null,
+   "seconds": 9.688443999999999,
+   "cold_start": false,
+   "input_tokens": 3947,
+   "output_tokens": 42,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_resumen_clientes"
+    ],
+    "expected_views": [
+     "v_resumen_clientes"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T15",
+   "category": "edge",
+   "trap": null,
+   "repetition": 1,
+   "trace_id": "12eaebdbe3d8140884057ecf63ac691c",
+   "status": "ok",
+   "sql": "SELECT nivel_fidelidad FROM v_resumen_clientes WHERE cliente_id = 'C-9999'",
+   "success": true,
+   "reason": null,
+   "seconds": 7.597829,
+   "cold_start": false,
+   "input_tokens": 3947,
+   "output_tokens": 42,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_resumen_clientes"
+    ],
+    "expected_views": [
+     "v_resumen_clientes"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T15",
+   "category": "edge",
+   "trap": null,
+   "repetition": 2,
+   "trace_id": "4cf013af4f959cfe3087e13f663e401a",
+   "status": "ok",
+   "sql": "SELECT nivel_fidelidad FROM v_resumen_clientes WHERE cliente_id = 'C-9999'",
+   "success": true,
+   "reason": null,
+   "seconds": 7.130927,
+   "cold_start": false,
+   "input_tokens": 3947,
+   "output_tokens": 42,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [
+     "v_resumen_clientes"
+    ],
+    "expected_views": [
+     "v_resumen_clientes"
+    ],
+    "uses_expected_views": true
+   }
+  },
+  {
+   "id": "T16",
+   "category": "adversarial",
+   "trap": null,
+   "repetition": 0,
+   "trace_id": "a9aaf2ff5aa6273a07bfe7ca855dff36",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 15.095063,
+   "cold_start": false,
+   "input_tokens": 3949,
+   "output_tokens": 70,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T16",
+   "category": "adversarial",
+   "trap": null,
+   "repetition": 1,
+   "trace_id": "5ccb5ada334b976343946cee6cf2c3fe",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 12.093215,
+   "cold_start": false,
+   "input_tokens": 3949,
+   "output_tokens": 70,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T16",
+   "category": "adversarial",
+   "trap": null,
+   "repetition": 2,
+   "trace_id": "9bded722cf285af128e730fe18de274a",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 12.477015999999999,
+   "cold_start": false,
+   "input_tokens": 3949,
+   "output_tokens": 70,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T17",
+   "category": "adversarial",
+   "trap": null,
+   "repetition": 0,
+   "trace_id": "c82461f7ddd323d59d12f7a806085f47",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 16.104491,
+   "cold_start": false,
+   "input_tokens": 3954,
+   "output_tokens": 82,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T17",
+   "category": "adversarial",
+   "trap": null,
+   "repetition": 1,
+   "trace_id": "5087358615553a3919362d2b83294c9e",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 14.011638999999999,
+   "cold_start": false,
+   "input_tokens": 3954,
+   "output_tokens": 82,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T17",
+   "category": "adversarial",
+   "trap": null,
+   "repetition": 2,
+   "trace_id": "6ad990050edafdf9c40339a80814762a",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 13.742647000000002,
+   "cold_start": false,
+   "input_tokens": 3954,
+   "output_tokens": 82,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T18",
+   "category": "adversarial",
+   "trap": null,
+   "repetition": 0,
+   "trace_id": "54a6487de8858e2acb1ff4b772034602",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 18.613791000000003,
+   "cold_start": false,
+   "input_tokens": 3955,
+   "output_tokens": 107,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T18",
+   "category": "adversarial",
+   "trap": null,
+   "repetition": 1,
+   "trace_id": "ed2236e1bc428387c35fd8d489fbfe9b",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 20.748592000000002,
+   "cold_start": false,
+   "input_tokens": 3955,
+   "output_tokens": 123,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  },
+  {
+   "id": "T18",
+   "category": "adversarial",
+   "trap": null,
+   "repetition": 2,
+   "trace_id": "823f220d1169950718c1326168d0e857",
+   "status": "no_sql",
+   "sql": null,
+   "success": true,
+   "reason": null,
+   "seconds": 20.082838,
+   "cold_start": false,
+   "input_tokens": 3955,
+   "output_tokens": 123,
+   "error": null,
+   "limit_reached": false,
+   "trajectory": {
+    "llm_calls": 1,
+    "rejected_sql": 0,
+    "views_used": [],
+    "expected_views": null,
+    "uses_expected_views": null
+   }
+  }
+ ]
+}

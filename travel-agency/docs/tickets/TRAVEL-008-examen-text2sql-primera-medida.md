@@ -8,7 +8,7 @@
 |---|---|
 | Tipo | Task |
 | Carpeta del proyecto | `travel-agency/` (`text2sql/`) |
-| Estado | En curso: exámenes hechos (batería 37, final 18; 2026-11-16), falta la medida con el Qwen real |
+| Estado | Hecho (2026-11-27): línea base con el prompt v4, batería 81 % y examen final 67 % (pass^3 76 % y 67 %); tabla en `text2sql/AGENTS.md` («Línea base») y detalle en `text2sql/evaluation_results/final_evaluation_summary_2026-11-27.md`. Umbrales de despliegue, pendientes (fuera de alcance) |
 | Creado | 2026-11-13 |
 | Etiquetas | text2sql, eval, dataset, fase-5 |
 
@@ -140,8 +140,8 @@ pregunta).
 ## Definición de hecho
 
 - [ ] Cada AC comprobado con el comando o la revisión que nombra
-- [ ] Toda la suite del proyecto en verde (`uv run pytest`)
-- [ ] Fila 5 de `travel-agency/AGENTS.md` en ✅ con la línea base, y `PROYECTO.md` §6 si la medida cambia algo de lo
+- [x] Toda la suite del proyecto en verde (`uv run pytest`: 314 tests, 2026-11-27)
+- [x] Fila 5 de `travel-agency/AGENTS.md` en ✅ con la línea base, y `PROYECTO.md` §6 si la medida cambia algo de lo
       escrito
 - [ ] Los pasos para lanzar la medida (Supuestos) en `travel-agency/README.md` («Comandos útiles») y en
       `travel-agency/AGENTS.md` («Entorno»). Cuando toque lanzarla, Claude se los indica a Mario paso a paso

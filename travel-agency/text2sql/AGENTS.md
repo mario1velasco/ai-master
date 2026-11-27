@@ -185,6 +185,54 @@ batería falla «¿cuánto ha gastado Ana López?» (suma el importe bruto). Añ
 batería ya acierta. Si el examen final también acierta sus preguntas de gasto, la regla funciona en general; si falla,
 solo la habías ajustado a esa pregunta.
 
+## Línea base (TRAVEL-008, 2026-11-27)
+
+`qwen3:4b-instruct` en Ollama (GTX 1650), prompt `text2sql_prompt_v4`, k = 3, base de `data/`. Es la línea base de los
+escalones 1 y 3 de `PROYECTO.md` §6: guía y reglas en el prompt, y el validador que devuelve el error para que el
+modelo corrija. Sin ejemplos dinámicos. Resultados en `evaluation_results/`: `battery_2026-11-27_163755.json` y
+`final_test_2026-11-27_170407.json`. El detalle de cada pregunta y la evolución v1 → v3 → v4 de la batería están en
+`evaluation_results/final_evaluation_summary_2026-11-27.md`.
+
+| | Batería (37 preguntas) | Examen final (18 preguntas) |
+|---|---|---|
+| Tasa de éxito | 81 % | **67 %** |
+| pass^3 / pass@3 | 76 % / 84 % | 67 % / 67 % |
+| Latencia p50 / p95 | 10,0 s / 36,0 s | 11,1 s / 40,2 s |
+| Disponibilidad | 97 % | 100 % |
+| Coste por 1.000 casos resueltos | 2,69 € | 3,48 € |
+| Aprobados a la primera | 77 % | 57 % |
+| Intentos con algún SQL rechazado | 8 % | 15 % |
+| Por categoría: normal · edge · adversarial | 60/75 · 15/21 · 15/15 | 21/33 · 6/12 · 9/9 |
+| Trampa `booking_vs_segment_vs_passenger` | 9/9 | 0/3 |
+| Trampa `gross_vs_net_amount` | 7/12 | 3/6 |
+| Trampa `arrival_delay_not_departure` | 6/6 | 0/3 |
+| Trampa `flights_with_layover` | 9/9 | 3/3 |
+| Trampa `time_zones` | 6/9 | 3/6 |
+| Trampa `repeated_names` | 0/3 | 0/3 |
+| Trampa `missing_data` | 6/9 | 3/3 |
+| Sin trampa | 47/54 | 24/27 |
+| Suspensos: vista equivocada / vista correcta, filas malas / otros | 2 / 13 / 6 | 9 / 6 / 3 |
+
+Qué mide cada fila (cálculo y lectura en la tabla «Métricas del informe», arriba):
+
+- **Tasa de éxito**: cuántos intentos aciertan. **La cifra que vale es la del examen final**, que nunca se usó para
+  ajustar el prompt: la batería da 14 puntos más porque el prompt se mejoró mirando sus fallos.
+- **pass^3 / pass@3**: si acierta las 3 veces / alguna vez. Iguales en el final: cada pregunta da 3/3 o 0/3, y
+  repetir no salva lo que falla.
+- **Latencia p50 / p95**: segundos por pregunta, la mediana y el caso malo (sin arranque en frío).
+- **Disponibilidad**: intentos con respuesta (sin errores de Ollama ni `sql_error`).
+- **Coste por 1.000 casos resueltos**: con la tarifa de ejemplo `PRICE_PER_MILLION_TOKENS` (en local es 0).
+- **Aprobados a la primera** e **intentos con algún SQL rechazado**: cuánto depende del validador para acertar.
+- **Por categoría / por trampa**: dónde falla.
+- **Suspensos**: por qué falla; la vista es diagnóstico, no motivo del suspenso.
+
+**Qué arreglar primero** (los mismos fallos en los dos exámenes): hora real en vez de prevista en vuelos que no han
+volado (P05, T08), importe bruto en vez de neto (P21, T11), un dato parecido en vez de «no existe» (P29, T14),
+nombres de varios clientes sin `LIKE` (P06, T05; en T05 se inventa un `cliente_id`), retraso y compensación (P07,
+T04), y rendirse tras un SQL rechazado (P18). Casi todos tienen ya su regla en la guía y el 4B no la aplica: lo
+siguiente de la escalera son ejemplos dinámicos o consultas fijas, en un ticket nuevo. Los umbrales de despliegue
+(`PROYECTO.md` §9) quedan por decidir con Mario.
+
 ## Decisiones y trampas
 
 - Solo se importa la función pública de otros paquetes, nunca sus módulos internos.
