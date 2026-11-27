@@ -984,7 +984,7 @@ dice dónde. Todas las evaluaciones escriben un informe CSV/JSON y sus eventos (
 | Text-to-SQL | `text2sql/src/text2sql/evaluation/` | Execution accuracy, SQL válido, cumple reglas, por trampa (sección 6) |
 | RAG | `rag/eval/` (cuando exista) | Hit@k por documento y página, abstención cuando no hay respuesta (tema 5) |
 | Agente | `agent/eval/` | Herramienta elegida correcta, nº de pasos, respuesta correcta, citas válidas |
-| Extremo a extremo | `api/eval/` | Casos dorados multi-turno contra la API, en modo mock y en modo real |
+| Extremo a extremo | `api/eval/` | Casos dorados multi-turno contra la API, en modo mock y en modo real. Conversaciones simuladas como la evaluación de Ondo (tema 10, `10_agentes_conversacionales/ondo-agente/evaluacion/`): un modelo hace de cliente con un escenario, el código comprueba con datos lo que pasó y un juez puntúa con una rúbrica (cumple / no cumple / no aplica) |
 
 ### Toda pieza con un LLM se cierra con su examen del tema 9
 
@@ -1090,6 +1090,10 @@ por bueno:
 | Latencia p95 por tipo de pregunta (solo BBDD, mixta) | Por decidir (en este hardware, decenas de segundos; sección 5) |
 | Tasa de escalado a humano | Ni 0 % ni 50 %: por decidir |
 | Malas respuestas aprobadas por el juez | 0 en la calibración |
+
+Plantilla para decidirlos (2026-11-27): las familias con umbral del informe de Albor (2.1): seguridad (adversarios y
+regresión) 100 %, calidad (normales y de borde) ≥ 80 %, pass^3 ≥ 70 %, p95, disponibilidad ≥ 99 % y coste por caso
+resuelto. Se deciden al revisar TRAVEL-012, con la línea base de text2sql a la vista (examen final, 67 %).
 - **Estrategias del agente**: se comparan con [`docs/guia-evaluacion-estrategias-agente.md`](docs/guia-evaluacion-estrategias-agente.md)
   (nace de la sesión 2 del tema 8): tool calling, plan-and-execute, verificador y modo razonamiento.
 
@@ -1259,6 +1263,20 @@ Revisada el 2026-11-18 con las sesiones 2 y 3 del tema 9 (antes estaba marcada c
   decisiones de quien aprueba, con su motivo** (en clase solo quedan en `aprobaciones.json`) y los bloqueos de
   `cancel_booking`. Desvío: si el fichero no existe, la verificación lo da por vacío e íntegro (en clase falla). Si la
   cadena se rompe, alerta urgente (sección 8). Antes de esta fase no hay nada que auditar: el agente solo lee.
+- **El gerente que aprueba es un rol, sin chat** (Mario, 2026-11-27): la sesión lleva `client_id` y `role`
+  (TRAVEL-011, `PROFILES`), y el rol `manager` decide en `/aprobaciones`. El chat sigue siendo solo para clientes: un
+  rol sin perfil de chat da `unknown_role`.
+- **Umbral a 0 € al empezar** (idea del informe de Albor, 4.3): las primeras semanas, todas las cancelaciones pasan por
+  el gerente; después, automáticas hasta `UMBRAL_AUTOMATICO`.
+- **Lo que se aprende del caso Hoteles Albor** (ejercicio práctico del tema 9, `09_evaluacion_fiabilidad_seguridad/04_ejercicio_practico/`), además de la
+  aprobación por importe (`revisar_herramienta` devuelve `{"aprobacion": motivo}` y la acción queda pendiente):
+  - el importe lo calcula el código según la política (`reembolso_segun_politica`, aquí `compute_penalty`): si el
+    modelo pide otro, se bloquea;
+  - el mensaje de bloqueo le dice al modelo que la reserva **no** se ha cancelado y con qué importe volver a llamar
+    (FIX05: con solo «según la política es X €», el modelo se rendía);
+  - **guarda contra las promesas falsas** (FIX06): se apuntan las cancelaciones hechas en la conversación; si no hay
+    ninguna, se sustituye la respuesta que da una cancelación por hecha y se bloquea el email que la confirma. Hasta
+    esta fase las promesas falsas solo se miden (TRAVEL-012).
 
 **Cómo se evalúa** (idea de τ-bench, tema 9, sesión 1): se comprueba el **estado final**, no lo que dice el agente.
 Después de cada caso se miran el almacén de cancelaciones, la cola y la auditoría: por encima del umbral, la reserva
@@ -1266,12 +1284,15 @@ sigue sin cancelar y hay un ticket pendiente con los datos correctos, y la respu
 (`no_debe_contener`); por debajo, la reserva está cancelada y la auditoría lo recoge; lo bloqueado no se cancela
 nunca. Un agente que dice «ya está cancelado» sin haberlo hecho suspende, aunque el texto suene bien. En las demos del
 tema 9 el mismo qwen3:4b **prometió** los 9 reembolsos de `supervision.py` sin llamar a la herramienta: el caso es
-real.
+real. Pedir confirmación antes de cancelar no se puede medir con un solo mensaje (le pasó al caso B1 de Albor): hace
+falta una conversación de varios turnos, como las simuladas de Ondo (fase 10).
 
 Referencias del tema 9 (además de las del tema 8): `codigo_ejercicios/sesion3/supervision.py` (`politica`,
 `GuardarrailesConSupervision`, la cola y `decidir`), `sesion3/observabilidad.py` (auditoría), `sesion2/guardarrailes.py`
 (`revisar_herramienta` con los límites de `emitir_reembolso`), `Soluciones_sesion2/deber_reto.py` y
-`ejemplo_humano_bucle/humano-en-el-bucle/`.
+`ejemplo_humano_bucle/humano-en-el-bucle/`. Y el caso Hoteles Albor:
+`09_evaluacion_fiabilidad_seguridad/04_ejercicio_practico/caso-hoteles-albor-v1/albor/{guardas.py, configuracion.py}` (`reembolso_segun_politica`,
+`LIMITE_APROBACION`, FIX05, FIX06, procedencia con `contaminado`, `PERFILES`) e `informe.md` (1.2, 3.1 a 3.5 y 4.3).
 
 **Fase 13 — Servidor MCP del chat.** Un servidor MCP pequeño que publica **una sola tool** y la traduce a una llamada al
 endpoint del chat (`POST /sessions/{session_id}/messages`), para que otros agentes (Claude Code, Codex…) puedan
