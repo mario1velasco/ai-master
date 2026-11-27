@@ -1196,6 +1196,10 @@ examen del tema 9»), como la fase 5 con TRAVEL-007 y TRAVEL-008.
    Desvío previsto: `ChatOllama` (`langchain-ollama`, API nativa `/api/chat`) en lugar del `ChatOpenAI` sobre `/v1`
    de `comun/modelo_lc.py`, para no perder los tiempos de `OllamaTimings`; con el `num_ctx` común. Las dependencias
    de LangGraph solo van en `agent/` y `api/`. Falta registrarlo como ADR.
+   *Plan B (2026-11-25):* el agente libre (tool calling) se mantiene por su versatilidad. Si el examen de TRAVEL-012
+   muestra que falla en las preguntas típicas de un cliente, se prueba el grafo del tema 10 (Ondo): interpretar →
+   `ruta()` → consultas fijas sobre las vistas para lo típico y `text2sql` para el resto → redactar. Detalle en
+   TRAVEL-012, «Preguntas abiertas».
 
 ### Fases extra (una vez acabado el proyecto)
 

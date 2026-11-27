@@ -257,3 +257,11 @@ Salvo que se diga otra cosa, los tests usan el modelo falso de `agent/tests/` y 
 - Si el juez con el mismo 4B resulta poco fiable a simple vista (aprueba respuestas que el código suspende por datos
   de otros clientes o promesas falsas), se adelanta su calibración o se plantea otro modelo. Se decide con Mario a la
   vista de la primera medida.
+- **Plan B si el agente libre falla en lo típico** (hablado con Mario el 2026-11-25): si la medida muestra que el
+  tool calling falla en las preguntas más frecuentes de un cliente (su reserva, sus tramos, su vuelo, sus
+  incidencias), se prueba el patrón del tema 10, sesión 1 (Ondo): **interpretar** (el modelo rellena un formato fijo
+  con la intención y los ids) → `ruta()` (el código decide) → **consulta fija** sobre la vista para lo típico y
+  `text2sql` para el resto → **redactar**. Referencia: `10_agentes_conversacionales/ondo-agente/agente/grafo.py` y
+  `clase_01/explicacion-10.md` (sección 3). Encaja en TRAVEL-013, cuyo `Plan` ya es un interpretar, pero cambia su
+  decisión del 2026-11-16 («todo por text2sql, sin consultas fijas»). De momento se mantiene el agente libre por su
+  versatilidad y se decide con las cifras de esta medida.
