@@ -229,3 +229,19 @@ def test_aggregates_only_count_session_client(con: duckdb.DuckDBPyConnection, ol
         {"sql": total, "rows": [{"total": 1195.0}], "truncated": False},
     ]
     assert answer.blocks == []
+
+
+def test_flights_limited_to_client_bookings(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    delay = "SELECT retraso_llegada_min FROM v_vuelos_detalle WHERE codigo_vuelo = 'IB3166'"
+    flights = "SELECT codigo_vuelo FROM v_vuelos_detalle ORDER BY codigo_vuelo"
+    ollama.agent_answers = [query_db_answer("¿Cuánto se retrasó el IB3166 y qué vuelos hay?"), text_answer("…")]
+    ollama.text2sql_answers = [sql_answer(delay, flights)]
+
+    answer = respond("¿Cuánto se retrasó mi vuelo IB3166?", con=con, session=C001)
+
+    # fixtures/reservas_tramos.csv: R-1042 → V-01 (IB3166) y V-02 (IB3167); R-1047 → V-10 (IB0731). Son 3 de 11 vuelos
+    assert json.loads(tool_content(ollama)) == [
+        {"sql": delay, "rows": [{"retraso_llegada_min": 312}], "truncated": False},
+        {"sql": flights, "rows": [{"codigo_vuelo": c} for c in ("IB0731", "IB3166", "IB3167")], "truncated": False},
+    ]
+    assert answer.blocks == []
