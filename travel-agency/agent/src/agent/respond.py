@@ -180,12 +180,12 @@ def _recursion_limit_answer(
 
 
 def _executed_tool_messages(messages: list[BaseMessage]) -> list[ToolMessage]:
-    """Los mensajes de las herramientas que se ejecutaron.
+    """Los mensajes de las herramientas que cuentan como usadas: todas menos las que bloquearon los guardarraíles.
 
-    Una bloqueada por los guardarraíles no trae artifact, así que no cuenta (como en clase, `comun/agente.py`); que
-    el modelo lo intentó se ve en `blocks`.
+    Una bloqueada trae como artifact el `Block` de su bloqueo y no cuenta (como en clase, `comun/agente.py`); que el
+    modelo lo intentó se ve en `blocks`. Un error de LangGraph (tool inventada, argumentos mal) sí cuenta.
     """
-    return [m for m in messages if isinstance(m, ToolMessage) and m.artifact is not None]
+    return [m for m in messages if isinstance(m, ToolMessage) and not isinstance(m.artifact, Block)]
 
 
 def _checked_answer(messages: list[BaseMessage], guards: Guardrails | None, session: Session | None) -> str:

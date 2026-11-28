@@ -361,3 +361,17 @@ def test_blocks_in_answer_and_telemetry(con: duckdb.DuckDBPyConnection, ollama: 
     events = read_events(events_path(Component.agent, datetime.now(UTC).date()))
     [turn] = [e.metrics for e in events if isinstance(e.metrics, AgentMetrics)]
     assert (turn.input_blocks, turn.tool_blocks, turn.output_blocks) == (1, 1, 0)
+
+
+def test_tool_error_from_graph_still_counts(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    # El modelo se inventa una tool: LangGraph le contesta con un error (sin artifact). No es un bloqueo de los
+    # guardarraíles, así que cuenta como llamada, como antes de TRAVEL-011 y como en clase (`comun/agente.py`)
+    invented = {"function": {"name": "buscar_reserva", "arguments": {"id": "R-1042"}}}
+    ollama.agent_answers = [{"role": "assistant", "content": "", "tool_calls": [invented]}, text_answer("No puedo.")]
+
+    answer = respond("¿Cómo va mi reserva R-1042?", con=con, session=C001)
+
+    assert answer.metrics is not None
+    assert answer.metrics.tool_call_count == 1
+    assert answer.tools_used == ["buscar_reserva"]
+    assert answer.blocks == []

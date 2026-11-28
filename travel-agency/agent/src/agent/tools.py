@@ -15,7 +15,7 @@ import duckdb
 from langchain_core.tools import BaseTool, tool
 
 from agent.guardrails import Guardrails
-from contracts.agent import Session
+from contracts.agent import Block, BlockType, Session
 from contracts.sql import SqlResult, SqlStatus
 from text2sql import ask
 
@@ -65,12 +65,13 @@ def _for_model(result: SqlResult) -> str:
     return f"{queries}\n{error}" if result.queries else error
 
 
-def _blocked(reason: str) -> tuple[str, None]:
-    """Lo que recibe el modelo cuando un guardarraíl bloquea `query_db`, como en `comun/agente.py`.
+def _blocked(reason: str) -> tuple[str, Block]:
+    """Lo que recibe el modelo cuando un guardarraíl bloquea `query_db` («Acción no permitida: …», como en clase).
 
-    Sin artifact: no cuenta como fuente ni como herramienta usada.
+    El artifact es el mismo bloqueo que queda en `AgentAnswer.blocks`: así la llamada no cuenta como herramienta usada
+    ni como fuente, y un error de LangGraph (tool inventada, argumentos mal), que no lo trae, sí cuenta.
     """
-    return f"Acción no permitida: {reason}", None
+    return f"Acción no permitida: {reason}", Block(type=BlockType.tool, reason=reason)
 
 
 def _timed_ask(question: str, con: duckdb.DuckDBPyConnection) -> QueryDbRun:
@@ -86,7 +87,7 @@ def build_query_db_tool(con: duckdb.DuckDBPyConnection, guards: Guardrails | Non
         raise ValueError("Con guardarraíles, query_db necesita la sesión del cliente.")
 
     @tool(description=QUERY_DB_DESCRIPTION, response_format="content_and_artifact")
-    def query_db(question: str) -> tuple[str, QueryDbRun | None]:
+    def query_db(question: str) -> tuple[str, QueryDbRun | Block]:
         with _DB_LOCK:  # también las comprobaciones, que consultan la misma conexión
             # Capa 1, antes de ejecutar (`revisar_herramienta` de clase)
             if guards is not None and session is not None:
