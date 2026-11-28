@@ -288,3 +288,31 @@ def test_other_client_email_or_full_name_replaced(
 
     assert answer.answer == OTHER_CLIENT_DATA
     assert answer.blocks == [Block(type=BlockType.output, reason="datos personales de otro cliente")]
+
+
+@pytest.mark.parametrize("model_text", ["Hola, Ana López García.", "Hola, Ana López: tienes dos reservas."])
+def test_shared_name_not_blocked(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer, model_text: str) -> None:
+    # Ana López García es el cliente de la sesión; «Ana López» a secas también es el principio de C-004 (López Pérez)
+    ollama.agent_answers = [text_answer(model_text)]
+
+    answer = respond("Hola", con=con, session=C001)
+
+    assert answer.answer == model_text
+    assert answer.blocks == []
+
+
+def test_own_full_name_shared_with_other_client_not_blocked() -> None:
+    # Como en data/ (Marta García Serra: C-0097 y C-0124). fixtures/ no tiene nombres completos repetidos
+    db = duckdb.connect()
+    db.execute("CREATE SCHEMA crudo")
+    db.execute("CREATE TABLE crudo.clientes (cliente_id VARCHAR, nombre VARCHAR, apellidos VARCHAR, email VARCHAR)")
+    db.execute(
+        "INSERT INTO crudo.clientes VALUES ('C-0097', 'Marta', 'García Serra', 'marta.garcia@example.com'), "
+        "('C-0124', 'Marta', 'García Serra', 'marta.garcia.serra@example.com')"
+    )
+    guards = Guardrails(db)
+
+    text, reason = guards.check_output("Hola, Marta García Serra.", Session(client_id="C-0097"))
+
+    assert (text, reason) == ("Hola, Marta García Serra.", None)
+    assert guards.log == []

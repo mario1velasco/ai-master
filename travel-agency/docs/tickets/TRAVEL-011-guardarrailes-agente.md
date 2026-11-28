@@ -253,6 +253,9 @@ sesión tiene el rol `client` y los guardarraíles están encendidos.
 - **Cuando** la respuesta del modelo dice «Ana López García» o solo «Ana López»
 - **Entonces** la respuesta sale tal cual
 - **Y** no queda ningún bloqueo
+- **Y** si otro cliente tiene el mismo nombre completo que el de la sesión (en `data/`, Marta García Serra es C-0097 y
+  C-0124), su propio nombre tampoco se bloquea (añadido con Mario el 2026-11-28; `fixtures/` no tiene nombres
+  completos repetidos, así que se prueba sobre `Guardrails` con una base mínima)
 
 ### Errores
 

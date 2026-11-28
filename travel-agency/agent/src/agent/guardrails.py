@@ -130,10 +130,13 @@ class Guardrails:
         prompt no guarda ningún secreto (LLM07).
         """
         lowered = text.lower()
-        for client_id, *personal in self.con.execute(CLIENTS_PERSONAL_DATA).fetchall():
+        clients = {client_id: personal for client_id, *personal in self.con.execute(CLIENTS_PERSONAL_DATA).fetchall()}
+        # Sus propios datos sí, también si otro cliente comparte alguno (dos clientes con el mismo nombre completo)
+        own = {value.lower() for value in clients.get(session.client_id, []) if value}
+        for client_id, personal in clients.items():
             if client_id == session.client_id:
-                continue  # sus propios datos sí
-            if any(value and value.lower() in lowered for value in personal):
+                continue
+            if any(value and value.lower() not in own and value.lower() in lowered for value in personal):
                 return OTHER_CLIENT_DATA, self._note(BlockType.output, "datos personales de otro cliente")
         return text, None
 
