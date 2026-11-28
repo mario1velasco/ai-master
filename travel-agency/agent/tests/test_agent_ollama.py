@@ -2,6 +2,9 @@
 
 El Ollama falso (`ollama`) guarda cada petición del agente; los de Ollama caído usan `httpx` de verdad contra un
 puerto donde no escucha nadie.
+
+Desde TRAVEL-011 se llaman con los guardarraíles apagados: así prueban lo mismo que en TRAVEL-006 (sin cliente en
+la sesión), como pide la definición de hecho de TRAVEL-011.
 """
 
 from datetime import UTC, datetime
@@ -28,7 +31,7 @@ def test_request_uses_config(
     monkeypatch.setenv("OLLAMA_KEEP_ALIVE", "10m")
     ollama.agent_answers = [text_answer("No tengo ese dato.")]
 
-    respond(QUESTION, con=con)
+    respond(QUESTION, con=con, guardrails=False)
 
     assert ollama.agent_urls == ["http://localhost:11434/api/chat"]
     [request] = ollama.agent_requests
@@ -48,7 +51,7 @@ def test_ollama_down_raises_coded_error(con: duckdb.DuckDBPyConnection, monkeypa
     monkeypatch.setenv("OLLAMA_BASE_URL", "http://127.0.0.1:1")  # Ollama de verdad (httpx real), nadie escucha
 
     with pytest.raises(ComponentError) as error:
-        respond(QUESTION, con=con)
+        respond(QUESTION, con=con, guardrails=False)
 
     assert error.value.code == "ollama_unavailable"
     assert "No hay respuesta de Ollama en http://127.0.0.1:1" in error.value.message
@@ -65,7 +68,7 @@ def test_missing_model_raises_coded_error(
     ollama.agent_answers = [httpx.Response(404, json={"error": 'model "qwen3:1.7b" not found, try pulling it first'})]
 
     with pytest.raises(ComponentError) as error:
-        respond(QUESTION, con=con)
+        respond(QUESTION, con=con, guardrails=False)
 
     assert error.value.code == "model_not_installed"
     assert "ollama pull qwen3:1.7b" in error.value.message
@@ -75,7 +78,7 @@ def test_ollama_server_error_raises_coded_error(con: duckdb.DuckDBPyConnection, 
     ollama.agent_answers = [httpx.Response(500, json={"error": "llama runner process has terminated"})]
 
     with pytest.raises(ComponentError) as error:
-        respond(QUESTION, con=con)
+        respond(QUESTION, con=con, guardrails=False)
 
     assert error.value.code == "ollama_error"
     assert "500" in error.value.message
@@ -85,7 +88,7 @@ def test_ollama_timeout_raises_coded_error(con: duckdb.DuckDBPyConnection, ollam
     ollama.agent_answers = [httpx.ReadTimeout("timed out")]
 
     with pytest.raises(ComponentError) as error:
-        respond(QUESTION, con=con)
+        respond(QUESTION, con=con, guardrails=False)
 
     assert error.value.code == "ollama_timeout"
     assert error.value.message == "qwen3:4b-instruct no respondió en 600 s."  # como text2sql

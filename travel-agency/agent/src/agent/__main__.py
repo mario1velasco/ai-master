@@ -45,10 +45,15 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="No enseñar el bloque [MÉTRICAS] con los eventos de cada paso (la respuesta sí trae los totales).",
     )
+    parser.add_argument(
+        "--no-guardrails",
+        action="store_true",
+        help="Apagar los guardarraíles (TRAVEL-011): responde sin cliente, como el agente de TRAVEL-006.",
+    )
     args = parser.parse_args(argv)
 
     try:
-        answer = respond(args.question, con=open_db(args.data))
+        answer = respond(args.question, con=open_db(args.data), guardrails=not args.no_guardrails)
     except ComponentError as exc:  # Como el «[ERROR] …» del 04: el código y el mensaje, sin traza de Python
         print(f"[ERROR] {exc.code}: {exc.message}", file=sys.stderr)
         raise SystemExit(1) from None

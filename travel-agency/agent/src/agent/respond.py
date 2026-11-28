@@ -69,14 +69,20 @@ def _metrics_fields(
     }
 
 
-def respond(question: str, *, con: duckdb.DuckDBPyConnection, session: Session | None = None) -> AgentAnswer:
+def respond(
+    question: str, *, con: duckdb.DuckDBPyConnection, session: Session | None = None, guardrails: bool = True
+) -> AgentAnswer:
     """Responde la pregunta con el agente: decide si consulta la base y redacta con los datos.
 
-    `session` es quién pregunta (el `contexto` de clase): el cliente identificado y su rol.
+    `session` es quién pregunta (el `contexto` de clase): el cliente identificado y su rol. `guardrails` enciende los
+    guardarraíles (TRAVEL-011), como `crear_agente(…, guardas=True)` de `sesion2/permisos.py` del tema 9: por
+    defecto encendidos y, con ellos, el cliente es obligatorio.
     """
     # Como `estado_inicial()` de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_3/asistente/flujo.py`
     if not (question or "").strip():
         raise ComponentError("empty_question", "agent", "La pregunta está vacía.")
+    if guardrails and session is None:
+        raise ComponentError("missing_client", "agent", "Falta el cliente de la sesión: el chat es solo para clientes.")
     question = question.strip()
     versions = Versions(prompt_version=PROMPT_VERSION)
     # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos

@@ -2,6 +2,9 @@
 
 El modelo es un Ollama falso (`ollama`) que responde lo que dice cada test, tanto al agente como a `text2sql`; la
 base, la de `fixtures/` con cifras conocidas.
+
+Desde TRAVEL-011 se llaman con los guardarraíles apagados: así prueban lo mismo que en TRAVEL-006 (sin cliente en
+la sesión), como pide la definición de hecho de TRAVEL-011.
 """
 
 import json
@@ -35,7 +38,7 @@ def test_db_question_answered_with_query_source(con: duckdb.DuckDBPyConnection, 
     ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
     ollama.text2sql_answers = [sql_answer(COUNT_C001)]
 
-    answer = respond(QUESTION, con=con)
+    answer = respond(QUESTION, con=con, guardrails=False)
 
     assert answer.answer == "C-001 tiene 2 reservas."
     assert answer.status == AgentStatus.ok
@@ -48,7 +51,7 @@ def test_db_source_carries_the_sql(con: duckdb.DuckDBPyConnection, ollama: FakeO
     ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
     ollama.text2sql_answers = [sql_answer(COUNT_C001)]
 
-    answer = respond(QUESTION, con=con)
+    answer = respond(QUESTION, con=con, guardrails=False)
 
     assert [s.sql for s in answer.sources] == [COUNT_C001]
 
@@ -64,7 +67,7 @@ def test_tool_message_has_sql_and_rows_without_metrics(
     ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
     ollama.text2sql_answers = [sql_answer(COUNT_C001)]
 
-    respond(QUESTION, con=con)
+    respond(QUESTION, con=con, guardrails=False)
 
     [content] = tool_contents(ollama.agent_requests[1])
     # Por cada consulta, su SQL, sus filas y la marca de recorte (R-1042 y R-1047 en fixtures/reservas.csv)
@@ -76,7 +79,7 @@ def test_tool_message_has_sql_and_rows_without_metrics(
 def test_model_sees_rules_and_one_tool_never_schema(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
     ollama.agent_answers = [text_answer("No tengo ese dato.")]
 
-    respond(QUESTION, con=con)
+    respond(QUESTION, con=con, guardrails=False)
 
     request = ollama.agent_requests[0]
     system, user = request["messages"]
@@ -99,7 +102,7 @@ def test_model_sees_rules_and_one_tool_never_schema(con: duckdb.DuckDBPyConnecti
 def test_answer_without_tool_is_without_data(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
     ollama.agent_answers = [text_answer("No tengo ese dato.")]
 
-    answer = respond("¿Qué tiempo hará en Roma el viernes?", con=con)
+    answer = respond("¿Qué tiempo hará en Roma el viernes?", con=con, guardrails=False)
 
     assert answer.answer == "No tengo ese dato."
     assert answer.answered_without_data is True
@@ -117,7 +120,7 @@ def test_no_sql_text_reaches_model_and_answer_has_no_data(
     ollama.agent_answers = [query_db_answer(question), text_answer("Ese dato no está en la base.")]
     ollama.text2sql_answers = [text_answer(missing)]
 
-    answer = respond(question, con=con)
+    answer = respond(question, con=con, guardrails=False)
 
     assert tool_contents(ollama.agent_requests[1]) == [missing]
     assert answer.answered_without_data is True
@@ -132,7 +135,7 @@ def test_two_tool_calls_give_two_sources(con: duckdb.DuckDBPyConnection, ollama:
     ]
     ollama.text2sql_answers = [sql_answer(COUNT_C001), sql_answer(count_c002)]
 
-    answer = respond("¿Cuántas reservas tienen C-001 y C-002?", con=con)
+    answer = respond("¿Cuántas reservas tienen C-001 y C-002?", con=con, guardrails=False)
 
     assert len(ollama.text2sql_requests) == 2
     assert [(s.views, s.rows) for s in answer.sources] == [(["v_reservas_cliente"], 1), (["v_reservas_cliente"], 1)]
@@ -146,7 +149,7 @@ def test_one_call_with_two_queries_gives_two_sources(con: duckdb.DuckDBPyConnect
     ollama.agent_answers = [query_db_answer(question), text_answer("C-001 tiene 2 reservas y ha gastado 1195 €.")]
     ollama.text2sql_answers = [sql_answer(COUNT_C001, spend)]  # text2sql escribe dos SQL en la misma respuesta
 
-    answer = respond(question, con=con)
+    answer = respond(question, con=con, guardrails=False)
 
     [content] = tool_contents(ollama.agent_requests[1])
     assert json.loads(content) == [
@@ -163,7 +166,7 @@ def test_truncated_query_reaches_model_marked(con: duckdb.DuckDBPyConnection, ol
     ollama.agent_answers = [query_db_answer(question), text_answer("Hay más de 50 combinaciones.")]
     ollama.text2sql_answers = [sql_answer(many)]
 
-    respond(question, con=con)
+    respond(question, con=con, guardrails=False)
 
     [content] = tool_contents(ollama.agent_requests[1])
     [query] = json.loads(content)
@@ -176,8 +179,8 @@ def test_each_question_starts_clean(con: duckdb.DuckDBPyConnection, ollama: Fake
     ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas."), text_answer("No lo sé.")]
     ollama.text2sql_answers = [sql_answer(COUNT_C001)]
 
-    respond(QUESTION, con=con)
-    respond(second, con=con)
+    respond(QUESTION, con=con, guardrails=False)
+    respond(second, con=con, guardrails=False)
 
     system, user = ollama.agent_requests[-1]["messages"]  # la única petición de la segunda pregunta
     assert system["role"] == "system"
@@ -198,7 +201,7 @@ def test_attack_gets_validator_error_and_changes_nothing(
     ollama.text2sql_answers = [sql_answer("DELETE FROM v_clientes")] * 3  # lo pide en cada intento de text2sql
     before = raw_row_counts(con)
 
-    answer = respond(attack, con=con)
+    answer = respond(attack, con=con, guardrails=False)
 
     [content] = tool_contents(ollama.agent_requests[1])
     assert "solo se permiten consultas SELECT" in content
@@ -215,7 +218,7 @@ def test_partial_sql_error_reaches_model_with_good_rows(
     # text2sql: la primera consulta pasa, la segunda falla y el modelo no la corrige en los dos reintentos
     ollama.text2sql_answers = [sql_answer(COUNT_C001, bad), sql_answer(bad), sql_answer(bad)]
 
-    answer = respond(question, con=con)
+    answer = respond(question, con=con, guardrails=False)
 
     [content] = tool_contents(ollama.agent_requests[1])
     assert COUNT_C001 in content
@@ -229,7 +232,7 @@ def test_recursion_limit_returns_fixed_message(con: duckdb.DuckDBPyConnection, o
     ollama.agent_answers = [query_db_answer(QUESTION)] * 30  # siempre pide la tool, nunca responde
     ollama.text2sql_answers = [text_answer("Ese dato no existe.")] * 30
 
-    answer = respond(QUESTION, con=con)  # recursion_limit = 20 por defecto; no lanza error
+    answer = respond(QUESTION, con=con, guardrails=False)  # recursion_limit = 20 por defecto; no lanza error
 
     assert answer.answer == "No he podido completar la consulta. Te paso con un compañero del equipo."
     assert answer.status == AgentStatus.recursion_limit_reached
@@ -238,7 +241,7 @@ def test_recursion_limit_returns_fixed_message(con: duckdb.DuckDBPyConnection, o
 
 def test_empty_question_rejected_without_model(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
     with pytest.raises(ComponentError) as error:
-        respond("   ", con=con)
+        respond("   ", con=con, guardrails=False)
 
     assert error.value.code == "empty_question"
     assert ollama.agent_requests == []
@@ -253,7 +256,7 @@ def test_turn_is_one_trace(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaSer
     ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
     ollama.text2sql_answers = [sql_answer(COUNT_C001)]
 
-    answer = respond(QUESTION, con=con)
+    answer = respond(QUESTION, con=con, guardrails=False)
 
     agent_side = events_of(Component.agent)
     [turn] = [m for m in agent_side if isinstance(m, AgentMetrics)]
@@ -282,7 +285,7 @@ def test_recursion_limit_logged_as_error(con: duckdb.DuckDBPyConnection, ollama:
     ollama.agent_answers = [query_db_answer(QUESTION)] * 30  # siempre pide la tool, nunca responde
     ollama.text2sql_answers = [text_answer("Ese dato no existe.")] * 30
 
-    answer = respond(QUESTION, con=con)
+    answer = respond(QUESTION, con=con, guardrails=False)
 
     [turn] = [m for m in events_of(Component.agent) if m.name == "agent.respond"]
     assert turn.status == Status.error

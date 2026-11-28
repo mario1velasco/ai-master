@@ -6,10 +6,12 @@ los otros clientes, C-004 (Ana López Pérez: R-1043, I-02, VY1234 y VY1235) y C
 """
 
 import duckdb
+import pytest
 from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, text_answer
 
 from agent import respond
 from contracts.agent import Session, SourceType
+from contracts.errors import ComponentError
 
 C001 = Session(client_id="C-001")
 OWN_BOOKINGS = "SELECT reserva_id FROM v_reservas_cliente WHERE cliente_id = 'C-001' ORDER BY reserva_id"
@@ -25,3 +27,13 @@ def test_own_question_passes_without_blocks(con: duckdb.DuckDBPyConnection, olla
         (SourceType.db, ["v_reservas_cliente"], 2, OWN_BOOKINGS)
     ]
     assert answer.blocks == []
+
+
+def test_missing_client_rejected_without_model(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [text_answer("Tienes dos reservas.")]
+
+    with pytest.raises(ComponentError) as excinfo:
+        respond("¿Qué reservas tengo?", con=con)
+
+    assert excinfo.value.code == "missing_client"
+    assert ollama.agent_requests == []

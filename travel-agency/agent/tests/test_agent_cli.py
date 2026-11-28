@@ -1,4 +1,7 @@
-"""`python -m agent -q "…"`: el comando para probar el agente a mano (ticket TRAVEL-006, AC-4 y AC-14)."""
+"""`python -m agent -q "…"`: el comando para probar el agente a mano (ticket TRAVEL-006, AC-4 y AC-14).
+
+Desde TRAVEL-011, con `--no-guardrails`: prueban lo mismo que en TRAVEL-006, sin cliente en la sesión.
+"""
 
 import json
 
@@ -26,7 +29,7 @@ def test_cli_shows_question_answer_and_metrics(ollama: FakeOllamaServer, capsys:
     ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
     ollama.text2sql_answers = [sql_answer("SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-001'")]
 
-    main(["-q", QUESTION, "--data", str(FIXTURES_DIR)])  # sin SystemExit: el comando termina con código 0
+    main(["-q", QUESTION, "--data", str(FIXTURES_DIR), "--no-guardrails"])  # sin SystemExit: el comando termina con código 0
 
     out = capsys.readouterr().out
     assert out.index(QUESTION_HEADER) < out.index(ANSWER_HEADER) < out.index(METRICS_HEADER)
@@ -46,7 +49,7 @@ def test_cli_without_trace_keeps_turn_metrics(ollama: FakeOllamaServer, capsys: 
     ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
     ollama.text2sql_answers = [sql_answer(sql)]
 
-    main(["-q", QUESTION, "--data", str(FIXTURES_DIR), "--no-trace"])
+    main(["-q", QUESTION, "--data", str(FIXTURES_DIR), "--no-trace", "--no-guardrails"])
 
     out = capsys.readouterr().out
     assert METRICS_HEADER not in out  # sin el detalle de cada paso
@@ -61,7 +64,7 @@ def test_cli_with_ollama_down_explains_without_traceback(
     monkeypatch.setenv("OLLAMA_BASE_URL", "http://127.0.0.1:1")  # Ollama de verdad (httpx real), nadie escucha
 
     with pytest.raises(SystemExit) as exit_info:
-        main(["-q", QUESTION, "--data", str(FIXTURES_DIR)])
+        main(["-q", QUESTION, "--data", str(FIXTURES_DIR), "--no-guardrails"])
 
     assert exit_info.value.code != 0
     captured = capsys.readouterr()
