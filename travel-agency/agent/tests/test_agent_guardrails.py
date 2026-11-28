@@ -270,3 +270,21 @@ def test_own_rows_pass(con: duckdb.DuckDBPyConnection) -> None:
 
     assert guards.check_rows([OWN_ROW, {"reserva_id": "R-1047"}], C001) is None
     assert guards.log == []
+
+
+OTHER_CLIENT_DATA = "No puedo compartir datos personales de otros clientes. ¿Te ayudo con algo de tu cuenta?"
+
+
+@pytest.mark.parametrize(
+    "model_text",
+    ["Su email es javier.martin@example.com.", "La reserva R-1043 es de Ana López Pérez."],
+)
+def test_other_client_email_or_full_name_replaced(
+    con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer, model_text: str
+) -> None:
+    ollama.agent_answers = [text_answer(model_text)]
+
+    answer = respond("¿De quién es esa reserva?", con=con, session=C001)
+
+    assert answer.answer == OTHER_CLIENT_DATA
+    assert answer.blocks == [Block(type=BlockType.output, reason="datos personales de otro cliente")]

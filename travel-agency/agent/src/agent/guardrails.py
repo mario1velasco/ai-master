@@ -31,6 +31,11 @@ OWNER_QUERIES = {
 NOT_OWN_DATA = "solo puedes consultar los datos del cliente identificado"
 # Capa 3: las columnas con dueño que puede traer una fila del resultado (las de las vistas, sin alias)
 OWNER_COLUMNS = ("cliente_id", "reserva_id", "incidencia_id")
+# Salida: la respuesta para el cliente si la del modelo lleva datos personales de otro (el texto de clase)
+OTHER_CLIENT_DATA = "No puedo compartir datos personales de otros clientes. ¿Te ayudo con algo de tu cuenta?"
+# El email y el nombre completo de cada cliente; salen de la base, no de una lista a mano. El email solo está en
+# `crudo.clientes` (lo lee este código, no el SQL del modelo, que el validador no deja pasar de las vistas)
+CLIENTS_PERSONAL_DATA = "SELECT cliente_id, email, nombre || ' ' || apellidos FROM crudo.clientes"
 
 
 def luhn_valid(number: str) -> bool:
@@ -115,6 +120,22 @@ class Guardrails:
                 if owner is not None and owner != session.client_id:
                     return self._note(BlockType.tool, NOT_OWN_DATA)
         return None
+
+    # --- 4. Salida --------------------------------------------------------
+    def check_output(self, text: str, session: Session) -> tuple[str, str | None]:
+        """Antes de enviar la respuesta: sin datos personales de otros clientes (`revisar_salida` de clase).
+
+        Desvío: en clase, el teléfono y la dirección; aquí, el email y el nombre completo (nombre y apellidos), que es
+        lo que tiene la base. Si los lleva, se sustituye la respuesta entera. Sin el filtro de «información interna»: el
+        prompt no guarda ningún secreto (LLM07).
+        """
+        lowered = text.lower()
+        for client_id, *personal in self.con.execute(CLIENTS_PERSONAL_DATA).fetchall():
+            if client_id == session.client_id:
+                continue  # sus propios datos sí
+            if any(value and value.lower() in lowered for value in personal):
+                return OTHER_CLIENT_DATA, self._note(BlockType.output, "datos personales de otro cliente")
+        return text, None
 
     def _owner(self, owned_id: str) -> str | None:
         """El cliente dueño de un id, o None si no existe."""

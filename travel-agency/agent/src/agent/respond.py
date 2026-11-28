@@ -177,6 +177,9 @@ def respond(
         runs = [m.artifact for m in tool_messages if isinstance(m.artifact, QueryDbRun)]
         sources = _sources(runs)
         answer_text = refusal if refusal is not None else str(messages[-1].content)
+        if refusal is None and guards is not None and session is not None:
+            # Salida: antes de enviar la respuesta y de guardarla en la telemetría (como en `comun/agente.py`)
+            answer_text, _ = guards.check_output(answer_text, session)
         fields = _metrics_fields(messages, tool_messages, runs, sources)
         s.output_text = answer_text
         s.fields.update(fields)
