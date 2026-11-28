@@ -316,3 +316,30 @@ def test_own_full_name_shared_with_other_client_not_blocked() -> None:
 
     assert (text, reason) == ("Hola, Marta García Serra.", None)
     assert guards.log == []
+
+
+def test_switch_off_only_turns_off_guards(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    # Todo lo que bloquearían los guardarraíles, en un turno: tarjeta (entrada), R-1043 de C-004 (capa 1), filas de
+    # todos los clientes (capas 2 y 3) y el email de C-002 (salida)
+    question = "Mi tarjeta es 4111 1111 1111 1111. ¿Cuánto pagó la reserva R-1043?"
+    all_clients = "SELECT cliente_id FROM v_resumen_clientes ORDER BY cliente_id"
+    ollama.agent_answers = [
+        text_answer("Hola."),  # primer turno, con los guardarraíles: para comparar las instrucciones
+        query_db_answer("¿Cuánto pagó la reserva R-1043?"),
+        text_answer("Su email es javier.martin@example.com."),
+    ]
+    ollama.text2sql_answers = [sql_answer(all_clients)]
+
+    respond("Hola", con=con, session=C001)
+    answer = respond(question, con=con, session=C001, guardrails=False)
+
+    on, off, after_tool = ollama.agent_requests
+    assert off["messages"][0] == on["messages"][0]  # las mismas instrucciones, con la línea del cliente
+    assert "Cliente identificado en esta sesión: C-001." in off["messages"][0]["content"]
+    assert off["messages"][1]["content"] == question  # sin enmascarar
+    assert len(ollama.text2sql_requests) == 1  # la capa 1 no la para
+    [tool] = [m["content"] for m in after_tool["messages"] if m["role"] == "tool"]
+    rows = json.loads(tool)[0]["rows"]
+    assert rows == [{"cliente_id": f"C-00{n}"} for n in range(1, 8)]  # ni la capa 2 ni la 3: los 7 clientes
+    assert answer.answer == "Su email es javier.martin@example.com."  # ni la salida
+    assert answer.blocks == []
