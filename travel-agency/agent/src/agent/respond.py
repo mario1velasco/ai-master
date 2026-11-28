@@ -82,14 +82,13 @@ def _metrics_fields(
     }
 
 
-def respond(
-    question: str, *, con: duckdb.DuckDBPyConnection, session: Session | None = None, guardrails: bool = True
-) -> AgentAnswer:
-    """Responde la pregunta con el agente: decide si consulta la base y redacta con los datos.
+def _guard_before_model(
+    question: str, *, con: duckdb.DuckDBPyConnection, session: Session | None, guardrails: bool
+) -> tuple[str, str, Guardrails | None]:
+    """Lo que se comprueba antes de llamar al modelo: la pregunta, la sesión (cliente y rol) y la entrada.
 
-    `session` es quién pregunta (el `contexto` de clase): el cliente identificado y su rol. `guardrails` enciende los
-    guardarraíles (TRAVEL-011), como `crear_agente(…, guardas=True)` de `sesion2/permisos.py` del tema 9: por
-    defecto encendidos y, con ellos, el cliente es obligatorio.
+    Devuelve la pregunta ya limpia, el rol de la sesión y los guardarraíles del turno (None si están apagados: entonces
+    nada se enmascara ni se bloquea). Todo va antes del span, como la entrada en `comun/agente.py`.
     """
     # Como `estado_inicial()` de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_3/asistente/flujo.py`
     if not (question or "").strip():
@@ -100,11 +99,23 @@ def respond(
     if guardrails and session is not None:
         check_client(con, session)
     question = question.strip()
-    # Un registro de guardarraíles por turno; sin él (apagados), nada se enmascara ni se bloquea
-    guards = Guardrails() if guardrails else None
+    guards = Guardrails() if guardrails else None  # un registro por turno
     if guards is not None:
         # Entrada: antes del primer log, como en `comun/agente.py` (el hash del span es el del texto enmascarado)
         question, _ = guards.check_input(question)
+    return question, role, guards
+
+
+def respond(
+    question: str, *, con: duckdb.DuckDBPyConnection, session: Session | None = None, guardrails: bool = True
+) -> AgentAnswer:
+    """Responde la pregunta con el agente: decide si consulta la base y redacta con los datos.
+
+    `session` es quién pregunta (el `contexto` de clase): el cliente identificado y su rol. `guardrails` enciende los
+    guardarraíles (TRAVEL-011), como `crear_agente(…, guardas=True)` de `sesion2/permisos.py` del tema 9: por
+    defecto encendidos y, con ellos, el cliente es obligatorio.
+    """
+    question, role, guards = _guard_before_model(question, con=con, session=session, guardrails=guardrails)
     blocks = guards.log if guards is not None else []
     versions = Versions(prompt_version=PROMPT_VERSION)
     # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
