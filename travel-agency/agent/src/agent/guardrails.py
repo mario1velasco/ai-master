@@ -13,6 +13,7 @@ import duckdb
 from contracts.agent import Block, BlockType, Session
 from contracts.errors import ComponentError
 from contracts.sql import SqlResult
+from database.client_filter import OWNER_COLUMNS, clients_personal_data, owner_of
 
 # Los mensajes más largos no llegan al modelo; la respuesta es la de clase
 MAX_INPUT_CHARS = 2000
@@ -22,21 +23,12 @@ CARD = re.compile(r"\b(?:\d[ -]?){13,19}\b")
 # IBAN español y DNI (8 cifras y la letra de control), los de clase
 IBAN = re.compile(r"\bES\d{2}(?:\s?\d{4}){5}\b")
 DNI = re.compile(r"\b\d{8}[A-HJ-NP-TV-Z]\b")
-# Capa 1: los ids con dueño que puede nombrar una pregunta (cliente, reserva, incidencia), y dónde está su dueño
+# Capas 1 y 3: los ids con dueño que puede nombrar una pregunta o traer una fila (cliente, reserva, incidencia). De
+# quién es cada uno lo sabe `database.client_filter` (`owner_of`, `OWNER_COLUMNS`), junto a las vistas
 OWNED_ID = re.compile(r"\b[CRI]-\d+\b", re.IGNORECASE)
-OWNER_QUERIES = {
-    "C": "SELECT cliente_id FROM v_resumen_clientes WHERE cliente_id = ?",
-    "R": "SELECT cliente_id FROM v_reservas_cliente WHERE reserva_id = ? LIMIT 1",
-    "I": "SELECT cliente_id FROM v_incidencias WHERE incidencia_id = ?",
-}
 NOT_OWN_DATA = "solo puedes consultar los datos del cliente identificado"
-# Capa 3: las columnas con dueño que puede traer una fila del resultado (las de las vistas, sin alias)
-OWNER_COLUMNS = ("cliente_id", "reserva_id", "incidencia_id")
 # Salida: la respuesta para el cliente si la del modelo lleva datos personales de otro (el texto de clase)
 OTHER_CLIENT_DATA = "No puedo compartir datos personales de otros clientes. ¿Te ayudo con algo de tu cuenta?"
-# El email y el nombre completo de cada cliente; salen de la base, no de una lista a mano. El email solo está en
-# `crudo.clientes` (lo lee este código, no el SQL del modelo, que el validador no deja pasar de las vistas)
-CLIENTS_PERSONAL_DATA = "SELECT cliente_id, email, nombre || ' ' || apellidos FROM crudo.clientes"
 
 
 def luhn_valid(number: str) -> bool:
@@ -159,9 +151,10 @@ class Guardrails:
         prompt no guarda ningún secreto (LLM07).
         """
         lowered_text = text.lower()
+        # El email y el nombre completo de cada cliente salen de la base, no de una lista a mano
         personal_data_by_client = {
-            client_id: [value.lower() for value in personal if value]
-            for client_id, *personal in self.con.execute(CLIENTS_PERSONAL_DATA).fetchall()
+            client_id: [value.lower() for value in personal]
+            for client_id, personal in clients_personal_data(self.con).items()
         }
         # Sus propios datos sí, también si otro cliente comparte alguno (dos clientes con el mismo nombre completo)
         own_values = set(personal_data_by_client.get(session.client_id, []))
@@ -183,7 +176,5 @@ class Guardrails:
     def _owner(self, owned_id: str) -> str | None:
         """El cliente dueño de un id (cliente, reserva o incidencia), o None si no existe. Se recuerda en el turno."""
         if owned_id not in self._owners:
-            query = OWNER_QUERIES.get(owned_id[:1])
-            rows = self.con.execute(query, [owned_id]).fetchall() if query is not None else []
-            self._owners[owned_id] = rows[0][0] if rows else None
+            self._owners[owned_id] = owner_of(self.con, owned_id)
         return self._owners[owned_id]
