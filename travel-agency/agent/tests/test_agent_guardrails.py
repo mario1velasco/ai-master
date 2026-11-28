@@ -6,6 +6,7 @@ los otros clientes, C-004 (Ana López Pérez: R-1043, I-02, VY1234 y VY1235) y C
 """
 
 import json
+from datetime import UTC, datetime
 
 import duckdb
 import pytest
@@ -16,6 +17,8 @@ from agent.guardrails import Guardrails
 from agent.profiles import PROFILES
 from contracts.agent import AgentStatus, Block, BlockType, Session, SourceType
 from contracts.errors import ComponentError
+from contracts.metrics import AgentMetrics, Component
+from telemetry import events_path, read_events
 
 C001 = Session(client_id="C-001")
 OWN_BOOKINGS = "SELECT reserva_id FROM v_reservas_cliente WHERE cliente_id = 'C-001' ORDER BY reserva_id"
@@ -343,3 +346,18 @@ def test_switch_off_only_turns_off_guards(con: duckdb.DuckDBPyConnection, ollama
     assert rows == [{"cliente_id": f"C-00{n}"} for n in range(1, 8)]  # ni la capa 2 ni la 3: los 7 clientes
     assert answer.answer == "Su email es javier.martin@example.com."  # ni la salida
     assert answer.blocks == []
+
+
+def test_blocks_in_answer_and_telemetry(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    question = "Mi tarjeta es 4111 1111 1111 1111. ¿Cuánto pagó la reserva R-1043?"
+    ollama.agent_answers = [query_db_answer("¿Cuánto pagó la reserva R-1043?"), text_answer("No puedo darte ese dato.")]
+
+    answer = respond(question, con=con, session=C001)
+
+    assert answer.blocks == [
+        Block(type=BlockType.input, reason="tarjeta enmascarada"),
+        Block(type=BlockType.tool, reason=NOT_ALLOWED),
+    ]
+    events = read_events(events_path(Component.agent, datetime.now(UTC).date()))
+    [turn] = [e.metrics for e in events if isinstance(e.metrics, AgentMetrics)]
+    assert (turn.input_blocks, turn.tool_blocks, turn.output_blocks) == (1, 1, 0)

@@ -19,7 +19,7 @@ from agent.guardrails import Guardrails, check_client
 from agent.model import as_component_error, build_model
 from agent.profiles import PROFILES, profile
 from agent.tools import TOOL_BUILDERS, QueryDbRun
-from contracts.agent import AgentAnswer, AgentStatus, Session, Source, SourceType
+from contracts.agent import AgentAnswer, AgentStatus, BlockType, Session, Source, SourceType
 from contracts.errors import ComponentError
 from contracts.metrics import AgentMetrics, Component, Status, Versions
 from database.client_filter import open_client_filtered_connection
@@ -183,6 +183,8 @@ def respond(
         fields = _metrics_fields(messages, tool_messages, runs, sources)
         s.output_text = answer_text
         s.fields.update(fields)
+        # Los recuentos de bloqueos por punto de control (el detalle va en `AgentAnswer.blocks`)
+        s.fields.update({f"{kind.value}_blocks": sum(b.type is kind for b in blocks) for kind in BlockType})
 
     # Las métricas se validan al cerrar el span: por eso la respuesta se crea fuera del `with` (como en text2sql)
     metrics = s.metrics if isinstance(s.metrics, AgentMetrics) else None

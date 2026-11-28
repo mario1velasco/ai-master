@@ -31,6 +31,12 @@ class AgentMetrics(BaseMetrics):
         default=False, description="True si ninguna consulta a la base salió bien: la respuesta no se apoya en datos."
     )
 
+    # Guardarraíles (TRAVEL-011): cuántas cosas bloquearon o modificaron en el turno, por punto de control. El detalle
+    # (cada bloqueo con su motivo) va en `AgentAnswer.blocks`; aquí solo los recuentos, para sumarlos en los logs.
+    input_blocks: int = Field(default=0, ge=0, description="Bloqueos o cambios en la entrada (p. ej. una tarjeta).")
+    tool_blocks: int = Field(default=0, ge=0, description="Llamadas a herramientas bloqueadas (capas 1 y 3).")
+    output_blocks: int = Field(default=0, ge=0, description="Respuestas sustituidas en la salida.")
+
     @model_validator(mode="after")
     def _check_and_fill(self) -> Self:
         if len(set(self.tools_used)) != len(self.tools_used):
