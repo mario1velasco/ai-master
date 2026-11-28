@@ -14,6 +14,7 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.errors import GraphRecursionError
 
 from agent.graph import build_agent
+from agent.guardrails import check_client
 from agent.model import as_component_error, build_model
 from agent.tools import QueryDbRun, build_query_db_tool
 from contracts.agent import AgentAnswer, AgentStatus, Session, Source, SourceType
@@ -83,6 +84,8 @@ def respond(
         raise ComponentError("empty_question", "agent", "La pregunta está vacía.")
     if guardrails and session is None:
         raise ComponentError("missing_client", "agent", "Falta el cliente de la sesión: el chat es solo para clientes.")
+    if guardrails and session is not None:
+        check_client(con, session)
     question = question.strip()
     versions = Versions(prompt_version=PROMPT_VERSION)
     # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos

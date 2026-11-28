@@ -37,3 +37,13 @@ def test_missing_client_rejected_without_model(con: duckdb.DuckDBPyConnection, o
 
     assert excinfo.value.code == "missing_client"
     assert ollama.agent_requests == []
+
+
+def test_unknown_client_rejected_without_model(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [text_answer("No tienes reservas.")]
+
+    with pytest.raises(ComponentError) as excinfo:
+        respond("¿Qué reservas tengo?", con=con, session=Session(client_id="C-999"))
+
+    assert excinfo.value.code == "unknown_client"
+    assert ollama.agent_requests == []
