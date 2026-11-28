@@ -174,3 +174,14 @@ sesión de C-001 (reserva R-1042) y los guardarraíles encendidos.
 
 **Preguntas abiertas**
 - Ninguna.
+
+## Nota del 2026-11-28 (revisión de TRAVEL-012 con Mario)
+
+TRAVEL-012 hace ahora todo el ciclo del agente de tool calling: antes → intermedio → después, con mejoras FIX01… y
+la medida final con el examen reservado (AC-24 a AC-26). Este ticket parte de lo que deje:
+- **La lista «lo que el agente libre no resuelve»** (AC-25 de TRAVEL-012): los fallos que quedan tras los FIX,
+  sobre todo errores silenciosos de text2sql. Es lo que el plan cerrado tiene que mejorar.
+- **La medida «después» de TRAVEL-012** es la línea base con la que se compara `closed_plan`, en la batería.
+- El supuesto «el examen final solo se pasa con la estrategia que gane» cambia: el final ya se pasa una vez con
+  tool calling en TRAVEL-012. Al revisar este ticket se decide si `closed_plan` lo pasa también (una sola vez, al
+  final) o si hace falta otro examen reservado.
