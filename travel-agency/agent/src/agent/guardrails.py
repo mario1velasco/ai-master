@@ -20,6 +20,14 @@ CARD = re.compile(r"\b(?:\d[ -]?){13,19}\b")
 # IBAN español y DNI (8 cifras y la letra de control), los de clase
 IBAN = re.compile(r"\bES\d{2}(?:\s?\d{4}){5}\b")
 DNI = re.compile(r"\b\d{8}[A-HJ-NP-TV-Z]\b")
+# Capa 1: los ids con dueño que puede nombrar una pregunta (cliente, reserva, incidencia), y dónde está su dueño
+OWNED_ID = re.compile(r"\b[CRI]-\d+\b", re.IGNORECASE)
+OWNER_QUERIES = {
+    "C": "SELECT cliente_id FROM v_resumen_clientes WHERE cliente_id = ?",
+    "R": "SELECT cliente_id FROM v_reservas_cliente WHERE reserva_id = ? LIMIT 1",
+    "I": "SELECT cliente_id FROM v_incidencias WHERE incidencia_id = ?",
+}
+NOT_OWN_DATA = "solo puedes consultar los datos del cliente identificado"
 
 
 def luhn_valid(number: str) -> bool:
@@ -35,10 +43,12 @@ def luhn_valid(number: str) -> bool:
 class Guardrails:
     """Los puntos de control de un turno, con el registro de lo bloqueado o modificado (`Guardarrailes` de clase).
 
-    Se crea uno por turno: `log` es lo que acaba en `AgentAnswer.blocks`.
+    Se crea uno por turno: `log` es lo que acaba en `AgentAnswer.blocks`. `con` es de donde salen los dueños de cada
+    id (en clase, los diccionarios de `tienda.py`); la sesión llega en cada llamada, como el `contexto` de clase.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, con: duckdb.DuckDBPyConnection) -> None:
+        self.con = con
         self.log: list[Block] = []
 
     def _note(self, type_: BlockType, reason: str) -> str:
@@ -70,6 +80,26 @@ class Guardrails:
             text = DNI.sub("[DNI]", text)
             self._note(BlockType.input, "DNI enmascarado")
         return text, None
+
+    # --- 2. Herramientas --------------------------------------------------
+    def check_tool(self, name: str, arguments: dict[str, object], session: Session) -> str | None:
+        """Antes de ejecutar una tool: el motivo si se bloquea, o None (`revisar_herramienta` de clase).
+
+        Capa 1. Desvío: en clase se mira el dueño de un argumento (`id_pedido`); aquí el argumento es una pregunta en
+        lenguaje natural, así que se buscan en ella los ids de cliente, reserva e incidencia. Un id que no existe pasa,
+        como en clase (solo se bloquea si existe y es de otro).
+        """
+        if name == "query_db":
+            for found in OWNED_ID.findall(str(arguments.get("question", ""))):
+                owner = self._owner(found.upper())
+                if owner is not None and owner != session.client_id:
+                    return self._note(BlockType.tool, NOT_OWN_DATA)
+        return None
+
+    def _owner(self, owned_id: str) -> str | None:
+        """El cliente dueño de un id, o None si no existe."""
+        rows = self.con.execute(OWNER_QUERIES[owned_id[0]], [owned_id]).fetchall()
+        return rows[0][0] if rows else None
 
 
 def check_client(con: duckdb.DuckDBPyConnection, session: Session) -> None:

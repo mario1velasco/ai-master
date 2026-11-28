@@ -100,7 +100,7 @@ def _guard_before_model(
     if guardrails and session is not None:
         check_client(con, session)
     question = question.strip()
-    guards = Guardrails() if guardrails else None  # un registro por turno
+    guards = Guardrails(con) if guardrails else None  # un registro por turno
     refusal = None
     if guards is not None:
         # Entrada: antes del primer log, como en `comun/agente.py` (el hash del span es el del texto enmascarado)
@@ -134,7 +134,7 @@ def respond(
             if session is not None:
                 instructions += CLIENT_LINE.format(client_id=session.client_id)
             # Mínimo privilegio, capa de perfil: el modelo solo recibe las tools de su rol (`PERFILES` de clase)
-            tools = [TOOL_BUILDERS[name](con) for name in PROFILES[role]]
+            tools = [TOOL_BUILDERS[name](con, guards, session) for name in PROFILES[role]]
             agent = build_agent(build_model(), tools, instructions, versions)
             config: RunnableConfig = {"recursion_limit": recursion_limit}
             try:
@@ -160,7 +160,9 @@ def respond(
                 raise error from exc
         else:
             messages = []
-        tool_messages = [m for m in messages if isinstance(m, ToolMessage)]
+        # Cuentan solo las herramientas que se ejecutaron. Una bloqueada no trae artifact, así que no cuenta (como en
+        # clase, `comun/agente.py`); que el modelo lo intentó se ve en `blocks`
+        tool_messages = [m for m in messages if isinstance(m, ToolMessage) and m.artifact is not None]
         runs = [m.artifact for m in tool_messages if isinstance(m.artifact, QueryDbRun)]
         sources = _sources(runs)
         answer_text = refusal if refusal is not None else str(messages[-1].content)

@@ -147,3 +147,29 @@ def test_too_long_message_never_reaches_model(con: duckdb.DuckDBPyConnection, ol
 
     assert passed.answer == "Lo miro."
     assert len(ollama.agent_requests) == 1
+
+
+NOT_ALLOWED = "solo puedes consultar los datos del cliente identificado"
+
+
+@pytest.mark.parametrize(
+    "question",
+    ["¿Cuánto pagó la reserva R-1043?", "¿Qué reservas tiene C-004?", "¿Cómo va la incidencia I-02?"],
+)
+def test_question_naming_other_client_data_not_run(
+    con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer, question: str
+) -> None:
+    ollama.agent_answers = [query_db_answer(question), text_answer("No puedo darte ese dato.")]
+    ollama.text2sql_answers = [sql_answer("SELECT importe_neto FROM v_reservas_cliente WHERE reserva_id = 'R-1043'")]
+
+    answer = respond(question, con=con, session=C001)
+
+    assert ollama.text2sql_requests == []  # text2sql no se llama
+    [tool] = [m["content"] for m in ollama.agent_requests[1]["messages"] if m["role"] == "tool"]
+    assert tool == f"Acción no permitida: {NOT_ALLOWED}"
+    assert answer.sources == []
+    assert answer.blocks == [Block(type=BlockType.tool, reason=NOT_ALLOWED)]
+    # Como `Resultado.herramientas` de clase: la llamada bloqueada no cuenta como herramienta usada
+    assert answer.tools_used == []
+    assert answer.metrics is not None
+    assert answer.metrics.tool_call_count == 0

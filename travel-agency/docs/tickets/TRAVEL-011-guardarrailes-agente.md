@@ -200,6 +200,8 @@ sesión tiene el rol `client` y los guardarraíles están encendidos.
 - **Entonces** text2sql no se llama y el modelo recibe «Acción no permitida: solo puedes consultar los datos del
   cliente identificado»
 - **Y** la respuesta no tiene fuentes y queda un bloqueo de tipo `tool`
+- **Y** la llamada bloqueada no cuenta en `tools_used` ni en `tool_call_count` (como `Resultado.herramientas` de
+  `comun/agente.py`: «sin contar las bloqueadas»; el intento queda en los bloqueos). Añadido con Mario el 2026-11-28
 
 **AC-9 — Capa 2: un SQL sin ids no saca datos de otro cliente**
 - **Dado** la sesión de C-001

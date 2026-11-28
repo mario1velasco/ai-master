@@ -14,6 +14,8 @@ from time import perf_counter
 import duckdb
 from langchain_core.tools import BaseTool, tool
 
+from agent.guardrails import Guardrails
+from contracts.agent import Session
 from contracts.sql import SqlResult, SqlStatus
 from text2sql import ask
 
@@ -63,12 +65,18 @@ def _for_model(result: SqlResult) -> str:
     return f"{queries}\n{error}" if result.queries else error
 
 
-def build_query_db_tool(con: duckdb.DuckDBPyConnection) -> BaseTool:
-    """La tool sobre la conexión `con`."""
+def build_query_db_tool(con: duckdb.DuckDBPyConnection, guards: Guardrails | None, session: Session | None) -> BaseTool:
+    """La tool sobre la conexión `con`, con los guardarraíles del turno (None si están apagados)."""
 
     @tool(description=QUERY_DB_DESCRIPTION, response_format="content_and_artifact")
-    def query_db(question: str) -> tuple[str, QueryDbRun]:
-        with _DB_LOCK:
+    def query_db(question: str) -> tuple[str, QueryDbRun | None]:
+        with _DB_LOCK:  # también la comprobación, que consulta la misma conexión
+            # Guardarraíl de herramientas, como en `comun/agente.py`: si se bloquea, no se ejecuta y el modelo recibe
+            # «Acción no permitida: …»; sin artifact, no cuenta como fuente
+            if guards is not None and session is not None:
+                reason = guards.check_tool("query_db", {"question": question}, session)
+                if reason is not None:
+                    return f"Acción no permitida: {reason}", None
             start = perf_counter()
             result = ask(question, con=con)
             latency_ms = round((perf_counter() - start) * 1000, 3)
@@ -78,7 +86,8 @@ def build_query_db_tool(con: duckdb.DuckDBPyConnection) -> BaseTool:
 
 
 # El catálogo de tools por nombre, como `CATALOGO` de `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/comun/
-# herramientas.py`: los perfiles (`profiles.py`) eligen de aquí. Cada una se construye sobre la conexión del turno.
-TOOL_BUILDERS: dict[str, Callable[[duckdb.DuckDBPyConnection], BaseTool]] = {
+# herramientas.py`: los perfiles (`profiles.py`) eligen de aquí. Cada una se construye sobre la conexión del turno,
+# con sus guardarraíles y la sesión.
+TOOL_BUILDERS: dict[str, Callable[[duckdb.DuckDBPyConnection, Guardrails | None, Session | None], BaseTool]] = {
     "query_db": build_query_db_tool,
 }
