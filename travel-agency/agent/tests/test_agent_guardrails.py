@@ -193,3 +193,23 @@ def test_sql_without_ids_cannot_read_other_booking(con: duckdb.DuckDBPyConnectio
 
     assert json.loads(tool_content(ollama)) == [{"sql": other_booking, "rows": [], "truncated": False}]
     assert [s.rows for s in answer.sources] == [0]
+
+
+def test_text2sql_gets_the_same_schema_with_client_filter(
+    con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer
+) -> None:
+    question = "¿Qué reservas tiene C-001?"
+    ollama.agent_answers = [
+        query_db_answer(question),
+        text_answer("Dos."),
+        query_db_answer(question),
+        text_answer("Dos."),
+    ]
+    ollama.text2sql_answers = [sql_answer(OWN_BOOKINGS), sql_answer(OWN_BOOKINGS)]
+
+    respond("¿Qué reservas tengo?", con=con, session=C001)  # con la conexión filtrada
+    respond("¿Qué reservas tengo?", con=con, session=C001, guardrails=False)  # con la de siempre
+
+    filtered, normal = [request["messages"][0]["content"] for request in ollama.text2sql_requests]
+    assert "Tabla v_incidencias (5 filas)" in normal  # el esquema completo: las 5 incidencias de fixtures/
+    assert filtered == normal

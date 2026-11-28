@@ -16,6 +16,8 @@ from contextlib import contextmanager
 
 import duckdb
 
+from database.schema import _FINGERPRINT_VARIABLE, cached_schema
+
 CLIENT_FILTERED_SCHEMA = "client_filtered_schema"
 # Las vistas con dueño se filtran por su `cliente_id`
 OWNED_VIEWS = ("v_reservas_cliente", "v_tramos", "v_itinerarios", "v_incidencias", "v_resumen_clientes")
@@ -27,8 +29,15 @@ def open_client_filtered_connection(
 ) -> Generator[duckdb.DuckDBPyConnection]:
     """Una conexión sobre `con` que solo ve los datos de `client_id`, abierta mientras dura el `with`."""
     client = client_id.replace("'", "''")  # una vista no admite parámetros: el id va escrito en el SQL
+    # El esquema de las vistas (`cached_schema`, el que ve el modelo de text2sql) es uno para todos: se prepara con
+    # `con`, que lo ve todo, antes de filtrar. Y el cursor lleva la misma huella que `con`: sin ella (las variables
+    # de DuckDB son de cada conexión) no encontraría el guardado y lo generaría desde las vistas filtradas, con los
+    # valores de este cliente, y así se guardaría para todos.
+    cached_schema(con)
+    [(fingerprint,)] = con.execute(f"SELECT getvariable('{_FINGERPRINT_VARIABLE}')").fetchall()
     cursor = con.cursor()
     try:
+        cursor.execute(f"SET VARIABLE {_FINGERPRINT_VARIABLE} = ?", [fingerprint])
         cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {CLIENT_FILTERED_SCHEMA}")
         for view in OWNED_VIEWS:
             cursor.execute(

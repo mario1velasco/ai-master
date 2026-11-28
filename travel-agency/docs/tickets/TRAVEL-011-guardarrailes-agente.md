@@ -217,6 +217,10 @@ sesión tiene el rol `client` y los guardarraíles están encendidos.
 - **Dado** la sesión de C-001
 - **Cuando** text2sql ejecuta `SELECT importe_neto FROM v_reservas_cliente WHERE reserva_id = 'R-1043'`
 - **Entonces** el resultado tiene 0 filas
+- **Y** el esquema que recibe text2sql (el mapa de las vistas, `cached_schema`) es el mismo con la conexión filtrada que
+  sin ella: nunca se genera desde la conexión filtrada (saldrían los valores de un cliente y se guardaría para todos)
+- **Y** cada vista de `main` tiene su versión filtrada (si se añade una vista y no se filtra, un test lo avisa)
+- (Las dos últimas, añadidas con Mario el 2026-11-28 al ver que el cursor no tiene la huella del esquema guardado)
 
 **AC-10 — Capa 2: los agregados solo cuentan al cliente de la sesión (nunca datos de la empresa)**
 - **Dado** la sesión de C-001
@@ -324,5 +328,12 @@ sesión tiene el rol `client` y los guardarraíles están encendidos.
   Eso no lo puede impedir el código: lo cubren las instrucciones (AC-2) y se mide con casos en TRAVEL-012.
 
 **Preguntas abiertas**
+- **Valores reales en el esquema de text2sql** (visto con Mario el 2026-11-28, durante el AC-9; ya pasaba antes y
+  pasa igual en clase): el esquema que genera `database.schema.schema()` lleva valores sacados de la base. Con
+  `fixtures/`, los nombres de los 5 clientes de `v_incidencias`; con `data/`, un «ej.:» por columna, que puede ser el
+  nombre de otro cliente. Lo ve el modelo de text2sql, no el del agente, y en la respuesta lo taparía la guarda de
+  salida (AC-13). Se habló de un esquema escrito a mano sin datos reales y se descartó: en clase se genera solo desde
+  la base (`esquema()` de DropLab S2). Sin decidir; si se aborda, ticket de `database` (p. ej. sin valores en las
+  columnas personales) medido con los exámenes de TRAVEL-008.
 - **Conexión compartida**: con la capa 2, la conexión queda ligada a un cliente. En el comando y en los tests hay una
   por proceso; la API (fase 7) tendrá que abrir una por sesión. Se apunta en `agent/AGENTS.md`.
