@@ -18,8 +18,10 @@ from text2sql import ask
 
 # Lo que lee el modelo para decidir. Reparte el trabajo: el agente decide qué datos necesita y text2sql cómo sacarlos
 # (solo él ve el esquema). En una constante y no en el docstring, para que no le lleguen saltos de línea ni sangría.
+# Desde TRAVEL-011, la primera frase dice el alcance: solo los datos del cliente de la sesión (lo impone la capa 2).
 QUERY_DB_DESCRIPTION = (
-    "Consulta la base de datos de Viajes Nimbo. Pasa una pregunta en lenguaje natural que se entienda sola: no "
+    "Consulta la base de datos de Viajes Nimbo: solo consulta los datos del cliente identificado en esta sesión. "
+    "Pasa una pregunta en lenguaje natural que se entienda sola: no "
     "conoce la conversación, así que incluye los identificadores (cliente, reserva, vuelo). Puedes pedir varios "
     "datos en la misma pregunta. Si un dato depende de otro (por ejemplo, el vuelo de la última reserva de un "
     "cliente), pide primero el que falta y usa su resultado en la siguiente pregunta."

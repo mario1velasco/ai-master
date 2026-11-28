@@ -323,3 +323,12 @@ Salvo que se diga otra cosa, los tests usan el modelo falso de `agent/tests/` y 
      `02_guardarailes_seguridad/Soluciones_sesion2/deber_base.py` (con `sesion2/alucinaciones.py`), en vez de esperar
      al RAG. Antes hay que decidir cómo se leen los números en español («1.100 €», «1100», «dos reservas», «312
      min»), y si se bloquea o se avisa (`PROYECTO.md`, fase 8).
+     **El caso más fácil, primero: respuestas sin herramientas** (Mario, 2026-11-28). Hoy, si el modelo contesta con
+     una cifra sin llamar a `query_db`, la respuesta le llega al cliente: solo queda `answered_without_data = true`,
+     que avisa pero no impide (las instrucciones dicen «nunca los inventes», pero es el prompt). Sin observaciones no
+     hay con qué comparar, así que **cualquier cifra es inventada** y no hace falta leer los números en español. Pasos:
+     (1) medir aquí cuántas respuestas sin `query_db` llevan cifras (corrector de trayectoria y juez); (2) si pasa, la
+     guarda mínima: con `answered_without_data = true` y una cifra en la respuesta, respuesta segura como la de
+     `deber_base.py` («Prefiero no darte un dato que no tengo confirmado…») y un bloqueo de tipo `output` (el `Block` de
+     TRAVEL-011); (3) después, el detector completo, cifra a cifra contra las filas. Riesgo de bloquear de más:
+     «tienes 0 reservas» sin consultar también se bloquea (y también es inventado); por eso se mide antes.

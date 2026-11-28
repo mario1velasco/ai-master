@@ -25,16 +25,27 @@ from telemetry import span
 
 # Las de `sesion3/agente_langgraph.py` adaptadas a Viajes Nimbo, más la regla de `construir_system_prompt()` de
 # `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py`. Sin el esquema: lo ve text2sql.
+# Desde TRAVEL-011, el chat es solo para clientes (decisión 3 de `PROYECTO.md` §10).
 INSTRUCTIONS = (
-    "Eres el asistente de los empleados de Viajes Nimbo, una agencia de viajes. "
+    "Eres el asistente de Viajes Nimbo, una agencia de viajes, y atiendes a sus clientes. "
     "Consulta los datos con las herramientas y nunca los inventes. "
     "Si el dato que se pide no existe, dilo claramente en lugar de aproximarlo. "
     "Responde en español, breve y claro."
 )
 
+# Como «Cliente autenticado en esta sesión: …» de `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/comun/agente.py`
+# («identificado»: el chat no tiene login, el cliente lo pone la sesión), más lo que solo ve (como `HUESPED` de
+# `albor/configuracion.py`, FIX03). Depende de que haya cliente, no de los guardarraíles: así TRAVEL-012 compara con y
+# sin ellos cambiando una sola cosa. Que la cifra sea solo la suya lo impide el código (capa 2); esto evita que el
+# modelo la presente como si fuera de la empresa.
+CLIENT_LINE = (
+    "\nCliente identificado en esta sesión: {client_id}. Solo ves los datos de este cliente: si te preguntan por la "
+    "empresa o por otros clientes, di que no puedes dar esos datos en vez de dar una cifra."
+)
+
 
 # Va en las Versions de las métricas y en la respuesta: cámbiala si cambias el prompt
-PROMPT_VERSION = "agent_prompt_v1"
+PROMPT_VERSION = "agent_prompt_v2"
 
 # El mensaje de `agente_minimo.py` de la sesión 1 al llegar al límite de pasos: al usuario no le habla de pasos.
 LIMIT_MESSAGE = "No he podido completar la consulta. Te paso con un compañero del equipo."
@@ -97,7 +108,10 @@ def respond(
     with span(
         "agent.respond", component=Component.agent, metrics_cls=AgentMetrics, input_text=question, versions=versions
     ) as s:
-        agent = build_agent(build_model(), [build_query_db_tool(con)], INSTRUCTIONS, versions)
+        instructions = INSTRUCTIONS
+        if session is not None:
+            instructions += CLIENT_LINE.format(client_id=session.client_id)
+        agent = build_agent(build_model(), [build_query_db_tool(con)], instructions, versions)
         config: RunnableConfig = {"recursion_limit": recursion_limit}
         try:
             messages = agent.invoke({"messages": [("user", question)]}, config)["messages"]

@@ -57,3 +57,20 @@ def test_role_without_chat_rejected(con: duckdb.DuckDBPyConnection, ollama: Fake
 
     assert excinfo.value.code == "unknown_role"
     assert ollama.agent_requests == []
+
+
+def test_model_knows_the_client_and_its_scope(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [text_answer("¿En qué te ayudo?")]
+
+    respond("Hola", con=con, session=C001)
+
+    request = ollama.agent_requests[0]
+    system = request["messages"][0]["content"]
+    assert "asistente de los empleados" not in system
+    assert "atiendes a sus clientes" in system
+    assert "Cliente identificado en esta sesión: C-001." in system
+    assert "Solo ves los datos de este cliente" in system
+    assert "por la empresa o por otros clientes" in system
+    assert "en vez de dar una cifra" in system
+    [tool] = request["tools"]
+    assert "solo consulta los datos del cliente identificado" in tool["function"]["description"].lower()
