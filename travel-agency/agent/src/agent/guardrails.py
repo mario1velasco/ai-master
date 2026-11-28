@@ -5,10 +5,56 @@ Hoteles Albor): «lo que no debe pasar se impide en el código, no se pide en el
 del grafo de LangGraph, para que otra estrategia del agente (el Plan B de TRAVEL-012) las reutilice tal cual.
 """
 
+import re
+
 import duckdb
 
-from contracts.agent import Session
+from contracts.agent import Block, BlockType, Session
 from contracts.errors import ComponentError
+
+# Un número de 13 a 19 cifras, con espacios o guiones entre ellas: el patrón de `revisar_entrada` de clase
+CARD = re.compile(r"\b(?:\d[ -]?){13,19}\b")
+
+
+def luhn_valid(number: str) -> bool:
+    """Comprueba el dígito de control de una tarjeta: evita confundir cualquier número largo con una tarjeta.
+
+    `luhn_valido` de `sesion2/guardarrailes.py`, igual.
+    """
+    digits = [int(d) for d in number][::-1]
+    total = sum(d if i % 2 == 0 else (d * 2 - 9 if d * 2 > 9 else d * 2) for i, d in enumerate(digits))
+    return total % 10 == 0
+
+
+class Guardrails:
+    """Los puntos de control de un turno, con el registro de lo bloqueado o modificado (`Guardarrailes` de clase).
+
+    Se crea uno por turno: `log` es lo que acaba en `AgentAnswer.blocks`.
+    """
+
+    def __init__(self) -> None:
+        self.log: list[Block] = []
+
+    def _note(self, type_: BlockType, reason: str) -> str:
+        """Anota el bloqueo y devuelve el motivo (`_anotar` de clase)."""
+        self.log.append(Block(type=type_, reason=reason))
+        return reason
+
+    # --- 1. Entrada -------------------------------------------------------
+    def check_input(self, text: str) -> tuple[str, str | None]:
+        """Enmascara los datos sensibles antes de que lleguen al modelo y a los logs (`revisar_entrada` de clase).
+
+        Devuelve el texto limpio y, si el mensaje no debe llegar al modelo, la respuesta para el cliente (o None).
+        """
+
+        def card(match: re.Match[str]) -> str:
+            number = re.sub(r"\D", "", match.group(0))
+            if 13 <= len(number) <= 19 and luhn_valid(number):
+                self._note(BlockType.input, "tarjeta enmascarada")
+                return f"[TARJETA ****{number[-4:]}]"
+            return match.group(0)
+
+        return CARD.sub(card, text), None
 
 
 def check_client(con: duckdb.DuckDBPyConnection, session: Session) -> None:

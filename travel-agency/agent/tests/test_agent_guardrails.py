@@ -11,7 +11,7 @@ from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, te
 
 from agent import respond
 from agent.profiles import PROFILES
-from contracts.agent import Session, SourceType
+from contracts.agent import Block, BlockType, Session, SourceType
 from contracts.errors import ComponentError
 
 C001 = Session(client_id="C-001")
@@ -88,3 +88,18 @@ def test_client_profile_only_gets_its_tools(
 
     assert [t["function"]["name"] for t in ollama.agent_requests[0]["tools"]] == ["query_db"]
     assert not ollama.agent_requests[1].get("tools")
+
+
+def user_message(ollama: FakeOllamaServer) -> str:
+    """Lo que escribió el cliente, tal como le llegó al modelo en la primera llamada."""
+    [user] = [m["content"] for m in ollama.agent_requests[0]["messages"] if m["role"] == "user"]
+    return user
+
+
+def test_valid_card_masked_before_model(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [text_answer("No guardes la tarjeta en el chat.")]
+
+    answer = respond("Mi tarjeta es 4111 1111 1111 1111", con=con, session=C001)
+
+    assert user_message(ollama) == "Mi tarjeta es [TARJETA ****1111]"
+    assert answer.blocks == [Block(type=BlockType.input, reason="tarjeta enmascarada")]

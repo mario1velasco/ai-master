@@ -14,7 +14,7 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.errors import GraphRecursionError
 
 from agent.graph import build_agent
-from agent.guardrails import check_client
+from agent.guardrails import Guardrails, check_client
 from agent.model import as_component_error, build_model
 from agent.profiles import PROFILES, profile
 from agent.tools import TOOL_BUILDERS, QueryDbRun
@@ -100,6 +100,12 @@ def respond(
     if guardrails and session is not None:
         check_client(con, session)
     question = question.strip()
+    # Un registro de guardarraíles por turno; sin él (apagados), nada se enmascara ni se bloquea
+    guards = Guardrails() if guardrails else None
+    if guards is not None:
+        # Entrada: antes del primer log, como en `comun/agente.py` (el hash del span es el del texto enmascarado)
+        question, _ = guards.check_input(question)
+    blocks = guards.log if guards is not None else []
     versions = Versions(prompt_version=PROMPT_VERSION)
     # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
     recursion_limit = int(os.environ.get("AGENT_RECURSION_LIMIT", "20"))
@@ -128,6 +134,7 @@ def respond(
                 answer=LIMIT_MESSAGE,
                 status=AgentStatus.recursion_limit_reached,
                 answered_without_data=True,
+                blocks=blocks,
                 versions=versions,
                 trace_id=s.trace_id,
             )
@@ -151,6 +158,7 @@ def respond(
         answered_without_data=fields["answered_without_data"],
         sources=sources,
         tools_used=fields["tools_used"],
+        blocks=blocks,
         versions=versions,
         trace_id=s.trace_id,
         metrics=metrics,
