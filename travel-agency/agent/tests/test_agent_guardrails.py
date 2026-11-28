@@ -103,3 +103,15 @@ def test_valid_card_masked_before_model(con: duckdb.DuckDBPyConnection, ollama: 
 
     assert user_message(ollama) == "Mi tarjeta es [TARJETA ****1111]"
     assert answer.blocks == [Block(type=BlockType.input, reason="tarjeta enmascarada")]
+
+
+def test_iban_and_dni_masked(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [text_answer("No compartas esos datos en el chat.")]
+
+    answer = respond("Mi IBAN es ES91 2100 0418 4502 0005 1332 y mi DNI 12345678Z", con=con, session=C001)
+
+    assert user_message(ollama) == "Mi IBAN es [IBAN] y mi DNI [DNI]"
+    assert answer.blocks == [
+        Block(type=BlockType.input, reason="IBAN enmascarado"),
+        Block(type=BlockType.input, reason="DNI enmascarado"),
+    ]

@@ -14,6 +14,9 @@ from contracts.errors import ComponentError
 
 # Un número de 13 a 19 cifras, con espacios o guiones entre ellas: el patrón de `revisar_entrada` de clase
 CARD = re.compile(r"\b(?:\d[ -]?){13,19}\b")
+# IBAN español y DNI (8 cifras y la letra de control), los de clase
+IBAN = re.compile(r"\bES\d{2}(?:\s?\d{4}){5}\b")
+DNI = re.compile(r"\b\d{8}[A-HJ-NP-TV-Z]\b")
 
 
 def luhn_valid(number: str) -> bool:
@@ -54,7 +57,14 @@ class Guardrails:
                 return f"[TARJETA ****{number[-4:]}]"
             return match.group(0)
 
-        return CARD.sub(card, text), None
+        text = CARD.sub(card, text)
+        if IBAN.search(text):
+            text = IBAN.sub("[IBAN]", text)
+            self._note(BlockType.input, "IBAN enmascarado")
+        if DNI.search(text):
+            text = DNI.sub("[DNI]", text)
+            self._note(BlockType.input, "DNI enmascarado")
+        return text, None
 
 
 def check_client(con: duckdb.DuckDBPyConnection, session: Session) -> None:
