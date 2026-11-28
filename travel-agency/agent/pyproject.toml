@@ -12,6 +12,7 @@ dependencies = [
     "langchain-ollama>=1.1.0",
     "httpx>=0.28.1",
     "ollama>=0.6.3",
+    "travel-database",
 ]
 
 [build-system]
@@ -26,3 +27,4 @@ travel-contracts = { workspace = true }
 travel-telemetry = { workspace = true }
 travel-rag = { workspace = true }
 travel-text2sql = { workspace = true }
+travel-database = { workspace = true }

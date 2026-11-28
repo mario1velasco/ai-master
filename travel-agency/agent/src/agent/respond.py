@@ -6,6 +6,7 @@ Las fuentes y las herramientas usadas salen de los mensajes que deja el grafo, s
 """
 
 import os
+from contextlib import nullcontext
 from typing import Any
 
 import duckdb
@@ -21,6 +22,7 @@ from agent.tools import TOOL_BUILDERS, QueryDbRun
 from contracts.agent import AgentAnswer, AgentStatus, Session, Source, SourceType
 from contracts.errors import ComponentError
 from contracts.metrics import AgentMetrics, Component, Status, Versions
+from database.client_filter import open_client_filtered_connection
 from telemetry import span
 
 # Las de `sesion3/agente_langgraph.py` adaptadas a Viajes Nimbo, más la regla de `construir_system_prompt()` de
@@ -122,11 +124,20 @@ def respond(
     versions = Versions(prompt_version=PROMPT_VERSION)
     # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
     recursion_limit = int(os.environ.get("AGENT_RECURSION_LIMIT", "20"))
+    # Capa 2: con los guardarraíles, text2sql consulta una conexión que solo ve el CachedSchema con datos del cliente
+    scope = (
+        open_client_filtered_connection(con, session.client_id)
+        if guards is not None and session is not None
+        else nullcontext(con)
+    )
     # Telemetría: un span `agent.respond` por pregunta; los `llm.agent` y los de text2sql cuelgan de él. input_text:
     # solo se guardan su longitud y un hash, nunca el texto de la pregunta.
-    with span(
-        "agent.respond", component=Component.agent, metrics_cls=AgentMetrics, input_text=question, versions=versions
-    ) as s:
+    with (
+        span(
+            "agent.respond", component=Component.agent, metrics_cls=AgentMetrics, input_text=question, versions=versions
+        ) as s,
+        scope as db,
+    ):
         # Como el bloqueo de entrada de `comun/agente.py`: el mensaje no llega al modelo y el turno acaba con la
         # respuesta del guardarraíl (sin datos; un bloqueo no es un error)
         if refusal is None:
@@ -134,7 +145,7 @@ def respond(
             if session is not None:
                 instructions += CLIENT_LINE.format(client_id=session.client_id)
             # Mínimo privilegio, capa de perfil: el modelo solo recibe las tools de su rol (`PERFILES` de clase)
-            tools = [TOOL_BUILDERS[name](con, guards, session) for name in PROFILES[role]]
+            tools = [TOOL_BUILDERS[name](db, guards, session) for name in PROFILES[role]]
             agent = build_agent(build_model(), tools, instructions, versions)
             config: RunnableConfig = {"recursion_limit": recursion_limit}
             try:

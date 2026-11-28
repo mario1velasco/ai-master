@@ -5,6 +5,8 @@ los otros clientes, C-004 (Ana López Pérez: R-1043, I-02, VY1234 y VY1235) y C
 `database/fixtures/`. El modelo es el Ollama falso (`ollama`), con el guion de cada test.
 """
 
+import json
+
 import duckdb
 import pytest
 from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, text_answer
@@ -173,3 +175,21 @@ def test_question_naming_other_client_data_not_run(
     assert answer.tools_used == []
     assert answer.metrics is not None
     assert answer.metrics.tool_call_count == 0
+
+
+def tool_content(ollama: FakeOllamaServer) -> str:
+    """Lo que devolvió `query_db` al modelo en la segunda llamada del agente."""
+    [tool] = [m["content"] for m in ollama.agent_requests[1]["messages"] if m["role"] == "tool"]
+    return tool
+
+
+def test_sql_without_ids_cannot_read_other_booking(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    # La pregunta no nombra ningún id (la capa 1 la deja pasar), pero el SQL pide la reserva de C-004
+    other_booking = "SELECT importe_neto FROM v_reservas_cliente WHERE reserva_id = 'R-1043'"
+    ollama.agent_answers = [query_db_answer("¿Cuánto pagué en mi última reserva?"), text_answer("No lo encuentro.")]
+    ollama.text2sql_answers = [sql_answer(other_booking)]
+
+    answer = respond("¿Cuánto pagué en mi última reserva?", con=con, session=C001)
+
+    assert json.loads(tool_content(ollama)) == [{"sql": other_booking, "rows": [], "truncated": False}]
+    assert [s.rows for s in answer.sources] == [0]

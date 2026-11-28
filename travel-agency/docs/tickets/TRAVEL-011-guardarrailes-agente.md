@@ -73,15 +73,15 @@ Por eso el punto de herramientas lleva **tres capas**.
 - **Capa 1 (argumentos)**: en clase se comprueba un argumento estructurado (`id_pedido`). Aquí el argumento es una
   pregunta en lenguaje natural: se buscan en ella los ids de cliente, reserva e incidencia y se comprueba su dueño.
 - **Capa 2 (alcance en los datos)**: **sin ejemplo en clase**. En la conexión del agente se crea un esquema propio
-  (`client_scope`) con las cinco vistas con dueño filtradas por el cliente de la sesión, más `v_vuelos_detalle` con
-  solo los vuelos de sus reservas, y se pone `SET search_path = 'client_scope,main'`. Así el SQL de text2sql solo
-  puede leer sus filas, sin cambiar text2sql ni `database/`. Probado el 2026-11-27 en un script aparte:
+  (`client_filtered_schema`) con las cinco vistas con dueño filtradas por el cliente de la sesión, más `v_vuelos_detalle` con
+  solo los vuelos de sus reservas, y se pone `SET search_path = 'client_filtered_schema,main'`. Así el SQL de text2sql solo
+  puede leer sus filas, sin cambiar text2sql ni las vistas. Probado el 2026-11-27 en un script aparte:
   - `CREATE TEMP VIEW` con el mismo nombre **no vale**: DuckDB da «infinite recursion», porque las vistas de `main` se
     citan entre ellas sin esquema y las enlaza por el nombre.
   - Con el esquema propio, el validador acepta las consultas (comprueba los nombres contra las vistas de `main`, que
     se llaman igual), `COUNT(*)` de `v_resumen_clientes` da 1, la reserva de otro cliente da 0 filas y C-001 ve sus
     3 vuelos de los 11 de `fixtures/`.
-  - El validador ya rechaza `main.`, `client_scope.`, `memory.main.` y `crudo.` delante de una vista.
+  - El validador ya rechaza `main.`, `client_filtered_schema.`, `memory.main.` y `crudo.` delante de una vista.
   - El esquema guardado por huella (TRAVEL-009) sale idéntico.
   - `v_vuelos_detalle` se filtra con `vuelo_id IN (SELECT vuelo_id FROM main.v_tramos WHERE cliente_id = …)`; leer
     `crudo` también funciona, pero se queda en la capa semántica.
@@ -105,7 +105,16 @@ Por eso el punto de herramientas lleva **tres capas**.
 - **Aprobados con Mario al acordar las costuras de `tdd` (2026-11-27):**
   - La capa 2 va en un **cursor** de la conexión (`con.cursor()`), abierto y cerrado en cada turno: la conexión de
     quien llama no cambia (probado: el cursor ve 1 cliente y 3 vuelos; `con`, 7 clientes y su `search_path` vacío).
-    El esquema es de la base: dos clientes a la vez se pisarían (pregunta abierta de la fase 7).
+    El esquema es de la base: dos clientes a la vez se pisarían (pregunta abierta de la fase 7). Al cerrar se borra
+    el esquema: la base queda como estaba.
+  - **Dónde vive la capa 2** (Mario, 2026-11-28, durante el AC-9): el **cómo** se filtra la base va en `database/`
+    (`database/client_filter.py`, `open_client_filtered_connection(con, client_id)`), junto a las vistas, porque
+    qué vistas tienen dueño y cómo se filtra cada una depende de cómo están definidas (y la reutilizan la API de
+    la fase 7 y el Plan B). El **cuándo** (guardarraíles encendidos) lo decide `respond()`, que la llama directamente
+    (Mario: sin un método intermedio en `Guardrails`, que no añadía nada). Archivo nuevo y
+    no `semantic_layer.py`, que entra en la huella del esquema guardado (TRAVEL-009). `agent/` declara ya
+    `travel-database` en sus dependencias (lo usaba sin declararlo: `__main__.py` importa `open_db`).
+    Nombres elegidos con Mario: `open_client_filtered_connection` y el esquema `client_filtered_schema`.
   - Sesión tipada: `contracts.agent.Session(client_id, role="client")` en vez del `dict` `contexto`; `role` es texto
     libre para que `manager` dé `unknown_role`. Los perfiles se aplican siempre, también con el interruptor apagado
     (en clase `PERFILES` no depende de `guardas`).
@@ -115,7 +124,7 @@ Por eso el punto de herramientas lleva **tres capas**.
   - `PROMPT_VERSION` pasa a `agent_prompt_v2`.
   - Un turno bloqueado en la entrada acaba con `status = ok` y `answered_without_data = true`.
   - Capa 1 con un id que no existe (p. ej. R-9999): pasa, como en clase; la capa 2 da 0 filas.
-- Nombres en inglés (`client_id`, `role`, `client_scope`, `--client`, `--no-guardrails`, tipos de bloqueo `input` /
+- Nombres en inglés (`client_id`, `role`, `client_filtered_schema`, `--client`, `--no-guardrails`, tipos de bloqueo `input` /
   `tool` / `output`); los mensajes al cliente y al modelo, en castellano, como en clase.
 
 ## Alcance
@@ -123,6 +132,7 @@ Por eso el punto de herramientas lleva **tres capas**.
 **Dentro**
 - Un fichero de guardarraíles en `agent/` con la entrada, las tres capas de herramientas, la salida y el registro,
   como funciones que no dependen del grafo.
+- En `database/`, solo la conexión filtrada por cliente de la capa 2 (`client_filter.py`); las vistas no cambian.
 - La sesión con `client_id` y `role`, y `PROFILES` con el perfil `client`.
 - `respond()` recibe la sesión y un interruptor. Las instrucciones son las de un asistente **para clientes**, dicen
   quién es el cliente y que solo se ven sus datos; la descripción de `query_db` dice lo mismo.
@@ -137,7 +147,7 @@ Por eso el punto de herramientas lleva **tres capas**.
 - Promesas falsas («ya he cancelado»): se miden en TRAVEL-012; la guarda, en la fase 12 (como FIX06 de Albor).
 - Límite de peticiones o de coste por cliente (LLM10): fase 7, API.
 - El examen del agente con y sin guardarraíles: TRAVEL-012.
-- Cambios en text2sql (función, contrato, examen) y en `database/`.
+- Cambios en text2sql (función, contrato, examen) y en las vistas de `database/` (`semantic_layer.py`).
 - Actualizar `PROYECTO.md` §9 y §10 con lo de la sesión 2: hecho el 2026-11-18, fuera de este ticket (junto con lo de la sesión 3).
 
 ## Criterios de aceptación
