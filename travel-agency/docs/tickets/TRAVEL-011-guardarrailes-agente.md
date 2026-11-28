@@ -8,7 +8,7 @@
 |---|---|
 | Tipo | Story |
 | Carpeta del proyecto | `travel-agency/` (`agent/`, con campos nuevos en `contracts/`) |
-| Estado | Revisado con Mario el 2026-11-27: listo para desarrollar con `tdd` |
+| Estado | Hecho (2026-11-28): los 20 criterios con su test, desarrollado con `tdd` ciclo a ciclo con Mario |
 | Creado | 2026-11-16 |
 | Etiquetas | agent, seguridad, guardarraíles, tema9-sesion2, fase-6 |
 
@@ -212,6 +212,9 @@ sesión tiene el rol `client` y los guardarraíles están encendidos.
 - **Y** la respuesta no tiene fuentes y queda un bloqueo de tipo `tool`
 - **Y** la llamada bloqueada no cuenta en `tools_used` ni en `tool_call_count` (como `Resultado.herramientas` de
   `comun/agente.py`: «sin contar las bloqueadas»; el intento queda en los bloqueos). Añadido con Mario el 2026-11-28
+- **Y** un error de LangGraph (el modelo pide una tool que no existe o pasa mal los argumentos) sí cuenta, como en
+  TRAVEL-006 y en clase: la llamada bloqueada lleva como artifact el `Block` de su bloqueo (cierre, 2026-11-28, con
+  Mario)
 
 **AC-9 — Capa 2: un SQL sin ids no saca datos de otro cliente**
 - **Dado** la sesión de C-001
@@ -301,14 +304,15 @@ sesión tiene el rol `client` y los guardarraíles están encendidos.
 
 ## Definición de hecho
 
-- [ ] Cada AC cubierto por un test automático en verde (sin Ollama: modelo falso de `agent/tests/`)
-- [ ] Toda la suite del proyecto en verde (`uv run pytest`); los tests de TRAVEL-006 pasan con los guardarraíles
+- [x] Cada AC cubierto por un test automático en verde (sin Ollama: modelo falso de `agent/tests/`)
+- [x] Toda la suite del proyecto en verde (`uv run pytest`); los tests de TRAVEL-006 pasan con los guardarraíles
       apagados
-- [ ] `uv run ruff check .`, `uv run ruff format .` y `uv run ty check` en verde
-- [ ] `agent/AGENTS.md` (función pública, sesión y perfiles, opciones del comando, desvíos, conexión ligada a un
+- [x] `uv run ruff check .`, `uv run ruff format .` y `uv run ty check` en verde (`ruff format`, solo en `src/` y
+      `tests/`, como dice `contracts/AGENTS.md`: en los `.md` reformatearía los ejemplos alineados a propósito)
+- [x] `agent/AGENTS.md` (función pública, sesión y perfiles, opciones del comando, desvíos, conexión ligada a un
       cliente), `contracts/AGENTS.md` (campos nuevos) y la fila 6 de `travel-agency/AGENTS.md` actualizados; fila de
       este ticket en `docs/AGENTS.md`
-- [ ] Commits sin atribución a la IA
+- [x] Commits sin atribución a la IA
 
 ## Supuestos y preguntas abiertas
 
@@ -331,6 +335,12 @@ sesión tiene el rol `client` y los guardarraíles están encendidos.
   Eso no lo puede impedir el código: lo cubren las instrucciones (AC-2) y se mide con casos en TRAVEL-012.
 
 **Preguntas abiertas**
+- **Guardas de herramienta dentro de la tool** (cierre, 2026-11-28; decidido con Mario: se cambia en la fase 8): las
+  capas 1 y 3 se llaman desde dentro de `query_db`. Con una sola tool vale, pero en las fases 8 (`search_documents`) y
+  12 (`manage_cancellation`) cada tool tendría que acordarse de llamarlas. En la fase 8, un envoltorio común alrededor
+  de todas las tools, como el bucle de `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/comun/agente.py`
+  (`revisar_herramienta` antes de ejecutar, `revisar_resultado` después). Apuntado también en la fila 8 de
+  `../../AGENTS.md`.
 - **Valores reales en el esquema de text2sql** (visto con Mario el 2026-11-28, durante el AC-9; ya pasaba antes y
   pasa igual en clase): el esquema que genera `database.schema.schema()` lleva valores sacados de la base. Con
   `fixtures/`, los nombres de los 5 clientes de `v_incidencias`; con `data/`, un «ej.:» por columna, que puede ser el
@@ -339,4 +349,38 @@ sesión tiene el rol `client` y los guardarraíles están encendidos.
   la base (`esquema()` de DropLab S2). Sin decidir; si se aborda, ticket de `database` (p. ej. sin valores en las
   columnas personales) medido con los exámenes de TRAVEL-008.
 - **Conexión compartida**: con la capa 2, la conexión queda ligada a un cliente. En el comando y en los tests hay una
-  por proceso; la API (fase 7) tendrá que abrir una por sesión. Se apunta en `agent/AGENTS.md`.
+  por proceso; la API (fase 7) tendrá que abrir una por sesión. Se apunta en `agent/AGENTS.md`. Más concreto (revisión
+  del cierre): el esquema `client_filtered_schema` tiene un nombre fijo y es de la base, así que dos turnos a la vez de
+  clientes distintos sobre la misma conexión se pisarían las vistas, y el primero en cerrar borraría las del otro. Con
+  un nombre por turno se arregla; cambia `test_database_client_filter.py`, así que se decide en la fase 7.
+
+## Cierre (2026-11-28)
+
+**Resultado:** 20 criterios, 31 tests nuevos (345 en el workspace, eran 314); `ruff` y `ty` en verde. Guardias (en
+verde a la primera, comprobado que fallan sin el código que protegen): AC-6, AC-10, AC-11, AC-18 y los dos primeros
+casos del AC-14.
+
+**Cambios del cierre** (revisión con `simplify`, aprobados por Mario, sin cambiar el comportamiento ni los tests):
+`respond()` partida en funciones pequeñas que siguen el bucle de clase; nombres claros; `Guardrails.check_session`
+(junta `missing_client` y `unknown_client`), `check_result` y `_belongs_to_other`; el dueño de cada id se recuerda
+durante el turno (con `data/`, la capa 3 sobre 50 filas pasaba de ~1 s a ~20 ms); fallo cerrado si hay guardas sin
+sesión; de quién es cada id, las columnas con dueño y los datos personales pasan a `database/client_filter.py`
+(`owner_of`, `OWNER_COLUMNS`, `clients_personal_data`), junto a la capa 2. Y un arreglo con su test: una llamada
+bloqueada lleva como artifact su `Block`, para que los errores de LangGraph (tool inventada) sigan contando (AC-8).
+
+**No aplicado en la revisión** (para más adelante):
+- Guardas de herramienta alrededor de todas las tools: fase 8 (ver *Preguntas abiertas*).
+- `cached_schema` debería negarse a guardar el esquema sin huella (hoy lo guardaría como `schema_None.json`): es la
+  causa de fondo del problema del AC-9, en `database/schema.py`, fuera de alcance.
+- El nombre completo de la salida sacado de `v_resumen_clientes.cliente` en vez de `nombre || ' ' || apellidos`: hoy
+  da lo mismo, pero rompería la base mínima del test del AC-14.
+- Leer los dueños de `crudo` (más rápido), sacar `OWNED_VIEWS` de la base automáticamente y juntar los dos escapes de
+  comillas (`semantic_layer.py`): cambian valores, el mecanismo o un archivo de la huella.
+
+**Límites conocidos:**
+- La capa 3 reconoce las columnas por su nombre: con un alias (`cliente_id AS id`) no la ve (la capa 2 sigue).
+- Las líneas de `query_db` que llaman a la capa 3 no tienen test por `respond()`: con la capa 2 puesta no llega una
+  fila ajena. El test va sobre `Guardrails`.
+- Si el turno llega al límite de pasos, el evento se guarda con las métricas base y los recuentos de bloqueos quedan a
+  0 (la lista sí va en la respuesta).
+- Con dos clientes con el mismo nombre completo, el del otro no se bloquea en la salida (es el del propio cliente).

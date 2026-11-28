@@ -14,7 +14,8 @@ Esquemas Pydantic compartidos por todos los paquetes. Cada resultado de cada paq
 
 ```
 src/contracts/sql.py    # SqlResult, SqlQuery, SqlStatus: lo que devuelve text2sql.ask() (TRAVEL-005)
-src/contracts/agent.py  # AgentAnswer, Source, AgentStatus, SourceType: lo que devuelve agent.respond() (TRAVEL-006)
+src/contracts/agent.py  # AgentAnswer, Source, AgentStatus, SourceType: lo que devuelve agent.respond() (TRAVEL-006);
+                        # Session, Block, BlockType: la sesión y los bloqueos de los guardarraíles (TRAVEL-011)
 src/contracts/errors.py # ComponentError: el error con código que lanzan text2sql y el agente (TRAVEL-006)
 src/contracts/metrics/
 ├── __init__.py      # reexporta todo lo público
@@ -51,7 +52,15 @@ from contracts.metrics import (
   Las métricas van **en cada consulta**, no en el resultado: una respuesta puede traer varios SQL.
 - `from contracts.agent import AgentAnswer, Source, AgentStatus, SourceType`: `answer`, `status` (`ok` /
   `recursion_limit_reached`), `answered_without_data`, `sources` (una por consulta `ok`: tipo, vistas, filas y `sql`),
-  `tools_used`, `versions`, `trace_id` y `metrics: AgentMetrics` (null si la telemetría no pudo registrarlas).
+  `tools_used`, `blocks`, `versions`, `trace_id` y `metrics: AgentMetrics` (null si la telemetría no pudo
+  registrarlas).
+- `from contracts.agent import Session, Block, BlockType` (TRAVEL-011): `Session(client_id, role="client")` es quién
+  habla con el agente (el `contexto` de clase; inmutable; `role` es texto libre para que un rol sin chat llegue al
+  agente y lo rechace con `unknown_role`). `Block(type, reason)` es algo que bloquearon o modificaron los
+  guardarraíles, con `BlockType` `input` / `tool` / `output`; va en `AgentAnswer.blocks` y es también el artifact de una
+  llamada a herramienta bloqueada.
+- `AgentMetrics.input_blocks`, `tool_blocks` y `output_blocks` (TRAVEL-011): los recuentos de bloqueos del turno por
+  punto de control, a 0 por defecto (el detalle va en `AgentAnswer.blocks`).
 - `from contracts.errors import ComponentError`: `ComponentError(code, component, message)` y `as_dict()`. Vivía en
   `text2sql`; pasó aquí en TRAVEL-006 porque lo lanzan varios paquetes y la API lo convertirá en su respuesta de
   error. `component` es texto libre (`"ollama"`, `"agent"`…), no el enum `Component` de las métricas.

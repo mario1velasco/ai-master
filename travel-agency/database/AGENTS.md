@@ -21,11 +21,13 @@ src/database/semantic_layer.py   # el negocio y la base: VIEWS, COMMENTS, GUIDE,
 src/database/schema.py           # lo que ve el modelo: schema() y cached_schema() (guardado por huella, TRAVEL-009)
 src/database/checks.py           # CHECKS, Row, rounded_rows(), run_checks(): las cifras calculadas a mano
 src/database/seed.py             # generate(source_dir, out_dir, seed) y el comando: fixtures/ → data/
+src/database/client_filter.py    # lo que la base sabe de los clientes para los guardarraíles del agente (TRAVEL-011)
 .cache/schema_<huella>.json      # esquemas guardados (fuera de git; se puede borrar: se regenera)
 tests/test_database_audit.py     # auditoría de integridad (como 02_auditoria_integridad.py de la clase 1); AUDIT_QUERIES
 tests/test_database_semantic_layer.py
 tests/test_database_schema_cache.py  # un test por AC de TRAVEL-009 por `cached_schema()`
 tests/test_database_seed.py      # un test por AC de TRAVEL-001 sobre el conjunto generado
+tests/test_database_client_filter.py  # todas las vistas filtradas y la base como estaba al cerrar (TRAVEL-011)
 ```
 
 Los imports van en un sentido: `semantic_layer → schema` y `semantic_layer → checks` (para `open_db()` y el comando).
@@ -41,6 +43,26 @@ con = open_db()             # DuckDB EN MEMORIA: CSV → esquema crudo, vistas v
 text = cached_schema(con)   # lo que verá el LLM, guardado por huella: ~2 ms si ya está, ~4-6 s la primera vez
 text = schema(con)          # el mismo texto, generado siempre (~4-6 s): vistas, columnas, tipos, valores y comentarios
 ```
+
+**Para los guardarraíles del agente** (TRAVEL-011, `client_filter.py`; el agente decide cuándo y qué bloquear):
+
+```python
+from database.client_filter import OWNER_COLUMNS, clients_personal_data, open_client_filtered_connection, owner_of
+
+with open_client_filtered_connection(con, "C-001") as db:  # una conexión que solo ve los datos de C-001 (capa 2)
+    ...
+owner_of(con, "R-1043")  # "C-004": de quién es un id (C-, R-, I-); None si no existe
+clients_personal_data(con)  # {"C-001": ["ana.lopez.garcia@example.com", "Ana López García"], ...}
+```
+
+`open_client_filtered_connection` abre un cursor de `con`, crea el esquema `client_filtered_schema` con las vistas de
+`main` filtradas y con el mismo nombre (las de `OWNED_VIEWS` por `cliente_id`; `v_vuelos_detalle`, solo los vuelos de
+sus reservas) y pone `search_path = 'client_filtered_schema,main'`: cualquier SQL sobre esa conexión solo lee las filas
+del cliente, sin cambiar las vistas. Antes prepara el esquema guardado con `con` y copia su huella al cursor (las
+variables de DuckDB son de cada conexión: sin ella, `cached_schema` lo generaría desde las vistas filtradas y lo
+guardaría para todos). Al salir del `with` borra el esquema y cierra el cursor. Va en un archivo aparte porque
+`semantic_layer.py` y `schema.py` entran en la huella del esquema guardado. **Si añades una vista a `main`, fíltrala
+aquí**: `test_every_view_has_its_client_filtered_version` falla si no.
 
 Desvío de la regla "una función pública por paquete": aquí son cuatro (`open_db`, `schema`, `cached_schema`,
 `GUIDE`), como en clase más la caché, porque text2sql necesita la conexión y el texto por separado. No usan tipos de
