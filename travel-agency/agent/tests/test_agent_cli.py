@@ -72,3 +72,22 @@ def test_cli_with_ollama_down_explains_without_traceback(
     assert "ollama_unavailable" in captured.err
     assert "No hay respuesta de Ollama en http://127.0.0.1:1" in captured.err
     assert "Traceback" not in captured.out + captured.err
+
+
+def test_cli_client_option_sets_the_session(ollama: FakeOllamaServer, capsys: pytest.CaptureFixture[str]) -> None:
+    # TRAVEL-011, AC-20: con los guardarraíles encendidos (por defecto), el cliente lo da `--client`
+    ollama.agent_answers = [text_answer("Hola, ¿en qué te ayudo?")]
+
+    main(["-q", "Hola", "--data", str(FIXTURES_DIR), "--client", "C-001", "--no-trace"])
+
+    system = ollama.agent_requests[0]["messages"][0]["content"]
+    assert "Cliente identificado en esta sesión: C-001." in system
+    assert json.loads(block(capsys.readouterr().out, ANSWER_HEADER))["answer"] == "Hola, ¿en qué te ayudo?"
+
+    with pytest.raises(SystemExit) as exit_info:  # sin `--client`: el chat es solo para clientes
+        main(["-q", "Hola", "--data", str(FIXTURES_DIR)])
+
+    assert exit_info.value.code == 1
+    captured = capsys.readouterr()
+    assert captured.err.startswith("[ERROR] missing_client: ")
+    assert "Traceback" not in captured.out + captured.err

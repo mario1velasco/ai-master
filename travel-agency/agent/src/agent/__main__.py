@@ -1,4 +1,7 @@
-"""Probar el agente a mano con el Qwen real: `uv run python -m agent -q "¿Cuántas reservas tiene C-001?"`.
+"""Probar el agente a mano con el Qwen real: `uv run python -m agent -q "¿Cuántas reservas tengo?" --client C-001`.
+
+Con los guardarraíles encendidos (por defecto, TRAVEL-011) el cliente es obligatorio; `--no-guardrails` los apaga y
+responde sin cliente, como el agente de TRAVEL-006.
 
 Con `--no-trace` no enseña el bloque con los eventos de cada paso: solo la pregunta y la respuesta entera (con sus
 fuentes, el SQL de cada una y las métricas del turno).
@@ -15,6 +18,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from agent.respond import respond
+from contracts.agent import Session
 from contracts.errors import ComponentError
 from contracts.metrics import BaseMetrics, Component
 from database.semantic_layer import DATA_DIR, open_db
@@ -46,6 +50,10 @@ def main(argv: list[str] | None = None) -> None:
         help="No enseñar el bloque [MÉTRICAS] con los eventos de cada paso (la respuesta sí trae los totales).",
     )
     parser.add_argument(
+        "--client",
+        help="Cliente identificado en la sesión (p. ej. C-001). Con los guardarraíles encendidos es obligatorio.",
+    )
+    parser.add_argument(
         "--no-guardrails",
         action="store_true",
         help="Apagar los guardarraíles (TRAVEL-011): responde sin cliente, como el agente de TRAVEL-006.",
@@ -53,7 +61,8 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     try:
-        answer = respond(args.question, con=open_db(args.data), guardrails=not args.no_guardrails)
+        session = Session(client_id=args.client) if args.client else None
+        answer = respond(args.question, con=open_db(args.data), session=session, guardrails=not args.no_guardrails)
     except ComponentError as exc:  # Como el «[ERROR] …» del 04: el código y el mensaje, sin traza de Python
         print(f"[ERROR] {exc.code}: {exc.message}", file=sys.stderr)
         raise SystemExit(1) from None
