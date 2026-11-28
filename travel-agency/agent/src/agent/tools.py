@@ -80,6 +80,12 @@ def build_query_db_tool(con: duckdb.DuckDBPyConnection, guards: Guardrails | Non
             start = perf_counter()
             result = ask(question, con=con)
             latency_ms = round((perf_counter() - start) * 1000, 3)
+            # Capa 3: si alguna fila es de otro cliente, el modelo no ve ninguna de esta consulta
+            if guards is not None and session is not None:
+                for query in result.queries:
+                    reason = guards.check_rows(query.rows, session)
+                    if reason is not None:
+                        return f"Acción no permitida: {reason}", None
         return _for_model(result), QueryDbRun(result=result, latency_ms=latency_ms)
 
     return query_db

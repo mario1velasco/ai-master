@@ -6,6 +6,7 @@ del grafo de LangGraph, para que otra estrategia del agente (el Plan B de TRAVEL
 """
 
 import re
+from collections.abc import Mapping, Sequence
 
 import duckdb
 
@@ -28,6 +29,8 @@ OWNER_QUERIES = {
     "I": "SELECT cliente_id FROM v_incidencias WHERE incidencia_id = ?",
 }
 NOT_OWN_DATA = "solo puedes consultar los datos del cliente identificado"
+# Capa 3: las columnas con dueño que puede traer una fila del resultado (las de las vistas, sin alias)
+OWNER_COLUMNS = ("cliente_id", "reserva_id", "incidencia_id")
 
 
 def luhn_valid(number: str) -> bool:
@@ -92,6 +95,23 @@ class Guardrails:
         if name == "query_db":
             for found in OWNED_ID.findall(str(arguments.get("question", ""))):
                 owner = self._owner(found.upper())
+                if owner is not None and owner != session.client_id:
+                    return self._note(BlockType.tool, NOT_OWN_DATA)
+        return None
+
+    def check_rows(self, rows: Sequence[Mapping[str, object]], session: Session) -> str | None:
+        """Capa 3: antes de que el modelo vea el resultado de una tool, el motivo si trae datos de otro cliente.
+
+        La comprobación de dueño de `revisar_herramienta` de clase, aplicada a las filas: si una fila trae el
+        `cliente_id`, la `reserva_id` o la `incidencia_id` de otro cliente, se bloquea el resultado entero (como un
+        reembolso bloqueado, que no se ejecuta en parte). Con la capa 2 no debería pasar nunca: es la última red.
+        """
+        for row in rows:
+            for column in OWNER_COLUMNS:
+                value = row.get(column)
+                if not isinstance(value, str) or not OWNED_ID.fullmatch(value):
+                    continue
+                owner = self._owner(value.upper())
                 if owner is not None and owner != session.client_id:
                     return self._note(BlockType.tool, NOT_OWN_DATA)
         return None

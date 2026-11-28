@@ -12,6 +12,7 @@ import pytest
 from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, text_answer
 
 from agent import respond
+from agent.guardrails import Guardrails
 from agent.profiles import PROFILES
 from contracts.agent import AgentStatus, Block, BlockType, Session, SourceType
 from contracts.errors import ComponentError
@@ -245,3 +246,27 @@ def test_flights_limited_to_client_bookings(con: duckdb.DuckDBPyConnection, olla
         {"sql": flights, "rows": [{"codigo_vuelo": c} for c in ("IB0731", "IB3166", "IB3167")], "truncated": False},
     ]
     assert answer.blocks == []
+
+
+# Capa 3 (filas): con la capa 2 puesta, por `respond()` no llega nunca una fila ajena; por eso se prueba en
+# `Guardrails` directamente (costura acordada para este criterio)
+OWN_ROW = {"cliente_id": "C-001", "reserva_id": "R-1042", "incidencia_id": "I-01"}
+
+
+@pytest.mark.parametrize(
+    ("column", "other_value"), [("cliente_id", "C-004"), ("reserva_id", "R-1043"), ("incidencia_id", "I-02")]
+)
+def test_foreign_row_blocks_whole_result(con: duckdb.DuckDBPyConnection, column: str, other_value: str) -> None:
+    guards = Guardrails(con)
+
+    reason = guards.check_rows([OWN_ROW, {column: other_value}], C001)
+
+    assert reason == NOT_ALLOWED
+    assert guards.log == [Block(type=BlockType.tool, reason=NOT_ALLOWED)]
+
+
+def test_own_rows_pass(con: duckdb.DuckDBPyConnection) -> None:
+    guards = Guardrails(con)
+
+    assert guards.check_rows([OWN_ROW, {"reserva_id": "R-1047"}], C001) is None
+    assert guards.log == []
