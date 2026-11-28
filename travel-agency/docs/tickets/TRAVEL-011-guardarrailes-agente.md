@@ -102,6 +102,19 @@ Por eso el punto de herramientas lleva **tres capas**.
   instrucciones depende de que haya cliente en la sesión, no del interruptor (`comun/agente.py`), para que TRAVEL-012
   compare con y sin guardarraíles cambiando una sola cosa.
 - **Por defecto encendidos y cliente obligatorio**, como `crear_agente(guardas=True)`.
+- **Aprobados con Mario al acordar las costuras de `tdd` (2026-11-27):**
+  - La capa 2 va en un **cursor** de la conexión (`con.cursor()`), abierto y cerrado en cada turno: la conexión de
+    quien llama no cambia (probado: el cursor ve 1 cliente y 3 vuelos; `con`, 7 clientes y su `search_path` vacío).
+    El esquema es de la base: dos clientes a la vez se pisarían (pregunta abierta de la fase 7).
+  - Sesión tipada: `contracts.agent.Session(client_id, role="client")` en vez del `dict` `contexto`; `role` es texto
+    libre para que `manager` dé `unknown_role`. Los perfiles se aplican siempre, también con el interruptor apagado
+    (en clase `PERFILES` no depende de `guardas`).
+  - Contratos: `Block(type, reason)` con `BlockType` `input` / `tool` / `output`, `AgentAnswer.blocks` y, en
+    `AgentMetrics`, `input_blocks`, `tool_blocks` y `output_blocks`.
+  - Los tests de TRAVEL-006 pasan a llamar con `guardrails=False` (y los del comando con `--no-guardrails`).
+  - `PROMPT_VERSION` pasa a `agent_prompt_v2`.
+  - Un turno bloqueado en la entrada acaba con `status = ok` y `answered_without_data = true`.
+  - Capa 1 con un id que no existe (p. ej. R-9999): pasa, como en clase; la capa 2 da 0 filas.
 - Nombres en inglés (`client_id`, `role`, `client_scope`, `--client`, `--no-guardrails`, tipos de bloqueo `input` /
   `tool` / `output`); los mensajes al cliente y al modelo, en castellano, como en clase.
 
@@ -259,6 +272,13 @@ sesión tiene el rol `client` y los guardarraíles están encendidos.
 - **Cuando** se responde
 - **Entonces** `AgentAnswer` lista los dos, cada uno con su tipo y su motivo
 - **Y** el evento `agent.respond` trae los recuentos por tipo (`input: 1`, `tool: 1`, `output: 0`)
+
+**AC-20 — El comando recibe el cliente y el interruptor** (añadido con Mario el 2026-11-27, al acordar las costuras)
+- **Dado** `python -m agent -q "…" --client C-001`
+- **Cuando** se ejecuta
+- **Entonces** responde con la sesión de C-001
+- **Y** sin `--client` escribe `[ERROR] missing_client: …` y sale con código 1
+- **Y** con `--no-guardrails` responde sin cliente, como en TRAVEL-006
 
 ## Definición de hecho
 

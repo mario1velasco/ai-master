@@ -16,7 +16,7 @@ from langgraph.errors import GraphRecursionError
 from agent.graph import build_agent
 from agent.model import as_component_error, build_model
 from agent.tools import QueryDbRun, build_query_db_tool
-from contracts.agent import AgentAnswer, AgentStatus, Source, SourceType
+from contracts.agent import AgentAnswer, AgentStatus, Session, Source, SourceType
 from contracts.errors import ComponentError
 from contracts.metrics import AgentMetrics, Component, Status, Versions
 from telemetry import span
@@ -69,8 +69,11 @@ def _metrics_fields(
     }
 
 
-def respond(question: str, *, con: duckdb.DuckDBPyConnection) -> AgentAnswer:
-    """Responde la pregunta con el agente: decide si consulta la base y redacta con los datos."""
+def respond(question: str, *, con: duckdb.DuckDBPyConnection, session: Session | None = None) -> AgentAnswer:
+    """Responde la pregunta con el agente: decide si consulta la base y redacta con los datos.
+
+    `session` es quién pregunta (el `contexto` de clase): el cliente identificado y su rol.
+    """
     # Como `estado_inicial()` de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_3/asistente/flujo.py`
     if not (question or "").strip():
         raise ComponentError("empty_question", "agent", "La pregunta está vacía.")
