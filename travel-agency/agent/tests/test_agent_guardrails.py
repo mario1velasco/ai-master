@@ -213,3 +213,19 @@ def test_text2sql_gets_the_same_schema_with_client_filter(
     filtered, normal = [request["messages"][0]["content"] for request in ollama.text2sql_requests]
     assert "Tabla v_incidencias (5 filas)" in normal  # el esquema completo: las 5 incidencias de fixtures/
     assert filtered == normal
+
+
+def test_aggregates_only_count_session_client(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    count = "SELECT COUNT(*) AS n FROM v_resumen_clientes"
+    total = "SELECT SUM(importe_neto) AS total FROM v_reservas_cliente"
+    ollama.agent_answers = [query_db_answer("¿Cuántos clientes tenéis y cuánto facturáis?"), text_answer("…")]
+    ollama.text2sql_answers = [sql_answer(count, total)]
+
+    answer = respond("¿Cuántos clientes tenéis y cuánto facturáis?", con=con, session=C001)
+
+    # A mano, de fixtures/pagos.csv: R-1042 1.250 − 150 de reembolso = 1.100, más R-1047 95 = 1.195 (la empresa: 1.849)
+    assert json.loads(tool_content(ollama)) == [
+        {"sql": count, "rows": [{"n": 1}], "truncated": False},
+        {"sql": total, "rows": [{"total": 1195.0}], "truncated": False},
+    ]
+    assert answer.blocks == []
