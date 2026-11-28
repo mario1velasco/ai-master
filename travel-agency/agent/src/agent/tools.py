@@ -65,28 +65,39 @@ def _for_model(result: SqlResult) -> str:
     return f"{queries}\n{error}" if result.queries else error
 
 
+def _blocked(reason: str) -> tuple[str, None]:
+    """Lo que recibe el modelo cuando un guardarraíl bloquea `query_db`, como en `comun/agente.py`.
+
+    Sin artifact: no cuenta como fuente ni como herramienta usada.
+    """
+    return f"Acción no permitida: {reason}", None
+
+
+def _timed_ask(question: str, con: duckdb.DuckDBPyConnection) -> QueryDbRun:
+    """`text2sql.ask()` y lo que tardó (para `AgentMetrics.tools_ms`)."""
+    start = perf_counter()
+    result = ask(question, con=con)
+    return QueryDbRun(result=result, latency_ms=round((perf_counter() - start) * 1000, 3))
+
+
 def build_query_db_tool(con: duckdb.DuckDBPyConnection, guards: Guardrails | None, session: Session | None) -> BaseTool:
     """La tool sobre la conexión `con`, con los guardarraíles del turno (None si están apagados)."""
+    if guards is not None and session is None:  # fallo cerrado: sin sesión no se puede comprobar nada
+        raise ValueError("Con guardarraíles, query_db necesita la sesión del cliente.")
 
     @tool(description=QUERY_DB_DESCRIPTION, response_format="content_and_artifact")
     def query_db(question: str) -> tuple[str, QueryDbRun | None]:
-        with _DB_LOCK:  # también la comprobación, que consulta la misma conexión
-            # Guardarraíl de herramientas, como en `comun/agente.py`: si se bloquea, no se ejecuta y el modelo recibe
-            # «Acción no permitida: …»; sin artifact, no cuenta como fuente
+        with _DB_LOCK:  # también las comprobaciones, que consultan la misma conexión
+            # Capa 1, antes de ejecutar (`revisar_herramienta` de clase)
             if guards is not None and session is not None:
-                reason = guards.check_tool("query_db", {"question": question}, session)
-                if reason is not None:
-                    return f"Acción no permitida: {reason}", None
-            start = perf_counter()
-            result = ask(question, con=con)
-            latency_ms = round((perf_counter() - start) * 1000, 3)
-            # Capa 3: si alguna fila es de otro cliente, el modelo no ve ninguna de esta consulta
+                if (reason := guards.check_tool("query_db", {"question": question}, session)) is not None:
+                    return _blocked(reason)
+            run = _timed_ask(question, con)
+            # Capa 3, antes de que el modelo vea las filas: si alguna es de otro cliente, no ve ninguna
             if guards is not None and session is not None:
-                for query in result.queries:
-                    reason = guards.check_rows(query.rows, session)
-                    if reason is not None:
-                        return f"Acción no permitida: {reason}", None
-        return _for_model(result), QueryDbRun(result=result, latency_ms=latency_ms)
+                if (reason := guards.check_result(run.result, session)) is not None:
+                    return _blocked(reason)
+        return _for_model(run.result), run
 
     return query_db
 

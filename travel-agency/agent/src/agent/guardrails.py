@@ -12,6 +12,7 @@ import duckdb
 
 from contracts.agent import Block, BlockType, Session
 from contracts.errors import ComponentError
+from contracts.sql import SqlResult
 
 # Los mensajes más largos no llegan al modelo; la respuesta es la de clase
 MAX_INPUT_CHARS = 2000
@@ -58,6 +59,24 @@ class Guardrails:
     def __init__(self, con: duckdb.DuckDBPyConnection) -> None:
         self.con = con
         self.log: list[Block] = []
+        # El dueño de cada id ya consultado en el turno: la capa 3 mira cada fila y los ids se repiten mucho (con
+        # `data/`, 50 filas eran ~1 s de consultas). Vive lo que el turno, así que nunca se queda viejo.
+        self._owners: dict[str, str | None] = {}
+
+    # --- 0. Sesión --------------------------------------------------------
+    def check_session(self, session: Session | None) -> Session:
+        """Con los guardarraíles, el chat es solo para clientes: la sesión tiene que traer un cliente que exista.
+
+        Desvío: en clase no se comprueba que exista. Aquí sí, porque con el filtro por cliente de la conexión (capa 2)
+        un id inventado daría siempre «no tienes reservas» en vez de un error.
+        """
+        if session is None:
+            raise ComponentError(
+                "missing_client", "agent", "Falta el cliente de la sesión: el chat es solo para clientes."
+            )
+        if self._owner(session.client_id) is None:
+            raise ComponentError("unknown_client", "agent", f"El cliente {session.client_id} no existe.")
+        return session
 
     def _note(self, type_: BlockType, reason: str) -> str:
         """Anota el bloqueo y devuelve el motivo (`_anotar` de clase)."""
@@ -99,9 +118,18 @@ class Guardrails:
         """
         if name == "query_db":
             for found in OWNED_ID.findall(str(arguments.get("question", ""))):
-                owner = self._owner(found.upper())
-                if owner is not None and owner != session.client_id:
+                if self._belongs_to_other(found.upper(), session):
                     return self._note(BlockType.tool, NOT_OWN_DATA)
+        return None
+
+    def check_result(self, result: SqlResult, session: Session) -> str | None:
+        """Capa 3 sobre lo que devolvió `query_db`: el motivo si alguna consulta trae filas de otro cliente.
+
+        Como `revisar_resultado` de clase, el punto de control de después de ejecutar y antes de que el modelo lo vea.
+        """
+        for query in result.queries:
+            if (reason := self.check_rows(query.rows, session)) is not None:
+                return reason
         return None
 
     def check_rows(self, rows: Sequence[Mapping[str, object]], session: Session) -> str | None:
@@ -114,10 +142,11 @@ class Guardrails:
         for row in rows:
             for column in OWNER_COLUMNS:
                 value = row.get(column)
-                if not isinstance(value, str) or not OWNED_ID.fullmatch(value):
-                    continue
-                owner = self._owner(value.upper())
-                if owner is not None and owner != session.client_id:
+                if (
+                    isinstance(value, str)
+                    and OWNED_ID.fullmatch(value)
+                    and self._belongs_to_other(value.upper(), session)
+                ):
                     return self._note(BlockType.tool, NOT_OWN_DATA)
         return None
 
@@ -129,29 +158,32 @@ class Guardrails:
         lo que tiene la base. Si los lleva, se sustituye la respuesta entera. Sin el filtro de «información interna»: el
         prompt no guarda ningún secreto (LLM07).
         """
-        lowered = text.lower()
-        clients = {client_id: personal for client_id, *personal in self.con.execute(CLIENTS_PERSONAL_DATA).fetchall()}
+        lowered_text = text.lower()
+        personal_data_by_client = {
+            client_id: [value.lower() for value in personal if value]
+            for client_id, *personal in self.con.execute(CLIENTS_PERSONAL_DATA).fetchall()
+        }
         # Sus propios datos sí, también si otro cliente comparte alguno (dos clientes con el mismo nombre completo)
-        own = {value.lower() for value in clients.get(session.client_id, []) if value}
-        for client_id, personal in clients.items():
-            if client_id == session.client_id:
-                continue
-            if any(value and value.lower() not in own and value.lower() in lowered for value in personal):
-                return OTHER_CLIENT_DATA, self._note(BlockType.output, "datos personales de otro cliente")
+        own_values = set(personal_data_by_client.get(session.client_id, []))
+        other_values = {
+            value
+            for client_id, personal in personal_data_by_client.items()
+            if client_id != session.client_id
+            for value in personal
+        } - own_values
+        if any(value in lowered_text for value in other_values):
+            return OTHER_CLIENT_DATA, self._note(BlockType.output, "datos personales de otro cliente")
         return text, None
 
+    def _belongs_to_other(self, owned_id: str, session: Session) -> bool:
+        """El id existe y es de otro cliente. Un id que no existe no es de nadie: pasa, como en clase."""
+        owner = self._owner(owned_id)
+        return owner is not None and owner != session.client_id
+
     def _owner(self, owned_id: str) -> str | None:
-        """El cliente dueño de un id, o None si no existe."""
-        rows = self.con.execute(OWNER_QUERIES[owned_id[0]], [owned_id]).fetchall()
-        return rows[0][0] if rows else None
-
-
-def check_client(con: duckdb.DuckDBPyConnection, session: Session) -> None:
-    """El cliente de la sesión tiene que existir en la base.
-
-    Desvío: en clase no se comprueba. Aquí sí, porque con el filtro por cliente de la conexión (capa 2) un id
-    inventado daría siempre «no tienes reservas» en vez de un error.
-    """
-    found = con.execute("SELECT 1 FROM v_resumen_clientes WHERE cliente_id = ? LIMIT 1", [session.client_id]).fetchall()
-    if not found:
-        raise ComponentError("unknown_client", "agent", f"El cliente {session.client_id} no existe.")
+        """El cliente dueño de un id (cliente, reserva o incidencia), o None si no existe. Se recuerda en el turno."""
+        if owned_id not in self._owners:
+            query = OWNER_QUERIES.get(owned_id[:1])
+            rows = self.con.execute(query, [owned_id]).fetchall() if query is not None else []
+            self._owners[owned_id] = rows[0][0] if rows else None
+        return self._owners[owned_id]

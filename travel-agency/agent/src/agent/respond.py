@@ -6,7 +6,7 @@ Las fuentes y las herramientas usadas salen de los mensajes que deja el grafo, s
 """
 
 import os
-from contextlib import nullcontext
+from contextlib import AbstractContextManager, nullcontext
 from typing import Any
 
 import duckdb
@@ -15,15 +15,15 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.errors import GraphRecursionError
 
 from agent.graph import build_agent
-from agent.guardrails import Guardrails, check_client
+from agent.guardrails import Guardrails
 from agent.model import as_component_error, build_model
 from agent.profiles import PROFILES, profile
 from agent.tools import TOOL_BUILDERS, QueryDbRun
-from contracts.agent import AgentAnswer, AgentStatus, BlockType, Session, Source, SourceType
+from contracts.agent import AgentAnswer, AgentStatus, Block, BlockType, Session, Source, SourceType
 from contracts.errors import ComponentError
 from contracts.metrics import AgentMetrics, Component, Status, Versions
 from database.client_filter import open_client_filtered_connection
-from telemetry import span
+from telemetry import Span, span
 
 # Las de `sesion3/agente_langgraph.py` adaptadas a Viajes Nimbo, más la regla de `construir_system_prompt()` de
 # `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_2/02_capa_semantica.py`. Sin el esquema: lo ve text2sql.
@@ -84,30 +84,128 @@ def _metrics_fields(
     }
 
 
-def _guard_before_model(
-    question: str, *, con: duckdb.DuckDBPyConnection, session: Session | None, guardrails: bool
-) -> tuple[str, str, Guardrails | None, str | None]:
-    """Lo que se comprueba antes de llamar al modelo: la pregunta, la sesión (cliente y rol) y la entrada.
+def _validated_question(question: str) -> str:
+    """La pregunta sin espacios alrededor; vacía, `empty_question`.
 
-    Devuelve la pregunta ya limpia, el rol de la sesión, los guardarraíles del turno (None si están apagados: entonces
-    nada se enmascara ni se bloquea) y, si la entrada no debe llegar al modelo, la respuesta para el cliente (o None).
-    Todo va antes del span, como la entrada en `comun/agente.py`; el bloqueo se responde dentro del span.
+    Como `estado_inicial()` de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_3/asistente/flujo.py`.
     """
-    # Como `estado_inicial()` de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_3/asistente/flujo.py`
-    if not (question or "").strip():
+    question = (question or "").strip()
+    if not question:
         raise ComponentError("empty_question", "agent", "La pregunta está vacía.")
-    if guardrails and session is None:
-        raise ComponentError("missing_client", "agent", "Falta el cliente de la sesión: el chat es solo para clientes.")
-    role = profile(session)
-    if guardrails and session is not None:
-        check_client(con, session)
-    question = question.strip()
-    guards = Guardrails(con) if guardrails else None  # un registro por turno
-    refusal = None
-    if guards is not None:
-        # Entrada: antes del primer log, como en `comun/agente.py` (el hash del span es el del texto enmascarado)
-        question, refusal = guards.check_input(question)
-    return question, role, guards, refusal
+    return question
+
+
+def _guard_input(
+    con: duckdb.DuckDBPyConnection, session: Session | None, question: str
+) -> tuple[Guardrails, str, str | None]:
+    """Con los guardarraíles: la sesión (cliente que existe) y la entrada, antes del span y del modelo.
+
+    Devuelve los guardarraíles del turno (un registro por turno), la pregunta ya enmascarada y, si el mensaje no debe
+    llegar al modelo, la respuesta para el cliente (o None). La entrada va antes del primer log, como en
+    `comun/agente.py`: el hash que guarda el span es el del texto enmascarado.
+    """
+    guards = Guardrails(con)
+    guards.check_session(session)
+    question, refusal = guards.check_input(question)
+    return guards, question, refusal
+
+
+def _instructions(session: Session | None) -> str:
+    """Las instrucciones, con la línea del cliente si hay sesión (no depende de los guardarraíles)."""
+    if session is None:
+        return INSTRUCTIONS
+    return INSTRUCTIONS + CLIENT_LINE.format(client_id=session.client_id)
+
+
+def _turn_connection(
+    con: duckdb.DuckDBPyConnection, guards: Guardrails | None, session: Session | None
+) -> AbstractContextManager[duckdb.DuckDBPyConnection]:
+    """La conexión que consulta text2sql en este turno, para usar con `with`.
+
+    Capa 2: con los guardarraíles, una que solo ve las filas del cliente (las vistas filtradas de
+    `database.client_filter`); sin ellos, la de siempre.
+    """
+    if guards is not None and session is not None:
+        return open_client_filtered_connection(con, session.client_id)
+    return nullcontext(con)
+
+
+def _run_graph(
+    question: str,
+    *,
+    turn_con: duckdb.DuckDBPyConnection,
+    guards: Guardrails | None,
+    session: Session | None,
+    role: str,
+    versions: Versions,
+    recursion_limit: int,
+) -> list[BaseMessage]:
+    """El grafo de `construir_agente` con las tools del perfil: devuelve los mensajes que deja.
+
+    `GraphRecursionError` sube tal cual (lo responde `respond()`); los errores de Ollama, como `ComponentError`.
+    """
+    # Mínimo privilegio, capa de perfil: el modelo solo recibe las tools de su rol (`PERFILES` de clase)
+    tools = [TOOL_BUILDERS[name](turn_con, guards, session) for name in PROFILES[role]]
+    agent = build_agent(build_model(), tools, _instructions(session), versions)
+    config: RunnableConfig = {"recursion_limit": recursion_limit}
+    try:
+        return agent.invoke({"messages": [("user", question)]}, config)["messages"]
+    except GraphRecursionError:
+        raise
+    except Exception as exc:
+        if (error := as_component_error(exc)) is None:
+            raise
+        raise error from exc
+
+
+def _recursion_limit_answer(
+    agent_span: Span, recursion_limit: int, blocks: list[Block], versions: Versions
+) -> AgentAnswer:
+    """La respuesta al llegar al límite de pasos: el mensaje fijo de la sesión 1, sin lanzar error.
+
+    Desvío: en clase no se captura. Aquí se corta y la API decide si escala. `invoke` pierde los mensajes al cortar: el
+    evento queda como error, con las métricas base (el span se escribe igual al salir del `with`).
+    """
+    agent_span.status = Status.error
+    agent_span.error_type = AgentStatus.recursion_limit_reached.value
+    agent_span.error_message = f"Se alcanzó el límite de {recursion_limit} pasos del grafo sin respuesta final."
+    return AgentAnswer(
+        answer=LIMIT_MESSAGE,
+        status=AgentStatus.recursion_limit_reached,
+        answered_without_data=True,
+        blocks=blocks,
+        versions=versions,
+        trace_id=agent_span.trace_id,
+    )
+
+
+def _executed_tool_messages(messages: list[BaseMessage]) -> list[ToolMessage]:
+    """Los mensajes de las herramientas que se ejecutaron.
+
+    Una bloqueada por los guardarraíles no trae artifact, así que no cuenta (como en clase, `comun/agente.py`); que
+    el modelo lo intentó se ve en `blocks`.
+    """
+    return [m for m in messages if isinstance(m, ToolMessage) and m.artifact is not None]
+
+
+def _checked_answer(messages: list[BaseMessage], guards: Guardrails | None, session: Session | None) -> str:
+    """La respuesta del modelo (el último mensaje), revisada por la salida si hay guardarraíles.
+
+    Va antes de enviarla y de guardarla en la telemetría, como en `comun/agente.py`.
+    """
+    answer_text = str(messages[-1].content)
+    if guards is not None and session is not None:
+        answer_text, _output_block = guards.check_output(answer_text, session)  # el motivo ya está en `guards.log`
+    return answer_text
+
+
+def _block_counts(blocks: list[Block]) -> dict[str, int]:
+    """Los recuentos por punto de control para `AgentMetrics` (el detalle va en `AgentAnswer.blocks`)."""
+    return {
+        "input_blocks": sum(b.type is BlockType.input for b in blocks),
+        "tool_blocks": sum(b.type is BlockType.tool for b in blocks),
+        "output_blocks": sum(b.type is BlockType.output for b in blocks),
+    }
 
 
 def respond(
@@ -117,85 +215,61 @@ def respond(
 
     `session` es quién pregunta (el `contexto` de clase): el cliente identificado y su rol. `guardrails` enciende los
     guardarraíles (TRAVEL-011), como `crear_agente(…, guardas=True)` de `sesion2/permisos.py` del tema 9: por
-    defecto encendidos y, con ellos, el cliente es obligatorio.
+    defecto encendidos y, con ellos, el cliente es obligatorio. El orden es el del bucle de clase: entrada → modelo y
+    herramientas → salida.
     """
-    question, role, guards, refusal = _guard_before_model(question, con=con, session=session, guardrails=guardrails)
+    question = _validated_question(question)
+    role = profile(session)  # el perfil se aplica siempre, también sin guardarraíles (como `PERFILES` de clase)
+    guards, question, refusal = _guard_input(con, session, question) if guardrails else (None, question, None)
+    # La misma lista que `guards.log`: las tools y la salida le siguen añadiendo bloqueos durante el turno
     blocks = guards.log if guards is not None else []
     versions = Versions(prompt_version=PROMPT_VERSION)
     # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
     recursion_limit = int(os.environ.get("AGENT_RECURSION_LIMIT", "20"))
-    # Capa 2: con los guardarraíles, text2sql consulta una conexión que solo ve el CachedSchema con datos del cliente
-    scope = (
-        open_client_filtered_connection(con, session.client_id)
-        if guards is not None and session is not None
-        else nullcontext(con)
-    )
     # Telemetría: un span `agent.respond` por pregunta; los `llm.agent` y los de text2sql cuelgan de él. input_text:
     # solo se guardan su longitud y un hash, nunca el texto de la pregunta.
     with (
         span(
             "agent.respond", component=Component.agent, metrics_cls=AgentMetrics, input_text=question, versions=versions
-        ) as s,
-        scope as db,
+        ) as agent_span,
+        _turn_connection(con, guards, session) as turn_con,
     ):
-        # Como el bloqueo de entrada de `comun/agente.py`: el mensaje no llega al modelo y el turno acaba con la
-        # respuesta del guardarraíl (sin datos; un bloqueo no es un error)
-        if refusal is None:
-            instructions = INSTRUCTIONS
-            if session is not None:
-                instructions += CLIENT_LINE.format(client_id=session.client_id)
-            # Mínimo privilegio, capa de perfil: el modelo solo recibe las tools de su rol (`PERFILES` de clase)
-            tools = [TOOL_BUILDERS[name](db, guards, session) for name in PROFILES[role]]
-            agent = build_agent(build_model(), tools, instructions, versions)
-            config: RunnableConfig = {"recursion_limit": recursion_limit}
-            try:
-                messages = agent.invoke({"messages": [("user", question)]}, config)["messages"]
-            except GraphRecursionError:
-                # Desvío: en clase no se captura. Aquí se corta con el mensaje fijo de la sesión 1 y la API decide si
-                # escala. `invoke` pierde los mensajes al cortar: el evento queda como error, con las métricas base (el
-                # span se cierra y se escribe igual al salir del `with` con este return).
-                s.status = Status.error
-                s.error_type = AgentStatus.recursion_limit_reached.value
-                s.error_message = f"Se alcanzó el límite de {recursion_limit} pasos del grafo sin respuesta final."
-                return AgentAnswer(
-                    answer=LIMIT_MESSAGE,
-                    status=AgentStatus.recursion_limit_reached,
-                    answered_without_data=True,
-                    blocks=blocks,
+        # Como el bloqueo de entrada de `comun/agente.py`: si la entrada se bloqueó, el mensaje no llega al modelo y
+        # el turno acaba con la respuesta del guardarraíl (sin datos; un bloqueo no es un error)
+        try:
+            messages = (
+                []
+                if refusal is not None
+                else _run_graph(
+                    question,
+                    turn_con=turn_con,
+                    guards=guards,
+                    session=session,
+                    role=role,
                     versions=versions,
-                    trace_id=s.trace_id,
+                    recursion_limit=recursion_limit,
                 )
-            except Exception as exc:
-                if (error := as_component_error(exc)) is None:
-                    raise
-                raise error from exc
-        else:
-            messages = []
-        # Cuentan solo las herramientas que se ejecutaron. Una bloqueada no trae artifact, así que no cuenta (como en
-        # clase, `comun/agente.py`); que el modelo lo intentó se ve en `blocks`
-        tool_messages = [m for m in messages if isinstance(m, ToolMessage) and m.artifact is not None]
+            )
+        except GraphRecursionError:
+            return _recursion_limit_answer(agent_span, recursion_limit, blocks, versions)
+        tool_messages = _executed_tool_messages(messages)
         runs = [m.artifact for m in tool_messages if isinstance(m.artifact, QueryDbRun)]
         sources = _sources(runs)
-        answer_text = refusal if refusal is not None else str(messages[-1].content)
-        if refusal is None and guards is not None and session is not None:
-            # Salida: antes de enviar la respuesta y de guardarla en la telemetría (como en `comun/agente.py`)
-            answer_text, _ = guards.check_output(answer_text, session)
+        answer_text = refusal if refusal is not None else _checked_answer(messages, guards, session)
         fields = _metrics_fields(messages, tool_messages, runs, sources)
-        s.output_text = answer_text
-        s.fields.update(fields)
-        # Los recuentos de bloqueos por punto de control (el detalle va en `AgentAnswer.blocks`)
-        s.fields.update({f"{kind.value}_blocks": sum(b.type is kind for b in blocks) for kind in BlockType})
+        agent_span.output_text = answer_text
+        agent_span.fields.update(fields | _block_counts(blocks))
 
     # Las métricas se validan al cerrar el span: por eso la respuesta se crea fuera del `with` (como en text2sql)
-    metrics = s.metrics if isinstance(s.metrics, AgentMetrics) else None
+    metrics = agent_span.metrics if isinstance(agent_span.metrics, AgentMetrics) else None
     return AgentAnswer(
         answer=answer_text,
         status=AgentStatus.ok,
-        answered_without_data=fields["answered_without_data"],
+        answered_without_data=not sources,
         sources=sources,
         tools_used=fields["tools_used"],
         blocks=blocks,
         versions=versions,
-        trace_id=s.trace_id,
+        trace_id=agent_span.trace_id,
         metrics=metrics,
     )
