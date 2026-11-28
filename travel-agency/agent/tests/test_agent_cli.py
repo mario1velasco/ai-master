@@ -29,7 +29,8 @@ def test_cli_shows_question_answer_and_metrics(ollama: FakeOllamaServer, capsys:
     ollama.agent_answers = [query_db_answer(QUESTION), text_answer("C-001 tiene 2 reservas.")]
     ollama.text2sql_answers = [sql_answer("SELECT COUNT(*) AS n FROM v_reservas_cliente WHERE cliente_id = 'C-001'")]
 
-    main(["-q", QUESTION, "--data", str(FIXTURES_DIR), "--no-guardrails"])  # sin SystemExit: el comando termina con código 0
+    # sin SystemExit: el comando termina con código 0
+    main(["-q", QUESTION, "--data", str(FIXTURES_DIR), "--no-guardrails"])
 
     out = capsys.readouterr().out
     assert out.index(QUESTION_HEADER) < out.index(ANSWER_HEADER) < out.index(METRICS_HEADER)

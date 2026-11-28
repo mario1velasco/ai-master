@@ -11,7 +11,7 @@ from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, te
 
 from agent import respond
 from agent.profiles import PROFILES
-from contracts.agent import Block, BlockType, Session, SourceType
+from contracts.agent import AgentStatus, Block, BlockType, Session, SourceType
 from contracts.errors import ComponentError
 
 C001 = Session(client_id="C-001")
@@ -126,3 +126,24 @@ def test_long_number_failing_luhn_untouched(con: duckdb.DuckDBPyConnection, olla
 
     assert user_message(ollama) == question
     assert answer.blocks == []
+
+
+TOO_LONG = "Mensaje demasiado largo. Resume tu consulta, por favor."
+
+
+def test_too_long_message_never_reaches_model(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [text_answer("Lo miro.")]
+
+    blocked = respond("a" * 2001, con=con, session=C001)
+
+    assert blocked.answer == TOO_LONG
+    assert ollama.agent_requests == []
+    # Un bloqueo no es un error: el turno acaba bien, sin datos (supuesto aprobado del ticket)
+    assert blocked.status == AgentStatus.ok
+    assert blocked.answered_without_data is True
+    assert blocked.blocks == [Block(type=BlockType.input, reason=TOO_LONG)]
+
+    passed = respond("a" * 2000, con=con, session=C001)
+
+    assert passed.answer == "Lo miro."
+    assert len(ollama.agent_requests) == 1

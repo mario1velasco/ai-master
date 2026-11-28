@@ -84,11 +84,12 @@ def _metrics_fields(
 
 def _guard_before_model(
     question: str, *, con: duckdb.DuckDBPyConnection, session: Session | None, guardrails: bool
-) -> tuple[str, str, Guardrails | None]:
+) -> tuple[str, str, Guardrails | None, str | None]:
     """Lo que se comprueba antes de llamar al modelo: la pregunta, la sesión (cliente y rol) y la entrada.
 
-    Devuelve la pregunta ya limpia, el rol de la sesión y los guardarraíles del turno (None si están apagados: entonces
-    nada se enmascara ni se bloquea). Todo va antes del span, como la entrada en `comun/agente.py`.
+    Devuelve la pregunta ya limpia, el rol de la sesión, los guardarraíles del turno (None si están apagados: entonces
+    nada se enmascara ni se bloquea) y, si la entrada no debe llegar al modelo, la respuesta para el cliente (o None).
+    Todo va antes del span, como la entrada en `comun/agente.py`; el bloqueo se responde dentro del span.
     """
     # Como `estado_inicial()` de `07_llm_open_source/clase_03/DropLab_sesion_3/practica/sesion_3/asistente/flujo.py`
     if not (question or "").strip():
@@ -100,10 +101,11 @@ def _guard_before_model(
         check_client(con, session)
     question = question.strip()
     guards = Guardrails() if guardrails else None  # un registro por turno
+    refusal = None
     if guards is not None:
         # Entrada: antes del primer log, como en `comun/agente.py` (el hash del span es el del texto enmascarado)
-        question, _ = guards.check_input(question)
-    return question, role, guards
+        question, refusal = guards.check_input(question)
+    return question, role, guards, refusal
 
 
 def respond(
@@ -115,7 +117,7 @@ def respond(
     guardarraíles (TRAVEL-011), como `crear_agente(…, guardas=True)` de `sesion2/permisos.py` del tema 9: por
     defecto encendidos y, con ellos, el cliente es obligatorio.
     """
-    question, role, guards = _guard_before_model(question, con=con, session=session, guardrails=guardrails)
+    question, role, guards, refusal = _guard_before_model(question, con=con, session=session, guardrails=guardrails)
     blocks = guards.log if guards is not None else []
     versions = Versions(prompt_version=PROMPT_VERSION)
     # `recursion_limit: 20` como `conversar()` de la sesión 3; 1 vuelta = agente → herramientas = 2 pasos
@@ -125,38 +127,43 @@ def respond(
     with span(
         "agent.respond", component=Component.agent, metrics_cls=AgentMetrics, input_text=question, versions=versions
     ) as s:
-        instructions = INSTRUCTIONS
-        if session is not None:
-            instructions += CLIENT_LINE.format(client_id=session.client_id)
-        # Mínimo privilegio, capa de perfil: el modelo solo recibe las tools de su rol (`PERFILES` de clase)
-        tools = [TOOL_BUILDERS[name](con) for name in PROFILES[role]]
-        agent = build_agent(build_model(), tools, instructions, versions)
-        config: RunnableConfig = {"recursion_limit": recursion_limit}
-        try:
-            messages = agent.invoke({"messages": [("user", question)]}, config)["messages"]
-        except GraphRecursionError:
-            # Desvío: en clase no se captura. Aquí se corta con el mensaje fijo de la sesión 1 y la API decide si
-            # escala. `invoke` pierde los mensajes al cortar: el evento queda como error, con las métricas base (el
-            # span se cierra y se escribe igual al salir del `with` con este return).
-            s.status = Status.error
-            s.error_type = AgentStatus.recursion_limit_reached.value
-            s.error_message = f"Se alcanzó el límite de {recursion_limit} pasos del grafo sin respuesta final."
-            return AgentAnswer(
-                answer=LIMIT_MESSAGE,
-                status=AgentStatus.recursion_limit_reached,
-                answered_without_data=True,
-                blocks=blocks,
-                versions=versions,
-                trace_id=s.trace_id,
-            )
-        except Exception as exc:
-            if (error := as_component_error(exc)) is None:
-                raise
-            raise error from exc
+        # Como el bloqueo de entrada de `comun/agente.py`: el mensaje no llega al modelo y el turno acaba con la
+        # respuesta del guardarraíl (sin datos; un bloqueo no es un error)
+        if refusal is None:
+            instructions = INSTRUCTIONS
+            if session is not None:
+                instructions += CLIENT_LINE.format(client_id=session.client_id)
+            # Mínimo privilegio, capa de perfil: el modelo solo recibe las tools de su rol (`PERFILES` de clase)
+            tools = [TOOL_BUILDERS[name](con) for name in PROFILES[role]]
+            agent = build_agent(build_model(), tools, instructions, versions)
+            config: RunnableConfig = {"recursion_limit": recursion_limit}
+            try:
+                messages = agent.invoke({"messages": [("user", question)]}, config)["messages"]
+            except GraphRecursionError:
+                # Desvío: en clase no se captura. Aquí se corta con el mensaje fijo de la sesión 1 y la API decide si
+                # escala. `invoke` pierde los mensajes al cortar: el evento queda como error, con las métricas base (el
+                # span se cierra y se escribe igual al salir del `with` con este return).
+                s.status = Status.error
+                s.error_type = AgentStatus.recursion_limit_reached.value
+                s.error_message = f"Se alcanzó el límite de {recursion_limit} pasos del grafo sin respuesta final."
+                return AgentAnswer(
+                    answer=LIMIT_MESSAGE,
+                    status=AgentStatus.recursion_limit_reached,
+                    answered_without_data=True,
+                    blocks=blocks,
+                    versions=versions,
+                    trace_id=s.trace_id,
+                )
+            except Exception as exc:
+                if (error := as_component_error(exc)) is None:
+                    raise
+                raise error from exc
+        else:
+            messages = []
         tool_messages = [m for m in messages if isinstance(m, ToolMessage)]
         runs = [m.artifact for m in tool_messages if isinstance(m.artifact, QueryDbRun)]
         sources = _sources(runs)
-        answer_text = str(messages[-1].content)
+        answer_text = refusal if refusal is not None else str(messages[-1].content)
         fields = _metrics_fields(messages, tool_messages, runs, sources)
         s.output_text = answer_text
         s.fields.update(fields)

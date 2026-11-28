@@ -12,6 +12,9 @@ import duckdb
 from contracts.agent import Block, BlockType, Session
 from contracts.errors import ComponentError
 
+# Los mensajes más largos no llegan al modelo; la respuesta es la de clase
+MAX_INPUT_CHARS = 2000
+TOO_LONG_MESSAGE = "Mensaje demasiado largo. Resume tu consulta, por favor."
 # Un número de 13 a 19 cifras, con espacios o guiones entre ellas: el patrón de `revisar_entrada` de clase
 CARD = re.compile(r"\b(?:\d[ -]?){13,19}\b")
 # IBAN español y DNI (8 cifras y la letra de control), los de clase
@@ -49,6 +52,8 @@ class Guardrails:
 
         Devuelve el texto limpio y, si el mensaje no debe llegar al modelo, la respuesta para el cliente (o None).
         """
+        if len(text) > MAX_INPUT_CHARS:
+            return text, self._note(BlockType.input, TOO_LONG_MESSAGE)
 
         def card(match: re.Match[str]) -> str:
             number = re.sub(r"\D", "", match.group(0))
@@ -73,8 +78,6 @@ def check_client(con: duckdb.DuckDBPyConnection, session: Session) -> None:
     Desvío: en clase no se comprueba. Aquí sí, porque con el filtro por cliente de la conexión (capa 2) un id
     inventado daría siempre «no tienes reservas» en vez de un error.
     """
-    found = con.execute(
-        "SELECT 1 FROM v_resumen_clientes WHERE cliente_id = ? LIMIT 1", [session.client_id]
-    ).fetchall()
+    found = con.execute("SELECT 1 FROM v_resumen_clientes WHERE cliente_id = ? LIMIT 1", [session.client_id]).fetchall()
     if not found:
         raise ComponentError("unknown_client", "agent", f"El cliente {session.client_id} no existe.")
