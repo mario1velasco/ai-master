@@ -115,3 +115,14 @@ def test_iban_and_dni_masked(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaS
         Block(type=BlockType.input, reason="IBAN enmascarado"),
         Block(type=BlockType.input, reason="DNI enmascarado"),
     ]
+
+
+def test_long_number_failing_luhn_untouched(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [text_answer("Lo miro.")]
+    # 16 cifras, como una tarjeta, pero el dígito de control no cuadra (4111 1111 1111 1111 sí lo pasa)
+    question = "Mi localizador de la aerolínea es 4111 1111 1111 1112"
+
+    answer = respond(question, con=con, session=C001)
+
+    assert user_message(ollama) == question
+    assert answer.blocks == []
