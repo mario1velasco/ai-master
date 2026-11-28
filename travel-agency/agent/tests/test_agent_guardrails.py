@@ -47,3 +47,13 @@ def test_unknown_client_rejected_without_model(con: duckdb.DuckDBPyConnection, o
 
     assert excinfo.value.code == "unknown_client"
     assert ollama.agent_requests == []
+
+
+def test_role_without_chat_rejected(con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer) -> None:
+    ollama.agent_answers = [text_answer("Hay dos cancelaciones pendientes.")]
+
+    with pytest.raises(ComponentError) as excinfo:
+        respond("¿Qué cancelaciones tengo que aprobar?", con=con, session=Session(client_id="C-001", role="manager"))
+
+    assert excinfo.value.code == "unknown_role"
+    assert ollama.agent_requests == []

@@ -316,3 +316,10 @@ Salvo que se diga otra cosa, los tests usan el modelo falso de `agent/tests/` y 
      y el juez con una rúbrica): **aquí no**, porque el agente responde a un solo mensaje sin historial hasta la fase
      7b. Van a la fase 10 (y sirven para la confirmación antes de cancelar de la fase 12: lo que el caso B1 de Albor
      no pudo medir con un solo mensaje).
+  8. **Medir las cifras inventadas** (Mario, 2026-11-28, al repasar los guardarraíles del tema 9 durante TRAVEL-011):
+     contar cuántas respuestas dan una cifra (importe, minutos, número de reservas) que no salió de ninguna `query_db`.
+     Lo dice el juez, que ve la evidencia; conviene que lo apunte como motivo aparte para poder contarlo. **Si sale a
+     menudo**, un ticket pequeño antes de la fase 8 con el detector como guarda de salida, como
+     `02_guardarailes_seguridad/Soluciones_sesion2/deber_base.py` (con `sesion2/alucinaciones.py`), en vez de esperar
+     al RAG. Antes hay que decidir cómo se leen los números en español («1.100 €», «1100», «dos reservas», «312
+     min»), y si se bloquea o se avisa (`PROYECTO.md`, fase 8).
