@@ -10,6 +10,7 @@ import pytest
 from fake_ollama_server import FakeOllamaServer, query_db_answer, sql_answer, text_answer
 
 from agent import respond
+from agent.profiles import PROFILES
 from contracts.agent import Session, SourceType
 from contracts.errors import ComponentError
 
@@ -74,3 +75,16 @@ def test_model_knows_the_client_and_its_scope(con: duckdb.DuckDBPyConnection, ol
     assert "en vez de dar una cifra" in system
     [tool] = request["tools"]
     assert "solo consulta los datos del cliente identificado" in tool["function"]["description"].lower()
+
+
+def test_client_profile_only_gets_its_tools(
+    con: duckdb.DuckDBPyConnection, ollama: FakeOllamaServer, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    ollama.agent_answers = [text_answer("¿En qué te ayudo?"), text_answer("¿En qué te ayudo?")]
+
+    respond("Hola", con=con, session=C001)
+    monkeypatch.setitem(PROFILES, "client", [])  # un perfil sin herramientas: el modelo no debe recibir ninguna
+    respond("Hola", con=con, session=C001)
+
+    assert [t["function"]["name"] for t in ollama.agent_requests[0]["tools"]] == ["query_db"]
+    assert not ollama.agent_requests[1].get("tools")

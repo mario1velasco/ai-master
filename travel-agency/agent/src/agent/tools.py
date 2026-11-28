@@ -7,6 +7,7 @@ texto y el código se quede con el `SqlResult` entero (las fuentes salen de ahí
 
 import json
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass
 from time import perf_counter
 
@@ -74,3 +75,10 @@ def build_query_db_tool(con: duckdb.DuckDBPyConnection) -> BaseTool:
         return _for_model(result), QueryDbRun(result=result, latency_ms=latency_ms)
 
     return query_db
+
+
+# El catálogo de tools por nombre, como `CATALOGO` de `09_evaluacion_fiabilidad_seguridad/codigo_ejercicios/comun/
+# herramientas.py`: los perfiles (`profiles.py`) eligen de aquí. Cada una se construye sobre la conexión del turno.
+TOOL_BUILDERS: dict[str, Callable[[duckdb.DuckDBPyConnection], BaseTool]] = {
+    "query_db": build_query_db_tool,
+}

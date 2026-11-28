@@ -16,8 +16,8 @@ from langgraph.errors import GraphRecursionError
 from agent.graph import build_agent
 from agent.guardrails import check_client
 from agent.model import as_component_error, build_model
-from agent.profiles import profile
-from agent.tools import QueryDbRun, build_query_db_tool
+from agent.profiles import PROFILES, profile
+from agent.tools import TOOL_BUILDERS, QueryDbRun
 from contracts.agent import AgentAnswer, AgentStatus, Session, Source, SourceType
 from contracts.errors import ComponentError
 from contracts.metrics import AgentMetrics, Component, Status, Versions
@@ -96,7 +96,7 @@ def respond(
         raise ComponentError("empty_question", "agent", "La pregunta está vacía.")
     if guardrails and session is None:
         raise ComponentError("missing_client", "agent", "Falta el cliente de la sesión: el chat es solo para clientes.")
-    profile(session)
+    role = profile(session)
     if guardrails and session is not None:
         check_client(con, session)
     question = question.strip()
@@ -111,7 +111,9 @@ def respond(
         instructions = INSTRUCTIONS
         if session is not None:
             instructions += CLIENT_LINE.format(client_id=session.client_id)
-        agent = build_agent(build_model(), [build_query_db_tool(con)], instructions, versions)
+        # Mínimo privilegio, capa de perfil: el modelo solo recibe las tools de su rol (`PERFILES` de clase)
+        tools = [TOOL_BUILDERS[name](con) for name in PROFILES[role]]
+        agent = build_agent(build_model(), tools, instructions, versions)
         config: RunnableConfig = {"recursion_limit": recursion_limit}
         try:
             messages = agent.invoke({"messages": [("user", question)]}, config)["messages"]
